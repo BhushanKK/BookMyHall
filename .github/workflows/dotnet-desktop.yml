@@ -12,23 +12,15 @@ on:
       - develop
 
 jobs:
-  build:
+  build-and-test:
 
     runs-on: windows-latest
-
-    strategy:
-      matrix:
-        configuration:
-          - Release
-
-    env:
-      Solution_Name: BookMyHall.sln
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup .NET SDK
+      - name: Setup .NET 10 SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
@@ -37,10 +29,10 @@ jobs:
         run: dotnet --info
 
       - name: Restore NuGet Packages
-        run: dotnet restore ${{ env.Solution_Name }}
+        run: dotnet restore
 
       - name: Build Solution
-        run: dotnet build ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }} --no-restore
+        run: dotnet build --configuration Release --no-restore
 
       - name: Execute Unit Tests
-        run: dotnet test ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }} --no-build --verbosity normal
+        run: dotnet test --configuration Release --no-build --verbosity normal
