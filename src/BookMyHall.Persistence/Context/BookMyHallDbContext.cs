@@ -22,8 +22,8 @@ public class BookMyHallDbContext : DbContext
                 "Role",
                 "identity");
 
-            entity.HasKey(x => x.Id);
-            entity.Property(x => x.Id)
+            entity.HasKey(x => x.RoleId);
+            entity.Property(x => x.RoleId)
                   .HasColumnName("RoleId")
                   .HasDefaultValueSql(
                      "gen_random_uuid()");
