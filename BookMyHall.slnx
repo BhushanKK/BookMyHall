@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BookMyHall.Api/BookMyHall.Api.csproj" />
+    <Project Path="src/BookMyHall.Application.Abstractions/BookMyHall.Application.Abstractions.csproj" />
+    <Project Path="src/BookMyHall.Contracts/BookMyHall.Contracts.csproj" />
+    <Project Path="src/BookMyHall.Domain/BookMyHall.Domain.csproj" />
+    <Project Path="src/BookMyHall.Infrastructure/BookMyHall.Infrastructure.csproj" />
+    <Project Path="src/BookMyHall.Persistence.Migrations/BookMyHall.Persistence.Migrations.csproj" />
+    <Project Path="src/BookMyHall.Persistence/BookMyHall.Persistence.csproj" />
+    <Project Path="src/BookMyHall.Shared/BookMyHall.Shared.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BookMyHall.Api.Tests/BookMyHall.Api.Tests.csproj" />
+    <Project Path="tests/BookMyHall.Application.Tests/BookMyHall.Application.Tests.csproj" />
+    <Project Path="tests/BookMyHall.Domain.Tests/BookMyHall.Domain.Tests.csproj" />
+    <Project Path="tests/BookMyHall.Infrastructure.Tests/BookMyHall.Infrastructure.Tests.csproj" />
+  </Folder>
+</Solution>
