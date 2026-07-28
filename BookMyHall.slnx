@@ -2,6 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/BookMyHall.Api/BookMyHall.Api.csproj" />
     <Project Path="src/BookMyHall.Application.Abstractions/BookMyHall.Application.Abstractions.csproj" />
+    <Project Path="src/BookMyHall.Application/BookMyHall.Application.csproj" />
     <Project Path="src/BookMyHall.Contracts/BookMyHall.Contracts.csproj" />
     <Project Path="src/BookMyHall.Domain/BookMyHall.Domain.csproj" />
     <Project Path="src/BookMyHall.Infrastructure/BookMyHall.Infrastructure.csproj" />

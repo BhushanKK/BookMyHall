@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BookMyHall.Domain\BookMyHall.Domain.csproj" />
     <ProjectReference Include="..\BookMyHall.Shared\BookMyHall.Shared.csproj" />
+    <ProjectReference Include="..\BookMyHall.Application.Abstractions\BookMyHall.Application.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>
