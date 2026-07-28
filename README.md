@@ -29,7 +29,7 @@ The solution follows **Enterprise Clean Architecture**, **CQRS**, and **Domain-D
 - Serilog
 - Hangfire
 - Firebase Cloud Messaging
-- Swagger / OpenAPI
+- OpenAPI
 
 ## Frontend
 
