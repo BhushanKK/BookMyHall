@@ -8,7 +8,8 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.ToTable("User", "identity");
-
         builder.HasKey(x => x.UserId);
+        builder.Property(x => x.UserId)
+            .HasDefaultValueSql("gen_random_uuid()");
     }
 }

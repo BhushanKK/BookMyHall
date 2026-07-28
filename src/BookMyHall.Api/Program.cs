@@ -1,17 +1,17 @@
-using BookMyHall.Persistence.Context;
-
-using Microsoft.EntityFrameworkCore;
+using BookMyHall.Application;
+using BookMyHall.Infrastructure;
+using BookMyHall.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<BookMyHallDbContext>(
-options =>
-{
-    options.UseNpgsql(
-        builder.Configuration
-        .GetConnectionString("DefaultConnection"));
-});
+
+// Register Application, Infrastructure, Persistence
+builder.Services
+    .AddApplication()
+    .AddInfrastructure()
+    .AddPersistence(builder.Configuration);
+
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello World!");
+app.MapGet("/", () => "BookMyHall API Running");
 
 app.Run();

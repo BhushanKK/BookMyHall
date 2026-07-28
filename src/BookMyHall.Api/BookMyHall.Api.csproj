@@ -5,6 +5,7 @@
     <ProjectReference Include="..\BookMyHall.Infrastructure\BookMyHall.Infrastructure.csproj" />
     <ProjectReference Include="..\BookMyHall.Shared\BookMyHall.Shared.csproj" />
     <ProjectReference Include="..\BookMyHall.Contracts\BookMyHall.Contracts.csproj" />
+    <ProjectReference Include="..\BookMyHall.Persistence\BookMyHall.Persistence.csproj" />
   </ItemGroup>
 
   <ItemGroup>
