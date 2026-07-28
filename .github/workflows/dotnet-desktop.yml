@@ -60,7 +60,7 @@ jobs:
       Test_Project_Path: tests                       # Test project(s) location
       Wap_Project_Directory: ""                      # Not used (Web API project)
       Wap_Project_Path: ""                           # Not used (Web API project)
-ssss
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
