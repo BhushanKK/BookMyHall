@@ -6,5 +6,4 @@ public abstract class BaseEntity
     public DateTimeOffset CreatedDate { get; set; }
     public Guid? UpdatedBy { get; set; }
     public DateTimeOffset? UpdatedDate { get; set; }
-    public bool IsActive { get; set; } = true;
 }

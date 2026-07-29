@@ -1,6 +1,6 @@
 using BookMyHall.Domain.Common;
 namespace BookMyHall.Domain.Identity;
-public class RolePermission : BaseEntity
+public class OTP : BaseEntity
 {
     public Guid OTPId { get; set; }
     public Guid UserId { get; set; }

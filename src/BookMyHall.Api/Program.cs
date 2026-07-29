@@ -1,5 +1,4 @@
 using Scalar.AspNetCore;
-
 using BookMyHall.Api.Endpoints.Identity;
 using BookMyHall.Application;
 using BookMyHall.Infrastructure;
@@ -26,7 +25,7 @@ app.MapScalarApiReference(options =>
 {
     options
         .WithTitle("BookMyHall API")
-        .WithTheme(ScalarTheme.Mars);
+        .WithTheme(ScalarTheme.BluePlanet);
 });
 
 // Minimal API Endpoints

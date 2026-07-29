@@ -1,4 +1,5 @@
-using MyBookHall.Domain.Common;
+using BookMyHall.Domain.Common;
+
 namespace MyBookHall.Domain.Identity;
 public class RefreshToken : BaseEntity
 {
