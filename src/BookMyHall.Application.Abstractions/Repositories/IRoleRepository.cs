@@ -6,7 +6,6 @@ namespace BookMyHall.Application.Abstractions.Persistence.Repositories;
 public interface IRoleRepository
 {
     Task<Role?> GetByIdAsync(Guid roleId, CancellationToken cancellationToken = default);
-    Task<Role?> GetByRoleNameAsync(string roleName, CancellationToken cancellationToken = default);
     Task<PaginatedResult<Role>> GetAllAsync(PaginationRequest paginationRequest, 
     CancellationToken cancellationToken = default);
     Task AddAsync(Role role, CancellationToken cancellationToken = default);

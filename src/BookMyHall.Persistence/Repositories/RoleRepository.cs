@@ -15,11 +15,6 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
        => await context.Roles.FirstOrDefaultAsync(x => x.RoleId == roleId && x.IsActive,
         cancellationToken);
 
-    public async Task<Role?> GetByRoleNameAsync(
-        string roleName,
-        CancellationToken cancellationToken = default)
-        => await context.Roles.FirstOrDefaultAsync(x => x.RoleName == roleName, cancellationToken);
-
     public async Task<PaginatedResult<Role>> GetAllAsync(
     PaginationRequest paginationRequest,
     CancellationToken cancellationToken = default)
