@@ -3,26 +3,45 @@
   <ItemGroup>
     <ProjectReference Include="..\BookMyHall.Domain\BookMyHall.Domain.csproj" />
     <ProjectReference Include="..\BookMyHall.Shared\BookMyHall.Shared.csproj" />
+    <ProjectReference Include="..\BookMyHall.Application.Abstractions\BookMyHall.Application.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+
+    <!-- Entity Framework Core -->
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
+
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+
+    <!-- PostgreSQL Provider -->
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+
+    <!-- Dependency Injection -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+
+    <!-- Configuration -->
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+
+    <!-- Other -->
     <PackageReference Include="System.Security.Cryptography.Xml" />
+
   </ItemGroup>
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
+
     <ImplicitUsings>enable</ImplicitUsings>
+
     <Nullable>enable</Nullable>
+
     <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 

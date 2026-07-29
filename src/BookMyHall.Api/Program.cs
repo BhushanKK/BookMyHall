@@ -1,17 +1,34 @@
-using BookMyHall.Persistence.Context;
+using Scalar.AspNetCore;
 
-using Microsoft.EntityFrameworkCore;
+using BookMyHall.Api.Endpoints.Identity;
+using BookMyHall.Application;
+using BookMyHall.Infrastructure;
+using BookMyHall.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<BookMyHallDbContext>(
-options =>
-{
-    options.UseNpgsql(
-        builder.Configuration
-        .GetConnectionString("DefaultConnection"));
-});
+
+// OpenAPI
+builder.Services.AddOpenApi();
+
+// Application Layers
+builder.Services
+    .AddApplication()
+    .AddInfrastructure()
+    .AddPersistence(builder.Configuration);
+
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello World!");
+// OpenAPI document
+app.MapOpenApi();
 
-app.Run();
+// Scalar UI
+app.MapScalarApiReference(options =>
+{
+    options
+        .WithTitle("BookMyHall API")
+        .WithTheme(ScalarTheme.Mars);
+});
+
+// Minimal API Endpoints
+app.MapRoleEndpoints();
+await app.RunAsync();
