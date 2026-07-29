@@ -8,4 +8,5 @@ public class HallImage : BaseEntity
     public string ThumbnailUrl { get; set; } = string.Empty;
     public string DisplayOrder { get; set; } = string.Empty;
     public bool IsCoverImage { get; set; }
+    public bool IsActive { get; set; }
 }

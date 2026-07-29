@@ -6,4 +6,5 @@ public class NotificationProvider : BaseEntity
     public string ProviderCode { get; set; } = string.Empty;
     public string ProviderName { get; set; } = string.Empty;
     public int Priority { get; set; }
+    public bool IsActive { get; set; }
 }

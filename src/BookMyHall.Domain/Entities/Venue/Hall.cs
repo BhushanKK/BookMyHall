@@ -26,5 +26,5 @@ public class Hall : BaseEntity
     public string GoogleMapLocationUrl { get; set; } = string.Empty;
     public string ApprovalStatus { get; set; } = string.Empty;
     public string VerificationStatus { get; set; } = string.Empty;
-
+    public bool IsActive { get; set; }
 }

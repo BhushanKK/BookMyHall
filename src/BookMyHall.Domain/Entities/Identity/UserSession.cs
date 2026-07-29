@@ -9,4 +9,5 @@ public class UserSession : BaseEntity
     public TimeSpan SessionStart { get; set; }
     public TimeSpan SessionEnd { get; set; }
     public TimeSpan LastActivity  { get; set; }
+    public bool IsActive { get; set; } 
 }   
