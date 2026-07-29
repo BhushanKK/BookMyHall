@@ -1,0 +1,14 @@
+using BookMyHall.Domain.Entities.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace BookMyHall.Persistence.Context;
+public sealed class BookingReminderConfiguration : IEntityTypeConfiguration<BookingReminder>
+{
+    public void Configure(EntityTypeBuilder<BookingReminder> builder)
+    {
+        builder.ToTable("BookingReminder", "booking");
+        builder.HasKey(x =>  x.BookingReminderId );
+        builder.Property(x => x.BookingReminderId).HasDefaultValueSql("gen_random_uuid()");;
+    }
+}

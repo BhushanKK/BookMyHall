@@ -13,4 +13,5 @@ public class HallPricing : BaseEntity
     public decimal AdvanceAmount { get; set; } = 0;
     public decimal SecurityDeposit { get; set; } = 0;
     public decimal ExtraGuestCharge { get; set; } = 0;    
+    public bool IsActive { get; set; }
 }

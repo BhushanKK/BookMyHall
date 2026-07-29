@@ -7,6 +7,6 @@ public class CancellationPolicy : BaseEntity
     public string Description { get; set; } = string.Empty;
     public decimal RefundPercentage { get; set; }
     public int CancellationBeforeHours { get; set; }
-
+    public bool IsActive { get; set; }
     
 }

@@ -9,4 +9,5 @@ public class HallBlock : BaseEntity
     public TimeSpan StartTime { get; set; }
     public TimeSpan EndTime { get; set; }
     public string Reason { get; set; } = string.Empty;
+    public bool IsActive { get; set; }
 }
