@@ -1,0 +1,12 @@
+using BookMyHall.Domain.Common;
+namespace BookMyHall.Domain.Identity;
+public class HallBlock : BaseEntity
+{
+    public Guid HallBlockId { get; set; }
+    public Guid HallId { get; set; }
+    public DateTime BlockFromDate { get; set; }
+    public DateTime BlockToDate { get; set; }
+    public TimeSpan StartTime { get; set; }
+    public TimeSpan EndTime { get; set; }
+    public string Reason { get; set; } = string.Empty;
+}
