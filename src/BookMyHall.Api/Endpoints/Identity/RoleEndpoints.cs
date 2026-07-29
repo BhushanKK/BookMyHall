@@ -16,22 +16,17 @@ public static class RoleEndpoints
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(
-                command,
-                cancellationToken);
-
+            var result = await mediator.Send(command,cancellationToken);
             return Results.Ok(result);
         });
 
-        group.MapPut("/", async (
+        group.MapPut("/{roleId:guid}", async (Guid roleId,
             UpdateRoleCommand command,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(
-                command,
-                cancellationToken);
-
+            command.RoleId=roleId;
+            var result = await mediator.Send(command,cancellationToken);
             return Results.Ok(result);
         });
 
@@ -40,10 +35,7 @@ public static class RoleEndpoints
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(
-                new DeleteRoleCommand(roleId),
-                cancellationToken);
-
+            var result = await mediator.Send(new DeleteRoleCommand(roleId),cancellationToken);
             return Results.Ok(result);
         });
 
@@ -52,10 +44,7 @@ public static class RoleEndpoints
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(
-                new GetRoleByIdQuery(roleId),
-                cancellationToken);
-
+            var result = await mediator.Send(new GetRoleByIdQuery(roleId),cancellationToken);
             return Results.Ok(result);
         });
 
@@ -64,10 +53,7 @@ public static class RoleEndpoints
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(
-                new GetRolesQuery(request),
-                cancellationToken);
-
+            var result = await mediator.Send(new GetRolesQuery(request),cancellationToken);
             return Results.Ok(result);
         });
     }

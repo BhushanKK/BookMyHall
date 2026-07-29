@@ -1,44 +1,32 @@
 using FluentValidation;
-using BookMyHall.Contracts.Constants;
+using BookMyHall.Application.Features.Identity;
 
-namespace BookMyHall.Application.Features.Identity;
+namespace BookMyHall.Application.Validations;
 
-public sealed class CreateRoleValidator : AbstractValidator<CreateRoleCommand>
+public sealed class CreateRoleCommandValidator
+    : AbstractValidator<CreateRoleCommand>
 {
-    public CreateRoleValidator()
+    public CreateRoleCommandValidator()
     {
         RuleFor(x => x.RoleName)
-            .Cascade(CascadeMode.Stop)
             .NotEmpty()
-                .WithMessage(string.Format(ValidationMessages.Required, Entities.Role))
-            .MaximumLength(20)
-                .WithMessage(string.Format(ValidationMessages.MaxLength, Entities.Role, 20));
+            .MaximumLength(100);
     }
 }
 
-public sealed class UpdateRoleValidator : AbstractValidator<UpdateRoleCommand>
+public sealed class UpdateRoleCommandValidator
+    : AbstractValidator<UpdateRoleCommand>
 {
-    public UpdateRoleValidator()
+    public UpdateRoleCommandValidator()
     {
         RuleFor(x => x.RoleId)
             .NotEmpty()
-            .WithMessage(string.Format(ValidationMessages.Required, $"{Entities.Role} Id"));
+            .WithMessage("Role Id is required.");
 
         RuleFor(x => x.RoleName)
-            .Cascade(CascadeMode.Stop)
             .NotEmpty()
-            .WithMessage(string.Format(ValidationMessages.Required, Entities.Role))
-            .MaximumLength(20)
-            .WithMessage(string.Format(ValidationMessages.MaxLength, Entities.Role, 20));
-    }
-}
-
-public sealed class DeleteRoleValidator : AbstractValidator<DeleteRoleCommand>
-{
-    public DeleteRoleValidator()
-    {
-        RuleFor(x => x.RoleId)
-            .NotEmpty()
-            .WithMessage(string.Format(ValidationMessages.Required, $"{Entities.Role} Id"));
+            .WithMessage("Role name is required.")
+            .MaximumLength(100)
+            .WithMessage("Role name cannot exceed 100 characters.");
     }
 }

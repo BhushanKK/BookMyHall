@@ -1,36 +1,37 @@
-using AutoMapper;
-
 using MediatR;
-
+using System.Net;
+using AutoMapper;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Contracts.Constants;
+using BookMyHall.Domain.Entities.Identity;
 
 namespace BookMyHall.Application.Features.Identity;
 
 public sealed class GetRolesQueryHandler(
     IRoleRepository roleRepository,
     IMapper mapper)
-    : IRequestHandler<GetRolesQuery,ApiResponse<PaginatedResponse<RoleDto>>>
+    : IRequestHandler<GetRolesQuery, ApiResponse<PaginatedResponse<Role>>>
 {
-    public async Task<ApiResponse<PaginatedResponse<RoleDto>>> Handle(
+    public async Task<ApiResponse<PaginatedResponse<Role>>> Handle(
         GetRolesQuery request,
         CancellationToken cancellationToken)
     {
-        var result = await roleRepository.GetAllAsync(request.Request,cancellationToken);
+        var pagedResult = await roleRepository.GetAllAsync(request.Request, cancellationToken);
 
-        var response = new PaginatedResponse<RoleDto>
+        var response = new PaginatedResponse<Role>
         {
-            Items = mapper.Map<IReadOnlyList<RoleDto>>(result.Items),
-            PageNumber = request.Request.PageNumber,
-            PageSize = request.Request.PageSize,
-            TotalRecords = result.TotalCount
+            Items = mapper.Map<IReadOnlyList<Role>>(pagedResult.Items),
+            PageNumber = pagedResult.PageNumber,
+            PageSize = pagedResult.PageSize,
+            TotalRecords = pagedResult.TotalCount
         };
 
-        return ApiResponse<PaginatedResponse<RoleDto>>.Success
+        return ApiResponse<PaginatedResponse<Role>>.SuccessResponse
         (
             response,
-            string.Format(ApiMessages.RecordRetrieved,Entities.Role)
+            string.Format(ApiMessages.RecordRetrieved, Entities.Role),
+            HttpStatusCode.OK
         );
     }
 }

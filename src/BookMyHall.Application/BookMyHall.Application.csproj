@@ -4,6 +4,7 @@
     <ProjectReference Include="..\BookMyHall.Domain\BookMyHall.Domain.csproj" />
     <ProjectReference Include="..\BookMyHall.Shared\BookMyHall.Shared.csproj" />
     <ProjectReference Include="..\BookMyHall.Contracts\BookMyHall.Contracts.csproj" />
+    <projectReference Include="..\BookMyHall.Persistence\BookMyHall.Persistence.csproj"/>
     <ProjectReference Include="..\BookMyHall.Application.Abstractions\BookMyHall.Application.Abstractions.csproj" />
   </ItemGroup>
 

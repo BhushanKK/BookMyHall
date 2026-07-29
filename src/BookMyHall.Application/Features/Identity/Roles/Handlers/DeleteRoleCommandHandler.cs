@@ -1,9 +1,11 @@
 using MediatR;
+using System.Net;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
-using BookMyHall.Application.Features.Identity;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Contracts.Constants;
+
+namespace BookMyHall.Application.Features.Identity;
 
 public sealed class DeleteRoleCommandHandler(
     IRoleRepository roleRepository,
@@ -14,26 +16,26 @@ public sealed class DeleteRoleCommandHandler(
         DeleteRoleCommand request,
         CancellationToken cancellationToken)
     {
-        var role = await roleRepository.GetByIdAsync(request.RoleId,cancellationToken);
+        var role = await roleRepository.GetByIdAsync(request.RoleId, cancellationToken);
 
         if (role is null)
         {
-            return ApiResponse<bool>.Failure
+            return ApiResponse<bool>.FailureResponse
             (
-                string.Format(ApiMessages.RecordNotFound,Entities.Role)
+                string.Format(ApiMessages.RecordNotFound, Entities.Role),
+                HttpStatusCode.NotFound
             );
         }
 
         role.Deactivate();
-
-        await roleRepository.UpdateAsync(role,cancellationToken);
+        await roleRepository.UpdateAsync(role, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.Success
+        return ApiResponse<bool>.SuccessResponse
         (
             true,
-            string.Format(ApiMessages.RecordDeleted,Entities.Role),
-            request.RoleId
+            string.Format(ApiMessages.RecordDeleted, Entities.Role),
+            HttpStatusCode.OK
         );
     }
 }

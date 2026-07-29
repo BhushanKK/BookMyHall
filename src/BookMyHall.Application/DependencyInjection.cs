@@ -1,7 +1,6 @@
-using MediatR;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using BookMyHall.Application.Behaviors;
+using BookMyHall.Application.Validations;
 
 namespace BookMyHall.Application;
 
@@ -21,9 +20,7 @@ public static class DependencyInjection
         });
 
         services.AddValidatorsFromAssembly(assembly);
-        services.AddTransient(
-            typeof(IPipelineBehavior<,>),
-            typeof(ValidationBehavior<,>));
+        services.AddValidatorsFromAssembly(typeof(UpdateRoleCommandValidator).Assembly);
         return services;
     }
 }

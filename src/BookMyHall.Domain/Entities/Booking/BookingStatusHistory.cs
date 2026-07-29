@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 using BookMyHall.Domain.Common;
 namespace BookMyHall.Domain.Identity;
 public class BookingStatusHistory : BaseEntity
