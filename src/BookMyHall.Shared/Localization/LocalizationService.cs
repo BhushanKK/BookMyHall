@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Resources;
+using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Shared.Localization;
 
