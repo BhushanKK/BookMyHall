@@ -1,10 +1,13 @@
+using BookMyHall.Domain.Audit;
 using BookMyHall.Domain.Booking;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Domain.Identity;
 using BookMyHall.Domain.Masters;
-
+using BookMyHall.Domain.Notifications;
+using BookMyHall.Domain.Payments;
+using BookMyHall.Domain.Review;
+using BookMyHall.Domain.Venue;
 using Microsoft.EntityFrameworkCore;
-
 using MyBookHall.Domain.Identity;
 
 namespace BookMyHall.Persistence.Context;
@@ -37,7 +40,7 @@ public partial class BookMyHallDbContext
     public DbSet<HallImage> HallImages => Set<HallImage>();
     public DbSet<HallPricing> HallPricings => Set<HallPricing>();
     public DbSet<HallBlock> HallBlocks => Set<HallBlock>();
-    public DbSet<Booking> Bookings => Set<Booking>();
+    public DbSet<Bookings> Bookings => Set<Bookings>();
     public DbSet<BookingGuest> BookingGuests => Set<BookingGuest>();
     public DbSet<BookingEvent> BookingEvents => Set<BookingEvent>();
     public DbSet<BookingPaymentSchedule> BookingPaymentSchedules => Set<BookingPaymentSchedule>();

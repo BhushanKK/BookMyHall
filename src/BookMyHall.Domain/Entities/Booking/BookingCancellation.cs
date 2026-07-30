@@ -1,4 +1,5 @@
 using BookMyHall.Domain.Common;
+
 namespace BookMyHall.Domain.Booking;
 public class BookingCancellation : BaseEntity
 {

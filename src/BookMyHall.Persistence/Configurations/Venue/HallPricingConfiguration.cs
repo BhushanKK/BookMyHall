@@ -1,4 +1,4 @@
-using BookMyHall.Domain.Identity;
+using BookMyHall.Domain.Venue;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

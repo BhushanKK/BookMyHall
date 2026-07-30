@@ -1,4 +1,5 @@
-using BookMyHall.Domain.Booking;
+using BookMyHall.Domain.Review;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
