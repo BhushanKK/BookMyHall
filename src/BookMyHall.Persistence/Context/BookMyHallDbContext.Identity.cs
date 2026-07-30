@@ -1,13 +1,8 @@
-using BookMyHall.Domain.Audit;
-using BookMyHall.Domain.Booking;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Domain.Identity;
-using BookMyHall.Domain.Masters;
-using BookMyHall.Domain.Notifications;
-using BookMyHall.Domain.Payments;
-using BookMyHall.Domain.Review;
-using BookMyHall.Domain.Venue;
+
 using Microsoft.EntityFrameworkCore;
+
 using MyBookHall.Domain.Identity;
 
 namespace BookMyHall.Persistence.Context;
@@ -24,43 +19,4 @@ public partial class BookMyHallDbContext
     public DbSet<Device> Devices => Set<Device>();
     public DbSet<LoginHistory> LoginHistories => Set<LoginHistory>();
     public DbSet<UserSession> UserSessions => Set<UserSession>();
-    public DbSet<HallCategory> HallCategories => Set<HallCategory>();
-    public DbSet<PaymentMode> PaymentModes => Set<PaymentMode>();
-    public DbSet<CancellationPolicy> CancellationPolicies => Set<CancellationPolicy>();
-    public DbSet<Hall> Halls => Set<Hall>();
-    public DbSet<HallImage> HallImages => Set<HallImage>();
-    public DbSet<HallPricing> HallPricings => Set<HallPricing>();
-    public DbSet<HallBlock> HallBlocks => Set<HallBlock>();
-    public DbSet<Bookings> Bookings => Set<Bookings>();
-    public DbSet<BookingGuest> BookingGuests => Set<BookingGuest>();
-    public DbSet<BookingEvent> BookingEvents => Set<BookingEvent>();
-    public DbSet<BookingPaymentSchedule> BookingPaymentSchedules => Set<BookingPaymentSchedule>();
-    public DbSet<BookingStatusHistory> BookingStatusHistories => Set<BookingStatusHistory>();
-    public DbSet<BookingCancellation> BookingCancellations => Set<BookingCancellation>();
-    public DbSet<BookingTimeline> BookingTimelines => Set<BookingTimeline>();
-    public DbSet<BookingDocument> BookingDocuments => Set<BookingDocument>();
-    public DbSet<BookingChecklist> BookingChecklists => Set<BookingChecklist>();
-    public DbSet<BookingReminder> BookingReminders => Set<BookingReminder>();
-    public DbSet<BookingNote> BookingNotes => Set<BookingNote>();
-    public DbSet<Payment> Payments => Set<Payment>();
-    public DbSet<PaymentTransaction> PaymentTransactions => Set<PaymentTransaction>();
-    public DbSet<Refund> Refunds => Set<Refund>();
-    public DbSet<Invoice> Invoices => Set<Invoice>();
-    public DbSet<PaymentWebhook> PaymentWebhooks => Set<PaymentWebhook>();
-    public DbSet<HallReview> HallReviews => Set<HallReview>();
-    public DbSet<HallReviewImage> HallReviewImages => Set<HallReviewImage>();
-    public DbSet<HallReviewReply> HallReviewReplies => Set<HallReviewReply>();
-    public DbSet<HallFavourite> HallFavourites => Set<HallFavourite>();
-    public DbSet<Notification> Notifications => Set<Notification>();
-    public DbSet<NotificationRecipient> NotificationRecipients => Set<NotificationRecipient>();
-    public DbSet<NotificationTemplate> NotificationTemplates => Set<NotificationTemplate>();
-    public DbSet<NotificationQueue> NotificationQueues => Set<NotificationQueue>();
-    public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
-    public DbSet<NotificationPreference> NotificationPreferences => Set<NotificationPreference>();
-    public DbSet<NotificationProvider> NotificationProviders => Set<NotificationProvider>();
-    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
-    public DbSet<AuditLogDetail> AuditLogDetails => Set<AuditLogDetail>();
-    public DbSet<UserLoginHistory> UserLoginHistories => Set<UserLoginHistory>();
-    public DbSet<ApiRequestLog> ApiRequestLogs => Set<ApiRequestLog>();
-    public DbSet<ErrorLog> ErrorLogs => Set<ErrorLog>();
 }
