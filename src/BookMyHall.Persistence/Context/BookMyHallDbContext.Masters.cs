@@ -1,4 +1,5 @@
 using BookMyHall.Domain.Masters;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace BookMyHall.Persistence.Context;
@@ -14,4 +15,6 @@ public partial class BookMyHallDbContext
     public DbSet<Amenity> Amenitys => Set<Amenity>();
     public DbSet<Service> Services => Set<Service>();
     public DbSet<FoodType> FoodTypes => Set<FoodType>();
+    public DbSet<PaymentMode> PaymentModes => Set<PaymentMode>();
+    public DbSet<CancellationPolicy> CancellationPolicies => Set<CancellationPolicy>();
 }
