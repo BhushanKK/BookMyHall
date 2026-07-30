@@ -11,7 +11,7 @@ public sealed class LocalizationService : ILocalizationService
     public LocalizationService()
     {
         _resourceManagers.Add(
-            "ApiMessageResponse",
+            ResourceNames.ApiMessageResponse,
             new ResourceManager(
                 "BookMyHall.Shared.Localization.ApiMessageResponse",
                 typeof(ApiMessageResponse).Assembly));
@@ -23,7 +23,7 @@ public sealed class LocalizationService : ILocalizationService
                 typeof(Entities).Assembly));
 
         _resourceManagers.Add(
-            "ValidationMessages",
+            ResourceNames.ValidationMessages,
             new ResourceManager(
                 "BookMyHall.Shared.Localization.ValidationMessages",
                 typeof(ValidationMessages).Assembly));
