@@ -18,21 +18,45 @@
 
   <!-- Identity -->
 
-  <data name="User" xml:space="preserve">
-    <value>User</value>
-  </data>
+    <data name="Role">
+        <value>Role</value>
+    </data>
 
-  <data name="Role" xml:space="preserve">
-    <value>Role</value>
-  </data>
+    <data name="RoleId">
+        <value>Role Id</value>
+    </data>
 
-  <data name="Permission" xml:space="preserve">
-    <value>Permission</value>
-  </data>
+    <data name="User">
+        <value>User</value>
+    </data>
 
-  <data name="UserRole" xml:space="preserve">
-    <value>User Role</value>
-  </data>
+    <data name="UserId">
+        <value>User Id</value>
+    </data>
+
+    <data name="Hall">
+        <value>Hall</value>
+    </data>
+
+    <data name="HallId">
+        <value>Hall Id</value>
+    </data>
+
+    <data name="Booking">
+        <value>Booking</value>
+    </data>
+
+    <data name="BookingId">
+        <value>Booking Id</value>
+    </data>
+
+    <data name="Permission" xml:space="preserve">
+        <value>Permission</value>
+    </data>
+
+    <data name="UserRole" xml:space="preserve">
+        <value>User Role</value>
+    </data>
 
   <!-- Hall -->
 

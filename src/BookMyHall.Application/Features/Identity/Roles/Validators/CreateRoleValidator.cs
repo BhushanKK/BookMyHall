@@ -1,9 +1,8 @@
+using FluentValidation;
 using BookMyHall.Application.Common.Extensions;
 using BookMyHall.Application.Features.Identity;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Shared.Localization;
-
-using FluentValidation;
 
 namespace BookMyHall.Application.Validations;
 
@@ -15,7 +14,7 @@ public sealed class CreateRoleCommandValidator
     {
         RuleFor(x => x.RoleName)
             .Required(localizer, EntityKeys.Role)
-            .MaximumLengthLocalized(localizer, EntityKeys.Role, 100);
+            .MaximumLengthLocalized(localizer, EntityKeys.Role, 20);
     }
 }
 
@@ -30,6 +29,6 @@ public sealed class UpdateRoleCommandValidator
 
         RuleFor(x => x.RoleName)
             .Required(localizer, EntityKeys.Role)
-            .MaximumLengthLocalized(localizer, EntityKeys.Role, 100);
+            .MaximumLengthLocalized(localizer, EntityKeys.Role, 20);
     }
 }

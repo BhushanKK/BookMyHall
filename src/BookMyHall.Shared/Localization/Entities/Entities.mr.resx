@@ -18,21 +18,45 @@
 
   <!-- Identity -->
 
-  <data name="User" xml:space="preserve">
-    <value>वापरकर्ता</value>
-  </data>
+    <data name="Role">
+        <value>भूमिका</value>
+    </data>
 
-  <data name="Role" xml:space="preserve">
-    <value>रोल</value>
-  </data>
+    <data name="RoleId">
+        <value>भूमिका आयडी</value>
+    </data>
 
-  <data name="Permission" xml:space="preserve">
-    <value>परवानगी</value>
-  </data>
+    <data name="User">
+        <value>वापरकर्ता</value>
+    </data>
 
-  <data name="UserRole" xml:space="preserve">
-    <value>वापरकर्ता रोल</value>
-  </data>
+    <data name="UserId">
+        <value>वापरकर्ता आयडी</value>
+    </data>
+
+    <data name="Hall">
+        <value>हॉल</value>
+    </data>
+
+    <data name="HallId">
+        <value>हॉल आयडी</value>
+    </data>
+
+    <data name="Booking">
+        <value>बुकिंग</value>
+    </data>
+
+    <data name="BookingId">
+        <value>बुकिंग आयडी</value>
+    </data>
+
+    <data name="Permission" xml:space="preserve">
+        <value>परवानगी</value>
+    </data>
+
+    <data name="UserRole" xml:space="preserve">
+        <value>वापरकर्ता रोल</value>
+    </data>
 
   <!-- Hall -->
 
