@@ -1,5 +1,5 @@
 using BookMyHall.Domain.Common;
-namespace BookMyHall.Domain.Booking;
+namespace BookMyHall.Domain.Audit;
 public class ApiRequestLog : BaseEntity
 {
     public Guid ApiRequestLogId { get; set; }

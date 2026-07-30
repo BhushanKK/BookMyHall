@@ -1,5 +1,5 @@
 using BookMyHall.Domain.Common;
-namespace BookMyHall.Domain.Booking;
+namespace BookMyHall.Domain.Notifications;
 public class Notification : BaseEntity
 {
     public Guid NotificationId { get; set; }

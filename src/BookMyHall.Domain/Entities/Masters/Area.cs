@@ -1,6 +1,6 @@
 using BookMyHall.Domain.Common; 
 
-namespace BookMyHall.Domain.Identity;
+namespace BookMyHall.Domain.Masters;
 public class Area : BaseEntity
 {
     public Guid AreaId { get; set; }

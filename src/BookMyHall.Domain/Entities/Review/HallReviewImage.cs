@@ -1,5 +1,5 @@
 using BookMyHall.Domain.Common;
-namespace BookMyHall.Domain.Booking;
+namespace BookMyHall.Domain.Review;
 public class HallReviewImage : BaseEntity
 {
     public Guid HallReviewImageId { get; set; }

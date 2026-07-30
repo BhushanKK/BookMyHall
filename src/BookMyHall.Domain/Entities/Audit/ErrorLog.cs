@@ -1,5 +1,5 @@
 using BookMyHall.Domain.Common;
-namespace BookMyHall.Domain.Booking;
+namespace BookMyHall.Domain.Audit;
 public class ErrorLog : BaseEntity
 {
     public Guid ErrorLogId { get; set; }
