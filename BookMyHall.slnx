@@ -6,7 +6,6 @@
     <Project Path="src/BookMyHall.Contracts/BookMyHall.Contracts.csproj" />
     <Project Path="src/BookMyHall.Domain/BookMyHall.Domain.csproj" />
     <Project Path="src/BookMyHall.Infrastructure/BookMyHall.Infrastructure.csproj" />
-    <Project Path="src/BookMyHall.Persistence.Migrations/BookMyHall.Persistence.Migrations.csproj" />
     <Project Path="src/BookMyHall.Persistence/BookMyHall.Persistence.csproj" />
     <Project Path="src/BookMyHall.Shared/BookMyHall.Shared.csproj" />
   </Folder>
