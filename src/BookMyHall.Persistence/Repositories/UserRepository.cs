@@ -13,7 +13,6 @@ public sealed class UserRepository(BookMyHallDbContext context)
     public async Task AddAsync(User user, CancellationToken cancellationToken = default)
         => await context.Users.AddAsync(user, cancellationToken);
 
-
     public Task UpdateAsync(User user, CancellationToken cancellationToken = default)
     {
         context.Users.Update(user);

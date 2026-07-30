@@ -12,3 +12,11 @@ public sealed record UpdateUserCommand(
     string? EmailAddress,
     Guid RoleId)
     : IRequest<ApiResponse<UserDto>>;
+
+public sealed record UpdateUserRequest(
+    string FirstName,
+    string? MiddleName,
+    string? LastName,
+    string MobileNumber,
+    string? EmailAddress,
+    Guid RoleId);

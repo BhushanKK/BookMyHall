@@ -25,12 +25,20 @@ public static class UserEndpoints
 
         group.MapPut("/{userId:guid}",async (
             Guid userId,
-            UpdateUserCommand command,
+            UpdateUserRequest request,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
+            var command = new UpdateUserCommand(
+                userId,
+                request.FirstName,
+                request.MiddleName,
+                request.LastName,
+                request.MobileNumber,
+                request.EmailAddress,
+                request.RoleId);
             var response = await mediator.Send(command, cancellationToken);
-            return Results.Json(response, statusCode: response.StatusCode);
+            return Results.Json(response,statusCode: response.StatusCode);
         })
         .WithName("UpdateUser")
         .WithSummary("Update User")
