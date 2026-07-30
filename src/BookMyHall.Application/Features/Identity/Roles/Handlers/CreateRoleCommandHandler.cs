@@ -1,13 +1,14 @@
+using MediatR;
 using System.Net;
 using AutoMapper;
 using FluentValidation;
-using MediatR;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
-using BookMyHall.Contracts.Constants;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Persistence.Exceptions;
+using BookMyHall.Shared.Common;
+using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Identity;
 
@@ -15,7 +16,8 @@ public sealed class CreateRoleCommandHandler(
     IRoleRepository roleRepository,
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    IValidator<CreateRoleCommand> validator)
+    IValidator<CreateRoleCommand> validator,
+    IMessageHelper messageHelper)
     : IRequestHandler<CreateRoleCommand, ApiResponse<RoleDto>>
 {
     public async Task<ApiResponse<RoleDto>> Handle(
@@ -26,8 +28,13 @@ public sealed class CreateRoleCommandHandler(
 
         if (!validationResult.IsValid)
         {
-            var message = string.Join(" | ", validationResult.Errors.Select(e => e.ErrorMessage));
-            return ApiResponse<RoleDto>.FailureResponse(message,HttpStatusCode.BadRequest);
+            var message = string.Join(
+                " | ",
+                validationResult.Errors.Select(x => x.ErrorMessage));
+
+            return ApiResponse<RoleDto>.FailureResponse(
+                message,
+                HttpStatusCode.BadRequest);
         }
 
         var role = mapper.Map<Role>(request);
@@ -38,22 +45,23 @@ public sealed class CreateRoleCommandHandler(
         try
         {
             await roleRepository.AddAsync(role, cancellationToken);
+
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
         catch (DuplicateRecordException)
         {
-            return ApiResponse<RoleDto>.FailureResponse
-            (
-                string.Format(ApiMessages.RecordAlreadyExists, Entities.Role),
-                HttpStatusCode.Conflict
-            );
+            return ApiResponse<RoleDto>.FailureResponse(
+                messageHelper.AlreadyExistsEntity(
+                    ResourceNames.Entities,
+                    EntityKeys.Role),
+                HttpStatusCode.Conflict);
         }
 
-        return ApiResponse<RoleDto>.SuccessResponse
-        (
+        return ApiResponse<RoleDto>.SuccessResponse(
             mapper.Map<RoleDto>(role),
-            string.Format(ApiMessages.RecordCreated, Entities.Role),
-            HttpStatusCode.Created
-        );
+            messageHelper.AddedEntity(
+                ResourceNames.Entities,
+                EntityKeys.Role),
+            HttpStatusCode.Created);
     }
 }

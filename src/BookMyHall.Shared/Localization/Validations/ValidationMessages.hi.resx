@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms</value>
+  </resheader>
+
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
+  </resheader>
+
+  <data name="Required">
+    <value>{0} आवश्यक है।</value>
+  </data>
+
+  <data name="Invalid">
+    <value>अमान्य {0}।</value>
+  </data>
+
+  <data name="AlreadyExists">
+    <value>{0} पहले से मौजूद है।</value>
+  </data>
+
+  <data name="MinimumLength">
+    <value>{0} कम से कम {1} अक्षरों का होना चाहिए।</value>
+  </data>
+
+  <data name="MaximumLength">
+    <value>{0} {1} अक्षरों से अधिक नहीं हो सकता।</value>
+  </data>
+
+  <data name="Range">
+    <value>{0} {1} और {2} के बीच होना चाहिए।</value>
+  </data>
+
+  <data name="GreaterThan">
+    <value>{0}, {1} से बड़ा होना चाहिए।</value>
+  </data>
+
+  <data name="LessThan">
+    <value>{0}, {1} से छोटा होना चाहिए।</value>
+  </data>
+
+  <data name="Email">
+    <value>कृपया मान्य ईमेल पता दर्ज करें।</value>
+  </data>
+
+  <data name="PhoneNumber">
+    <value>कृपया मान्य मोबाइल नंबर दर्ज करें।</value>
+  </data>
+
+  <data name="Url">
+    <value>कृपया मान्य URL दर्ज करें।</value>
+  </data>
+
+  <data name="Guid">
+    <value>कृपया मान्य पहचानकर्ता दर्ज करें।</value>
+  </data>
+
+  <data name="Date">
+    <value>कृपया मान्य दिनांक दर्ज करें।</value>
+  </data>
+
+  <data name="FutureDate">
+    <value>{0} भविष्य की तिथि होनी चाहिए।</value>
+  </data>
+
+  <data name="PastDate">
+    <value>{0} पिछली तिथि होनी चाहिए।</value>
+  </data>
+
+  <data name="Numeric">
+    <value>{0} केवल संख्यात्मक होना चाहिए।</value>
+  </data>
+
+  <data name="PositiveNumber">
+    <value>{0} शून्य से बड़ा होना चाहिए।</value>
+  </data>
+</root>

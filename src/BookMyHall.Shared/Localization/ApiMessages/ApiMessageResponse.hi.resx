@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms</value>
+  </resheader>
+
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
+  </resheader>
+
+  <!-- CRUD -->
+
+  <data name="Added" xml:space="preserve">
+    <value>{0} सफलतापूर्वक जोड़ा गया।</value>
+  </data>
+
+  <data name="Updated" xml:space="preserve">
+    <value>{0} सफलतापूर्वक अपडेट किया गया।</value>
+  </data>
+
+  <data name="Deleted" xml:space="preserve">
+    <value>{0} सफलतापूर्वक हटाया गया।</value>
+  </data>
+
+  <data name="Retrieved" xml:space="preserve">
+    <value>{0} सफलतापूर्वक प्राप्त किया गया।</value>
+  </data>
+
+  <!-- Validation -->
+
+  <data name="AlreadyExists" xml:space="preserve">
+    <value>{0} पहले से मौजूद है।</value>
+  </data>
+
+  <data name="NotFound" xml:space="preserve">
+    <value>{0} नहीं मिला।</value>
+  </data>
+
+  <data name="InvalidId" xml:space="preserve">
+    <value>अमान्य {0}।</value>
+  </data>
+
+  <!-- Status -->
+
+  <data name="Activated" xml:space="preserve">
+    <value>{0} सफलतापूर्वक सक्रिय किया गया।</value>
+  </data>
+
+  <data name="Deactivated" xml:space="preserve">
+    <value>{0} सफलतापूर्वक निष्क्रिय किया गया।</value>
+  </data>
+
+  <!-- Common -->
+
+  <data name="Saved" xml:space="preserve">
+    <value>{0} सफलतापूर्वक सहेजा गया।</value>
+  </data>
+
+  <data name="Submitted" xml:space="preserve">
+    <value>{0} सफलतापूर्वक सबमिट किया गया।</value>
+  </data>
+
+  <data name="Approved" xml:space="preserve">
+    <value>{0} सफलतापूर्वक अनुमोदित किया गया।</value>
+  </data>
+
+  <data name="Rejected" xml:space="preserve">
+    <value>{0} सफलतापूर्वक अस्वीकृत किया गया।</value>
+  </data>
+
+  <!-- API -->
+
+  <data name="ValidationFailed" xml:space="preserve">
+    <value>सत्यापन विफल हुआ।</value>
+  </data>
+
+  <data name="Unauthorized" xml:space="preserve">
+    <value>अनधिकृत पहुँच।</value>
+  </data>
+
+  <data name="Forbidden" xml:space="preserve">
+    <value>आपको यह कार्य करने की अनुमति नहीं है।</value>
+  </data>
+
+  <data name="InternalServerError" xml:space="preserve">
+    <value>एक अप्रत्याशित त्रुटि हुई। कृपया पुनः प्रयास करें।</value>
+  </data>
+
+</root>

@@ -1,0 +1,23 @@
+namespace BookMyHall.Shared.Common;
+
+public interface IMessageHelper
+{
+    string Entity(string resourceName, string key);
+
+    string Added(string entity);
+    string Updated(string entity);
+    string Deleted(string entity);
+    string Retrieved(string entity);
+
+    string AlreadyExists(string entity);
+    string NotFound(string entity);
+    string InvalidId(string entity);
+
+    string AddedEntity(string resourceName, string key);
+    string UpdatedEntity(string resourceName, string key);
+    string DeletedEntity(string resourceName, string key);
+    string RetrievedEntity(string resourceName, string key);
+    string AlreadyExistsEntity(string resourceName, string key);
+    string NotFoundEntity(string resourceName, string key);
+    string InvalidIdEntity(string resourceName, string key);
+}

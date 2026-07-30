@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms</value>
+  </resheader>
+
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
+  </resheader>
+
+  <!-- CRUD Messages -->
+
+  <data name="Added" xml:space="preserve">
+    <value>{0} added successfully.</value>
+  </data>
+
+  <data name="Updated" xml:space="preserve">
+    <value>{0} updated successfully.</value>
+  </data>
+
+  <data name="Deleted" xml:space="preserve">
+    <value>{0} deleted successfully.</value>
+  </data>
+
+  <data name="Retrieved" xml:space="preserve">
+    <value>{0} retrieved successfully.</value>
+  </data>
+
+  <!-- Validation -->
+
+  <data name="AlreadyExists" xml:space="preserve">
+    <value>{0} already exists.</value>
+  </data>
+
+  <data name="NotFound" xml:space="preserve">
+    <value>{0} not found.</value>
+  </data>
+
+  <data name="InvalidId" xml:space="preserve">
+    <value>Invalid {0}.</value>
+  </data>
+
+  <!-- Status -->
+
+  <data name="Activated" xml:space="preserve">
+    <value>{0} activated successfully.</value>
+  </data>
+
+  <data name="Deactivated" xml:space="preserve">
+    <value>{0} deactivated successfully.</value>
+  </data>
+
+  <!-- Common -->
+
+  <data name="Saved" xml:space="preserve">
+    <value>{0} saved successfully.</value>
+  </data>
+
+  <data name="Submitted" xml:space="preserve">
+    <value>{0} submitted successfully.</value>
+  </data>
+
+  <data name="Approved" xml:space="preserve">
+    <value>{0} approved successfully.</value>
+  </data>
+
+  <data name="Rejected" xml:space="preserve">
+    <value>{0} rejected successfully.</value>
+  </data>
+
+  <!-- API -->
+
+  <data name="ValidationFailed" xml:space="preserve">
+    <value>Validation failed.</value>
+  </data>
+
+  <data name="Unauthorized" xml:space="preserve">
+    <value>Unauthorized access.</value>
+  </data>
+
+  <data name="Forbidden" xml:space="preserve">
+    <value>You do not have permission to perform this action.</value>
+  </data>
+
+  <data name="InternalServerError" xml:space="preserve">
+    <value>An unexpected error occurred.</value>
+  </data>
+
+</root>

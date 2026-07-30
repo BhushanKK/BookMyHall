@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms</value>
+  </resheader>
+
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
+  </resheader>
+
+  <!-- Identity -->
+
+  <data name="User" xml:space="preserve">
+    <value>User</value>
+  </data>
+
+  <data name="Role" xml:space="preserve">
+    <value>Role</value>
+  </data>
+
+  <data name="Permission" xml:space="preserve">
+    <value>Permission</value>
+  </data>
+
+  <data name="UserRole" xml:space="preserve">
+    <value>User Role</value>
+  </data>
+
+  <!-- Hall -->
+
+  <data name="Hall" xml:space="preserve">
+    <value>Hall</value>
+  </data>
+
+  <data name="HallCategory" xml:space="preserve">
+    <value>Hall Category</value>
+  </data>
+
+  <data name="Amenity" xml:space="preserve">
+    <value>Amenity</value>
+  </data>
+
+  <data name="Facility" xml:space="preserve">
+    <value>Facility</value>
+  </data>
+
+  <data name="HallImage" xml:space="preserve">
+    <value>Hall Image</value>
+  </data>
+
+  <!-- Booking -->
+
+  <data name="Booking" xml:space="preserve">
+    <value>Booking</value>
+  </data>
+
+  <data name="BookingStatus" xml:space="preserve">
+    <value>Booking Status</value>
+  </data>
+
+  <data name="BookingTimeline" xml:space="preserve">
+    <value>Booking Timeline</value>
+  </data>
+
+  <!-- Customer -->
+
+  <data name="Customer" xml:space="preserve">
+    <value>Customer</value>
+  </data>
+
+  <data name="Review" xml:space="preserve">
+    <value>Review</value>
+  </data>
+
+  <data name="Favourite" xml:space="preserve">
+    <value>Favourite</value>
+  </data>
+
+  <!-- Payment -->
+
+  <data name="Payment" xml:space="preserve">
+    <value>Payment</value>
+  </data>
+
+  <data name="Refund" xml:space="preserve">
+    <value>Refund</value>
+  </data>
+
+  <!-- Masters -->
+
+  <data name="Country" xml:space="preserve">
+    <value>Country</value>
+  </data>
+
+  <data name="State" xml:space="preserve">
+    <value>State</value>
+  </data>
+
+  <data name="City" xml:space="preserve">
+    <value>City</value>
+  </data>
+
+  <data name="Area" xml:space="preserve">
+    <value>Area</value>
+  </data>
+
+  <data name="EventType" xml:space="preserve">
+    <value>Event Type</value>
+  </data>
+
+  <data name="Decoration" xml:space="preserve">
+    <value>Decoration</value>
+  </data>
+
+  <data name="FoodCategory" xml:space="preserve">
+    <value>Food Category</value>
+  </data>
+
+  <data name="Cuisine" xml:space="preserve">
+    <value>Cuisine</value>
+  </data>
+
+  <data name="Coupon" xml:space="preserve">
+    <value>Coupon</value>
+  </data>
+
+  <!-- Common -->
+
+  <data name="Image" xml:space="preserve">
+    <value>Image</value>
+  </data>
+
+  <data name="Document" xml:space="preserve">
+    <value>Document</value>
+  </data>
+
+  <data name="Notification" xml:space="preserve">
+    <value>Notification</value>
+  </data>
+
+</root>

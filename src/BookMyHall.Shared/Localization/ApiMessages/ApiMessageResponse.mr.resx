@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms</value>
+  </resheader>
+
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
+  </resheader>
+
+  <!-- CRUD -->
+
+  <data name="Added" xml:space="preserve">
+    <value>{0} यशस्वीरित्या जोडले गेले.</value>
+  </data>
+
+  <data name="Updated" xml:space="preserve">
+    <value>{0} यशस्वीरित्या अद्ययावत केले गेले.</value>
+  </data>
+
+  <data name="Deleted" xml:space="preserve">
+    <value>{0} यशस्वीरित्या हटविले गेले.</value>
+  </data>
+
+  <data name="Retrieved" xml:space="preserve">
+    <value>{0} यशस्वीरित्या प्राप्त झाले.</value>
+  </data>
+
+  <!-- Validation -->
+
+  <data name="AlreadyExists" xml:space="preserve">
+    <value>{0} आधीपासून अस्तित्वात आहे.</value>
+  </data>
+
+  <data name="NotFound" xml:space="preserve">
+    <value>{0} सापडले नाही.</value>
+  </data>
+
+  <data name="InvalidId" xml:space="preserve">
+    <value>अवैध {0}.</value>
+  </data>
+
+  <!-- Status -->
+
+  <data name="Activated" xml:space="preserve">
+    <value>{0} यशस्वीरित्या सक्रिय केले गेले.</value>
+  </data>
+
+  <data name="Deactivated" xml:space="preserve">
+    <value>{0} यशस्वीरित्या निष्क्रिय केले गेले.</value>
+  </data>
+
+  <!-- Common -->
+
+  <data name="Saved" xml:space="preserve">
+    <value>{0} यशस्वीरित्या जतन केले गेले.</value>
+  </data>
+
+  <data name="Submitted" xml:space="preserve">
+    <value>{0} यशस्वीरित्या सादर केले गेले.</value>
+  </data>
+
+  <data name="Approved" xml:space="preserve">
+    <value>{0} यशस्वीरित्या मंजूर केले गेले.</value>
+  </data>
+
+  <data name="Rejected" xml:space="preserve">
+    <value>{0} यशस्वीरित्या नाकारले गेले.</value>
+  </data>
+
+  <!-- API -->
+
+  <data name="ValidationFailed" xml:space="preserve">
+    <value>पडताळणी अयशस्वी झाली.</value>
+  </data>
+
+  <data name="Unauthorized" xml:space="preserve">
+    <value>अनधिकृत प्रवेश.</value>
+  </data>
+
+  <data name="Forbidden" xml:space="preserve">
+    <value>तुम्हाला ही क्रिया करण्याची परवानगी नाही.</value>
+  </data>
+
+  <data name="InternalServerError" xml:space="preserve">
+    <value>अनपेक्षित त्रुटी आली. कृपया पुन्हा प्रयत्न करा.</value>
+  </data>
+
+</root>

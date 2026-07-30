@@ -1,32 +1,35 @@
-using FluentValidation;
+using BookMyHall.Application.Common.Extensions;
 using BookMyHall.Application.Features.Identity;
+using BookMyHall.Shared.Constants;
+using BookMyHall.Shared.Localization;
+
+using FluentValidation;
 
 namespace BookMyHall.Application.Validations;
 
 public sealed class CreateRoleCommandValidator
     : AbstractValidator<CreateRoleCommand>
 {
-    public CreateRoleCommandValidator()
+    public CreateRoleCommandValidator(
+        ILocalizationService localizer)
     {
         RuleFor(x => x.RoleName)
-            .NotEmpty()
-            .MaximumLength(100);
+            .Required(localizer, EntityKeys.Role)
+            .MaximumLengthLocalized(localizer, EntityKeys.Role, 100);
     }
 }
 
 public sealed class UpdateRoleCommandValidator
     : AbstractValidator<UpdateRoleCommand>
 {
-    public UpdateRoleCommandValidator()
+    public UpdateRoleCommandValidator(
+        ILocalizationService localizer)
     {
         RuleFor(x => x.RoleId)
-            .NotEmpty()
-            .WithMessage("Role Id is required.");
+            .Required(localizer, EntityKeys.RoleId);
 
         RuleFor(x => x.RoleName)
-            .NotEmpty()
-            .WithMessage("Role name is required.")
-            .MaximumLength(100)
-            .WithMessage("Role name cannot exceed 100 characters.");
+            .Required(localizer, EntityKeys.Role)
+            .MaximumLengthLocalized(localizer, EntityKeys.Role, 100);
     }
 }

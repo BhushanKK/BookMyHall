@@ -1,23 +1,27 @@
 using MediatR;
 using System.Net;
 using AutoMapper;
-using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
-using BookMyHall.Contracts.Constants;
 using BookMyHall.Domain.Entities.Identity;
+using BookMyHall.Shared.Common;
+using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Persistence.Repositories;
 
 namespace BookMyHall.Application.Features.Identity;
 
 public sealed class GetRolesQueryHandler(
     IRoleRepository roleRepository,
-    IMapper mapper)
+    IMapper mapper,
+    IMessageHelper messageHelper)
     : IRequestHandler<GetRolesQuery, ApiResponse<PaginatedResponse<Role>>>
 {
     public async Task<ApiResponse<PaginatedResponse<Role>>> Handle(
         GetRolesQuery request,
         CancellationToken cancellationToken)
     {
-        var pagedResult = await roleRepository.GetAllAsync(request.Request, cancellationToken);
+        var pagedResult = await roleRepository.GetAllAsync(
+            request.Request,
+            cancellationToken);
 
         var response = new PaginatedResponse<Role>
         {
@@ -27,11 +31,11 @@ public sealed class GetRolesQueryHandler(
             TotalRecords = pagedResult.TotalCount
         };
 
-        return ApiResponse<PaginatedResponse<Role>>.SuccessResponse
-        (
+        return ApiResponse<PaginatedResponse<Role>>.SuccessResponse(
             response,
-            string.Format(ApiMessages.RecordRetrieved, Entities.Role),
-            HttpStatusCode.OK
-        );
+            messageHelper.RetrievedEntity(
+                ResourceNames.Entities,
+                EntityKeys.Role),
+            HttpStatusCode.OK);
     }
 }
