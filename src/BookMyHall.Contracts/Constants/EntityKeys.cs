@@ -13,6 +13,12 @@ public static class EntityKeys
     public const string Permission = nameof(Permission);
     public const string UserRole = nameof(UserRole);
 
+    public const string MobileNumber = "MobileNumber";
+    public const string Password = "Password";
+
+    public const string FirstName = "FirstName";
+    public const string EmailAddress = "EmailAddress";
+
     // Hall
 
     public const string Hall = nameof(Hall);

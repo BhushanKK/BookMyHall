@@ -19,6 +19,7 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         return services;
     }

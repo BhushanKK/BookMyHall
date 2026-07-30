@@ -21,7 +21,9 @@
   <data name="Added" xml:space="preserve">
     <value>{0} यशस्वीरित्या जोडले गेले.</value>
   </data>
-
+  <data name="Required" xml:space="preserve">
+      <value>{0} आवश्यक आहे.</value>
+  </data>
   <data name="Updated" xml:space="preserve">
     <value>{0} यशस्वीरित्या अद्ययावत केले गेले.</value>
   </data>

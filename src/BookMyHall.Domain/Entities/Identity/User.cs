@@ -1,4 +1,5 @@
 using BookMyHall.Domain.Common;
+using BookMyHall.Domain.Identity;
 
 namespace BookMyHall.Domain.Entities.Identity;
 
@@ -15,4 +16,34 @@ public class User : BaseEntity
     public bool IsMobileVerified { get; set; }
     public bool IsEmailVerified { get; set; }
     public bool IsActive { get; set; } = true;
+    public ICollection<UserRole> UserRoles { get; set; } = [];
+
+    public void VerifyMobile()
+    {
+        IsMobileVerified = true;
+    }
+
+    public void VerifyEmail()
+    {
+        IsEmailVerified = true;
+    }
+
+    public void Activate()
+    {
+        IsActive = true;
+    }
+
+    public void Deactivate()
+    {
+        IsActive = false;
+    }
+
+    public string FullName =>
+        string.Join(" ",
+            new[]
+            {
+                FirstName,
+                MiddleName,
+                LastName
+            }.Where(x => !string.IsNullOrWhiteSpace(x)));
 }

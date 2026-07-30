@@ -25,7 +25,7 @@ builder.Services.AddOpenApi();
 
 builder.Services
     .AddApplication()
-    .AddInfrastructure()
+    .AddInfrastructure(builder.Configuration)
     .AddPersistence(builder.Configuration);
 
 #endregion
@@ -96,6 +96,7 @@ app.MapScalarApiReference(options =>
 #region Endpoints
 
 app.MapRoleEndpoints();
+app.MapUserEndpoints();
 
 #endregion
 

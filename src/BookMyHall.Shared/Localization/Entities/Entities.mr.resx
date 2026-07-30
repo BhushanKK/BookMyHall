@@ -19,11 +19,11 @@
   <!-- Identity -->
 
     <data name="Role">
-        <value>भूमिका</value>
+        <value>रोल</value>
     </data>
 
     <data name="RoleId">
-        <value>भूमिका आयडी</value>
+        <value>रोल आयडी</value>
     </data>
 
     <data name="User">
@@ -57,7 +57,15 @@
     <data name="UserRole" xml:space="preserve">
         <value>वापरकर्ता रोल</value>
     </data>
-
+    <data name="MobileNumber" xml:space="preserve">
+      <value>मोबाइल नंबर</value>
+    </data>
+    <data name="EmailAddress" xml:space="preserve">
+      <value>इमेल</value>
+    </data>
+    <data name="Password" xml:space="preserve">
+      <value>पासवर्ड</value>
+    </data>
   <!-- Hall -->
 
   <data name="Hall" xml:space="preserve">

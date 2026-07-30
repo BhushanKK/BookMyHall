@@ -57,7 +57,17 @@
     <data name="UserRole" xml:space="preserve">
         <value>User Role</value>
     </data>
+    <data name="MobileNumber" xml:space="preserve">
+      <value>Mobile Number</value>
+    </data>
 
+    <data name="EmailAddress" xml:space="preserve">
+      <value>Email Address</value>
+    </data>
+
+    <data name="Password" xml:space="preserve">
+        <value>Password</value>
+    </data>
   <!-- Hall -->
 
   <data name="Hall" xml:space="preserve">

@@ -17,7 +17,9 @@
   </resheader>
 
   <!-- CRUD Messages -->
-
+  <data name="Required" xml:space="preserve">
+      <value>{0} is required.</value>
+  </data>
   <data name="Added" xml:space="preserve">
     <value>{0} added successfully.</value>
   </data>

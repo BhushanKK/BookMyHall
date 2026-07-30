@@ -57,11 +57,11 @@ public sealed class CreateRoleCommandHandler(
                 HttpStatusCode.Conflict);
         }
 
-        return ApiResponse<RoleDto>.SuccessResponse(
+        return ApiResponse<RoleDto>.SuccessResponse
+        (
             mapper.Map<RoleDto>(role),
-            messageHelper.AddedEntity(
-                ResourceNames.Entities,
-                EntityKeys.Role),
-            HttpStatusCode.Created);
+            messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.Role),
+            HttpStatusCode.Created
+        );
     }
 }

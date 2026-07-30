@@ -17,7 +17,9 @@
   </resheader>
 
   <!-- CRUD -->
-
+  <data name="Required" xml:space="preserve">
+      <value>{0} आवश्यक है।</value>
+  </data>
   <data name="Added" xml:space="preserve">
     <value>{0} सफलतापूर्वक जोड़ा गया।</value>
   </data>

@@ -22,7 +22,7 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
         var query = context.Roles.AsNoTracking().Where(x => x.IsActive);
 
         if (!string.IsNullOrWhiteSpace(paginationRequest.SearchText))
-            query = query.Where(x => x.RoleName.Contains(paginationRequest.SearchText));
+            query = query.Where(x => EF.Functions.ILike(x.RoleName, $"%{paginationRequest.SearchText.Trim()}%"));
 
         var totalCount = await query.CountAsync(cancellationToken);
 
