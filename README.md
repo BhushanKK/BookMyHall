@@ -106,8 +106,6 @@ BookMyHall
 
 │   ├── BookMyHall.Persistence
 
-│   ├── BookMyHall.Persistence.Migrations
-
 │   └── BookMyHall.Shared
 
 │

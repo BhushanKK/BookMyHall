@@ -16,7 +16,7 @@ public sealed class LocalizationService : ILocalizationService
                 typeof(ApiMessageResponse).Assembly));
 
         _resourceManagers.Add(
-            "Entities",
+            ResourceNames.Entities,
             new ResourceManager(
                 "BookMyHall.Shared.Localization.Entities",
                 typeof(Entities).Assembly));

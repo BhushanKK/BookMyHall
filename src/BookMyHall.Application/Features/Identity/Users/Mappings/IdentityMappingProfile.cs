@@ -1,4 +1,5 @@
 using AutoMapper;
+
 using BookMyHall.Application.Features.Identity.Users;
 using BookMyHall.Domain.Entities.Identity;
 
@@ -9,13 +10,21 @@ public sealed class IdentityMappingProfile : Profile
     public IdentityMappingProfile()
     {
         CreateMap<CreateUserCommand, User>()
-            .ForMember(
-                destination => destination.PasswordHash,
+            .ForMember(destination => destination.PasswordHash,
                 option => option.Ignore())
-            .ForMember(
-                destination => destination.UserRoles,
+            .ForMember(destination => destination.UserRoles,
                 option => option.Ignore());
 
-        CreateMap<User, UserDto>();
+        CreateMap<User, UserDto>()
+            .ForMember(destination => destination.Roles,
+                option => option.MapFrom(source => source.UserRoles
+            .Select(x => x.Role.RoleName)
+            .ToList()));
+        
+        CreateMap<UpdateUserCommand, User>()
+            .ForMember(destination => destination.PasswordHash,
+                option => option.Ignore())
+            .ForMember(destination => destination.UserRoles,
+                option => option.Ignore());
     }
 }

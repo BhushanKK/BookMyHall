@@ -1,4 +1,5 @@
 using MediatR;
+using BookMyHall.Contracts.Common;
 using BookMyHall.Application.Features.Identity.Users;
 
 namespace BookMyHall.Api.Endpoints.Identity;
@@ -18,10 +19,55 @@ public static class UserEndpoints
                 var response = await mediator.Send(command, cancellationToken);
                 return Results.Json(response, statusCode: response.StatusCode);
             })
-            .WithName("CreateUser")
-            .Produces<UserDto>(StatusCodes.Status201Created)
-            .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status409Conflict);
+        .WithName("CreateUser")
+        .Produces<UserDto>(StatusCodes.Status201Created)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status409Conflict);
+
+        group.MapDelete("/{userId:guid}", async (
+            Guid userId,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new DeleteUserCommand(userId),
+                cancellationToken);
+
+            return Results.Json(
+                response,
+                statusCode: (int)response.StatusCode);
+        })
+        .WithName("DeleteUser")
+        .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status404NotFound);
+
+        group.MapGet("/", async ([AsParameters] PaginationRequest request,
+                IMediator mediator, CancellationToken cancellationToken) =>
+            {
+                var response = await mediator.Send(new GetUsersQuery(request), cancellationToken);
+                return Results.Json(response, statusCode: response.StatusCode);
+            })
+        .WithName("GetUsers")
+        .Produces<ApiResponse<PaginatedResponse<UserDto>>>(StatusCodes.Status200OK);
+
+        group.MapGet("/{userId:guid}",
+            async (
+                Guid userId,
+                IMediator mediator,
+                CancellationToken cancellationToken) =>
+            {
+                var response = await mediator.Send(
+                    new GetUserByIdQuery(userId),
+                    cancellationToken);
+
+                return Results.Json(
+                    response,
+                    statusCode: (int)response.StatusCode);
+            })
+        .WithName("GetUserById")
+        .Produces<ApiResponse<UserDto>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<UserDto>>(StatusCodes.Status404NotFound);
+
         return app;
     }
 }

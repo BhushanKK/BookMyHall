@@ -27,11 +27,11 @@
     </data>
 
     <data name="User">
-        <value>उपयोगकर्ता</value>
+        <value>युजर</value>
     </data>
 
     <data name="UserId">
-        <value>उपयोगकर्ता आईडी</value>
+        <value>युजर आईडी</value>
     </data>
 
     <data name="Hall">
@@ -55,7 +55,7 @@
     </data>
 
     <data name="UserRole" xml:space="preserve">
-        <value>उपयोगकर्ता रोल</value>
+        <value>युजर रोल</value>
     </data>
     <data name="MobileNumber" xml:space="preserve">
         <value>मोबाइल नंबर</value>
