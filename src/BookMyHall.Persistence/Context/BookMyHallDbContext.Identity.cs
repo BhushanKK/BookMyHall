@@ -24,16 +24,7 @@ public partial class BookMyHallDbContext
     public DbSet<Device> Devices => Set<Device>();
     public DbSet<LoginHistory> LoginHistories => Set<LoginHistory>();
     public DbSet<UserSession> UserSessions => Set<UserSession>();
-    public DbSet<State> States => Set<State>();
-    public DbSet<City> Cities => Set<City>();
-    public DbSet<District> Districts => Set<District>();
-    public DbSet<Area> Areas => Set<Area>();
     public DbSet<HallCategory> HallCategories => Set<HallCategory>();
-    public DbSet<EventCategory> EventCategories => Set<EventCategory>();
-    public DbSet<Facility> Facilities => Set<Facility>();
-    public DbSet<Amenity> Amenitys => Set<Amenity>();
-    public DbSet<Service> Services => Set<Service>();
-    public DbSet<FoodType> FoodTypes => Set<FoodType>();
     public DbSet<PaymentMode> PaymentModes => Set<PaymentMode>();
     public DbSet<CancellationPolicy> CancellationPolicies => Set<CancellationPolicy>();
     public DbSet<Hall> Halls => Set<Hall>();
@@ -72,5 +63,4 @@ public partial class BookMyHallDbContext
     public DbSet<UserLoginHistory> UserLoginHistories => Set<UserLoginHistory>();
     public DbSet<ApiRequestLog> ApiRequestLogs => Set<ApiRequestLog>();
     public DbSet<ErrorLog> ErrorLogs => Set<ErrorLog>();
-
 }
