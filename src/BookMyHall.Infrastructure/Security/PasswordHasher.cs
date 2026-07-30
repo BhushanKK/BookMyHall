@@ -12,9 +12,16 @@ public sealed class PasswordHasher : IPasswordHasher
     public string HashPassword(string password)
         => _passwordHasher.HashPassword(new User(), password);
 
-    public bool VerifyPassword(string hashedPassword, string providedPassword)
+    public bool VerifyPassword(string hashedPassword,string providedPassword)
     {
-        var result = _passwordHasher.VerifyHashedPassword(new User(), hashedPassword, providedPassword);
-        return result != PasswordVerificationResult.Failed;
+        try
+        {
+            var result = _passwordHasher.VerifyHashedPassword(new User(),hashedPassword,providedPassword);
+            return result != PasswordVerificationResult.Failed;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
     }
 }
