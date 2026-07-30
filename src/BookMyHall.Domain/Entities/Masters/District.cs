@@ -1,5 +1,5 @@
 using BookMyHall.Domain.Common;
-namespace BookMyHall.Domain.Identity;
+namespace BookMyHall.Domain.Masters;
 public class District : BaseEntity
 {
     public Guid DistrictId { get; set; }

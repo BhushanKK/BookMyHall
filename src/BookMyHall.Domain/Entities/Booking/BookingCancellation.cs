@@ -1,5 +1,5 @@
 using BookMyHall.Domain.Common;
-namespace BookMyHall.Domain.Identity;
+namespace BookMyHall.Domain.Booking;
 public class BookingCancellation : BaseEntity
 {
     public Guid BookingCancellationId { get; set; }

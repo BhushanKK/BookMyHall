@@ -1,6 +1,6 @@
 using BookMyHall.Domain.Common;
-namespace BookMyHall.Domain.Identity;
-public class Booking : BaseEntity
+namespace BookMyHall.Domain.Booking;
+public class Bookings : BaseEntity
 {
     public Guid BookingId { get; set; }
     public string BookingNumber { get; set; } = string.Empty;
@@ -8,7 +8,7 @@ public class Booking : BaseEntity
     public Guid CustomerId { get; set; }
     public Guid EventCategoryId { get; set; }
     public Guid HallPricingId { get; set; }
-    public DateTime BookingDate { get; set; }
+    public DateTimeOffset BookingDate { get; set; }
     public TimeSpan StartTime { get; set; }
     public TimeSpan EndTime { get; set; }
     public int GuestCount { get; set; }

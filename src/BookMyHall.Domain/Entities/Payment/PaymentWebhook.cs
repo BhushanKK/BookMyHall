@@ -1,5 +1,5 @@
 using BookMyHall.Domain.Common;
-namespace BookMyHall.Domain.Booking;
+namespace BookMyHall.Domain.Payments;
 public class PaymentWebhook : BaseEntity
 {
     public Guid PaymentWebhookId { get; set; }
