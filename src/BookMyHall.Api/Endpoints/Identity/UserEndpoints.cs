@@ -6,8 +6,7 @@ namespace BookMyHall.Api.Endpoints.Identity;
 
 public static class UserEndpoints
 {
-    public static IEndpointRouteBuilder MapUserEndpoints(
-        this IEndpointRouteBuilder app)
+    public static IEndpointRouteBuilder MapUserEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/users")
             .WithTags("Users");
@@ -24,8 +23,24 @@ public static class UserEndpoints
         .Produces(StatusCodes.Status400BadRequest)
         .Produces(StatusCodes.Status409Conflict);
 
-        group.MapDelete("/{userId:guid}", async (
+        group.MapPut("/{userId:guid}",async (
             Guid userId,
+            UpdateUserCommand command,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("UpdateUser")
+        .WithSummary("Update User")
+        .WithDescription("Updates an existing user.")
+        .Produces<ApiResponse<UserDto>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<UserDto>>(StatusCodes.Status400BadRequest)
+        .Produces<ApiResponse<UserDto>>(StatusCodes.Status404NotFound)
+        .Produces<ApiResponse<UserDto>>(StatusCodes.Status409Conflict);
+
+        group.MapDelete("/{userId:guid}", async (Guid userId,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
