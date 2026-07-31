@@ -59,10 +59,6 @@ public sealed class UpdateUserCommandHandler(
         }
 
         mapper.Map(request, user);
-
-        user.UpdatedDate = DateTimeOffset.UtcNow;
-        user.UpdatedBy = Guid.Empty; // TODO: ICurrentUserService
-
         user.UserRoles.Clear();
         user.UserRoles.Add(new UserRole
         {
