@@ -90,7 +90,7 @@ public sealed class RefreshTokenTests
         refreshToken.RefreshTokenId.Should().Be(Guid.Empty);
         refreshToken.UserId.Should().Be(Guid.Empty);
         refreshToken.Token.Should().BeEmpty();
-        refreshToken.ExpiresAt.Should().Be(default);
-        refreshToken.RevokedAt.Should().Be(default);
+        refreshToken.ExpiresAt.Should().Be(default(DateTimeOffset));
+        refreshToken.RevokedAt.Should().BeNull();
     }
 }

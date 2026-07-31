@@ -53,9 +53,7 @@ public sealed class CreateUserCommandHandler(
         var currentDate = DateTimeOffset.UtcNow;
         var user = mapper.Map<User>(request);
         user.PasswordHash = passwordHasher.HashPassword(request.Password);
-        user.CreatedDate = currentDate;
-        user.CreatedBy = Guid.Empty; // TODO: Replace with ICurrentUserService
-
+        
         user.UserRoles =
         [
             new UserRole

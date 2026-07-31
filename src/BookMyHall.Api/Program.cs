@@ -1,7 +1,9 @@
 using System.Globalization;
-
 using BookMyHall.Api.Endpoints.Identity;
 using BookMyHall.Api.Endpoints.Master;
+using BookMyHall.Api.Endpoints.Role;
+using BookMyHall.Api.Extensions;
+using BookMyHall.Api.Middleware;
 using BookMyHall.Application;
 using BookMyHall.Application.Features.Master;
 using BookMyHall.Infrastructure;
@@ -9,31 +11,19 @@ using BookMyHall.Persistence;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Shared.Localization;
-
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
-
 using Scalar.AspNetCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-#region OpenAPI
-
+builder.AddSerilogLogging();
 builder.Services.AddOpenApi();
-
-#endregion
-
-#region Application Layers
-
 builder.Services
     .AddApplication()
     .AddInfrastructure(builder.Configuration)
     .AddPersistence(builder.Configuration);
-
-#endregion
-
-#region Localization
-
 builder.Services.AddLocalization(options =>
 {
     options.ResourcesPath = "Localization";
@@ -41,7 +31,6 @@ builder.Services.AddLocalization(options =>
 
 builder.Services.AddSingleton<ILocalizationService, LocalizationService>();
 builder.Services.AddScoped<IMessageHelper, MessageHelper>();
-
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[]
@@ -52,56 +41,41 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     };
 
     options.DefaultRequestCulture = new RequestCulture(Languages.English);
-
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
-
-    options.RequestCultureProviders = new IRequestCultureProvider[]
-    {
+    options.RequestCultureProviders =
+    [
         new AcceptLanguageHeaderRequestCultureProvider()
-    };
+    ];
 });
-
-#endregion
 
 var app = builder.Build();
-
-#region Localization Middleware
-
-var localizationOptions = app.Services
-    .GetRequiredService<IOptions<RequestLocalizationOptions>>();
-
+app.UseSerilogRequestLogging();
+var localizationOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();
 app.UseRequestLocalization(localizationOptions.Value);
-
-#endregion
-
-#region Security
-
-//app.UseAuthentication();
-//app.UseAuthorization();
-
-#endregion
-
-#region OpenAPI
-
-app.MapOpenApi();
-
-app.MapScalarApiReference(options =>
+if (app.Environment.IsDevelopment())
 {
-    options
-        .WithTitle("BookMyHall API")
-        .WithTheme(ScalarTheme.BluePlanet);
-});
+    app.MapOpenApi();
+    app.MapScalarApiReference(options =>
+    {
+        options
+            .WithTitle("BookMyHall API")
+            .WithTheme(ScalarTheme.BluePlanet);
+    });
+}
 
-#endregion
-
-#region Endpoints
-
+app.UseHttpsRedirection();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapRoleEndpoints();
 app.MapUserEndpoints();
 app.MapAuthenticationEndpoints();
 app.MapStateEndpoints();
+<<<<<<< HEAD
 app.MapAmenityEndpoints();
 #endregion
 
+=======
+>>>>>>> 5152b076bf39c1d20fea9b7d4c592db850832f61
 await app.RunAsync();
