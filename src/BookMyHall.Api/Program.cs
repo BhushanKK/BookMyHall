@@ -1,6 +1,7 @@
 using System.Globalization;
 
 using BookMyHall.Api.Endpoints.Identity;
+using BookMyHall.Api.Endpoints.Master;
 using BookMyHall.Application;
 using BookMyHall.Infrastructure;
 using BookMyHall.Persistence;
@@ -98,7 +99,7 @@ app.MapScalarApiReference(options =>
 app.MapRoleEndpoints();
 app.MapUserEndpoints();
 app.MapAuthenticationEndpoints();
-
+app.MapStateEndpoints();
 #endregion
 
 await app.RunAsync();
