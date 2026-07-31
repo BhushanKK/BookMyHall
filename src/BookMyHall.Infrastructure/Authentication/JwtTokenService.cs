@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using BookMyHall.Application.Abstractions.Authentication;
+using System.Security.Cryptography;
 
 namespace BookMyHall.Infrastructure.Authentication;
 
@@ -68,5 +69,10 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options)
         }
 
         return claims;
+    }
+
+    public string GenerateRefreshToken()
+    {
+        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
     }
 }

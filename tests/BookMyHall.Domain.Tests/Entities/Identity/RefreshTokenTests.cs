@@ -1,5 +1,4 @@
 using FluentAssertions;
-using MyBookHall.Domain.Identity;
 
 namespace BookMyHall.Domain.Tests.Entities.Identity;
 

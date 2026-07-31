@@ -97,6 +97,7 @@ app.MapScalarApiReference(options =>
 
 app.MapRoleEndpoints();
 app.MapUserEndpoints();
+app.MapAuthenticationEndpoints();
 
 #endregion
 

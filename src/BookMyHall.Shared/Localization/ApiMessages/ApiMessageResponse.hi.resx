@@ -96,4 +96,40 @@
     <value>एक अप्रत्याशित त्रुटि हुई। कृपया पुनः प्रयास करें।</value>
   </data>
 
+  <!--Authenticatin-->
+  <data name="LoginSuccessful" xml:space="preserve">
+    <value>लॉगिन सफल हुआ।</value>
+  </data>
+
+  <data name="LogoutSuccessful" xml:space="preserve">
+    <value>लॉगआउट सफल हुआ।</value>
+  </data>
+
+  <data name="InvalidCredentials" xml:space="preserve">
+    <value>मोबाइल नंबर या पासवर्ड गलत है।</value>
+  </data>
+
+  <data name="InvalidRefreshToken" xml:space="preserve">
+    <value>रिफ्रेश टोकन अमान्य है।</value>
+  </data>
+
+  <data name="RefreshTokenExpired" xml:space="preserve">
+    <value>रिफ्रेश टोकन की अवधि समाप्त हो गई है।</value>
+  </data>
+
+  <data name="AccessDenied" xml:space="preserve">
+    <value>पहुंच अस्वीकृत है।</value>
+  </data>
+
+  <data name="UserInactive" xml:space="preserve">
+    <value>आपका खाता निष्क्रिय है। कृपया व्यवस्थापक से संपर्क करें।</value>
+  </data>
+
+  <data name="PasswordChangedSuccessfully" xml:space="preserve">
+    <value>पासवर्ड सफलतापूर्वक बदल दिया गया।</value>
+  </data>
+
+  <data name="PasswordResetSuccessfully" xml:space="preserve">
+    <value>पासवर्ड सफलतापूर्वक रीसेट किया गया।</value>
+  </data>
 </root>

@@ -20,4 +20,17 @@ public interface IMessageHelper
     string AlreadyExistsEntity(string resourceName, string key);
     string NotFoundEntity(string resourceName, string key);
     string InvalidIdEntity(string resourceName, string key);
+    string LoginSuccessful();
+
+    string LogoutSuccessful();
+
+    string InvalidCredentials();
+
+    string InvalidRefreshToken();
+
+    string RefreshTokenExpired();
+    string AccessDenied();
+    string UserInactive();
+    string PasswordChangedSuccessfully();
+    string PasswordResetSuccessfully();
 }

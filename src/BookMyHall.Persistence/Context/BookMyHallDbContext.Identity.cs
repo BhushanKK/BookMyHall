@@ -1,9 +1,6 @@
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Domain.Identity;
-
 using Microsoft.EntityFrameworkCore;
-
-using MyBookHall.Domain.Identity;
 
 namespace BookMyHall.Persistence.Context;
 

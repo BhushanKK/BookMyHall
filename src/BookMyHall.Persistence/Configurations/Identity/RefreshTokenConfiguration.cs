@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MyBookHall.Domain.Identity;
 
 namespace BookMyHall.Persistence.Context;
 public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>

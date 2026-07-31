@@ -11,7 +11,7 @@ public class User : BaseEntity
     public string? LastName { get; set; }
     public string MobileNumber { get; set; } = string.Empty;
     public string? EmailAddress { get; set; }
-    public string? PasswordHash { get; set; }
+    public string PasswordHash { get; set; } = string.Empty;
     public string? ProfileImageUrl { get; set; }
     public bool IsMobileVerified { get; set; }
     public bool IsEmailVerified { get; set; }

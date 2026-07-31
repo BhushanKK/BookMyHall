@@ -96,4 +96,41 @@
     <value>अनपेक्षित त्रुटी आली. कृपया पुन्हा प्रयत्न करा.</value>
   </data>
 
+  <!--Authenticatin-->
+
+  <data name="LoginSuccessful" xml:space="preserve">
+    <value>लॉगिन यशस्वीरित्या झाले.</value>
+  </data>
+
+  <data name="LogoutSuccessful" xml:space="preserve">
+    <value>लॉगआउट यशस्वीरित्या झाले.</value>
+  </data>
+
+  <data name="InvalidCredentials" xml:space="preserve">
+    <value>मोबाईल क्रमांक किंवा पासवर्ड चुकीचा आहे.</value>
+  </data>
+
+  <data name="InvalidRefreshToken" xml:space="preserve">
+    <value>रिफ्रेश टोकन अवैध आहे.</value>
+  </data>
+
+  <data name="RefreshTokenExpired" xml:space="preserve">
+    <value>रिफ्रेश टोकनची मुदत संपली आहे.</value>
+  </data>
+
+  <data name="AccessDenied" xml:space="preserve">
+    <value>प्रवेश नाकारण्यात आला आहे.</value>
+  </data>
+
+  <data name="UserInactive" xml:space="preserve">
+    <value>आपले खाते निष्क्रिय आहे. कृपया प्रशासकाशी संपर्क साधा.</value>
+  </data>
+
+  <data name="PasswordChangedSuccessfully" xml:space="preserve">
+    <value>पासवर्ड यशस्वीरित्या बदलण्यात आला.</value>
+  </data>
+
+  <data name="PasswordResetSuccessfully" xml:space="preserve">
+    <value>पासवर्ड यशस्वीरित्या रीसेट करण्यात आला.</value>
+  </data>
 </root>

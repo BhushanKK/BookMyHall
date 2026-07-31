@@ -3,8 +3,7 @@ using BookMyHall.Shared.Localization;
 
 namespace BookMyHall.Shared.Common;
 
-public sealed class MessageHelper(
-    ILocalizationService localizer)
+public sealed class MessageHelper(ILocalizationService localizer)
     : IMessageHelper
 {
     public string Entity(string resourceName, string key)
@@ -51,4 +50,31 @@ public sealed class MessageHelper(
 
     public string InvalidIdEntity(string resourceName, string key)
         => InvalidId(Entity(resourceName, key));
+
+    public string LoginSuccessful()
+        => localizer.Get(ResourceNames.ApiMessageResponse, "LoginSuccessful");
+
+    public string LogoutSuccessful()
+        => localizer.Get(ResourceNames.ApiMessageResponse, "LogoutSuccessful");
+
+    public string InvalidCredentials()
+        => localizer.Get(ResourceNames.ApiMessageResponse, "InvalidCredentials");
+
+    public string InvalidRefreshToken()
+        => localizer.Get(ResourceNames.ApiMessageResponse, "InvalidRefreshToken");
+
+    public string RefreshTokenExpired()
+        => localizer.Get(ResourceNames.ApiMessageResponse, "RefreshTokenExpired");
+
+    public string AccessDenied()
+        => localizer.Get(ResourceNames.ApiMessageResponse, "AccessDenied");
+
+    public string UserInactive()
+        => localizer.Get(ResourceNames.ApiMessageResponse, "UserInactive");
+
+    public string PasswordChangedSuccessfully()
+        => localizer.Get(ResourceNames.ApiMessageResponse, "PasswordChangedSuccessfully");
+
+    public string PasswordResetSuccessfully()
+        => localizer.Get(ResourceNames.ApiMessageResponse, "PasswordResetSuccessfully");
 }
