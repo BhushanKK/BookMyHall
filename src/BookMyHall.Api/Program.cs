@@ -72,10 +72,5 @@ app.MapRoleEndpoints();
 app.MapUserEndpoints();
 app.MapAuthenticationEndpoints();
 app.MapStateEndpoints();
-<<<<<<< HEAD
 app.MapAmenityEndpoints();
-#endregion
-
-=======
->>>>>>> 5152b076bf39c1d20fea9b7d4c592db850832f61
 await app.RunAsync();
