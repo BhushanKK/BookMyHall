@@ -36,4 +36,7 @@ public static class EntityKeys
 
     public const string Amenity = nameof(Amenity);
     public const string AmenityId = nameof(AmenityId);
+
+    public const string Area = nameof(Area);
+    public const string AreaId = nameof(AreaId);
 }

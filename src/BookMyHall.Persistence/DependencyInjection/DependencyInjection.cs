@@ -23,6 +23,7 @@ public static class DependencyInjection
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IAmenityRepository, AmenityRepository>();
         services.AddScoped<IStateRepository, StateRepository>();
+        services.AddScoped<IAreaRepository, AreaRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         return services;
     }
