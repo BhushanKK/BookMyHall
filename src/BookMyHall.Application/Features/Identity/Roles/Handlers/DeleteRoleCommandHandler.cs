@@ -18,30 +18,26 @@ public sealed class DeleteRoleCommandHandler(
         DeleteRoleCommand request,
         CancellationToken cancellationToken)
     {
-        var role = await roleRepository.GetByIdAsync(
-            request.RoleId,
-            cancellationToken);
+        var role = await roleRepository.GetByIdAsync(request.RoleId, cancellationToken);
 
         if (role is null)
         {
-            return ApiResponse<bool>.FailureResponse(
-                messageHelper.NotFoundEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.Role),
-                HttpStatusCode.NotFound);
+            return ApiResponse<bool>.FailureResponse
+            (
+                messageHelper.NotFoundEntity(ResourceNames.Entities,EntityKeys.Role),
+                HttpStatusCode.NotFound
+            );
         }
 
         role.Deactivate();
 
         await roleRepository.UpdateAsync(role, cancellationToken);
-
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(
-            true,
-            messageHelper.DeletedEntity(
-                ResourceNames.Entities,
-                EntityKeys.Role),
-            HttpStatusCode.OK);
+        return ApiResponse<bool>.SuccessResponse
+        (
+            true,messageHelper.DeletedEntity(ResourceNames.Entities,EntityKeys.Role),
+            HttpStatusCode.OK
+        );
     }
 }

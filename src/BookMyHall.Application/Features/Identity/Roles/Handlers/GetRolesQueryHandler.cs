@@ -19,9 +19,7 @@ public sealed class GetRolesQueryHandler(
         GetRolesQuery request,
         CancellationToken cancellationToken)
     {
-        var pagedResult = await roleRepository.GetAllAsync(
-            request.Request,
-            cancellationToken);
+        var pagedResult = await roleRepository.GetAllAsync(request.Request, cancellationToken);
 
         var response = new PaginatedResponse<Role>
         {
@@ -31,11 +29,11 @@ public sealed class GetRolesQueryHandler(
             TotalRecords = pagedResult.TotalCount
         };
 
-        return ApiResponse<PaginatedResponse<Role>>.SuccessResponse(
+        return ApiResponse<PaginatedResponse<Role>>.SuccessResponse
+        (
             response,
-            messageHelper.RetrievedEntity(
-                ResourceNames.Entities,
-                EntityKeys.Role),
-            HttpStatusCode.OK);
+            messageHelper.RetrievedEntity(ResourceNames.Entities,EntityKeys.Role),
+            HttpStatusCode.OK
+        );
     }
 }

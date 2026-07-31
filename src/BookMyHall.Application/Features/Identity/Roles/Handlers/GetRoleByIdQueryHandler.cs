@@ -19,24 +19,22 @@ public sealed class GetRoleByIdQueryHandler(
         GetRoleByIdQuery request,
         CancellationToken cancellationToken)
     {
-        var role = await roleRepository.GetByIdAsync(
-            request.RoleId,
-            cancellationToken);
+        var role = await roleRepository.GetByIdAsync(request.RoleId,cancellationToken);
 
         if (role is null)
         {
-            return ApiResponse<Role>.FailureResponse(
-                messageHelper.NotFoundEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.Role),
-                HttpStatusCode.NotFound);
+            return ApiResponse<Role>.FailureResponse
+            (
+                messageHelper.NotFoundEntity(ResourceNames.Entities,EntityKeys.Role),
+                HttpStatusCode.NotFound
+            );
         }
 
-        return ApiResponse<Role>.SuccessResponse(
+        return ApiResponse<Role>.SuccessResponse
+        (
             mapper.Map<Role>(role),
-            messageHelper.RetrievedEntity(
-                ResourceNames.Entities,
-                EntityKeys.Role),
-            HttpStatusCode.OK);
+            messageHelper.RetrievedEntity(ResourceNames.Entities,EntityKeys.Role),
+            HttpStatusCode.OK
+        );
     }
 }

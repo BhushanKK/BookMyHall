@@ -39,22 +39,18 @@ public sealed class CreateRoleCommandHandler(
 
         var role = mapper.Map<Role>(request);
 
-        role.CreatedDate = DateTimeOffset.UtcNow;
-        role.CreatedBy = Guid.Empty; // TODO: Replace with ICurrentUserService
-
         try
         {
             await roleRepository.AddAsync(role, cancellationToken);
-
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
         catch (DuplicateRecordException)
         {
-            return ApiResponse<RoleDto>.FailureResponse(
-                messageHelper.AlreadyExistsEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.Role),
-                HttpStatusCode.Conflict);
+            return ApiResponse<RoleDto>.FailureResponse
+            (
+                messageHelper.AlreadyExistsEntity(ResourceNames.Entities,EntityKeys.Role),
+                HttpStatusCode.Conflict
+            );
         }
 
         return ApiResponse<RoleDto>.SuccessResponse
