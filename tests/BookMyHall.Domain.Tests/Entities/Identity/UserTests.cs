@@ -161,14 +161,13 @@ public sealed class UserTests
     public void User_Should_Have_Default_Values()
     {
         var user = new User();
-
         user.UserId.Should().Be(Guid.Empty);
         user.FirstName.Should().BeEmpty();
         user.MiddleName.Should().BeNull();
         user.LastName.Should().BeNull();
         user.MobileNumber.Should().BeEmpty();
         user.EmailAddress.Should().BeNull();
-        user.PasswordHash.Should().BeNull();
+        user.PasswordHash.Should().BeEmpty(); // Changed
         user.ProfileImageUrl.Should().BeNull();
         user.IsMobileVerified.Should().BeFalse();
         user.IsEmailVerified.Should().BeFalse();
