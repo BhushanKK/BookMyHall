@@ -9,7 +9,7 @@ public static class RoleEndpoints
     public static void MapRoleEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/roles")
-            .WithTags("Roles");
+            .RequireAuthorization();
 
         group.MapPost("/", async (
             CreateRoleCommand command,
