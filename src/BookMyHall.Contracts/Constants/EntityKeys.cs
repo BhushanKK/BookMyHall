@@ -42,4 +42,7 @@ public static class EntityKeys
 
     public const string CancellationPolicy = nameof(CancellationPolicy);
     public const string CancellationPolicyId = nameof(CancellationPolicyId);
+
+    public const string City = nameof(City);
+    public const string CityId = nameof(CityId);
 }
