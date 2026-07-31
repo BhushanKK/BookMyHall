@@ -1,11 +1,7 @@
 using MediatR;
-
 using System.Net;
-
 using AutoMapper;
-
 using FluentValidation;
-
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Persistence.Exceptions;
@@ -58,13 +54,9 @@ public sealed class UpdateStateCommandHandler(
 
         mapper.Map(request, state);
 
-        state.UpdatedDate = DateTimeOffset.UtcNow;
-        state.UpdatedBy = Guid.Empty; 
-
         try
         {
             await stateRepository.UpdateAsync(state, cancellationToken);
-
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
         catch (DuplicateRecordException)

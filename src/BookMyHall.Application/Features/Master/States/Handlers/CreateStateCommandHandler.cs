@@ -38,13 +38,9 @@ public sealed class CreateStateCommandHandler(
 
         var state = mapper.Map<State>(request);
 
-        state.CreatedDate = DateTimeOffset.UtcNow;
-        state.CreatedBy = Guid.Empty; 
-
         try
         {
             await stateRepository.AddAsync(state, cancellationToken);
-
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
         catch (DuplicateRecordException)
