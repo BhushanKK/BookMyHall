@@ -29,4 +29,8 @@ public static class EntityKeys
 
     public const string Customer = nameof(Customer);
     public const string CustomerId = nameof(CustomerId);
+
+    //Master
+    public const string State = nameof(State);
+    public const string StateId = nameof(StateId);
 }
