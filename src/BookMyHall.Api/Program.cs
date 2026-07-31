@@ -74,4 +74,5 @@ app.MapAuthenticationEndpoints();
 app.MapStateEndpoints();
 app.MapAmenityEndpoints();
 app.MapAreaEndpoints();
+app.MapCancellationPolicyEndpoints();
 await app.RunAsync();

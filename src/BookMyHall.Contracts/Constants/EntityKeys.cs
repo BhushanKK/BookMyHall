@@ -39,4 +39,7 @@ public static class EntityKeys
 
     public const string Area = nameof(Area);
     public const string AreaId = nameof(AreaId);
+
+    public const string CancellationPolicy = nameof(CancellationPolicy);
+    public const string CancellationPolicyId = nameof(CancellationPolicyId);
 }

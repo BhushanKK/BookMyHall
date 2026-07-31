@@ -1,16 +1,19 @@
 using MediatR;
 using BookMyHall.Application.Features.Master;
+
 namespace BookMyHall.Api.Endpoints.Master;
-public static class AreaEndpoints
+
+public static class CancellationPolicyEndpoints
 {
-    public static void MapAreaEndpoints(this IEndpointRouteBuilder app)
+    public static void MapCancellationPolicyEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/areas")
-            .WithTags("Areas")
+        var group = app.MapGroup("/api/cancellation-policies")
+            .WithTags("Cancellation Policies")
             .RequireAuthorization(policy => policy.RequireRole("Admin"));
 
+
         group.MapPost("/", async (
-            CreateAreaCommand command,
+            CreateCancellationPolicyCommand command,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
@@ -18,42 +21,41 @@ public static class AreaEndpoints
             return Results.Ok(result);
         });
 
-        group.MapPut("/{areaId:guid}", async (
-            Guid areaId,
-            UpdateAreaCommand command,
+        group.MapPut("/{cancellationPolicyId:guid}", async (
+            Guid cancellationPolicyId,
+            UpdateCancellationPolicyCommand command,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            command.AreaId = areaId;
+            command.CancellationPolicyId = cancellationPolicyId;
             var result = await mediator.Send(command, cancellationToken);
             return Results.Ok(result);
         });
 
-        group.MapDelete("/{areaId:guid}", async (
-            Guid areaId,
+        group.MapDelete("/{cancellationPolicyId:guid}", async (
+            Guid cancellationPolicyId,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
             var result = await mediator.Send(
-                new DeleteAreaCommand(areaId),
-                cancellationToken);
+                new DeleteCancellationPolicyCommand(cancellationPolicyId),cancellationToken);
             return Results.Ok(result);
         });
 
-        group.MapGet("/{areaId:guid}", async (
-            Guid areaId,
+        group.MapGet("/{cancellationPolicyId:guid}", async (
+            Guid cancellationPolicyId,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
             var result = await mediator.Send(
-                new GetAreaByIdQuery(areaId),
+                new GetCancellationPolicyByIdQuery(cancellationPolicyId),
                 cancellationToken);
 
             return Results.Ok(result);
         });
 
         group.MapPost("/search", async (
-            GetAreasQuery query,
+            GetCancellationPoliciesQuery query,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
