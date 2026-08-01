@@ -11,9 +11,7 @@ public sealed class UserSessionTests
     {
         var userSession = new UserSession();
         var id = Guid.NewGuid();
-
         userSession.UserSessionId = id;
-
         userSession.UserSessionId.Should().Be(id);
     }
 
@@ -22,9 +20,7 @@ public sealed class UserSessionTests
     {
         var userSession = new UserSession();
         var userId = Guid.NewGuid();
-
         userSession.UserId = userId;
-
         userSession.UserId.Should().Be(userId);
     }
 
@@ -33,9 +29,7 @@ public sealed class UserSessionTests
     {
         var userSession = new UserSession();
         var refreshTokenId = Guid.NewGuid();
-
         userSession.RefreshTokenId = refreshTokenId;
-
         userSession.RefreshTokenId.Should().Be(refreshTokenId);
     }
 
@@ -44,9 +38,7 @@ public sealed class UserSessionTests
     {
         var userSession = new UserSession();
         var deviceId = Guid.NewGuid();
-
         userSession.DeviceId = deviceId;
-
         userSession.DeviceId.Should().Be(deviceId);
     }
 
@@ -55,9 +47,7 @@ public sealed class UserSessionTests
     {
         var userSession = new UserSession();
         var sessionStart = DateTimeOffset.Now.AddHours(9);
-
         userSession.SessionStart = sessionStart;
-
         userSession.SessionStart.Should().Be(sessionStart);
     }
 
@@ -66,9 +56,7 @@ public sealed class UserSessionTests
     {
         var userSession = new UserSession();
         var sessionEnd = DateTimeOffset.Now.AddHours(18);
-
         userSession.SessionEnd = sessionEnd;
-
         userSession.SessionEnd.Should().Be(sessionEnd);
     }
 
@@ -90,9 +78,7 @@ public sealed class UserSessionTests
     public void UserSession_Should_Assign_IsActive()
     {
         var userSession = new UserSession();
-
         userSession.IsActive = true;
-
         userSession.IsActive.Should().BeTrue();
     }
 
@@ -133,11 +119,10 @@ public sealed class UserSessionTests
     public void UserSession_Should_Have_Default_Values()
     {
         var userSession = new UserSession();
-
         userSession.UserSessionId.Should().Be(Guid.Empty);
         userSession.UserId.Should().Be(Guid.Empty);
         userSession.RefreshTokenId.Should().Be(Guid.Empty);
-        userSession.DeviceId.Should().Be(Guid.Empty);
+        userSession.DeviceId.Should().BeNull();
         userSession.SessionStart.Should().Be(default);
         userSession.SessionEnd.Should().Be(default);
         userSession.LastActivity.Should().Be(default);
