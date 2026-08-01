@@ -123,9 +123,10 @@ public sealed class UserSessionTests
         userSession.UserId.Should().Be(Guid.Empty);
         userSession.RefreshTokenId.Should().Be(Guid.Empty);
         userSession.DeviceId.Should().BeNull();
-        userSession.SessionStart.Should().Be(default);
-        userSession.SessionEnd.Should().Be(default);
-        userSession.LastActivity.Should().Be(default);
-        userSession.IsActive.Should().BeFalse();
+        userSession.SessionStart.Should().Be(default(DateTimeOffset));
+        userSession.LastActivity.Should().Be(default(DateTimeOffset));
+        userSession.SessionEnd.Should().BeNull();
+        userSession.IsActive.Should().BeTrue();
+        userSession.LoggedOutReason.Should().BeNull();
     }
 }
