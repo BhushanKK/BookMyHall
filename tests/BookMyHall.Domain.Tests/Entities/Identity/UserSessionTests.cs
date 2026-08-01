@@ -1,4 +1,5 @@
 using FluentAssertions;
+
 using BookMyHall.Domain.Identity;
 
 namespace BookMyHall.Domain.Tests.Entities.Identity;
@@ -53,7 +54,7 @@ public sealed class UserSessionTests
     public void UserSession_Should_Assign_SessionStart()
     {
         var userSession = new UserSession();
-        var sessionStart = TimeSpan.FromHours(9);
+        var sessionStart = DateTimeOffset.Now.AddHours(9);
 
         userSession.SessionStart = sessionStart;
 
@@ -64,7 +65,7 @@ public sealed class UserSessionTests
     public void UserSession_Should_Assign_SessionEnd()
     {
         var userSession = new UserSession();
-        var sessionEnd = TimeSpan.FromHours(18);
+        var sessionEnd = DateTimeOffset.Now.AddHours(18);
 
         userSession.SessionEnd = sessionEnd;
 
@@ -74,11 +75,14 @@ public sealed class UserSessionTests
     [Fact]
     public void UserSession_Should_Assign_LastActivity()
     {
+        // Arrange
         var userSession = new UserSession();
-        var lastActivity = TimeSpan.FromHours(12);
+        var lastActivity = DateTimeOffset.Now.AddHours(12);
 
+        // Act
         userSession.LastActivity = lastActivity;
 
+        // Assert
         userSession.LastActivity.Should().Be(lastActivity);
     }
 
@@ -99,9 +103,9 @@ public sealed class UserSessionTests
         var userId = Guid.NewGuid();
         var refreshTokenId = Guid.NewGuid();
         var deviceId = Guid.NewGuid();
-        var sessionStart = TimeSpan.FromHours(9);
-        var sessionEnd = TimeSpan.FromHours(18);
-        var lastActivity = TimeSpan.FromHours(12);
+        var sessionStart = DateTimeOffset.Now.AddHours(9);
+        var sessionEnd = DateTimeOffset.Now.AddHours(18);
+        var lastActivity = DateTimeOffset.Now.AddHours(12);
 
         var userSession = new UserSession
         {
