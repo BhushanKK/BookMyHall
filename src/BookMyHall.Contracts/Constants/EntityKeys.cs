@@ -48,4 +48,7 @@ public static class EntityKeys
 
     public const string District = nameof(District);
     public const string DistrictId = nameof(DistrictId);
+
+    public const string EventCategory = nameof(EventCategory);
+    public const string EventCategoryId = nameof(EventCategoryId);
 }

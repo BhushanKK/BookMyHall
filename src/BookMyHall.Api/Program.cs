@@ -77,4 +77,5 @@ app.MapAreaEndpoints();
 app.MapCancellationPolicyEndpoints();
 app.MapCityEndpoints();
 app.MapDistrictEndpoints();
+app.MapEventCategoryEndpoints();
 await app.RunAsync();
