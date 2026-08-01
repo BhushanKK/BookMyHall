@@ -28,6 +28,7 @@ public static class DependencyInjection
         services.AddScoped<ICityRepository, CityRepository>();
         services.AddScoped<IDistrictRepository, DistrictRepository>();
         services.AddScoped<IEventCategoryRepository, EventCategoryRepository>();
+        services.AddScoped<IFacilityRepository, FacilityRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         return services;
     }

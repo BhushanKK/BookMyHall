@@ -51,4 +51,7 @@ public static class EntityKeys
 
     public const string EventCategory = nameof(EventCategory);
     public const string EventCategoryId = nameof(EventCategoryId);
+
+      public const string Facility = nameof(Facility);
+    public const string FacilityId = nameof(FacilityId);
 }
