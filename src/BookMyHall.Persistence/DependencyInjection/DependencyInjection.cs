@@ -26,6 +26,7 @@ public static class DependencyInjection
         services.AddScoped<IAreaRepository, AreaRepository>();
         services.AddScoped<ICancellationPolicyRepository, CancellationPolicyRepository>();
         services.AddScoped<ICityRepository, CityRepository>();
+        services.AddScoped<IDistrictRepository, DistrictRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         return services;
     }

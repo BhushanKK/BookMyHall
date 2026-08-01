@@ -45,4 +45,7 @@ public static class EntityKeys
 
     public const string City = nameof(City);
     public const string CityId = nameof(CityId);
+
+    public const string District = nameof(District);
+    public const string DistrictId = nameof(DistrictId);
 }
