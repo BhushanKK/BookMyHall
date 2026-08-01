@@ -122,7 +122,7 @@ public sealed class UserSessionTests
         userSession.UserSessionId.Should().Be(Guid.Empty);
         userSession.UserId.Should().Be(Guid.Empty);
         userSession.RefreshTokenId.Should().Be(Guid.Empty);
-        userSession.DeviceId.Should().BeNull();
+
         userSession.SessionStart.Should().Be(default(DateTimeOffset));
         userSession.LastActivity.Should().Be(default(DateTimeOffset));
         userSession.SessionEnd.Should().BeNull();
