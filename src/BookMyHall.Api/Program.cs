@@ -79,4 +79,5 @@ app.MapCityEndpoints();
 app.MapDistrictEndpoints();
 app.MapEventCategoryEndpoints();
 app.MapFacilityEndpoints();
+app.MapFoodTypeEndpoints();
 await app.RunAsync();

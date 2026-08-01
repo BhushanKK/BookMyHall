@@ -29,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<IDistrictRepository, DistrictRepository>();
         services.AddScoped<IEventCategoryRepository, EventCategoryRepository>();
         services.AddScoped<IFacilityRepository, FacilityRepository>();
+        services.AddScoped<IFoodTypeRepository, FoodTypeRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         return services;
     }
