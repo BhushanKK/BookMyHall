@@ -16,62 +16,88 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
   </resheader>
 
+  <!-- ===================================================== -->
   <!-- Identity -->
+  <!-- ===================================================== -->
 
-    <data name="Role">
-        <value>Role</value>
-    </data>
+  <data name="User" xml:space="preserve">
+    <value>User</value>
+  </data>
 
-    <data name="RoleId">
-        <value>Role Id</value>
-    </data>
+  <data name="UserId" xml:space="preserve">
+    <value>User Id</value>
+  </data>
 
-    <data name="User">
-        <value>User</value>
-    </data>
+  <data name="Role" xml:space="preserve">
+    <value>Role</value>
+  </data>
 
-    <data name="UserId">
-        <value>User Id</value>
-    </data>
+  <data name="RoleId" xml:space="preserve">
+    <value>Role Id</value>
+  </data>
 
-    <data name="Hall">
-        <value>Hall</value>
-    </data>
+  <data name="Permission" xml:space="preserve">
+    <value>Permission</value>
+  </data>
 
-    <data name="HallId">
-        <value>Hall Id</value>
-    </data>
+  <data name="UserRole" xml:space="preserve">
+    <value>User Role</value>
+  </data>
 
-    <data name="Booking">
-        <value>Booking</value>
-    </data>
+  <data name="FirstName" xml:space="preserve">
+    <value>First Name</value>
+  </data>
 
-    <data name="BookingId">
-        <value>Booking Id</value>
-    </data>
+  <data name="MiddleName" xml:space="preserve">
+    <value>Middle Name</value>
+  </data>
 
-    <data name="Permission" xml:space="preserve">
-        <value>Permission</value>
-    </data>
+  <data name="LastName" xml:space="preserve">
+    <value>Last Name</value>
+  </data>
 
-    <data name="UserRole" xml:space="preserve">
-        <value>User Role</value>
-    </data>
-    <data name="MobileNumber" xml:space="preserve">
-      <value>Mobile Number</value>
-    </data>
+  <data name="MobileNumber" xml:space="preserve">
+    <value>Mobile Number</value>
+  </data>
 
-    <data name="EmailAddress" xml:space="preserve">
-      <value>Email Address</value>
-    </data>
+  <data name="EmailAddress" xml:space="preserve">
+    <value>Email Address</value>
+  </data>
 
-    <data name="Password" xml:space="preserve">
-        <value>Password</value>
-    </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+
+  <data name="CurrentPassword" xml:space="preserve">
+    <value>Current Password</value>
+  </data>
+
+  <data name="NewPassword" xml:space="preserve">
+    <value>New Password</value>
+  </data>
+
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>Confirm Password</value>
+  </data>
+
+  <data name="RefreshToken" xml:space="preserve">
+    <value>Refresh Token</value>
+  </data>
+
+  <data name="Otp" xml:space="preserve">
+    <value>OTP</value>
+  </data>
+
+  <!-- ===================================================== -->
   <!-- Hall -->
+  <!-- ===================================================== -->
 
   <data name="Hall" xml:space="preserve">
     <value>Hall</value>
+  </data>
+
+  <data name="HallId" xml:space="preserve">
+    <value>Hall Id</value>
   </data>
 
   <data name="HallCategory" xml:space="preserve">
@@ -90,10 +116,16 @@
     <value>Hall Image</value>
   </data>
 
+  <!-- ===================================================== -->
   <!-- Booking -->
+  <!-- ===================================================== -->
 
   <data name="Booking" xml:space="preserve">
     <value>Booking</value>
+  </data>
+
+  <data name="BookingId" xml:space="preserve">
+    <value>Booking Id</value>
   </data>
 
   <data name="BookingStatus" xml:space="preserve">
@@ -104,7 +136,9 @@
     <value>Booking Timeline</value>
   </data>
 
+  <!-- ===================================================== -->
   <!-- Customer -->
+  <!-- ===================================================== -->
 
   <data name="Customer" xml:space="preserve">
     <value>Customer</value>
@@ -118,7 +152,9 @@
     <value>Favourite</value>
   </data>
 
+  <!-- ===================================================== -->
   <!-- Payment -->
+  <!-- ===================================================== -->
 
   <data name="Payment" xml:space="preserve">
     <value>Payment</value>
@@ -128,7 +164,9 @@
     <value>Refund</value>
   </data>
 
+  <!-- ===================================================== -->
   <!-- Masters -->
+  <!-- ===================================================== -->
 
   <data name="Country" xml:space="preserve">
     <value>Country</value>
@@ -166,7 +204,9 @@
     <value>Coupon</value>
   </data>
 
+  <!-- ===================================================== -->
   <!-- Common -->
+  <!-- ===================================================== -->
 
   <data name="Image" xml:space="preserve">
     <value>Image</value>

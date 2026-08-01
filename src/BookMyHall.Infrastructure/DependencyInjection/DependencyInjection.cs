@@ -1,12 +1,15 @@
+using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using BookMyHall.Application.Abstractions.Authentication;
+using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Application.Abstractions.Security;
 using BookMyHall.Infrastructure.Authentication;
 using BookMyHall.Infrastructure.Security;
+using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Infrastructure;
 
@@ -26,11 +29,12 @@ public static class DependencyInjection
         var jwtOptions = configuration
             .GetSection(JwtOptions.SectionName)
             .Get<JwtOptions>()
-            ?? throw new InvalidOperationException("JWT configuration section is missing.");
+            ?? throw new InvalidOperationException(
+                "JWT configuration section is missing.");
 
         ValidateJwtOptions(jwtOptions);
 
-        // JWT Token Service
+        // JWT Service
         services.AddScoped<IJwtTokenService, JwtTokenService>();
 
         // Authentication
@@ -48,12 +52,67 @@ public static class DependencyInjection
                     ValidAudience = jwtOptions.Audience,
 
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(jwtOptions.SecretKey))
+                        Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
+
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        try
+                        {
+                            var userIdClaim = context.Principal?
+                                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                            var tokenVersionClaim = context.Principal?
+                                .FindFirst(CustomClaimTypes.TokenVersion)?.Value;
+
+                            if (!Guid.TryParse(userIdClaim, out var userId) ||
+                                !int.TryParse(tokenVersionClaim, out var tokenVersion))
+                            {
+                                context.Fail("Invalid token.");
+                                return;
+                            }
+
+                            var userRepository = context.HttpContext.RequestServices
+                                .GetRequiredService<IUserRepository>();
+
+                            var user = await userRepository.GetByIdAsync(
+                                userId,
+                                context.HttpContext.RequestAborted);
+
+                            if (user is null)
+                            {
+                                context.Fail("User not found.");
+                                return;
+                            }
+
+                            if (!user.IsActive)
+                            {
+                                context.Fail("User is inactive.");
+                                return;
+                            }
+
+                            if (user.TokenVersion != tokenVersion)
+                            {
+                                context.Fail("Token has been revoked.");
+                                return;
+                            }
+                        }
+                        catch
+                        {
+                            context.Fail("Authentication validation failed.");
+                        }
+                    }
                 };
             });
 
         // Authorization
         services.AddAuthorization();
+
+        // Current User
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, CurrentUser>();
 
@@ -74,12 +133,15 @@ public static class DependencyInjection
             throw new InvalidOperationException("Jwt:SecretKey is missing.");
 
         if (options.SecretKey.Length < 32)
-            throw new InvalidOperationException("Jwt:SecretKey must be at least 32 characters long.");
+            throw new InvalidOperationException(
+                "Jwt:SecretKey must be at least 32 characters long.");
 
         if (options.AccessTokenExpiryMinutes <= 0)
-            throw new InvalidOperationException("Jwt:AccessTokenExpiryMinutes must be greater than zero.");
+            throw new InvalidOperationException(
+                "Jwt:AccessTokenExpiryMinutes must be greater than zero.");
 
         if (options.RefreshTokenExpiryDays <= 0)
-            throw new InvalidOperationException("Jwt:RefreshTokenExpiryDays must be greater than zero.");
+            throw new InvalidOperationException(
+                "Jwt:RefreshTokenExpiryDays must be greater than zero.");
     }
 }

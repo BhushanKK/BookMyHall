@@ -1,6 +1,7 @@
 using FluentValidation;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Shared.Localization;
+using System.Linq.Expressions;
 
 namespace BookMyHall.Application.Common.Extensions;
 
@@ -82,5 +83,32 @@ public static class ValidationExtensions
             .WithMessage(localizer.Get(
                 ResourceNames.ValidationMessages,
                 "PhoneNumber"));
+    }
+
+    public static IRuleBuilderOptions<T, TProperty> EqualToLocalized<T, TProperty>(
+    this IRuleBuilder<T, TProperty> ruleBuilder,
+    Expression<Func<T, TProperty>> expression,
+    ILocalizationService localizer,
+    string currentEntityKey,
+    string compareEntityKey)
+    {
+        return ruleBuilder
+            .Equal(expression)
+            .WithMessage(localizer.Get(
+                ResourceNames.ValidationMessages,
+                "Equal",
+                localizer.Get(ResourceNames.Entities, currentEntityKey),
+                localizer.Get(ResourceNames.Entities, compareEntityKey)));
+    }
+
+    public static IRuleBuilderOptions<T, string> StrongPasswordLocalized<T>(
+    this IRuleBuilder<T, string> ruleBuilder,
+    ILocalizationService localizer)
+    {
+        return ruleBuilder
+            .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$")
+            .WithMessage(localizer.Get(
+                ResourceNames.ValidationMessages,
+                "StrongPassword"));
     }
 }

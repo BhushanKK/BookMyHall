@@ -6,4 +6,16 @@ public interface IRefreshTokenRepository
     Task UpdateAsync(RefreshToken refreshToken, CancellationToken cancellationToken = default);
     Task<RefreshToken?> GetByTokenAsync(string token, CancellationToken cancellationToken = default);
     Task<IEnumerable<RefreshToken>> GetActiveTokensByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Revokes all active refresh tokens for a user.
+    /// Used when changing password or logging out from all devices.
+    /// </summary>
+    Task RevokeAllByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Revokes a specific refresh token.
+    /// Used during logout or refresh token rotation.
+    /// </summary>
+    Task RevokeAsync(Guid refreshTokenId, Guid revokedBy, CancellationToken cancellationToken = default);
 }

@@ -77,4 +77,34 @@ public sealed class MessageHelper(ILocalizationService localizer)
 
     public string PasswordResetSuccessfully()
         => localizer.Get(ResourceNames.ApiMessageResponse, "PasswordResetSuccessfully");
+
+    public string PasswordMismatch()
+    => localizer.Get(ResourceNames.ApiMessageResponse, "PasswordMismatch");
+
+    public string PasswordAlreadyUsed()
+        => localizer.Get(ResourceNames.ApiMessageResponse, "PasswordAlreadyUsed");
+
+    public string Unauthorized()
+        => localizer.Get(ResourceNames.ApiMessageResponse, "Unauthorized");
+
+    public string Forbidden()
+        => localizer.Get(ResourceNames.ApiMessageResponse, "Forbidden");
+
+    public string UserLocked()
+    => localizer.Get(ResourceNames.ApiMessageResponse, "UserLocked");
+
+    public string OtpSentSuccessfully()
+        => localizer.Get(ResourceNames.ApiMessageResponse, "OtpSentSuccessfully");
+
+    public string InvalidOtp()
+        => localizer.Get(ResourceNames.ApiMessageResponse, "InvalidOtp");
+
+    public string OtpExpired()
+        => localizer.Get(ResourceNames.ApiMessageResponse, "OtpExpired");
+
+    public string EmailVerifiedSuccessfully()
+        => localizer.Get(ResourceNames.ApiMessageResponse, "EmailVerifiedSuccessfully");
+
+    public string MobileVerifiedSuccessfully()
+        => localizer.Get(ResourceNames.ApiMessageResponse, "MobileVerifiedSuccessfully");
 }

@@ -5,6 +5,7 @@ using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Persistence.Context;
 using BookMyHall.Persistence.Repositories;
+using BookMyHall.Persistence.Repositories.Identity;
 
 namespace BookMyHall.Persistence;
 
@@ -32,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<IFoodTypeRepository, FoodTypeRepository>();
         services.AddScoped<IPaymentModeRepository, PaymentModeRepository>();
         services.AddScoped<IServiceRepository, ServiceRepository>();
+        services.AddScoped<IUserSessionRepository, UserSessionRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         return services;
     }

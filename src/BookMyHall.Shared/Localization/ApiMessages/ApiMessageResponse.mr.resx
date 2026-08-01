@@ -16,14 +16,18 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
   </resheader>
 
+  <!-- ============================= -->
   <!-- CRUD -->
+  <!-- ============================= -->
+
+  <data name="Required" xml:space="preserve">
+    <value>{0} आवश्यक आहे.</value>
+  </data>
 
   <data name="Added" xml:space="preserve">
     <value>{0} यशस्वीरित्या जोडले गेले.</value>
   </data>
-  <data name="Required" xml:space="preserve">
-      <value>{0} आवश्यक आहे.</value>
-  </data>
+
   <data name="Updated" xml:space="preserve">
     <value>{0} यशस्वीरित्या अद्ययावत केले गेले.</value>
   </data>
@@ -36,7 +40,9 @@
     <value>{0} यशस्वीरित्या प्राप्त झाले.</value>
   </data>
 
+  <!-- ============================= -->
   <!-- Validation -->
+  <!-- ============================= -->
 
   <data name="AlreadyExists" xml:space="preserve">
     <value>{0} आधीपासून अस्तित्वात आहे.</value>
@@ -50,7 +56,9 @@
     <value>अवैध {0}.</value>
   </data>
 
+  <!-- ============================= -->
   <!-- Status -->
+  <!-- ============================= -->
 
   <data name="Activated" xml:space="preserve">
     <value>{0} यशस्वीरित्या सक्रिय केले गेले.</value>
@@ -59,8 +67,6 @@
   <data name="Deactivated" xml:space="preserve">
     <value>{0} यशस्वीरित्या निष्क्रिय केले गेले.</value>
   </data>
-
-  <!-- Common -->
 
   <data name="Saved" xml:space="preserve">
     <value>{0} यशस्वीरित्या जतन केले गेले.</value>
@@ -78,14 +84,16 @@
     <value>{0} यशस्वीरित्या नाकारले गेले.</value>
   </data>
 
+  <!-- ============================= -->
   <!-- API -->
+  <!-- ============================= -->
 
   <data name="ValidationFailed" xml:space="preserve">
     <value>पडताळणी अयशस्वी झाली.</value>
   </data>
 
   <data name="Unauthorized" xml:space="preserve">
-    <value>अनधिकृत प्रवेश.</value>
+    <value>तुम्ही ही क्रिया करण्यास अधिकृत नाही.</value>
   </data>
 
   <data name="Forbidden" xml:space="preserve">
@@ -96,7 +104,9 @@
     <value>अनपेक्षित त्रुटी आली. कृपया पुन्हा प्रयत्न करा.</value>
   </data>
 
-  <!--Authenticatin-->
+  <!-- ============================= -->
+  <!-- Authentication -->
+  <!-- ============================= -->
 
   <data name="LoginSuccessful" xml:space="preserve">
     <value>लॉगिन यशस्वीरित्या झाले.</value>
@@ -126,6 +136,14 @@
     <value>आपले खाते निष्क्रिय आहे. कृपया प्रशासकाशी संपर्क साधा.</value>
   </data>
 
+  <data name="UserLocked" xml:space="preserve">
+    <value>आपले खाते लॉक केले गेले आहे. कृपया प्रशासकाशी संपर्क साधा.</value>
+  </data>
+
+  <!-- ============================= -->
+  <!-- Password -->
+  <!-- ============================= -->
+
   <data name="PasswordChangedSuccessfully" xml:space="preserve">
     <value>पासवर्ड यशस्वीरित्या बदलण्यात आला.</value>
   </data>
@@ -133,4 +151,41 @@
   <data name="PasswordResetSuccessfully" xml:space="preserve">
     <value>पासवर्ड यशस्वीरित्या रीसेट करण्यात आला.</value>
   </data>
+
+  <data name="PasswordMismatch" xml:space="preserve">
+    <value>सध्याचा पासवर्ड चुकीचा आहे.</value>
+  </data>
+
+  <data name="PasswordAlreadyUsed" xml:space="preserve">
+    <value>नवीन पासवर्ड सध्याच्या पासवर्डपेक्षा वेगळा असावा.</value>
+  </data>
+
+  <!-- ============================= -->
+  <!-- OTP -->
+  <!-- ============================= -->
+
+  <data name="OtpSentSuccessfully" xml:space="preserve">
+    <value>OTP यशस्वीरित्या पाठविण्यात आला.</value>
+  </data>
+
+  <data name="InvalidOtp" xml:space="preserve">
+    <value>प्रविष्ट केलेला OTP अवैध आहे.</value>
+  </data>
+
+  <data name="OtpExpired" xml:space="preserve">
+    <value>OTP ची मुदत संपली आहे.</value>
+  </data>
+
+  <!-- ============================= -->
+  <!-- Verification -->
+  <!-- ============================= -->
+
+  <data name="EmailVerifiedSuccessfully" xml:space="preserve">
+    <value>ईमेल यशस्वीरित्या पडताळण्यात आला.</value>
+  </data>
+
+  <data name="MobileVerifiedSuccessfully" xml:space="preserve">
+    <value>मोबाईल क्रमांक यशस्वीरित्या पडताळण्यात आला.</value>
+  </data>
+
 </root>

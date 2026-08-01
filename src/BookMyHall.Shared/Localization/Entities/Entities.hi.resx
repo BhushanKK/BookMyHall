@@ -16,60 +16,88 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
   </resheader>
 
+  <!-- ===================================================== -->
   <!-- Identity -->
+  <!-- ===================================================== -->
 
-    <data name="Role">
-        <value>रोल</value>
-    </data>
+  <data name="User" xml:space="preserve">
+    <value>उपयोगकर्ता</value>
+  </data>
 
-    <data name="RoleId">
-        <value>रोल आईडी</value>
-    </data>
+  <data name="UserId" xml:space="preserve">
+    <value>उपयोगकर्ता आईडी</value>
+  </data>
 
-    <data name="User">
-        <value>युजर</value>
-    </data>
+  <data name="Role" xml:space="preserve">
+    <value>भूमिका</value>
+  </data>
 
-    <data name="UserId">
-        <value>युजर आईडी</value>
-    </data>
+  <data name="RoleId" xml:space="preserve">
+    <value>भूमिका आईडी</value>
+  </data>
 
-    <data name="Hall">
-        <value>हॉल</value>
-    </data>
+  <data name="Permission" xml:space="preserve">
+    <value>अनुमति</value>
+  </data>
 
-    <data name="HallId">
-        <value>हॉल आईडी</value>
-    </data>
+  <data name="UserRole" xml:space="preserve">
+    <value>उपयोगकर्ता भूमिका</value>
+  </data>
 
-    <data name="Booking">
-        <value>बुकिंग</value>
-    </data>
+  <data name="FirstName" xml:space="preserve">
+    <value>प्रथम नाम</value>
+  </data>
 
-    <data name="BookingId">
-        <value>बुकिंग आईडी</value>
-    </data>
+  <data name="MiddleName" xml:space="preserve">
+    <value>मध्य नाम</value>
+  </data>
 
-    <data name="Permission" xml:space="preserve">
-        <value>अनुमति</value>
-    </data>
+  <data name="LastName" xml:space="preserve">
+    <value>अंतिम नाम</value>
+  </data>
 
-    <data name="UserRole" xml:space="preserve">
-        <value>युजर रोल</value>
-    </data>
-    <data name="MobileNumber" xml:space="preserve">
-        <value>मोबाइल नंबर</value>
-    </data>
-    <data name="EmailAddress" xml:space="preserve">
-      <value>इमेल</value>
-    </data>
-    <data name="Password" xml:space="preserve">
-        <value>पासवर्ड</value>
-    </data>
+  <data name="MobileNumber" xml:space="preserve">
+    <value>मोबाइल नंबर</value>
+  </data>
+
+  <data name="EmailAddress" xml:space="preserve">
+    <value>ईमेल पता</value>
+  </data>
+
+  <data name="Password" xml:space="preserve">
+    <value>पासवर्ड</value>
+  </data>
+
+  <data name="CurrentPassword" xml:space="preserve">
+    <value>वर्तमान पासवर्ड</value>
+  </data>
+
+  <data name="NewPassword" xml:space="preserve">
+    <value>नया पासवर्ड</value>
+  </data>
+
+  <data name="ConfirmPassword" xml:space="preserve">
+    <value>पासवर्ड की पुष्टि करें</value>
+  </data>
+
+  <data name="RefreshToken" xml:space="preserve">
+    <value>रिफ्रेश टोकन</value>
+  </data>
+
+  <data name="Otp" xml:space="preserve">
+    <value>ओटीपी</value>
+  </data>
+
+  <!-- ===================================================== -->
   <!-- Hall -->
+  <!-- ===================================================== -->
 
   <data name="Hall" xml:space="preserve">
     <value>हॉल</value>
+  </data>
+
+  <data name="HallId" xml:space="preserve">
+    <value>हॉल आईडी</value>
   </data>
 
   <data name="HallCategory" xml:space="preserve">
@@ -88,10 +116,16 @@
     <value>हॉल चित्र</value>
   </data>
 
+  <!-- ===================================================== -->
   <!-- Booking -->
+  <!-- ===================================================== -->
 
   <data name="Booking" xml:space="preserve">
     <value>बुकिंग</value>
+  </data>
+
+  <data name="BookingId" xml:space="preserve">
+    <value>बुकिंग आईडी</value>
   </data>
 
   <data name="BookingStatus" xml:space="preserve">
@@ -102,7 +136,9 @@
     <value>बुकिंग समयरेखा</value>
   </data>
 
+  <!-- ===================================================== -->
   <!-- Customer -->
+  <!-- ===================================================== -->
 
   <data name="Customer" xml:space="preserve">
     <value>ग्राहक</value>
@@ -116,7 +152,9 @@
     <value>पसंदीदा</value>
   </data>
 
+  <!-- ===================================================== -->
   <!-- Payment -->
+  <!-- ===================================================== -->
 
   <data name="Payment" xml:space="preserve">
     <value>भुगतान</value>
@@ -126,7 +164,9 @@
     <value>रिफंड</value>
   </data>
 
+  <!-- ===================================================== -->
   <!-- Masters -->
+  <!-- ===================================================== -->
 
   <data name="Country" xml:space="preserve">
     <value>देश</value>
@@ -164,7 +204,9 @@
     <value>कूपन</value>
   </data>
 
+  <!-- ===================================================== -->
   <!-- Common -->
+  <!-- ===================================================== -->
 
   <data name="Image" xml:space="preserve">
     <value>चित्र</value>

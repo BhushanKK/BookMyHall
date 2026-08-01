@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 using BookMyHall.Persistence.Context;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 
@@ -27,4 +28,37 @@ public sealed class RefreshTokenRepository(BookMyHallDbContext context)
         => await context.RefreshTokens
             .Where(x => x.UserId == userId && !x.IsRevoked && x.ExpiresAt > DateTimeOffset.UtcNow)
             .ToListAsync(cancellationToken);
+
+    public async Task RevokeAllByUserIdAsync(
+    Guid userId,
+    CancellationToken cancellationToken = default)
+    {
+        var refreshTokens = await context.RefreshTokens
+            .Where(x => x.UserId == userId && !x.IsRevoked)
+            .ToListAsync(cancellationToken);
+
+        foreach (var token in refreshTokens)
+        {
+            token.IsRevoked = true;
+            token.RevokedAt = DateTimeOffset.UtcNow;
+            token.RevokedBy = userId;
+        }
+    }
+    public async Task RevokeAsync(
+        Guid refreshTokenId,
+        Guid revokedBy,
+        CancellationToken cancellationToken = default)
+    {
+        var refreshToken = await context.RefreshTokens
+            .FirstOrDefaultAsync(
+                x => x.RefreshTokenId == refreshTokenId,
+                cancellationToken);
+
+        if (refreshToken is null)
+            return;
+
+        refreshToken.IsRevoked = true;
+        refreshToken.RevokedAt = DateTimeOffset.UtcNow;
+        refreshToken.RevokedBy = revokedBy;
+    }
 }

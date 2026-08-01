@@ -9,38 +9,40 @@ public static class RoleEndpoints
     public static void MapRoleEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/roles")
-        .WithTags("Role")
-        .RequireAuthorization();
+            .WithTags("Role")
+            .RequireAuthorization();
 
         group.MapPost("/", async (
             CreateRoleCommand command,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(command, cancellationToken);
-
-            return TypedResults.Ok(result);
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
         })
         .WithName("CreateRole")
         .WithSummary("Create Role")
         .WithDescription("Creates a new role.")
-        .ProducesValidationProblem()
+        .Produces<ApiResponse<Guid>>(StatusCodes.Status201Created)
+        .Produces(StatusCodes.Status400BadRequest)
         .Produces(StatusCodes.Status401Unauthorized)
-        .Produces(StatusCodes.Status404NotFound);
+        .Produces(StatusCodes.Status409Conflict);
 
-        group.MapPut("/{roleId:guid}", async (Guid roleId,
+        group.MapPut("/{roleId:guid}", async (
+            Guid roleId,
             UpdateRoleCommand command,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            command.RoleId=roleId;
-            var result = await mediator.Send(command,cancellationToken);
-            return TypedResults.Ok(result);
+            command.RoleId = roleId;
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
         })
         .WithName("UpdateRole")
         .WithSummary("Update Role")
         .WithDescription("Updates an existing role.")
-        .ProducesValidationProblem()
+        .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest)
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status404NotFound);
 
@@ -49,13 +51,13 @@ public static class RoleEndpoints
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(new DeleteRoleCommand(roleId),cancellationToken);
-            return TypedResults.Ok(result);
+            var response = await mediator.Send(new DeleteRoleCommand(roleId), cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
         })
         .WithName("DeleteRole")
         .WithSummary("Delete Role")
         .WithDescription("Deletes an existing role.")
-        .ProducesValidationProblem()
+        .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status404NotFound);
 
@@ -64,23 +66,28 @@ public static class RoleEndpoints
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(new GetRoleByIdQuery(roleId),cancellationToken);
-            return TypedResults.Ok(result);
+            var response = await mediator.Send(new GetRoleByIdQuery(roleId), cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
         })
         .WithName("GetRoleById")
-        .WithSummary("Get Roles By Id")
-        .WithDescription("Returns a role by its identifier.");
+        .WithSummary("Get Role By Id")
+        .WithDescription("Returns a role by its identifier.")
+        .Produces<ApiResponse<RoleDto>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
 
         group.MapGet("/", async (
             [AsParameters] PaginationRequest request,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(new GetRolesQuery(request),cancellationToken);
-            return TypedResults.Ok(result);
+            var response = await mediator.Send(new GetRolesQuery(request), cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
         })
         .WithName("GetRoles")
         .WithSummary("Get Roles")
-        .WithDescription("Returns all roles.");
+        .WithDescription("Returns a paginated list of roles.")
+        .Produces<ApiResponse<PaginatedResponse<RoleDto>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }
