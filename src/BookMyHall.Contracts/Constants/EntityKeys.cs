@@ -57,4 +57,10 @@ public static class EntityKeys
 
   public const string FoodType = nameof(FoodType);
   public const string FoodTypeId = nameof(FoodTypeId);
+
+  public const string PaymentMode = nameof(PaymentMode);
+  public const string PaymentModeId = nameof(PaymentModeId);
+
+    public const string Service = nameof(Service);
+  public const string ServiceId = nameof(ServiceId);
 }

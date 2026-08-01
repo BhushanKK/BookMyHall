@@ -80,4 +80,6 @@ app.MapDistrictEndpoints();
 app.MapEventCategoryEndpoints();
 app.MapFacilityEndpoints();
 app.MapFoodTypeEndpoints();
+app.MapPaymentModeEndpoints();
+app.MapServiceEndpoints();
 await app.RunAsync();
