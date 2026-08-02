@@ -43,7 +43,7 @@ public static class AmenityEndpoints
             .Produces<ApiResponse<AmenityDto>>(StatusCodes.Status200OK)
             .Produces<ApiResponse<AmenityDto>>(StatusCodes.Status404NotFound);
 
-        group.MapPost("/search", GetAmenitiesAsync)
+        group.MapGet("/GetAllAmenities", GetAmenitiesAsync)
             .WithName("GetAmenities")
             .WithSummary("Get Amenities")
             .WithDescription("Retrieves a paginated list of amenities.")
@@ -57,7 +57,7 @@ public static class AmenityEndpoints
         CancellationToken cancellationToken)
     {
         var response = await sender.Send(command, cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> UpdateAmenityAsync(
@@ -68,7 +68,7 @@ public static class AmenityEndpoints
     {
         command.AmenityId = amenityId;
         var response = await sender.Send(command, cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode: response.StatusCode);
     }
 
     private static async Task<IResult> DeleteAmenityAsync(
@@ -80,7 +80,7 @@ public static class AmenityEndpoints
             new DeleteAmenityCommand(amenityId),
             cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> GetAmenityByIdAsync(
@@ -92,7 +92,7 @@ public static class AmenityEndpoints
             new GetAmenityByIdQuery(amenityId),
             cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> GetAmenitiesAsync(
@@ -101,7 +101,6 @@ public static class AmenityEndpoints
         CancellationToken cancellationToken)
     {
         var response = await sender.Send(query, cancellationToken);
-
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 }

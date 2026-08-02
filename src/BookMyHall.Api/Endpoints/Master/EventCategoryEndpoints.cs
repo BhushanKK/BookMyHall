@@ -43,7 +43,7 @@ public static class EventCategoryEndpoints
             .Produces<ApiResponse<EventCategoryDto>>(StatusCodes.Status200OK)
             .Produces<ApiResponse<EventCategoryDto>>(StatusCodes.Status404NotFound);
 
-        group.MapPost("/search", GetEventCategoriesAsync)
+        group.MapGet("/GetAllEventCategories", GetEventCategoriesAsync)
             .WithName("GetEventCategories")
             .WithSummary("Get Event Categories")
             .WithDescription("Retrieves a paginated list of event categories.")
@@ -57,7 +57,7 @@ public static class EventCategoryEndpoints
         CancellationToken cancellationToken)
     {
         var response = await sender.Send(command, cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> UpdateEventCategoryAsync(
@@ -70,7 +70,7 @@ public static class EventCategoryEndpoints
 
         var response = await sender.Send(command, cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> DeleteEventCategoryAsync(
@@ -82,7 +82,7 @@ public static class EventCategoryEndpoints
             new DeleteEventCategoryCommand(eventCategoryId),
             cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> GetEventCategoryByIdAsync(
@@ -94,7 +94,7 @@ public static class EventCategoryEndpoints
             new GetEventCategoryByIdQuery(eventCategoryId),
             cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> GetEventCategoriesAsync(
@@ -103,6 +103,6 @@ public static class EventCategoryEndpoints
         CancellationToken cancellationToken)
     {
         var response = await sender.Send(query, cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 }

@@ -43,7 +43,7 @@ public static class FoodTypeEndpoints
             .Produces<ApiResponse<FoodTypeDto>>(StatusCodes.Status200OK)
             .Produces<ApiResponse<FoodTypeDto>>(StatusCodes.Status404NotFound);
 
-        group.MapPost("/search", GetFoodTypesAsync)
+        group.MapGet("/GetAllFoodTypes", GetFoodTypesAsync)
             .WithName("GetFoodTypes")
             .WithSummary("Get Food Types")
             .WithDescription("Retrieves a paginated list of food types.")
@@ -57,7 +57,7 @@ public static class FoodTypeEndpoints
         CancellationToken cancellationToken)
     {
         var response = await sender.Send(command, cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> UpdateFoodTypeAsync(
@@ -70,7 +70,7 @@ public static class FoodTypeEndpoints
 
         var response = await sender.Send(command, cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> DeleteFoodTypeAsync(
@@ -82,7 +82,7 @@ public static class FoodTypeEndpoints
             new DeleteFoodTypeCommand(foodTypeId),
             cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> GetFoodTypeByIdAsync(
@@ -94,7 +94,7 @@ public static class FoodTypeEndpoints
             new GetFoodTypeByIdQuery(foodTypeId),
             cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> GetFoodTypesAsync(
@@ -104,6 +104,6 @@ public static class FoodTypeEndpoints
     {
         var response = await sender.Send(query, cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 }

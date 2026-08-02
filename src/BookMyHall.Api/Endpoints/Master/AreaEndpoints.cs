@@ -43,7 +43,7 @@ public static class AreaEndpoints
             .Produces<ApiResponse<AreaDto>>(StatusCodes.Status200OK)
             .Produces<ApiResponse<AreaDto>>(StatusCodes.Status404NotFound);
 
-        group.MapPost("/search", GetAreasAsync)
+        group.MapGet("/GetAllAreas", GetAreasAsync)
             .WithName("GetAreas")
             .WithSummary("Get Areas")
             .WithDescription("Retrieves a paginated list of areas.")
@@ -57,7 +57,7 @@ public static class AreaEndpoints
         CancellationToken cancellationToken)
     {
         var response = await sender.Send(command, cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode: response.StatusCode);
     }
 
     private static async Task<IResult> UpdateAreaAsync(
@@ -70,7 +70,7 @@ public static class AreaEndpoints
 
         var response = await sender.Send(command, cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode: response.StatusCode);
     }
 
     private static async Task<IResult> DeleteAreaAsync(
@@ -82,7 +82,7 @@ public static class AreaEndpoints
             new DeleteAreaCommand(areaId),
             cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode: response.StatusCode);
     }
 
     private static async Task<IResult> GetAreaByIdAsync(
@@ -94,7 +94,7 @@ public static class AreaEndpoints
             new GetAreaByIdQuery(areaId),
             cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode: response.StatusCode);
     }
 
     private static async Task<IResult> GetAreasAsync(
@@ -103,6 +103,6 @@ public static class AreaEndpoints
         CancellationToken cancellationToken)
     {
         var response = await sender.Send(query, cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 }

@@ -1,6 +1,6 @@
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class CancellationPolicyDto
+public class CancellationPolicyDto
 {
     public Guid CancellationPolicyId { get; set; }
 

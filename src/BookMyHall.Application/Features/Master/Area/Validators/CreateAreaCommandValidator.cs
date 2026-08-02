@@ -2,8 +2,7 @@ using FluentValidation;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class CreateAreaCommandValidator
-    : AbstractValidator<CreateAreaCommand>
+public sealed class CreateAreaCommandValidator: AbstractValidator<CreateAreaCommand>
 {
     public CreateAreaCommandValidator()
     {

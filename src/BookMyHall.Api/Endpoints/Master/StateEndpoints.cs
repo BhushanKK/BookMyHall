@@ -41,7 +41,7 @@ public static class StateEndpoints
             .Produces<ApiResponse<StateDto>>(StatusCodes.Status200OK)
             .Produces<ApiResponse<StateDto>>(StatusCodes.Status404NotFound);
 
-        group.MapPost("/search", GetStatesAsync)
+        group.MapGet("/GetAllStates", GetStatesAsync)
             .WithName("GetStates")
             .WithSummary("Get States")
             .WithDescription("Retrieves a paginated list of states.")
@@ -52,31 +52,31 @@ public static class StateEndpoints
     private static async Task<IResult> CreateStateAsync(CreateStateCommand command,ISender sender,CancellationToken cancellationToken)
     {
         var response = await sender.Send(command, cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> UpdateStateAsync(Guid stateId,UpdateStateCommand command,ISender sender,CancellationToken cancellationToken)
     {
         command.StateId = stateId;
         var response = await sender.Send(command, cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> DeleteStateAsync(Guid stateId,ISender sender,CancellationToken cancellationToken)
     {
         var response = await sender.Send(new DeleteStateCommand(stateId),cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> GetStateByIdAsync(Guid stateId,ISender sender,CancellationToken cancellationToken)
     {
         var response = await sender.Send(new GetStateByIdQuery(stateId), cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> GetStatesAsync(GetStateByIdQuery query,ISender sender,CancellationToken cancellationToken)
     {
         var response = await sender.Send(query, cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 }

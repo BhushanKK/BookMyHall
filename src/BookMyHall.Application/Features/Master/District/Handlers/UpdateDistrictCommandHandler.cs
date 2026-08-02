@@ -1,5 +1,6 @@
 using System.Net;
 using AutoMapper;
+using FluentValidation;
 using MediatR;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
@@ -12,18 +13,22 @@ namespace BookMyHall.Application.Features.Master;
 public sealed class UpdateDistrictCommandHandler(
     IDistrictRepository districtRepository,
     IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper,
-    IMapper mapper)
+    IMapper mapper,
+    IValidator<UpdateDistrictCommand> validator,
+    IMessageHelper messageHelper)
     : IRequestHandler<UpdateDistrictCommand, ApiResponse<DistrictDto>>
 {
-    public async Task<ApiResponse<DistrictDto>> Handle(
-        UpdateDistrictCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<DistrictDto>> Handle(UpdateDistrictCommand request,CancellationToken cancellationToken)
     {
-        var district = await districtRepository.GetByIdAsync(
-            request.DistrictId,
-            cancellationToken);
+        var validationResult = await validator.ValidateAsync(request,cancellationToken);
 
+        if (!validationResult.IsValid)
+        {
+            var message = string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage));
+            return ApiResponse<DistrictDto>.FailureResponse(message,HttpStatusCode.BadRequest);
+        }
+
+        var district = await districtRepository.GetByIdAsync(request.DistrictId,cancellationToken);
         if (district is null)
         {
             return ApiResponse<DistrictDto>.FailureResponse(
@@ -31,12 +36,9 @@ public sealed class UpdateDistrictCommandHandler(
                 HttpStatusCode.NotFound);
         }
 
-        var existingDistrict = await districtRepository.GetByDistrictNameAsync(
-            request.DistrictName,
-            cancellationToken);
+        var existingDistrict = await districtRepository.GetByDistrictNameAsync(request.DistrictName,cancellationToken);
 
-        if (existingDistrict is not null &&
-            existingDistrict.DistrictId != request.DistrictId)
+        if (existingDistrict is not null && existingDistrict.DistrictId != request.DistrictId)
         {
             return ApiResponse<DistrictDto>.FailureResponse(
                 messageHelper.AlreadyExists(EntityKeys.District),
@@ -44,17 +46,10 @@ public sealed class UpdateDistrictCommandHandler(
         }
 
         mapper.Map(request, district);
-
-        await districtRepository.UpdateAsync(district, cancellationToken);
+        await districtRepository.UpdateAsync(district,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-
-        var districtDto = mapper.Map<DistrictDto>(district);
-
         return ApiResponse<DistrictDto>.SuccessResponse(
-            districtDto,
-            messageHelper.UpdatedEntity(
-                ResourceNames.Entities,
-                EntityKeys.District),
-            HttpStatusCode.OK);
+            mapper.Map<DistrictDto>(district),
+            messageHelper.UpdatedEntity(ResourceNames.Entities,EntityKeys.District), HttpStatusCode.OK);
     }
 }

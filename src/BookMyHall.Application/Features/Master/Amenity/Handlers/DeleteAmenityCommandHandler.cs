@@ -18,9 +18,7 @@ public sealed class DeleteAmenityCommandHandler(
         DeleteAmenityCommand request,
         CancellationToken cancellationToken)
     {
-        var amenity = await amenityRepository.GetByIdAsync(
-            request.AmenityId,
-            cancellationToken);
+        var amenity = await amenityRepository.GetByIdAsync(request.AmenityId,cancellationToken);
 
         if (amenity is null)
         {
@@ -30,15 +28,10 @@ public sealed class DeleteAmenityCommandHandler(
         }
 
         amenity.IsActive = false;
-
         await amenityRepository.UpdateAsync(amenity, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(
-            true,
-            messageHelper.DeletedEntity(
-                ResourceNames.Entities,
-                EntityKeys.Amenity),
-            HttpStatusCode.OK);
+        return ApiResponse<bool>.SuccessResponse( true,
+            messageHelper.DeletedEntity(ResourceNames.Entities,EntityKeys.Amenity), HttpStatusCode.OK);
     }
 }

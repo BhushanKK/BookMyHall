@@ -1,5 +1,7 @@
 using System.Net;
+
 using MediatR;
+
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -14,9 +16,9 @@ public sealed class DeleteFoodTypeCommandHandler(
     IMessageHelper messageHelper)
     : IRequestHandler<DeleteFoodTypeCommand, ApiResponse<bool>>
 {
-    public async Task<ApiResponse<bool>> Handle(DeleteFoodTypeCommand request,CancellationToken cancellationToken)
+    public async Task<ApiResponse<bool>> Handle(DeleteFoodTypeCommand request, CancellationToken cancellationToken)
     {
-        var foodType = await foodTypeRepository.GetByIdAsync(request.FoodTypeId,cancellationToken);
+        var foodType = await foodTypeRepository.GetByIdAsync(request.FoodTypeId, cancellationToken);
         if (foodType is null)
         {
             return ApiResponse<bool>.FailureResponse(
@@ -28,6 +30,6 @@ public sealed class DeleteFoodTypeCommandHandler(
         await foodTypeRepository.UpdateAsync(foodType, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return ApiResponse<bool>.SuccessResponse(true,
-            messageHelper.DeletedEntity(ResourceNames.Entities,EntityKeys.FoodType),HttpStatusCode.OK);
+            messageHelper.DeletedEntity(ResourceNames.Entities, EntityKeys.FoodType), HttpStatusCode.OK);
     }
 }

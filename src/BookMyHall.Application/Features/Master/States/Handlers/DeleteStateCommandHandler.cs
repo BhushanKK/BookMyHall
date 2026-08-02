@@ -16,31 +16,19 @@ public sealed class DeleteStateCommandHandler(
     IMessageHelper messageHelper)
     : IRequestHandler<DeleteStateCommand, ApiResponse<bool>>
 {
-    public async Task<ApiResponse<bool>> Handle(
-        DeleteStateCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<bool>> Handle(DeleteStateCommand request,CancellationToken cancellationToken)
     {
-        var state = await stateRepository.GetByIdAsync(
-            request.StateId,
-            cancellationToken);
-
+        var state = await stateRepository.GetByIdAsync(request.StateId,cancellationToken);
         if (state is null)
         {
-            return ApiResponse<bool>.FailureResponse(
-             messageHelper.NotFound(EntityKeys.State),
-    HttpStatusCode.NotFound);
+            return ApiResponse<bool>.FailureResponse(messageHelper.NotFound(EntityKeys.State),HttpStatusCode.NotFound);
         }
 
         state.IsActive = false;
-
         await stateRepository.UpdateAsync(state, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(
-            true,
-            messageHelper.DeletedEntity(
-                ResourceNames.Entities,
-                EntityKeys.State),
-            HttpStatusCode.OK);
+        return ApiResponse<bool>.SuccessResponse(true,
+            messageHelper.DeletedEntity(ResourceNames.Entities,EntityKeys.State),HttpStatusCode.OK);
     }
 }

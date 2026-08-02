@@ -43,7 +43,7 @@ public static class PaymentModeEndpoints
             .Produces<ApiResponse<PaymentModeDto>>(StatusCodes.Status200OK)
             .Produces<ApiResponse<PaymentModeDto>>(StatusCodes.Status404NotFound);
 
-        group.MapPost("/search", GetPaymentModesAsync)
+        group.MapGet("/GetAllPaymentModes", GetPaymentModesAsync)
             .WithName("GetPaymentModes")
             .WithSummary("Get Payment Modes")
             .WithDescription("Retrieves a paginated list of payment modes.")
@@ -57,7 +57,7 @@ public static class PaymentModeEndpoints
         CancellationToken cancellationToken)
     {
         var response = await sender.Send(command, cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> UpdatePaymentModeAsync(
@@ -70,7 +70,7 @@ public static class PaymentModeEndpoints
 
         var response = await sender.Send(command, cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> DeletePaymentModeAsync(
@@ -82,7 +82,7 @@ public static class PaymentModeEndpoints
             new DeletePaymentModeCommand(paymentModeId),
             cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> GetPaymentModeByIdAsync(
@@ -94,7 +94,7 @@ public static class PaymentModeEndpoints
             new GetPaymentModeByIdQuery(paymentModeId),
             cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> GetPaymentModesAsync(
@@ -104,6 +104,6 @@ public static class PaymentModeEndpoints
     {
         var response = await sender.Send(query, cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 }

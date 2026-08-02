@@ -14,13 +14,9 @@ public sealed class DeleteAreaCommandHandler(
     IMessageHelper messageHelper)
     : IRequestHandler<DeleteAreaCommand, ApiResponse<bool>>
 {
-    public async Task<ApiResponse<bool>> Handle(
-        DeleteAreaCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<bool>> Handle(DeleteAreaCommand request,CancellationToken cancellationToken)
     {
-        var area = await areaRepository.GetByIdAsync(
-            request.AreaId,
-            cancellationToken);
+        var area = await areaRepository.GetByIdAsync(request.AreaId,cancellationToken);
 
         if (area is null)
         {
@@ -28,7 +24,6 @@ public sealed class DeleteAreaCommandHandler(
         }
 
         area.IsActive = false;
-
         await areaRepository.UpdateAsync(area, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

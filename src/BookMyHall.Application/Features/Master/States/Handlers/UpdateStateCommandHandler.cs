@@ -20,40 +20,25 @@ public sealed class UpdateStateCommandHandler(
     IMessageHelper messageHelper)
     : IRequestHandler<UpdateStateCommand, ApiResponse<StateDto>>
 {
-    public async Task<ApiResponse<StateDto>> Handle(
-        UpdateStateCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<StateDto>> Handle(UpdateStateCommand request,CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(
-            request,
-            cancellationToken);
+        var validationResult = await validator.ValidateAsync(request,cancellationToken);
 
         if (!validationResult.IsValid)
         {
-            var message = string.Join(
-                " | ",
-                validationResult.Errors.Select(e => e.ErrorMessage));
+            var message = string.Join(" | ",validationResult.Errors.Select(e => e.ErrorMessage));
 
-            return ApiResponse<StateDto>.FailureResponse(
-                message,
-                HttpStatusCode.BadRequest);
+            return ApiResponse<StateDto>.FailureResponse(message,HttpStatusCode.BadRequest);
         }
 
-        var state = await stateRepository.GetByIdAsync(
-            request.StateId,
-            cancellationToken);
+        var state = await stateRepository.GetByIdAsync(request.StateId,cancellationToken);
 
         if (state is null)
         {
             return ApiResponse<StateDto>.FailureResponse(
-                messageHelper.NotFoundEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.State),
-                HttpStatusCode.NotFound);
+                messageHelper.NotFoundEntity(ResourceNames.Entities,EntityKeys.State),HttpStatusCode.NotFound);
         }
-
         mapper.Map(request, state);
-
         try
         {
             await stateRepository.UpdateAsync(state, cancellationToken);
@@ -62,17 +47,10 @@ public sealed class UpdateStateCommandHandler(
         catch (DuplicateRecordException)
         {
             return ApiResponse<StateDto>.FailureResponse(
-                messageHelper.AlreadyExistsEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.State),
-                HttpStatusCode.Conflict);
+                messageHelper.AlreadyExistsEntity(ResourceNames.Entities,EntityKeys.State),HttpStatusCode.Conflict);
         }
 
-        return ApiResponse<StateDto>.SuccessResponse(
-            mapper.Map<StateDto>(state),
-            messageHelper.UpdatedEntity(
-                ResourceNames.Entities,
-                EntityKeys.State),
-            HttpStatusCode.OK);
+        return ApiResponse<StateDto>.SuccessResponse(mapper.Map<StateDto>(state),
+            messageHelper.UpdatedEntity(ResourceNames.Entities,EntityKeys.State),HttpStatusCode.OK);
     }
 }

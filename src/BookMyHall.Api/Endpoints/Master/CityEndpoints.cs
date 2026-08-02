@@ -43,7 +43,7 @@ public static class CityEndpoints
             .Produces<ApiResponse<CityDto>>(StatusCodes.Status200OK)
             .Produces<ApiResponse<CityDto>>(StatusCodes.Status404NotFound);
 
-        group.MapPost("/search", GetCitiesAsync)
+        group.MapGet("/GetAllCities", GetCitiesAsync)
             .WithName("GetCities")
             .WithSummary("Get Cities")
             .WithDescription("Retrieves a paginated list of cities.")
@@ -57,7 +57,7 @@ public static class CityEndpoints
         CancellationToken cancellationToken)
     {
         var response = await sender.Send(command, cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> UpdateCityAsync(
@@ -67,10 +67,8 @@ public static class CityEndpoints
         CancellationToken cancellationToken)
     {
         command.CityId = cityId;
-
         var response = await sender.Send(command, cancellationToken);
-
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> DeleteCityAsync(
@@ -82,7 +80,7 @@ public static class CityEndpoints
             new DeleteCityCommand(cityId),
             cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> GetCityByIdAsync(
@@ -94,7 +92,7 @@ public static class CityEndpoints
             new GetCityByIdQuery(cityId),
             cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> GetCitiesAsync(
@@ -104,6 +102,6 @@ public static class CityEndpoints
     {
         var response = await sender.Send(query, cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 }

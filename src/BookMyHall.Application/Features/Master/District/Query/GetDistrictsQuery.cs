@@ -1,9 +1,10 @@
 using MediatR;
 using BookMyHall.Contracts.Common;
+using BookMyHall.Domain.Masters;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed record GetDistrictsQuery (PaginationRequest Request)
-    :IRequest<ApiResponse<PaginatedResult<DistrictDto>>>
+public sealed record GetDistrictsQuery (PaginationRequest pagingRequest)
+    :IRequest<ApiResponse<PaginatedResult<District>>>
 {
 }

@@ -43,7 +43,7 @@ public static class CancellationPolicyEndpoints
             .Produces<ApiResponse<CancellationPolicyDto>>(StatusCodes.Status200OK)
             .Produces<ApiResponse<CancellationPolicyDto>>(StatusCodes.Status404NotFound);
 
-        group.MapPost("/search", GetCancellationPoliciesAsync)
+        group.MapGet("/GetAllCancellationPolicies", GetCancellationPoliciesAsync)
             .WithName("GetCancellationPolicies")
             .WithSummary("Get Cancellation Policies")
             .WithDescription("Retrieves a paginated list of cancellation policies.")
@@ -57,7 +57,7 @@ public static class CancellationPolicyEndpoints
         CancellationToken cancellationToken)
     {
         var response = await sender.Send(command, cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> UpdateCancellationPolicyAsync(
@@ -70,7 +70,7 @@ public static class CancellationPolicyEndpoints
 
         var response = await sender.Send(command, cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> DeleteCancellationPolicyAsync(
@@ -82,7 +82,7 @@ public static class CancellationPolicyEndpoints
             new DeleteCancellationPolicyCommand(cancellationPolicyId),
             cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> GetCancellationPolicyByIdAsync(
@@ -94,7 +94,7 @@ public static class CancellationPolicyEndpoints
             new GetCancellationPolicyByIdQuery(cancellationPolicyId),
             cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> GetCancellationPoliciesAsync(
@@ -103,6 +103,6 @@ public static class CancellationPolicyEndpoints
         CancellationToken cancellationToken)
     {
         var response = await sender.Send(query, cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 }

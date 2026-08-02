@@ -43,7 +43,7 @@ public static class DistrictEndpoints
             .Produces<ApiResponse<DistrictDto>>(StatusCodes.Status200OK)
             .Produces<ApiResponse<DistrictDto>>(StatusCodes.Status404NotFound);
 
-        group.MapPost("/search", GetDistrictsAsync)
+        group.MapGet("/GetAllDistricts", GetDistrictsAsync)
             .WithName("GetDistricts")
             .WithSummary("Get Districts")
             .WithDescription("Retrieves a paginated list of districts.")
@@ -57,7 +57,7 @@ public static class DistrictEndpoints
         CancellationToken cancellationToken)
     {
         var response = await sender.Send(command, cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> UpdateDistrictAsync(
@@ -70,7 +70,7 @@ public static class DistrictEndpoints
 
         var response = await sender.Send(command, cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> DeleteDistrictAsync(
@@ -82,7 +82,7 @@ public static class DistrictEndpoints
             new DeleteDistrictCommand(districtId),
             cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> GetDistrictByIdAsync(
@@ -94,7 +94,7 @@ public static class DistrictEndpoints
             new GetDistrictByIdQuery(districtId),
             cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 
     private static async Task<IResult> GetDistrictsAsync(
@@ -104,6 +104,6 @@ public static class DistrictEndpoints
     {
         var response = await sender.Send(query, cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+        return Results.Json(response, statusCode:response.StatusCode);
     }
 }

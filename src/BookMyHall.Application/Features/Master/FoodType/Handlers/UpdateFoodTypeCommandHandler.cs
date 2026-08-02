@@ -1,5 +1,6 @@
 using System.Net;
 using AutoMapper;
+using FluentValidation;
 using MediatR;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
@@ -12,17 +13,29 @@ namespace BookMyHall.Application.Features.Master;
 public sealed class UpdateFoodTypeCommandHandler(
     IFoodTypeRepository foodTypeRepository,
     IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper,
-    IMapper mapper)
+    IMapper mapper,
+    IValidator<UpdateFoodTypeCommand> validator,
+    IMessageHelper messageHelper)
     : IRequestHandler<UpdateFoodTypeCommand, ApiResponse<FoodTypeDto>>
 {
     public async Task<ApiResponse<FoodTypeDto>> Handle(UpdateFoodTypeCommand request,CancellationToken cancellationToken)
     {
+        var validationResult = await validator.ValidateAsync(request,cancellationToken);
+
+        if (!validationResult.IsValid)
+        {
+            var message = string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage));
+            return ApiResponse<FoodTypeDto>.FailureResponse(message,HttpStatusCode.BadRequest);
+        }
+
         var foodType = await foodTypeRepository.GetByIdAsync(request.FoodTypeId,cancellationToken);
         if (foodType is null)
         {
-            return ApiResponse<FoodTypeDto>.FailureResponse(messageHelper.NotFound(EntityKeys.FoodType),HttpStatusCode.NotFound);
+            return ApiResponse<FoodTypeDto>.FailureResponse(
+                messageHelper.NotFound(EntityKeys.FoodType),
+                HttpStatusCode.NotFound);
         }
+
         var existingFoodType = await foodTypeRepository.GetByFoodTypeNameAsync(request.FoodTypeName,cancellationToken);
         if (existingFoodType is not null && existingFoodType.FoodTypeId != request.FoodTypeId)
         {
@@ -32,10 +45,11 @@ public sealed class UpdateFoodTypeCommandHandler(
         }
 
         mapper.Map(request, foodType);
-        await foodTypeRepository.UpdateAsync(foodType, cancellationToken);
+        await foodTypeRepository.UpdateAsync(foodType,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        var foodTypeDto = mapper.Map<FoodTypeDto>(foodType);
-        return ApiResponse<FoodTypeDto>.SuccessResponse(foodTypeDto,
+
+        return ApiResponse<FoodTypeDto>.SuccessResponse(
+            mapper.Map<FoodTypeDto>(foodType),
             messageHelper.UpdatedEntity(ResourceNames.Entities,EntityKeys.FoodType),HttpStatusCode.OK);
     }
 }

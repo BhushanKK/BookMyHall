@@ -1,7 +1,8 @@
 using MediatR;
 using BookMyHall.Contracts.Common;
+using BookMyHall.Domain.Masters;
 
 namespace BookMyHall.Application.Features.Master;
 
 public sealed record GetEventCategoryByIdQuery(Guid EventCategoryId)
-    : IRequest<ApiResponse<EventCategoryDto>>;
+    : IRequest<ApiResponse<EventCategory>>;

@@ -1,3 +1,4 @@
+using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Masters;
 
 namespace BookMyHall.Application.Abstractions.Persistence.Repositories;
@@ -13,4 +14,6 @@ public interface IStateRepository
     Task<State?> GetByStateCodeAsync(string stateCode, CancellationToken cancellationToken = default);
 
     Task<State?> GetByStateNameAsync(string stateName, CancellationToken cancellationToken = default);
+     Task<PaginatedResult<State>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default);
+
 }

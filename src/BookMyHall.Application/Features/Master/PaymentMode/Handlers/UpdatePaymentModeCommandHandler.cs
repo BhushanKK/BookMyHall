@@ -1,5 +1,6 @@
 using System.Net;
 using AutoMapper;
+using FluentValidation;
 using MediatR;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
@@ -12,12 +13,20 @@ namespace BookMyHall.Application.Features.Master;
 public sealed class UpdatePaymentModeCommandHandler(
     IPaymentModeRepository paymentModeRepository,
     IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper,
-    IMapper mapper)
+    IMapper mapper,
+    IValidator<UpdatePaymentModeCommand> validator,
+    IMessageHelper messageHelper)
     : IRequestHandler<UpdatePaymentModeCommand, ApiResponse<PaymentModeDto>>
 {
     public async Task<ApiResponse<PaymentModeDto>> Handle(UpdatePaymentModeCommand request,CancellationToken cancellationToken)
     {
+        var validationResult = await validator.ValidateAsync(request,cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            var message = string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage));
+            return ApiResponse<PaymentModeDto>.FailureResponse(message,HttpStatusCode.BadRequest);
+        }
+
         var paymentMode = await paymentModeRepository.GetByIdAsync(request.PaymentModeId,cancellationToken);
 
         if (paymentMode is null)
@@ -28,7 +37,6 @@ public sealed class UpdatePaymentModeCommandHandler(
         }
 
         var existingPaymentMode = await paymentModeRepository.GetByPaymentModeNameAsync(request.PaymentModeName,cancellationToken);
-
         if (existingPaymentMode is not null && existingPaymentMode.PaymentModeId != request.PaymentModeId)
         {
             return ApiResponse<PaymentModeDto>.FailureResponse(
@@ -37,10 +45,11 @@ public sealed class UpdatePaymentModeCommandHandler(
         }
 
         mapper.Map(request, paymentMode);
-        await paymentModeRepository.UpdateAsync(paymentMode, cancellationToken);
+        await paymentModeRepository.UpdateAsync(paymentMode,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        var updatedPaymentModeDto = mapper.Map<PaymentModeDto>(paymentMode);
-        return ApiResponse<PaymentModeDto>.SuccessResponse(updatedPaymentModeDto,
+
+        return ApiResponse<PaymentModeDto>.SuccessResponse(
+            mapper.Map<PaymentModeDto>(paymentMode),
             messageHelper.UpdatedEntity(ResourceNames.Entities,EntityKeys.PaymentMode),HttpStatusCode.OK);
     }
 }

@@ -17,28 +17,18 @@ public sealed class GetStateByIdQueryHandler(
     IMapper mapper,
     IMessageHelper messageHelper): IRequestHandler<GetStateByIdQuery, ApiResponse<State>>
 {
-    public async Task<ApiResponse<State>> Handle(
-        GetStateByIdQuery request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<State>> Handle(GetStateByIdQuery request,CancellationToken cancellationToken)
     {
-        var state = await stateRepository.GetByIdAsync(
-            request.StateId,
-            cancellationToken);
+        var state = await stateRepository.GetByIdAsync(request.StateId,cancellationToken);
 
         if (state is null)
         {
             return ApiResponse<State>.FailureResponse(
-                messageHelper.NotFoundEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.State),
-                HttpStatusCode.NotFound);
+                messageHelper.NotFoundEntity(ResourceNames.Entities,EntityKeys.State),HttpStatusCode.NotFound);
         }
 
         return ApiResponse<State>.SuccessResponse(
             mapper.Map<State>(state),
-            messageHelper.RetrievedEntity(
-                ResourceNames.Entities,
-                EntityKeys.State),
-            HttpStatusCode.OK);
+            messageHelper.RetrievedEntity(ResourceNames.Entities,EntityKeys.State),HttpStatusCode.OK);
     }
 }
