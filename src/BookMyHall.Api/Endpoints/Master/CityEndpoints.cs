@@ -1,6 +1,9 @@
 using MediatR;
 using BookMyHall.Application.Features.Master;
+using BookMyHall.Contracts.Common;
+
 namespace BookMyHall.Api.Endpoints.Master;
+
 public static class CityEndpoints
 {
     public static void MapCityEndpoints(this IEndpointRouteBuilder app)
@@ -9,39 +12,98 @@ public static class CityEndpoints
             .WithTags("Cities")
             .RequireAuthorization(policy => policy.RequireRole("Admin"));
 
-        group.MapPost("/", async (CreateCityCommand command,IMediator mediator,CancellationToken cancellationToken) =>
-        {
-            var result = await mediator.Send(command, cancellationToken);
-            return Results.Ok(result);
-        });
+        group.MapPost("/", CreateCityAsync)
+            .WithName("CreateCity")
+            .WithSummary("Create City")
+            .WithDescription("Creates a new city.")
+            .Produces<ApiResponse<Guid>>(StatusCodes.Status201Created)
+            .Produces<ApiResponse<Guid>>(StatusCodes.Status400BadRequest)
+            .Produces<ApiResponse<Guid>>(StatusCodes.Status409Conflict);
 
-        group.MapPut("/{cityId:guid}", async (Guid cityId,UpdateCityCommand command,IMediator mediator,CancellationToken cancellationToken) =>
-        {
-            command.CityId = cityId;
-            var result = await mediator.Send(command, cancellationToken);
-            return Results.Ok(result);
-        });
+        group.MapPut("/{cityId:guid}", UpdateCityAsync)
+            .WithName("UpdateCity")
+            .WithSummary("Update City")
+            .WithDescription("Updates an existing city.")
+            .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
+            .Produces<ApiResponse<bool>>(StatusCodes.Status400BadRequest)
+            .Produces<ApiResponse<bool>>(StatusCodes.Status404NotFound)
+            .Produces<ApiResponse<bool>>(StatusCodes.Status409Conflict);
 
-        group.MapDelete("/{cityId:guid}", async (Guid cityId,IMediator mediator,CancellationToken cancellationToken) =>
-        {
-            var result = await mediator.Send(
-                new DeleteCityCommand(cityId),
-                cancellationToken);
-            return Results.Ok(result);
-        });
+        group.MapDelete("/{cityId:guid}", DeleteCityAsync)
+            .WithName("DeleteCity")
+            .WithSummary("Delete City")
+            .WithDescription("Soft deletes a city.")
+            .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
+            .Produces<ApiResponse<bool>>(StatusCodes.Status404NotFound);
 
-        group.MapGet("/{cityId:guid}", async (Guid cityId,IMediator mediator,CancellationToken cancellationToken) =>
-        {
-            var result = await mediator.Send(
-                new GetCityByIdQuery(cityId),
-                cancellationToken);
-            return Results.Ok(result);
-        });
+        group.MapGet("/{cityId:guid}", GetCityByIdAsync)
+            .WithName("GetCityById")
+            .WithSummary("Get City By Id")
+            .WithDescription("Retrieves a city by its unique identifier.")
+            .Produces<ApiResponse<CityDto>>(StatusCodes.Status200OK)
+            .Produces<ApiResponse<CityDto>>(StatusCodes.Status404NotFound);
 
-        group.MapPost("/search", async (GetCitiesQuery query,IMediator mediator, CancellationToken cancellationToken) =>
-        {
-            var result = await mediator.Send(query, cancellationToken);
-            return Results.Ok(result);
-        });
+        group.MapPost("/search", GetCitiesAsync)
+            .WithName("GetCities")
+            .WithSummary("Get Cities")
+            .WithDescription("Retrieves a paginated list of cities.")
+            .Produces<ApiResponse<PaginatedResult<CityDto>>>(StatusCodes.Status200OK)
+            .Produces<ApiResponse<PaginatedResult<CityDto>>>(StatusCodes.Status400BadRequest);
+    }
+
+    private static async Task<IResult> CreateCityAsync(
+        CreateCityCommand command,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        var response = await sender.Send(command, cancellationToken);
+        return Results.Json(response, statusCode: (int)response.StatusCode);
+    }
+
+    private static async Task<IResult> UpdateCityAsync(
+        Guid cityId,
+        UpdateCityCommand command,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        command.CityId = cityId;
+
+        var response = await sender.Send(command, cancellationToken);
+
+        return Results.Json(response, statusCode: (int)response.StatusCode);
+    }
+
+    private static async Task<IResult> DeleteCityAsync(
+        Guid cityId,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        var response = await sender.Send(
+            new DeleteCityCommand(cityId),
+            cancellationToken);
+
+        return Results.Json(response, statusCode: (int)response.StatusCode);
+    }
+
+    private static async Task<IResult> GetCityByIdAsync(
+        Guid cityId,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        var response = await sender.Send(
+            new GetCityByIdQuery(cityId),
+            cancellationToken);
+
+        return Results.Json(response, statusCode: (int)response.StatusCode);
+    }
+
+    private static async Task<IResult> GetCitiesAsync(
+        GetCitiesQuery query,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        var response = await sender.Send(query, cancellationToken);
+
+        return Results.Json(response, statusCode: (int)response.StatusCode);
     }
 }

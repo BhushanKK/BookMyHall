@@ -1,5 +1,6 @@
 using MediatR;
 using BookMyHall.Application.Features.Master;
+using BookMyHall.Contracts.Common;
 
 namespace BookMyHall.Api.Endpoints.Master;
 
@@ -11,57 +12,98 @@ public static class FoodTypeEndpoints
             .WithTags("Food Types")
             .RequireAuthorization(policy => policy.RequireRole("Admin"));
 
-        group.MapPost("/", async (
-            CreateFoodTypeCommand command,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
-        {
-            var result = await mediator.Send(command, cancellationToken);
-            return Results.Ok(result);
-        });
+        group.MapPost("/", CreateFoodTypeAsync)
+            .WithName("CreateFoodType")
+            .WithSummary("Create Food Type")
+            .WithDescription("Creates a new food type.")
+            .Produces<ApiResponse<Guid>>(StatusCodes.Status201Created)
+            .Produces<ApiResponse<Guid>>(StatusCodes.Status400BadRequest)
+            .Produces<ApiResponse<Guid>>(StatusCodes.Status409Conflict);
 
-        group.MapPut("/{foodTypeId:guid}", async (
-            Guid foodTypeId,
-            UpdateFoodTypeCommand command,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
-        {
-            command.FoodTypeId = foodTypeId;
+        group.MapPut("/{foodTypeId:guid}", UpdateFoodTypeAsync)
+            .WithName("UpdateFoodType")
+            .WithSummary("Update Food Type")
+            .WithDescription("Updates an existing food type.")
+            .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
+            .Produces<ApiResponse<bool>>(StatusCodes.Status400BadRequest)
+            .Produces<ApiResponse<bool>>(StatusCodes.Status404NotFound)
+            .Produces<ApiResponse<bool>>(StatusCodes.Status409Conflict);
 
-            var result = await mediator.Send(command, cancellationToken);
-            return Results.Ok(result);
-        });
+        group.MapDelete("/{foodTypeId:guid}", DeleteFoodTypeAsync)
+            .WithName("DeleteFoodType")
+            .WithSummary("Delete Food Type")
+            .WithDescription("Soft deletes a food type.")
+            .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
+            .Produces<ApiResponse<bool>>(StatusCodes.Status404NotFound);
 
-        group.MapDelete("/{foodTypeId:guid}", async (
-            Guid foodTypeId,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
-        {
-            var result = await mediator.Send(
-                new DeleteFoodTypeCommand(foodTypeId),
-                cancellationToken);
+        group.MapGet("/{foodTypeId:guid}", GetFoodTypeByIdAsync)
+            .WithName("GetFoodTypeById")
+            .WithSummary("Get Food Type By Id")
+            .WithDescription("Retrieves a food type by its unique identifier.")
+            .Produces<ApiResponse<FoodTypeDto>>(StatusCodes.Status200OK)
+            .Produces<ApiResponse<FoodTypeDto>>(StatusCodes.Status404NotFound);
 
-            return Results.Ok(result);
-        });
+        group.MapPost("/search", GetFoodTypesAsync)
+            .WithName("GetFoodTypes")
+            .WithSummary("Get Food Types")
+            .WithDescription("Retrieves a paginated list of food types.")
+            .Produces<ApiResponse<PaginatedResult<FoodTypeDto>>>(StatusCodes.Status200OK)
+            .Produces<ApiResponse<PaginatedResult<FoodTypeDto>>>(StatusCodes.Status400BadRequest);
+    }
 
-        group.MapGet("/{foodTypeId:guid}", async (
-            Guid foodTypeId,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
-        {
-            var result = await mediator.Send(
-                new GetFoodTypeByIdQuery(foodTypeId),
-                cancellationToken);
-            return Results.Ok(result);
-        });
+    private static async Task<IResult> CreateFoodTypeAsync(
+        CreateFoodTypeCommand command,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        var response = await sender.Send(command, cancellationToken);
+        return Results.Json(response, statusCode: (int)response.StatusCode);
+    }
 
-        group.MapPost("/search", async (
-            GetFoodTypesQuery query,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
-        {
-            var result = await mediator.Send(query, cancellationToken);
-            return Results.Ok(result);
-        });
+    private static async Task<IResult> UpdateFoodTypeAsync(
+        Guid foodTypeId,
+        UpdateFoodTypeCommand command,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        command.FoodTypeId = foodTypeId;
+
+        var response = await sender.Send(command, cancellationToken);
+
+        return Results.Json(response, statusCode: (int)response.StatusCode);
+    }
+
+    private static async Task<IResult> DeleteFoodTypeAsync(
+        Guid foodTypeId,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        var response = await sender.Send(
+            new DeleteFoodTypeCommand(foodTypeId),
+            cancellationToken);
+
+        return Results.Json(response, statusCode: (int)response.StatusCode);
+    }
+
+    private static async Task<IResult> GetFoodTypeByIdAsync(
+        Guid foodTypeId,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        var response = await sender.Send(
+            new GetFoodTypeByIdQuery(foodTypeId),
+            cancellationToken);
+
+        return Results.Json(response, statusCode: (int)response.StatusCode);
+    }
+
+    private static async Task<IResult> GetFoodTypesAsync(
+        GetFoodTypesQuery query,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        var response = await sender.Send(query, cancellationToken);
+
+        return Results.Json(response, statusCode: (int)response.StatusCode);
     }
 }

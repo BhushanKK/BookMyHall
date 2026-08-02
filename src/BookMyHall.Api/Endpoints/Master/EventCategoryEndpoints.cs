@@ -1,5 +1,7 @@
 using MediatR;
 using BookMyHall.Application.Features.Master;
+using BookMyHall.Contracts.Common;
+
 namespace BookMyHall.Api.Endpoints.Master;
 
 public static class EventCategoryEndpoints
@@ -10,58 +12,97 @@ public static class EventCategoryEndpoints
             .WithTags("Event Categories")
             .RequireAuthorization(policy => policy.RequireRole("Admin"));
 
-        group.MapPost("/", async (
-            CreateEventCategoryCommand command,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
-        {
-            var result = await mediator.Send(command, cancellationToken);
-            return Results.Ok(result);
-        });
+        group.MapPost("/", CreateEventCategoryAsync)
+            .WithName("CreateEventCategory")
+            .WithSummary("Create Event Category")
+            .WithDescription("Creates a new event category.")
+            .Produces<ApiResponse<Guid>>(StatusCodes.Status201Created)
+            .Produces<ApiResponse<Guid>>(StatusCodes.Status400BadRequest)
+            .Produces<ApiResponse<Guid>>(StatusCodes.Status409Conflict);
 
-        group.MapPut("/{eventCategoryId:guid}", async (
-            Guid eventCategoryId,
-            UpdateEventCategoryCommand command,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
-        {
-            command.EventCategoryId = eventCategoryId;
+        group.MapPut("/{eventCategoryId:guid}", UpdateEventCategoryAsync)
+            .WithName("UpdateEventCategory")
+            .WithSummary("Update Event Category")
+            .WithDescription("Updates an existing event category.")
+            .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
+            .Produces<ApiResponse<bool>>(StatusCodes.Status400BadRequest)
+            .Produces<ApiResponse<bool>>(StatusCodes.Status404NotFound)
+            .Produces<ApiResponse<bool>>(StatusCodes.Status409Conflict);
 
-            var result = await mediator.Send(command, cancellationToken);
-            return Results.Ok(result);
-        });
+        group.MapDelete("/{eventCategoryId:guid}", DeleteEventCategoryAsync)
+            .WithName("DeleteEventCategory")
+            .WithSummary("Delete Event Category")
+            .WithDescription("Soft deletes an event category.")
+            .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
+            .Produces<ApiResponse<bool>>(StatusCodes.Status404NotFound);
 
-        group.MapDelete("/{eventCategoryId:guid}", async (
-            Guid eventCategoryId,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
-        {
-            var result = await mediator.Send(
-                new DeleteEventCategoryCommand(eventCategoryId),
-                cancellationToken);
+        group.MapGet("/{eventCategoryId:guid}", GetEventCategoryByIdAsync)
+            .WithName("GetEventCategoryById")
+            .WithSummary("Get Event Category By Id")
+            .WithDescription("Retrieves an event category by its unique identifier.")
+            .Produces<ApiResponse<EventCategoryDto>>(StatusCodes.Status200OK)
+            .Produces<ApiResponse<EventCategoryDto>>(StatusCodes.Status404NotFound);
 
-            return Results.Ok(result);
-        });
+        group.MapPost("/search", GetEventCategoriesAsync)
+            .WithName("GetEventCategories")
+            .WithSummary("Get Event Categories")
+            .WithDescription("Retrieves a paginated list of event categories.")
+            .Produces<ApiResponse<PaginatedResult<EventCategoryDto>>>(StatusCodes.Status200OK)
+            .Produces<ApiResponse<PaginatedResult<EventCategoryDto>>>(StatusCodes.Status400BadRequest);
+    }
 
-        group.MapGet("/{eventCategoryId:guid}", async (
-            Guid eventCategoryId,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
-        {
-            var result = await mediator.Send(
-                new GetEventCategoryByIdQuery(eventCategoryId),
-                cancellationToken);
+    private static async Task<IResult> CreateEventCategoryAsync(
+        CreateEventCategoryCommand command,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        var response = await sender.Send(command, cancellationToken);
+        return Results.Json(response, statusCode: (int)response.StatusCode);
+    }
 
-            return Results.Ok(result);
-        });
+    private static async Task<IResult> UpdateEventCategoryAsync(
+        Guid eventCategoryId,
+        UpdateEventCategoryCommand command,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        command.EventCategoryId = eventCategoryId;
 
-        group.MapPost("/search", async (
-            GetEventCategoriesQuery query,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
-        {
-            var result = await mediator.Send(query, cancellationToken);
-            return Results.Ok(result);
-        });
+        var response = await sender.Send(command, cancellationToken);
+
+        return Results.Json(response, statusCode: (int)response.StatusCode);
+    }
+
+    private static async Task<IResult> DeleteEventCategoryAsync(
+        Guid eventCategoryId,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        var response = await sender.Send(
+            new DeleteEventCategoryCommand(eventCategoryId),
+            cancellationToken);
+
+        return Results.Json(response, statusCode: (int)response.StatusCode);
+    }
+
+    private static async Task<IResult> GetEventCategoryByIdAsync(
+        Guid eventCategoryId,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        var response = await sender.Send(
+            new GetEventCategoryByIdQuery(eventCategoryId),
+            cancellationToken);
+
+        return Results.Json(response, statusCode: (int)response.StatusCode);
+    }
+
+    private static async Task<IResult> GetEventCategoriesAsync(
+        GetEventCategoriesQuery query,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        var response = await sender.Send(query, cancellationToken);
+        return Results.Json(response, statusCode: (int)response.StatusCode);
     }
 }
