@@ -9,6 +9,5 @@ public sealed class OtpConfiguration : IEntityTypeConfiguration<OTP>
     {
         builder.ToTable("OTP", "identity");
         builder.HasKey(x =>  x.OTPId );
-        builder.Property(x => x.OTPId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

@@ -8,6 +8,5 @@ public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refresh
     {
         builder.ToTable("RefreshToken", "identity");
         builder.HasKey(x =>  x.RefreshTokenId );
-        builder.Property(x => x.RefreshTokenId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

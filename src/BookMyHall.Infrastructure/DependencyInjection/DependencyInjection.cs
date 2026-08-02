@@ -115,7 +115,8 @@ public static class DependencyInjection
         // Current User
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, CurrentUser>();
-
+        services.AddScoped<ITokenGenerator, TokenGenerator>();  
+        services.AddScoped<ITokenHasher, Sha256TokenHasher>();
         return services;
     }
 

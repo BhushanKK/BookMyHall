@@ -9,6 +9,5 @@ public sealed class PermissionConfiguration : IEntityTypeConfiguration<Permissio
     {
         builder.ToTable("Permission", "identity");
         builder.HasKey(x =>  x.PermissionId );
-        builder.Property(x => x.PermissionId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

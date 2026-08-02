@@ -10,4 +10,5 @@ public interface IUserRepository
     Task<User?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default);
     Task<User?> GetForLoginAsync(string mobileNumber, CancellationToken cancellationToken = default);
     Task<PaginatedResult<User>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default);
+    Task<User?> GetByEmailAddressAsync( string emailAddress, CancellationToken cancellationToken = default);
 }

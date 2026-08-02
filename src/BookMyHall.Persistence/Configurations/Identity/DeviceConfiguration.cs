@@ -9,6 +9,5 @@ public sealed class DeviceConfiguration : IEntityTypeConfiguration<Device>
     {
         builder.ToTable("Device", "identity");
         builder.HasKey(x =>  x.DeviceId );
-        builder.Property(x => x.DeviceId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

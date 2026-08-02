@@ -9,7 +9,5 @@ public sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
     {
         builder.ToTable("Role", "identity");
         builder.HasKey(x => x.RoleId);
-        builder.Property(x => x.RoleId)
-            .HasDefaultValueSql("gen_random_uuid()");
     }
 }

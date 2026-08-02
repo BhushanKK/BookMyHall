@@ -3,6 +3,7 @@ using AutoMapper;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Application.Features.Identity.Users;
 using BookMyHall.Application.Features.Identity.Authentication;
+using BookMyHall.Application.Features.Authentication.Commands.ForgotPassword;
 
 namespace BookMyHall.Api.Endpoints.Identity;
 
@@ -80,5 +81,20 @@ public static class AuthenticationEndpoints
         .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<bool>>(StatusCodes.Status400BadRequest)
         .Produces<ApiResponse<bool>>(StatusCodes.Status401Unauthorized);
+
+        group.MapPost("/forgot-password", async (
+            ForgotPasswordCommand command,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .AllowAnonymous()
+        .WithName("ForgotPassword")
+        .WithSummary("Forgot Password")
+        .WithDescription("Generates a password reset token for the specified email address.")
+        .Produces<ApiResponse<ForgotPasswordResponse>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<ForgotPasswordResponse>>(StatusCodes.Status400BadRequest);
     }
 }

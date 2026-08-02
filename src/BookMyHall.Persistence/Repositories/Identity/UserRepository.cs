@@ -28,7 +28,7 @@ public sealed class UserRepository(BookMyHallDbContext context)
         => await context.Users
             .Include(x => x.UserRoles)
             .ThenInclude(x => x.Role)
-            .FirstOrDefaultAsync(x => x.MobileNumber == mobileNumber  && x.IsActive, cancellationToken);
+            .FirstOrDefaultAsync(x => x.MobileNumber == mobileNumber && x.IsActive, cancellationToken);
 
     public async Task<PaginatedResult<User>> GetAllAsync(
         PaginationRequest request,
@@ -63,5 +63,15 @@ public sealed class UserRepository(BookMyHallDbContext context)
             PageNumber = request.PageNumber,
             PageSize = request.PageSize
         };
+    }
+
+    public async Task<User?> GetByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken = default)
+    {
+        return await context.Users
+            .FirstOrDefaultAsync(
+                x => x.IsActive &&
+                    x.EmailAddress != null &&
+                    EF.Functions.ILike(x.EmailAddress, emailAddress),
+                cancellationToken);
     }
 }

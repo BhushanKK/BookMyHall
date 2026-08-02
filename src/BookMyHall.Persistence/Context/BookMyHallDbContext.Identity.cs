@@ -16,4 +16,5 @@ public partial class BookMyHallDbContext
     public DbSet<Device> Devices => Set<Device>();
     public DbSet<LoginHistory> LoginHistories => Set<LoginHistory>();
     public DbSet<UserSession> UserSessions => Set<UserSession>();
+    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
 }

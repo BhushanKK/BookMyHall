@@ -9,6 +9,5 @@ public sealed class LoginHistoryConfiguration : IEntityTypeConfiguration<LoginHi
     {
         builder.ToTable("LoginHistory", "identity");
         builder.HasKey(x =>  x.LoginHistoryId );
-        builder.Property(x => x.LoginHistoryId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }
