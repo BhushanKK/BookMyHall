@@ -1,4 +1,5 @@
 using FluentAssertions;
+
 using BookMyHall.Domain.Identity;
 
 namespace BookMyHall.Domain.Tests.Entities.Identity;
@@ -10,9 +11,7 @@ public sealed class UserSessionTests
     {
         var userSession = new UserSession();
         var id = Guid.NewGuid();
-
         userSession.UserSessionId = id;
-
         userSession.UserSessionId.Should().Be(id);
     }
 
@@ -21,9 +20,7 @@ public sealed class UserSessionTests
     {
         var userSession = new UserSession();
         var userId = Guid.NewGuid();
-
         userSession.UserId = userId;
-
         userSession.UserId.Should().Be(userId);
     }
 
@@ -32,9 +29,7 @@ public sealed class UserSessionTests
     {
         var userSession = new UserSession();
         var refreshTokenId = Guid.NewGuid();
-
         userSession.RefreshTokenId = refreshTokenId;
-
         userSession.RefreshTokenId.Should().Be(refreshTokenId);
     }
 
@@ -43,9 +38,7 @@ public sealed class UserSessionTests
     {
         var userSession = new UserSession();
         var deviceId = Guid.NewGuid();
-
         userSession.DeviceId = deviceId;
-
         userSession.DeviceId.Should().Be(deviceId);
     }
 
@@ -53,10 +46,8 @@ public sealed class UserSessionTests
     public void UserSession_Should_Assign_SessionStart()
     {
         var userSession = new UserSession();
-        var sessionStart = TimeSpan.FromHours(9);
-
+        var sessionStart = DateTimeOffset.Now.AddHours(9);
         userSession.SessionStart = sessionStart;
-
         userSession.SessionStart.Should().Be(sessionStart);
     }
 
@@ -64,21 +55,22 @@ public sealed class UserSessionTests
     public void UserSession_Should_Assign_SessionEnd()
     {
         var userSession = new UserSession();
-        var sessionEnd = TimeSpan.FromHours(18);
-
+        var sessionEnd = DateTimeOffset.Now.AddHours(18);
         userSession.SessionEnd = sessionEnd;
-
         userSession.SessionEnd.Should().Be(sessionEnd);
     }
 
     [Fact]
     public void UserSession_Should_Assign_LastActivity()
     {
+        // Arrange
         var userSession = new UserSession();
-        var lastActivity = TimeSpan.FromHours(12);
+        var lastActivity = DateTimeOffset.Now.AddHours(12);
 
+        // Act
         userSession.LastActivity = lastActivity;
 
+        // Assert
         userSession.LastActivity.Should().Be(lastActivity);
     }
 
@@ -86,9 +78,7 @@ public sealed class UserSessionTests
     public void UserSession_Should_Assign_IsActive()
     {
         var userSession = new UserSession();
-
         userSession.IsActive = true;
-
         userSession.IsActive.Should().BeTrue();
     }
 
@@ -99,9 +89,9 @@ public sealed class UserSessionTests
         var userId = Guid.NewGuid();
         var refreshTokenId = Guid.NewGuid();
         var deviceId = Guid.NewGuid();
-        var sessionStart = TimeSpan.FromHours(9);
-        var sessionEnd = TimeSpan.FromHours(18);
-        var lastActivity = TimeSpan.FromHours(12);
+        var sessionStart = DateTimeOffset.Now.AddHours(9);
+        var sessionEnd = DateTimeOffset.Now.AddHours(18);
+        var lastActivity = DateTimeOffset.Now.AddHours(12);
 
         var userSession = new UserSession
         {
@@ -129,14 +119,14 @@ public sealed class UserSessionTests
     public void UserSession_Should_Have_Default_Values()
     {
         var userSession = new UserSession();
-
         userSession.UserSessionId.Should().Be(Guid.Empty);
         userSession.UserId.Should().Be(Guid.Empty);
         userSession.RefreshTokenId.Should().Be(Guid.Empty);
-        userSession.DeviceId.Should().Be(Guid.Empty);
-        userSession.SessionStart.Should().Be(default);
-        userSession.SessionEnd.Should().Be(default);
-        userSession.LastActivity.Should().Be(default);
-        userSession.IsActive.Should().BeFalse();
+        userSession.DeviceId.Should().BeNull();
+        userSession.SessionStart.Should().Be(default(DateTimeOffset));
+        userSession.LastActivity.Should().Be(default(DateTimeOffset));
+        userSession.SessionEnd.Should().BeNull();
+        userSession.IsActive.Should().BeTrue();
+        userSession.LoggedOutReason.Should().BeNull();
     }
 }

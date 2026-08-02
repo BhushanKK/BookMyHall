@@ -61,6 +61,10 @@ public static class EntityKeys
   public const string PaymentMode = nameof(PaymentMode);
   public const string PaymentModeId = nameof(PaymentModeId);
 
-    public const string Service = nameof(Service);
+  public const string Service = nameof(Service);
   public const string ServiceId = nameof(ServiceId);
+
+  public const string CurrentPassword = nameof(CurrentPassword);
+  public const string NewPassword = nameof(NewPassword);
+  public const string ConfirmPassword = nameof(ConfirmPassword);
 }

@@ -16,71 +16,108 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
   </resheader>
 
-  <data name="Required">
+  <data name="Required" xml:space="preserve">
     <value>{0} आवश्यक आहे.</value>
   </data>
 
-  <data name="Invalid">
+  <data name="Invalid" xml:space="preserve">
     <value>अवैध {0}.</value>
   </data>
 
-  <data name="AlreadyExists">
+  <data name="AlreadyExists" xml:space="preserve">
     <value>{0} आधीपासून अस्तित्वात आहे.</value>
   </data>
 
-  <data name="MinimumLength">
+  <data name="NotFound" xml:space="preserve">
+    <value>{0} सापडले नाही.</value>
+  </data>
+
+  <data name="MinimumLength" xml:space="preserve">
     <value>{0} किमान {1} अक्षरांचा असावा.</value>
   </data>
 
-  <data name="MaximumLength">
+  <data name="MaximumLength" xml:space="preserve">
     <value>{0} {1} अक्षरांपेक्षा जास्त नसावा.</value>
   </data>
 
-  <data name="Range">
+  <data name="Range" xml:space="preserve">
     <value>{0} {1} आणि {2} दरम्यान असावा.</value>
   </data>
 
-  <data name="GreaterThan">
+  <data name="GreaterThan" xml:space="preserve">
     <value>{0}, {1} पेक्षा मोठा असावा.</value>
   </data>
 
-  <data name="LessThan">
+  <data name="LessThan" xml:space="preserve">
     <value>{0}, {1} पेक्षा लहान असावा.</value>
   </data>
 
-  <data name="Email">
+  <data name="Equal" xml:space="preserve">
+    <value>{0} हे {1} शी जुळले पाहिजे.</value>
+  </data>
+
+  <data name="NotEqual" xml:space="preserve">
+    <value>{0} हे {1} पेक्षा वेगळे असावे.</value>
+  </data>
+
+  <data name="Email" xml:space="preserve">
     <value>कृपया वैध ईमेल पत्ता प्रविष्ट करा.</value>
   </data>
 
-  <data name="PhoneNumber">
+  <data name="PhoneNumber" xml:space="preserve">
     <value>कृपया वैध मोबाईल क्रमांक प्रविष्ट करा.</value>
   </data>
 
-  <data name="Url">
+  <data name="Url" xml:space="preserve">
     <value>कृपया वैध URL प्रविष्ट करा.</value>
   </data>
 
-  <data name="Guid">
+  <data name="Guid" xml:space="preserve">
     <value>कृपया वैध ओळखकर्ता प्रविष्ट करा.</value>
   </data>
 
-  <data name="Date">
+  <data name="Date" xml:space="preserve">
     <value>कृपया वैध दिनांक प्रविष्ट करा.</value>
   </data>
 
-  <data name="FutureDate">
+  <data name="FutureDate" xml:space="preserve">
     <value>{0} भविष्यातील दिनांक असावा.</value>
   </data>
 
-  <data name="PastDate">
+  <data name="PastDate" xml:space="preserve">
     <value>{0} मागील दिनांक असावा.</value>
   </data>
 
-  <data name="Numeric">
+  <data name="Numeric" xml:space="preserve">
     <value>{0} संख्यात्मक असावा.</value>
   </data>
 
-  <data name="PositiveNumber">
+  <data name="PositiveNumber" xml:space="preserve">
     <value>{0} शून्यापेक्षा मोठा असावा.</value>
   </data>
+
+  <data name="StrongPassword" xml:space="preserve">
+    <value>{0} मध्ये किमान एक मोठे अक्षर, एक लहान अक्षर, एक अंक आणि एक विशेष चिन्ह असणे आवश्यक आहे.</value>
+  </data>
+
+  <data name="PasswordMismatch" xml:space="preserve">
+    <value>सध्याचा पासवर्ड चुकीचा आहे.</value>
+  </data>
+
+  <data name="PasswordAlreadyUsed" xml:space="preserve">
+    <value>नवीन पासवर्ड हा सध्याच्या पासवर्डपेक्षा वेगळा असावा.</value>
+  </data>
+
+  <data name="InvalidCredentials" xml:space="preserve">
+    <value>वापरकर्तानाव किंवा पासवर्ड चुकीचा आहे.</value>
+  </data>
+
+  <data name="Unauthorized" xml:space="preserve">
+    <value>तुम्हाला ही क्रिया करण्याची परवानगी नाही.</value>
+  </data>
+
+  <data name="Forbidden" xml:space="preserve">
+    <value>तुमच्याकडे ही क्रिया करण्यासाठी आवश्यक अधिकार नाहीत.</value>
+  </data>
+
 </root>

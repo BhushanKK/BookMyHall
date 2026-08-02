@@ -16,10 +16,14 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
   </resheader>
 
-  <!-- CRUD Messages -->
+  <!-- ============================= -->
+  <!-- CRUD Messages                 -->
+  <!-- ============================= -->
+
   <data name="Required" xml:space="preserve">
-      <value>{0} is required.</value>
+    <value>{0} is required.</value>
   </data>
+
   <data name="Added" xml:space="preserve">
     <value>{0} added successfully.</value>
   </data>
@@ -36,7 +40,9 @@
     <value>{0} retrieved successfully.</value>
   </data>
 
-  <!-- Validation -->
+  <!-- ============================= -->
+  <!-- Validation                    -->
+  <!-- ============================= -->
 
   <data name="AlreadyExists" xml:space="preserve">
     <value>{0} already exists.</value>
@@ -50,7 +56,9 @@
     <value>Invalid {0}.</value>
   </data>
 
-  <!-- Status -->
+  <!-- ============================= -->
+  <!-- Status                        -->
+  <!-- ============================= -->
 
   <data name="Activated" xml:space="preserve">
     <value>{0} activated successfully.</value>
@@ -59,8 +67,6 @@
   <data name="Deactivated" xml:space="preserve">
     <value>{0} deactivated successfully.</value>
   </data>
-
-  <!-- Common -->
 
   <data name="Saved" xml:space="preserve">
     <value>{0} saved successfully.</value>
@@ -78,14 +84,16 @@
     <value>{0} rejected successfully.</value>
   </data>
 
-  <!-- API -->
+  <!-- ============================= -->
+  <!-- API                           -->
+  <!-- ============================= -->
 
   <data name="ValidationFailed" xml:space="preserve">
     <value>Validation failed.</value>
   </data>
 
   <data name="Unauthorized" xml:space="preserve">
-    <value>Unauthorized access.</value>
+    <value>You are not authorized to perform this action.</value>
   </data>
 
   <data name="Forbidden" xml:space="preserve">
@@ -96,7 +104,10 @@
     <value>An unexpected error occurred.</value>
   </data>
 
-  <!--Authenticatin-->
+  <!-- ============================= -->
+  <!-- Authentication                -->
+  <!-- ============================= -->
+
   <data name="LoginSuccessful" xml:space="preserve">
     <value>Login successful.</value>
   </data>
@@ -125,6 +136,14 @@
     <value>Your account is inactive. Please contact the administrator.</value>
   </data>
 
+  <data name="UserLocked" xml:space="preserve">
+    <value>Your account has been locked. Please contact the administrator.</value>
+  </data>
+
+  <!-- ============================= -->
+  <!-- Password                      -->
+  <!-- ============================= -->
+
   <data name="PasswordChangedSuccessfully" xml:space="preserve">
     <value>Password changed successfully.</value>
   </data>
@@ -132,4 +151,41 @@
   <data name="PasswordResetSuccessfully" xml:space="preserve">
     <value>Password reset successfully.</value>
   </data>
+
+  <data name="PasswordMismatch" xml:space="preserve">
+    <value>Current password is incorrect.</value>
+  </data>
+
+  <data name="PasswordAlreadyUsed" xml:space="preserve">
+    <value>New password must be different from the current password.</value>
+  </data>
+
+  <!-- ============================= -->
+  <!-- OTP                           -->
+  <!-- ============================= -->
+
+  <data name="OtpSentSuccessfully" xml:space="preserve">
+    <value>OTP has been sent successfully.</value>
+  </data>
+
+  <data name="InvalidOtp" xml:space="preserve">
+    <value>The OTP entered is invalid.</value>
+  </data>
+
+  <data name="OtpExpired" xml:space="preserve">
+    <value>The OTP has expired.</value>
+  </data>
+
+  <!-- ============================= -->
+  <!-- Verification                  -->
+  <!-- ============================= -->
+
+  <data name="EmailVerifiedSuccessfully" xml:space="preserve">
+    <value>Email verified successfully.</value>
+  </data>
+
+  <data name="MobileVerifiedSuccessfully" xml:space="preserve">
+    <value>Mobile number verified successfully.</value>
+  </data>
+
 </root>
