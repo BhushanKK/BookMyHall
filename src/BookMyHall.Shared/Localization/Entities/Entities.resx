@@ -223,10 +223,6 @@
   <value>Email</value>
 </data>
 
-<data name="MobileNumber" xml:space="preserve">
-  <value>Mobile Number</value>
-</data>
-
 <data name="ResetToken" xml:space="preserve">
   <value>Reset Token</value>
 </data>
