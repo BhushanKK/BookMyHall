@@ -1,10 +1,12 @@
 using System.Net;
 using AutoMapper;
+using FluentValidation;
 using MediatR;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Masters;
+using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 
@@ -13,25 +15,36 @@ namespace BookMyHall.Application.Features.Master;
 public sealed class CreateCityCommandHandler(
     ICityRepository cityRepository,
     IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper,
-    IMapper mapper)
-    : IRequestHandler<CreateCityCommand, ApiResponse<Guid>>
+    IMapper mapper,
+    IValidator<CreateCityCommand> validator,
+    IMessageHelper messageHelper)
+    : IRequestHandler<CreateCityCommand, ApiResponse<CityDto>>
 {
-    public async Task<ApiResponse<Guid>> Handle(CreateCityCommand request,CancellationToken cancellationToken)
+    public async Task<ApiResponse<CityDto>> Handle(CreateCityCommand request,CancellationToken cancellationToken)
     {
-        var existingCity = await cityRepository.GetByCityNameAsync(request.CityName,cancellationToken);
-
-        if (existingCity is not null)
+        var validationResult = await validator.ValidateAsync(request,cancellationToken);
+        if (!validationResult.IsValid)
         {
-            return ApiResponse<Guid>.FailureResponse(messageHelper.AlreadyExists(EntityKeys.City),HttpStatusCode.BadRequest);
+            var message = string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage));
+            return ApiResponse<CityDto>.FailureResponse(message,HttpStatusCode.BadRequest);
         }
-
         var city = mapper.Map<City>(request);
         city.CityId = Guid.NewGuid();
         city.IsActive = true;
-        await cityRepository.AddAsync(city, cancellationToken);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<Guid>.SuccessResponse(city.CityId,
-            messageHelper.AddedEntity( ResourceNames.Entities,EntityKeys.City),HttpStatusCode.Created);
+
+        try
+        {
+            await cityRepository.AddAsync(city,cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (DuplicateRecordException)
+        {
+            return ApiResponse<CityDto>.FailureResponse(
+                messageHelper.AlreadyExistsEntity(ResourceNames.Entities,EntityKeys.City),HttpStatusCode.Conflict);
+        }
+
+        return ApiResponse<CityDto>.SuccessResponse(
+            mapper.Map<CityDto>(city),
+            messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.City),HttpStatusCode.Created);
     }
 }

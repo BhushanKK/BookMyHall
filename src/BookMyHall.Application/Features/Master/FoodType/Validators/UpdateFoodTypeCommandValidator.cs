@@ -1,14 +1,18 @@
 using FluentValidation;
-namespace BookMyHall.Application.Features.Master;
+using BookMyHall.Application.Common.Extensions;
+using BookMyHall.Application.Features.Master;
+using BookMyHall.Shared.Constants;
+using BookMyHall.Shared.Localization;
+namespace BookMyHall.Application.Validations;
 public sealed class UpdateFoodTypeCommandValidator: AbstractValidator<UpdateFoodTypeCommand>
 {
-    public UpdateFoodTypeCommandValidator()
+    public UpdateFoodTypeCommandValidator(ILocalizationService localizer)
     {
         RuleFor(x => x.FoodTypeId)
-            .NotEmpty();
+            .Required(localizer, EntityKeys.FoodTypeId);
 
         RuleFor(x => x.FoodTypeName)
-            .NotEmpty()
+            .Required(localizer, EntityKeys.FoodTypeName)
             .MaximumLength(100);
     }
 }

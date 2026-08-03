@@ -1,17 +1,20 @@
 using FluentValidation;
-
-namespace BookMyHall.Application.Features.Master;
+using BookMyHall.Application.Common.Extensions;
+using BookMyHall.Application.Features.Master;
+using BookMyHall.Shared.Constants;
+using BookMyHall.Shared.Localization;
+namespace BookMyHall.Application.Validations;
 
 public sealed class CreateFacilityCommandValidator: AbstractValidator<CreateFacilityCommand>
 {
-    public CreateFacilityCommandValidator()
+    public CreateFacilityCommandValidator(ILocalizationService localizer)
     {
         RuleFor(x => x.FacilityName)
-            .NotEmpty()
+            .Required(localizer, EntityKeys.FacilityName)
             .MaximumLength(100);
 
         RuleFor(x => x.FacilityIcon)
-            .NotEmpty()
+            .Required(localizer, EntityKeys.FacilityIcon)
             .MaximumLength(500);
     }
 }

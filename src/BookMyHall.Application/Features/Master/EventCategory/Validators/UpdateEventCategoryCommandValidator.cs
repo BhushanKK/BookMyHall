@@ -1,14 +1,18 @@
 using FluentValidation;
-namespace BookMyHall.Application.Features.Master;
+using BookMyHall.Application.Common.Extensions;
+using BookMyHall.Application.Features.Master;
+using BookMyHall.Shared.Constants;
+using BookMyHall.Shared.Localization;
+namespace BookMyHall.Application.Validations;
 public sealed class UpdateEventCategoryCommandValidator: AbstractValidator<UpdateEventCategoryCommand>
 {
-    public UpdateEventCategoryCommandValidator()
+    public UpdateEventCategoryCommandValidator(ILocalizationService localizer)
     {
         RuleFor(x => x.EventCategoryId)
-            .NotEmpty();
+            .Required(localizer, EntityKeys.EventCategoryId);
 
         RuleFor(x => x.EventCategoryName)
-            .NotEmpty()
+            .Required(localizer, EntityKeys.EventCategoryName)
             .MaximumLength(100);
     }
 }

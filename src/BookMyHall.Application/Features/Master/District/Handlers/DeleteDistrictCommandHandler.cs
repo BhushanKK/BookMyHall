@@ -28,8 +28,7 @@ public sealed class DeleteDistrictCommandHandler(
         district.IsActive = false;
         await districtRepository.UpdateAsync(district, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<bool>.SuccessResponse(
-            true,
+        return ApiResponse<bool>.SuccessResponse(true,
             messageHelper.DeletedEntity(ResourceNames.Entities,EntityKeys.District),HttpStatusCode.OK);
     }
 }

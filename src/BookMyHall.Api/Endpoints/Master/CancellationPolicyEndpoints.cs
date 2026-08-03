@@ -12,97 +12,93 @@ public static class CancellationPolicyEndpoints
             .WithTags("Cancellation Policies")
             .RequireAuthorization(policy => policy.RequireRole("Admin"));
 
-        group.MapPost("/", CreateCancellationPolicyAsync)
-            .WithName("CreateCancellationPolicy")
-            .WithSummary("Create Cancellation Policy")
-            .WithDescription("Creates a new cancellation policy.")
-            .Produces<ApiResponse<Guid>>(StatusCodes.Status201Created)
-            .Produces<ApiResponse<Guid>>(StatusCodes.Status400BadRequest)
-            .Produces<ApiResponse<Guid>>(StatusCodes.Status409Conflict);
+        group.MapPost("/", async (
+            CreateCancellationPolicyCommand command,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("CreateCancellationPolicy")
+        .WithSummary("Create Cancellation Policy")
+        .WithDescription("Creates a new cancellation policy.")
+        .Produces<ApiResponse<Guid>>(StatusCodes.Status201Created)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status409Conflict);
 
-        group.MapPut("/{cancellationPolicyId:guid}", UpdateCancellationPolicyAsync)
-            .WithName("UpdateCancellationPolicy")
-            .WithSummary("Update Cancellation Policy")
-            .WithDescription("Updates an existing cancellation policy.")
-            .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status400BadRequest)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status404NotFound)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status409Conflict);
+        group.MapPut("/{cancellationPolicyId:guid}", async (
+            Guid cancellationPolicyId,
+            UpdateCancellationPolicyCommand command,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            command.CancellationPolicyId = cancellationPolicyId;
 
-        group.MapDelete("/{cancellationPolicyId:guid}", DeleteCancellationPolicyAsync)
-            .WithName("DeleteCancellationPolicy")
-            .WithSummary("Delete Cancellation Policy")
-            .WithDescription("Soft deletes a cancellation policy.")
-            .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status404NotFound);
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("UpdateCancellationPolicy")
+        .WithSummary("Update Cancellation Policy")
+        .WithDescription("Updates an existing cancellation policy.")
+        .Produces<ApiResponse<CancellationPolicyDto>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status409Conflict);
 
-        group.MapGet("/{cancellationPolicyId:guid}", GetCancellationPolicyByIdAsync)
-            .WithName("GetCancellationPolicyById")
-            .WithSummary("Get Cancellation Policy By Id")
-            .WithDescription("Retrieves a cancellation policy by its unique identifier.")
-            .Produces<ApiResponse<CancellationPolicyDto>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<CancellationPolicyDto>>(StatusCodes.Status404NotFound);
+        group.MapDelete("/{cancellationPolicyId:guid}", async (
+            Guid cancellationPolicyId,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new DeleteCancellationPolicyCommand(cancellationPolicyId),
+                cancellationToken);
 
-        group.MapPost("/search", GetCancellationPoliciesAsync)
-            .WithName("GetCancellationPolicies")
-            .WithSummary("Get Cancellation Policies")
-            .WithDescription("Retrieves a paginated list of cancellation policies.")
-            .Produces<ApiResponse<PaginatedResult<CancellationPolicyDto>>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<PaginatedResult<CancellationPolicyDto>>>(StatusCodes.Status400BadRequest);
-    }
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("DeleteCancellationPolicy")
+        .WithSummary("Delete Cancellation Policy")
+        .WithDescription("Deletes an existing cancellation policy.")
+        .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
 
-    private static async Task<IResult> CreateCancellationPolicyAsync(
-        CreateCancellationPolicyCommand command,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(command, cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
-    }
+        group.MapGet("/{cancellationPolicyId:guid}", async (
+            Guid cancellationPolicyId,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new GetCancellationPolicyByIdQuery(cancellationPolicyId),
+                cancellationToken);
 
-    private static async Task<IResult> UpdateCancellationPolicyAsync(
-        Guid cancellationPolicyId,
-        UpdateCancellationPolicyCommand command,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        command.CancellationPolicyId = cancellationPolicyId;
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("GetCancellationPolicyById")
+        .WithSummary("Get Cancellation Policy By Id")
+        .WithDescription("Returns a cancellation policy by its identifier.")
+        .Produces<ApiResponse<CancellationPolicyDto>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
 
-        var response = await sender.Send(command, cancellationToken);
+        group.MapGet("/", async (
+            [AsParameters] PaginationRequest request,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new GetCancellationPoliciesQuery(request),
+                cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
-    }
-
-    private static async Task<IResult> DeleteCancellationPolicyAsync(
-        Guid cancellationPolicyId,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(
-            new DeleteCancellationPolicyCommand(cancellationPolicyId),
-            cancellationToken);
-
-        return Results.Json(response, statusCode: (int)response.StatusCode);
-    }
-
-    private static async Task<IResult> GetCancellationPolicyByIdAsync(
-        Guid cancellationPolicyId,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(
-            new GetCancellationPolicyByIdQuery(cancellationPolicyId),
-            cancellationToken);
-
-        return Results.Json(response, statusCode: (int)response.StatusCode);
-    }
-
-    private static async Task<IResult> GetCancellationPoliciesAsync(
-        GetCancellationPoliciesQuery query,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(query, cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("GetCancellationPolicies")
+        .WithSummary("Get Cancellation Policies")
+        .WithDescription("Returns a paginated list of cancellation policies.")
+        .Produces<ApiResponse<PaginatedResult<CancellationPolicyDto>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }

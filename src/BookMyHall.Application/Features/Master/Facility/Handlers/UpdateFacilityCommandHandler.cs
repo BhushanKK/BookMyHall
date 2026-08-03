@@ -1,5 +1,6 @@
 using System.Net;
 using AutoMapper;
+using FluentValidation;
 using MediatR;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
@@ -12,14 +13,21 @@ namespace BookMyHall.Application.Features.Master;
 public sealed class UpdateFacilityCommandHandler(
     IFacilityRepository facilityRepository,
     IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper,
-    IMapper mapper)
+    IMapper mapper,
+    IValidator<UpdateFacilityCommand> validator,
+    IMessageHelper messageHelper)
     : IRequestHandler<UpdateFacilityCommand, ApiResponse<FacilityDto>>
 {
     public async Task<ApiResponse<FacilityDto>> Handle(UpdateFacilityCommand request,CancellationToken cancellationToken)
     {
-        var facility = await facilityRepository.GetByIdAsync(request.FacilityId,cancellationToken);
+        var validationResult = await validator.ValidateAsync(request,cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            var message = string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage));
+            return ApiResponse<FacilityDto>.FailureResponse(message,HttpStatusCode.BadRequest);
+        }
 
+        var facility = await facilityRepository.GetByIdAsync(request.FacilityId,cancellationToken);
         if (facility is null)
         {
             return ApiResponse<FacilityDto>.FailureResponse(
@@ -28,9 +36,7 @@ public sealed class UpdateFacilityCommandHandler(
         }
 
         var existingFacility = await facilityRepository.GetByFacilityNameAsync(request.FacilityName,cancellationToken);
-
-        if (existingFacility is not null &&
-            existingFacility.FacilityId != request.FacilityId)
+        if (existingFacility is not null && existingFacility.FacilityId != request.FacilityId)
         {
             return ApiResponse<FacilityDto>.FailureResponse(
                 messageHelper.AlreadyExists(EntityKeys.Facility),
@@ -38,9 +44,11 @@ public sealed class UpdateFacilityCommandHandler(
         }
 
         mapper.Map(request, facility);
-        await facilityRepository.UpdateAsync(facility, cancellationToken);
+        await facilityRepository.UpdateAsync(facility,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<FacilityDto>.SuccessResponse(mapper.Map<FacilityDto>(facility),
+
+        return ApiResponse<FacilityDto>.SuccessResponse(
+            mapper.Map<FacilityDto>(facility),
             messageHelper.UpdatedEntity(ResourceNames.Entities,EntityKeys.Facility),HttpStatusCode.OK);
     }
 }

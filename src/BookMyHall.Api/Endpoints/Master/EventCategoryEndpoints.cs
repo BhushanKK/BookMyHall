@@ -9,100 +9,96 @@ public static class EventCategoryEndpoints
     public static void MapEventCategoryEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/event-categories")
-            .WithTags("Event Categories")
+            .WithTags("Event Category")
             .RequireAuthorization(policy => policy.RequireRole("Admin"));
 
-        group.MapPost("/", CreateEventCategoryAsync)
-            .WithName("CreateEventCategory")
-            .WithSummary("Create Event Category")
-            .WithDescription("Creates a new event category.")
-            .Produces<ApiResponse<Guid>>(StatusCodes.Status201Created)
-            .Produces<ApiResponse<Guid>>(StatusCodes.Status400BadRequest)
-            .Produces<ApiResponse<Guid>>(StatusCodes.Status409Conflict);
+        group.MapPost("/", async (
+            CreateEventCategoryCommand command,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("CreateEventCategory")
+        .WithSummary("Create Event Category")
+        .WithDescription("Creates a new event category.")
+        .Produces<ApiResponse<Guid>>(StatusCodes.Status201Created)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status409Conflict);
 
-        group.MapPut("/{eventCategoryId:guid}", UpdateEventCategoryAsync)
-            .WithName("UpdateEventCategory")
-            .WithSummary("Update Event Category")
-            .WithDescription("Updates an existing event category.")
-            .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status400BadRequest)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status404NotFound)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status409Conflict);
+        group.MapPut("/{eventCategoryId:guid}", async (
+            Guid eventCategoryId,
+            UpdateEventCategoryCommand command,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            command.EventCategoryId = eventCategoryId;
 
-        group.MapDelete("/{eventCategoryId:guid}", DeleteEventCategoryAsync)
-            .WithName("DeleteEventCategory")
-            .WithSummary("Delete Event Category")
-            .WithDescription("Soft deletes an event category.")
-            .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status404NotFound);
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("UpdateEventCategory")
+        .WithSummary("Update Event Category")
+        .WithDescription("Updates an existing event category.")
+        .Produces<ApiResponse<EventCategoryDto>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status409Conflict);
 
-        group.MapGet("/{eventCategoryId:guid}", GetEventCategoryByIdAsync)
-            .WithName("GetEventCategoryById")
-            .WithSummary("Get Event Category By Id")
-            .WithDescription("Retrieves an event category by its unique identifier.")
-            .Produces<ApiResponse<EventCategoryDto>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<EventCategoryDto>>(StatusCodes.Status404NotFound);
+        group.MapDelete("/{eventCategoryId:guid}", async (
+            Guid eventCategoryId,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new DeleteEventCategoryCommand(eventCategoryId),
+                cancellationToken);
 
-        group.MapPost("/search", GetEventCategoriesAsync)
-            .WithName("GetEventCategories")
-            .WithSummary("Get Event Categories")
-            .WithDescription("Retrieves a paginated list of event categories.")
-            .Produces<ApiResponse<PaginatedResult<EventCategoryDto>>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<PaginatedResult<EventCategoryDto>>>(StatusCodes.Status400BadRequest);
-    }
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("DeleteEventCategory")
+        .WithSummary("Delete Event Category")
+        .WithDescription("Deletes an existing event category.")
+        .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
 
-    private static async Task<IResult> CreateEventCategoryAsync(
-        CreateEventCategoryCommand command,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(command, cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
-    }
+        group.MapGet("/{eventCategoryId:guid}", async (
+            Guid eventCategoryId,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new GetEventCategoryByIdQuery(eventCategoryId),
+                cancellationToken);
 
-    private static async Task<IResult> UpdateEventCategoryAsync(
-        Guid eventCategoryId,
-        UpdateEventCategoryCommand command,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        command.EventCategoryId = eventCategoryId;
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("GetEventCategoryById")
+        .WithSummary("Get Event Category By Id")
+        .WithDescription("Returns an event category by its identifier.")
+        .Produces<ApiResponse<EventCategoryDto>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
 
-        var response = await sender.Send(command, cancellationToken);
+        group.MapGet("/", async (
+            [AsParameters] PaginationRequest request,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new GetEventCategoriesQuery(request),
+                cancellationToken);
 
-        return Results.Json(response, statusCode: (int)response.StatusCode);
-    }
-
-    private static async Task<IResult> DeleteEventCategoryAsync(
-        Guid eventCategoryId,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(
-            new DeleteEventCategoryCommand(eventCategoryId),
-            cancellationToken);
-
-        return Results.Json(response, statusCode: (int)response.StatusCode);
-    }
-
-    private static async Task<IResult> GetEventCategoryByIdAsync(
-        Guid eventCategoryId,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(
-            new GetEventCategoryByIdQuery(eventCategoryId),
-            cancellationToken);
-
-        return Results.Json(response, statusCode: (int)response.StatusCode);
-    }
-
-    private static async Task<IResult> GetEventCategoriesAsync(
-        GetEventCategoriesQuery query,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(query, cancellationToken);
-        return Results.Json(response, statusCode: (int)response.StatusCode);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("GetEventCategories")
+        .WithSummary("Get Event Categories")
+        .WithDescription("Returns a paginated list of event categories.")
+        .Produces<ApiResponse<PaginatedResponse<EventCategoryDto>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }

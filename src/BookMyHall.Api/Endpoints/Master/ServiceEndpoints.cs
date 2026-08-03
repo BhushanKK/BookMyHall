@@ -80,12 +80,12 @@ public static class ServiceEndpoints
         .Produces<ApiResponse<ServiceDto>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<ServiceDto>>(StatusCodes.Status404NotFound);
 
-        group.MapPost("/search", async (
-            GetServicesQuery query,
+        group.MapGet("/GetAllServices", async (
+            [AsParameters] PaginationRequest request,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(query, cancellationToken);
+            var result = await mediator.Send(new GetServicesQuery(request), cancellationToken);
             return TypedResults.Ok(result);
         })
         .WithName("GetServices")

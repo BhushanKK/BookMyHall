@@ -28,8 +28,7 @@ public sealed class DeleteFacilityCommandHandler(
         facility.IsActive = false;
         await facilityRepository.UpdateAsync(facility, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return ApiResponse<bool>.SuccessResponse(
-            true,
+        return ApiResponse<bool>.SuccessResponse(true,
             messageHelper.DeletedEntity(ResourceNames.Entities,EntityKeys.Facility),HttpStatusCode.OK);
     }
 }

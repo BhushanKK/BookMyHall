@@ -1,21 +1,23 @@
 using FluentValidation;
+using BookMyHall.Application.Common.Extensions;
+using BookMyHall.Application.Features.Master;
+using BookMyHall.Shared.Constants;
+using BookMyHall.Shared.Localization;
+namespace BookMyHall.Application.Validations;
 
-namespace BookMyHall.Application.Features.Master;
-
-public sealed class UpdateCancellationPolicyCommandValidator
-    : AbstractValidator<UpdateCancellationPolicyCommand>
+public sealed class UpdateCancellationPolicyCommandValidator: AbstractValidator<UpdateCancellationPolicyCommand>
 {
-    public UpdateCancellationPolicyCommandValidator()
+    public UpdateCancellationPolicyCommandValidator(ILocalizationService localizer)
     {
         RuleFor(x => x.CancellationPolicyId)
-            .NotEmpty();
+            .Required(localizer, EntityKeys.CancellationPolicyId);
 
         RuleFor(x => x.PolicyName)
-            .NotEmpty()
+            .Required(localizer, EntityKeys.PolicyName)
             .MaximumLength(100);
 
         RuleFor(x => x.Description)
-            .NotEmpty()
+            .Required(localizer, EntityKeys.Description)
             .MaximumLength(500);
 
         RuleFor(x => x.RefundPercentage)

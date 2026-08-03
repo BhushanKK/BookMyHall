@@ -1,10 +1,12 @@
 using System.Net;
 using AutoMapper;
+using FluentValidation;
 using MediatR;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Masters;
+using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 
@@ -13,28 +15,37 @@ namespace BookMyHall.Application.Features.Master;
 public sealed class CreateFacilityCommandHandler(
     IFacilityRepository facilityRepository,
     IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper,
-    IMapper mapper)
-    : IRequestHandler<CreateFacilityCommand, ApiResponse<Guid>>
+    IMapper mapper,
+    IValidator<CreateFacilityCommand> validator,
+    IMessageHelper messageHelper)
+    : IRequestHandler<CreateFacilityCommand, ApiResponse<FacilityDto>>
 {
-    public async Task<ApiResponse<Guid>> Handle(CreateFacilityCommand request,CancellationToken cancellationToken)
+    public async Task<ApiResponse<FacilityDto>> Handle(CreateFacilityCommand request,CancellationToken cancellationToken)
     {
-        var existingFacility = await facilityRepository.GetByFacilityNameAsync(request.FacilityName,cancellationToken);
-
-        if (existingFacility is not null)
+        var validationResult = await validator.ValidateAsync(request,cancellationToken);
+        if (!validationResult.IsValid)
         {
-            return ApiResponse<Guid>.FailureResponse(
-                messageHelper.AlreadyExists(EntityKeys.Facility),
-                HttpStatusCode.BadRequest);
+            var message = string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage));
+            return ApiResponse<FacilityDto>.FailureResponse(message,HttpStatusCode.BadRequest);
         }
 
         var facility = mapper.Map<Facility>(request);
         facility.FacilityId = Guid.NewGuid();
         facility.IsActive = true;
-        await facilityRepository.AddAsync(facility, cancellationToken);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<Guid>.SuccessResponse(facility.FacilityId,
+        try
+        {
+            await facilityRepository.AddAsync(facility,cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (DuplicateRecordException)
+        {
+            return ApiResponse<FacilityDto>.FailureResponse(
+                messageHelper.AlreadyExistsEntity(ResourceNames.Entities,EntityKeys.Facility),HttpStatusCode.Conflict);
+        }
+
+        return ApiResponse<FacilityDto>.SuccessResponse(
+            mapper.Map<FacilityDto>(facility),
             messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.Facility),HttpStatusCode.Created);
     }
 }

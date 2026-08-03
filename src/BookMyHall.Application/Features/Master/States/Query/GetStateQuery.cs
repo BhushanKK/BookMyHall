@@ -4,5 +4,5 @@ using BookMyHall.Domain.Masters;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed record GetFoodTypesQuery(PaginationRequest paginationRequest)
-    : IRequest<ApiResponse<PaginatedResult<FoodType>>>;
+public sealed record GetStateQuery(PaginationRequest paginationRequest)
+    : IRequest<ApiResponse<PaginatedResult<State>>>;

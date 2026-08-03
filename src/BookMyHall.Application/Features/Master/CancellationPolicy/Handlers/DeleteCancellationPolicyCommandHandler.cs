@@ -14,31 +14,19 @@ public sealed class DeleteCancellationPolicyCommandHandler(
     IMessageHelper messageHelper)
     : IRequestHandler<DeleteCancellationPolicyCommand, ApiResponse<bool>>
 {
-    public async Task<ApiResponse<bool>> Handle(
-        DeleteCancellationPolicyCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<bool>> Handle(DeleteCancellationPolicyCommand request,CancellationToken cancellationToken)
     {
-        var policy = await cancellationPolicyRepository.GetByIdAsync(
-            request.CancellationPolicyId,
-            cancellationToken);
-
+        var policy = await cancellationPolicyRepository.GetByIdAsync(request.CancellationPolicyId,cancellationToken);
         if (policy is null)
         {
-            return ApiResponse<bool>.FailureResponse(
-                messageHelper.NotFound(EntityKeys.CancellationPolicy),
-                HttpStatusCode.NotFound);
+            return ApiResponse<bool>.FailureResponse(messageHelper.NotFound(EntityKeys.CancellationPolicy),HttpStatusCode.NotFound);
         }
 
         policy.IsActive = false;
-
         await cancellationPolicyRepository.UpdateAsync(policy, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(
-            true,
-            messageHelper.DeletedEntity(
-                ResourceNames.Entities,
-                EntityKeys.CancellationPolicy),
-            HttpStatusCode.OK);
+        return ApiResponse<bool>.SuccessResponse(true,
+            messageHelper.DeletedEntity(ResourceNames.Entities,EntityKeys.CancellationPolicy),HttpStatusCode.OK);
     }
 }

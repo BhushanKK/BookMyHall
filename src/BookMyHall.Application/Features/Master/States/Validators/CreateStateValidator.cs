@@ -6,8 +6,7 @@ using BookMyHall.Shared.Localization;
 
 namespace BookMyHall.Application.Validations;
 
-public sealed class CreateStateCommandValidator
-    : AbstractValidator<CreateStateCommand>
+public sealed class CreateStateCommandValidator: AbstractValidator<CreateStateCommand>
 {
     public CreateStateCommandValidator(
         ILocalizationService localizer)
@@ -18,8 +17,7 @@ public sealed class CreateStateCommandValidator
     }
 }
 
-public sealed class UpdateStateCommandValidator
-    : AbstractValidator<UpdateStateCommand>
+public sealed class UpdateStateCommandValidator: AbstractValidator<UpdateStateCommand>
 {
     public UpdateStateCommandValidator(
         ILocalizationService localizer)

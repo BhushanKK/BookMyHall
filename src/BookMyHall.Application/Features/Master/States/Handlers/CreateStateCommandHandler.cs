@@ -19,23 +19,15 @@ public sealed class CreateStateCommandHandler(
     IMessageHelper messageHelper)
     : IRequestHandler<CreateStateCommand, ApiResponse<StateDto>>
 {
-    public async Task<ApiResponse<StateDto>> Handle(
-        CreateStateCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<StateDto>> Handle(CreateStateCommand request,CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
         {
-            var message = string.Join(
-                " | ",
-                validationResult.Errors.Select(x => x.ErrorMessage));
-
-            return ApiResponse<StateDto>.FailureResponse(
-                message,
-                HttpStatusCode.BadRequest);
+            var message = string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage));
+            return ApiResponse<StateDto>.FailureResponse(message,HttpStatusCode.BadRequest);
         }
-
         var state = mapper.Map<State>(request);
 
         try
@@ -46,17 +38,13 @@ public sealed class CreateStateCommandHandler(
         catch (DuplicateRecordException)
         {
             return ApiResponse<StateDto>.FailureResponse(
-                messageHelper.AlreadyExistsEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.State),
-                HttpStatusCode.Conflict);
+                messageHelper.AlreadyExistsEntity(ResourceNames.Entities,EntityKeys.State),HttpStatusCode.Conflict);
         }
 
         return ApiResponse<StateDto>.SuccessResponse
         (
             mapper.Map<StateDto>(state),
-            messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.State),
-            HttpStatusCode.Created
+            messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.State),HttpStatusCode.Created
         );
     }
 }
