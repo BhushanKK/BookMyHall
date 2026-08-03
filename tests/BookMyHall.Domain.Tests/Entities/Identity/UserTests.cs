@@ -166,7 +166,7 @@ public sealed class UserTests
         user.MiddleName.Should().BeNull();
         user.LastName.Should().BeNull();
         user.MobileNumber.Should().BeEmpty();
-        user.EmailAddress.Should().BeNull();
+        user.EmailAddress.Should().BeEmpty();
         user.PasswordHash.Should().BeEmpty(); // Changed
         user.ProfileImageUrl.Should().BeNull();
         user.IsMobileVerified.Should().BeFalse();
