@@ -1,20 +1,23 @@
 using FluentValidation;
-
-namespace BookMyHall.Application.Features.Master;
+using BookMyHall.Application.Common.Extensions;
+using BookMyHall.Application.Features.Master;
+using BookMyHall.Shared.Constants;
+using BookMyHall.Shared.Localization;
+namespace BookMyHall.Application.Validations;
 
 public sealed class CreateAreaCommandValidator: AbstractValidator<CreateAreaCommand>
 {
-    public CreateAreaCommandValidator()
+    public CreateAreaCommandValidator(ILocalizationService localizer)
     {
         RuleFor(x => x.AreaName)
-            .NotEmpty()
-            .MaximumLength(150);
+            .Required(localizer, EntityKeys.Area)
+            .MaximumLengthLocalized(localizer, EntityKeys.Area, 150);
 
         RuleFor(x => x.Pincode)
-            .NotEmpty()
+            .Required(localizer, EntityKeys.Pincode)
             .Length(6);
 
         RuleFor(x => x.CityId)
-            .NotEmpty();
+            .Required(localizer, EntityKeys.CityId);
     }
 }

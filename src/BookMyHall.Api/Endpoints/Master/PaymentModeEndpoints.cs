@@ -9,101 +9,96 @@ public static class PaymentModeEndpoints
     public static void MapPaymentModeEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/payment-modes")
-            .WithTags("Payment Modes")
+            .WithTags("Payment Mode")
             .RequireAuthorization(policy => policy.RequireRole("Admin"));
 
-        group.MapPost("/", CreatePaymentModeAsync)
-            .WithName("CreatePaymentMode")
-            .WithSummary("Create Payment Mode")
-            .WithDescription("Creates a new payment mode.")
-            .Produces<ApiResponse<Guid>>(StatusCodes.Status201Created)
-            .Produces<ApiResponse<Guid>>(StatusCodes.Status400BadRequest)
-            .Produces<ApiResponse<Guid>>(StatusCodes.Status409Conflict);
+        group.MapPost("/", async (
+            CreatePaymentModeCommand command,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("CreatePaymentMode")
+        .WithSummary("Create Payment Mode")
+        .WithDescription("Creates a new payment mode.")
+        .Produces<ApiResponse<Guid>>(StatusCodes.Status201Created)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status409Conflict);
 
-        group.MapPut("/{paymentModeId:guid}", UpdatePaymentModeAsync)
-            .WithName("UpdatePaymentMode")
-            .WithSummary("Update Payment Mode")
-            .WithDescription("Updates an existing payment mode.")
-            .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status400BadRequest)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status404NotFound)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status409Conflict);
+        group.MapPut("/{paymentModeId:guid}", async (
+            Guid paymentModeId,
+            UpdatePaymentModeCommand command,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            command.PaymentModeId = paymentModeId;
 
-        group.MapDelete("/{paymentModeId:guid}", DeletePaymentModeAsync)
-            .WithName("DeletePaymentMode")
-            .WithSummary("Delete Payment Mode")
-            .WithDescription("Soft deletes a payment mode.")
-            .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status404NotFound);
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("UpdatePaymentMode")
+        .WithSummary("Update Payment Mode")
+        .WithDescription("Updates an existing payment mode.")
+        .Produces<ApiResponse<PaymentModeDto>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status409Conflict);
 
-        group.MapGet("/{paymentModeId:guid}", GetPaymentModeByIdAsync)
-            .WithName("GetPaymentModeById")
-            .WithSummary("Get Payment Mode By Id")
-            .WithDescription("Retrieves a payment mode by its unique identifier.")
-            .Produces<ApiResponse<PaymentModeDto>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<PaymentModeDto>>(StatusCodes.Status404NotFound);
+        group.MapDelete("/{paymentModeId:guid}", async (
+            Guid paymentModeId,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new DeletePaymentModeCommand(paymentModeId),
+                cancellationToken);
 
-        group.MapGet("/GetAllPaymentModes", GetPaymentModesAsync)
-            .WithName("GetPaymentModes")
-            .WithSummary("Get Payment Modes")
-            .WithDescription("Retrieves a paginated list of payment modes.")
-            .Produces<ApiResponse<PaginatedResult<PaymentModeDto>>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<PaginatedResult<PaymentModeDto>>>(StatusCodes.Status400BadRequest);
-    }
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("DeletePaymentMode")
+        .WithSummary("Delete Payment Mode")
+        .WithDescription("Deletes an existing payment mode.")
+        .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
 
-    private static async Task<IResult> CreatePaymentModeAsync(
-        CreatePaymentModeCommand command,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(command, cancellationToken);
-        return Results.Json(response, statusCode:response.StatusCode);
-    }
+        group.MapGet("/{paymentModeId:guid}", async (
+            Guid paymentModeId,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new GetPaymentModeByIdQuery(paymentModeId),
+                cancellationToken);
 
-    private static async Task<IResult> UpdatePaymentModeAsync(
-        Guid paymentModeId,
-        UpdatePaymentModeCommand command,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        command.PaymentModeId = paymentModeId;
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("GetPaymentModeById")
+        .WithSummary("Get Payment Mode By Id")
+        .WithDescription("Returns a payment mode by its identifier.")
+        .Produces<ApiResponse<PaymentModeDto>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
 
-        var response = await sender.Send(command, cancellationToken);
+        group.MapGet("/", async (
+            [AsParameters] PaginationRequest request,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new GetPaymentModesQuery(request),
+                cancellationToken);
 
-        return Results.Json(response, statusCode:response.StatusCode);
-    }
-
-    private static async Task<IResult> DeletePaymentModeAsync(
-        Guid paymentModeId,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(
-            new DeletePaymentModeCommand(paymentModeId),
-            cancellationToken);
-
-        return Results.Json(response, statusCode:response.StatusCode);
-    }
-
-    private static async Task<IResult> GetPaymentModeByIdAsync(
-        Guid paymentModeId,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(
-            new GetPaymentModeByIdQuery(paymentModeId),
-            cancellationToken);
-
-        return Results.Json(response, statusCode:response.StatusCode);
-    }
-
-    private static async Task<IResult> GetPaymentModesAsync(
-        GetPaymentModesQuery query,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(query, cancellationToken);
-
-        return Results.Json(response, statusCode:response.StatusCode);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("GetPaymentModes")
+        .WithSummary("Get Payment Modes")
+        .WithDescription("Returns a paginated list of payment modes.")
+        .Produces<ApiResponse<PaginatedResponse<PaymentModeDto>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }

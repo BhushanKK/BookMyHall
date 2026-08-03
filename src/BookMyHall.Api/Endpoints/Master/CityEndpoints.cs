@@ -12,96 +12,93 @@ public static class CityEndpoints
             .WithTags("Cities")
             .RequireAuthorization(policy => policy.RequireRole("Admin"));
 
-        group.MapPost("/", CreateCityAsync)
-            .WithName("CreateCity")
-            .WithSummary("Create City")
-            .WithDescription("Creates a new city.")
-            .Produces<ApiResponse<Guid>>(StatusCodes.Status201Created)
-            .Produces<ApiResponse<Guid>>(StatusCodes.Status400BadRequest)
-            .Produces<ApiResponse<Guid>>(StatusCodes.Status409Conflict);
+        group.MapPost("/", async (
+            CreateCityCommand command,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("CreateCity")
+        .WithSummary("Create City")
+        .WithDescription("Creates a new city.")
+        .Produces<ApiResponse<Guid>>(StatusCodes.Status201Created)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status409Conflict);
 
-        group.MapPut("/{cityId:guid}", UpdateCityAsync)
-            .WithName("UpdateCity")
-            .WithSummary("Update City")
-            .WithDescription("Updates an existing city.")
-            .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status400BadRequest)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status404NotFound)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status409Conflict);
+        group.MapPut("/{cityId:guid}", async (
+            Guid cityId,
+            UpdateCityCommand command,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            command.CityId = cityId;
 
-        group.MapDelete("/{cityId:guid}", DeleteCityAsync)
-            .WithName("DeleteCity")
-            .WithSummary("Delete City")
-            .WithDescription("Soft deletes a city.")
-            .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status404NotFound);
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("UpdateCity")
+        .WithSummary("Update City")
+        .WithDescription("Updates an existing city.")
+        .Produces<ApiResponse<CityDto>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status409Conflict);
 
-        group.MapGet("/{cityId:guid}", GetCityByIdAsync)
-            .WithName("GetCityById")
-            .WithSummary("Get City By Id")
-            .WithDescription("Retrieves a city by its unique identifier.")
-            .Produces<ApiResponse<CityDto>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<CityDto>>(StatusCodes.Status404NotFound);
+        group.MapDelete("/{cityId:guid}", async (
+            Guid cityId,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new DeleteCityCommand(cityId),
+                cancellationToken);
 
-        group.MapGet("/GetAllCities", GetCitiesAsync)
-            .WithName("GetCities")
-            .WithSummary("Get Cities")
-            .WithDescription("Retrieves a paginated list of cities.")
-            .Produces<ApiResponse<PaginatedResult<CityDto>>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<PaginatedResult<CityDto>>>(StatusCodes.Status400BadRequest);
-    }
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("DeleteCity")
+        .WithSummary("Delete City")
+        .WithDescription("Deletes an existing city.")
+        .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
 
-    private static async Task<IResult> CreateCityAsync(
-        CreateCityCommand command,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(command, cancellationToken);
-        return Results.Json(response, statusCode:response.StatusCode);
-    }
+        group.MapGet("/{cityId:guid}", async (
+            Guid cityId,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new GetCityByIdQuery(cityId),
+                cancellationToken);
 
-    private static async Task<IResult> UpdateCityAsync(
-        Guid cityId,
-        UpdateCityCommand command,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        command.CityId = cityId;
-        var response = await sender.Send(command, cancellationToken);
-        return Results.Json(response, statusCode:response.StatusCode);
-    }
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("GetCityById")
+        .WithSummary("Get City By Id")
+        .WithDescription("Returns a city by its identifier.")
+        .Produces<ApiResponse<CityDto>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
 
-    private static async Task<IResult> DeleteCityAsync(
-        Guid cityId,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(
-            new DeleteCityCommand(cityId),
-            cancellationToken);
+        group.MapGet("/", async (
+            [AsParameters] PaginationRequest request,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new GetCitiesQuery(request),
+                cancellationToken);
 
-        return Results.Json(response, statusCode:response.StatusCode);
-    }
-
-    private static async Task<IResult> GetCityByIdAsync(
-        Guid cityId,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(
-            new GetCityByIdQuery(cityId),
-            cancellationToken);
-
-        return Results.Json(response, statusCode:response.StatusCode);
-    }
-
-    private static async Task<IResult> GetCitiesAsync(
-        GetCitiesQuery query,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(query, cancellationToken);
-
-        return Results.Json(response, statusCode:response.StatusCode);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("GetCities")
+        .WithSummary("Get Cities")
+        .WithDescription("Returns a paginated list of cities.")
+        .Produces<ApiResponse<PaginatedResponse<CityDto>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }

@@ -1,19 +1,23 @@
 using FluentValidation;
-namespace BookMyHall.Application.Features.Master;
+using BookMyHall.Application.Common.Extensions;
+using BookMyHall.Application.Features.Master;
+using BookMyHall.Shared.Constants;
+using BookMyHall.Shared.Localization;
+namespace BookMyHall.Application.Validations;
 
 public sealed class UpdateDistrictCommandValidator
     : AbstractValidator<UpdateDistrictCommand>
 {
-    public UpdateDistrictCommandValidator()
+    public UpdateDistrictCommandValidator(ILocalizationService localizer)
     {
         RuleFor(x => x.DistrictId)
-            .NotEmpty();
+            .Required(localizer, EntityKeys.DistrictId);
 
         RuleFor(x => x.StateId)
-            .NotEmpty();
+            .Required(localizer, EntityKeys.StateId);
 
         RuleFor(x => x.DistrictName)
-            .NotEmpty()
+            .Required(localizer, EntityKeys.DistrictName)
             .MaximumLength(100);
 
         RuleFor(x => x.IsActive)

@@ -5,7 +5,6 @@ using BookMyHall.Api.Endpoints.Role;
 using BookMyHall.Api.Extensions;
 using BookMyHall.Api.Middleware;
 using BookMyHall.Application;
-using BookMyHall.Application.Features.Master;
 using BookMyHall.Infrastructure;
 using BookMyHall.Persistence;
 using BookMyHall.Shared.Common;

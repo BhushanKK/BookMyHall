@@ -12,97 +12,93 @@ public static class AreaEndpoints
             .WithTags("Areas")
             .RequireAuthorization(policy => policy.RequireRole("Admin"));
 
-        group.MapPost("/", CreateAreaAsync)
-            .WithName("CreateArea")
-            .WithSummary("Create Area")
-            .WithDescription("Creates a new area.")
-            .Produces<ApiResponse<Guid>>(StatusCodes.Status201Created)
-            .Produces<ApiResponse<Guid>>(StatusCodes.Status400BadRequest)
-            .Produces<ApiResponse<Guid>>(StatusCodes.Status409Conflict);
+        group.MapPost("/", async (
+            CreateAreaCommand command,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("CreateArea")
+        .WithSummary("Create Area")
+        .WithDescription("Creates a new area.")
+        .Produces<ApiResponse<Guid>>(StatusCodes.Status201Created)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status409Conflict);
 
-        group.MapPut("/{areaId:guid}", UpdateAreaAsync)
-            .WithName("UpdateArea")
-            .WithSummary("Update Area")
-            .WithDescription("Updates an existing area.")
-            .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status400BadRequest)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status404NotFound)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status409Conflict);
+        group.MapPut("/{areaId:guid}", async (
+            Guid areaId,
+            UpdateAreaCommand command,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            command.AreaId = areaId;
 
-        group.MapDelete("/{areaId:guid}", DeleteAreaAsync)
-            .WithName("DeleteArea")
-            .WithSummary("Delete Area")
-            .WithDescription("Soft deletes an area.")
-            .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<bool>>(StatusCodes.Status404NotFound);
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("UpdateArea")
+        .WithSummary("Update Area")
+        .WithDescription("Updates an existing area.")
+        .Produces<ApiResponse<AreaDto>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status409Conflict);
 
-        group.MapGet("/{areaId:guid}", GetAreaByIdAsync)
-            .WithName("GetAreaById")
-            .WithSummary("Get Area By Id")
-            .WithDescription("Retrieves an area by its unique identifier.")
-            .Produces<ApiResponse<AreaDto>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<AreaDto>>(StatusCodes.Status404NotFound);
+        group.MapDelete("/{areaId:guid}", async (
+            Guid areaId,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new DeleteAreaCommand(areaId),
+                cancellationToken);
 
-        group.MapGet("/GetAllAreas", GetAreasAsync)
-            .WithName("GetAreas")
-            .WithSummary("Get Areas")
-            .WithDescription("Retrieves a paginated list of areas.")
-            .Produces<ApiResponse<PaginatedResult<AreaDto>>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<PaginatedResult<AreaDto>>>(StatusCodes.Status400BadRequest);
-    }
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("DeleteArea")
+        .WithSummary("Delete Area")
+        .WithDescription("Deletes an existing area.")
+        .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
 
-    private static async Task<IResult> CreateAreaAsync(
-        CreateAreaCommand command,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(command, cancellationToken);
-        return Results.Json(response, statusCode: response.StatusCode);
-    }
+        group.MapGet("/{areaId:guid}", async (
+            Guid areaId,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new GetAreaByIdQuery(areaId),
+                cancellationToken);
 
-    private static async Task<IResult> UpdateAreaAsync(
-        Guid areaId,
-        UpdateAreaCommand command,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        command.AreaId = areaId;
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("GetAreaById")
+        .WithSummary("Get Area By Id")
+        .WithDescription("Returns an area by its identifier.")
+        .Produces<ApiResponse<AreaDto>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
 
-        var response = await sender.Send(command, cancellationToken);
+        group.MapGet("/", async (
+            [AsParameters] PaginationRequest request,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new GetAreasQuery(request),
+                cancellationToken);
 
-        return Results.Json(response, statusCode: response.StatusCode);
-    }
-
-    private static async Task<IResult> DeleteAreaAsync(
-        Guid areaId,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(
-            new DeleteAreaCommand(areaId),
-            cancellationToken);
-
-        return Results.Json(response, statusCode: response.StatusCode);
-    }
-
-    private static async Task<IResult> GetAreaByIdAsync(
-        Guid areaId,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(
-            new GetAreaByIdQuery(areaId),
-            cancellationToken);
-
-        return Results.Json(response, statusCode: response.StatusCode);
-    }
-
-    private static async Task<IResult> GetAreasAsync(
-        GetAreasQuery query,
-        ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(query, cancellationToken);
-        return Results.Json(response, statusCode:response.StatusCode);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("GetAreas")
+        .WithSummary("Get Areas")
+        .WithDescription("Returns a paginated list of areas.")
+        .Produces<ApiResponse<PaginatedResult<AreaDto>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }

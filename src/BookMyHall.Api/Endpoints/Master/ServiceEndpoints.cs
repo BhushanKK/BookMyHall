@@ -81,11 +81,11 @@ public static class ServiceEndpoints
         .Produces<ApiResponse<ServiceDto>>(StatusCodes.Status404NotFound);
 
         group.MapGet("/GetAllServices", async (
-            GetServicesQuery query,
+            [AsParameters] PaginationRequest request,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(query, cancellationToken);
+            var result = await mediator.Send(new GetServicesQuery(request), cancellationToken);
             return Results.Ok(result);
         })
         .WithName("GetServices")
