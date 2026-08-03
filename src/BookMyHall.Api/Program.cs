@@ -24,6 +24,7 @@ builder.Services.AddLocalization(options =>
 {
     options.ResourcesPath = "Localization";
 });
+builder.Services.AddResponseCompressionConfiguration();
 
 builder.Services.AddSingleton<ILocalizationService, LocalizationService>();
 builder.Services.AddScoped<IMessageHelper, MessageHelper>();
@@ -64,5 +65,6 @@ app.UseHttpsRedirection();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseStaticFiles();
 app.MapBookMyHallEndpoints();
 await app.RunAsync();

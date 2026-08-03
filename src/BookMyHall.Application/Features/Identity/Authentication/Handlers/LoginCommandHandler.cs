@@ -1,13 +1,8 @@
 using System.Net;
-
 using AutoMapper;
-
 using FluentValidation;
-
 using MediatR;
-
 using Microsoft.Extensions.Options;
-
 using BookMyHall.Application.Abstractions.Authentication;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;

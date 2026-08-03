@@ -1,6 +1,5 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-
 namespace BookMyHall.Application;
 
 public static class DependencyInjection

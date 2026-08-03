@@ -18,7 +18,7 @@ public static class ServiceEndpoints
             CancellationToken cancellationToken) =>
         {
             var result = await mediator.Send(command, cancellationToken);
-            return Results.Ok(result);
+            return TypedResults.Ok(result);
         })
         .WithName("CreateService")
         .WithSummary("Create Service")
@@ -36,7 +36,7 @@ public static class ServiceEndpoints
             command.ServiceId = serviceId;
 
             var result = await mediator.Send(command, cancellationToken);
-            return Results.Ok(result);
+            return TypedResults.Ok(result);
         })
         .WithName("UpdateService")
         .WithSummary("Update Service")
@@ -55,7 +55,7 @@ public static class ServiceEndpoints
                 new DeleteServiceCommand(serviceId),
                 cancellationToken);
 
-            return Results.Ok(result);
+            return TypedResults.Ok(result);
         })
         .WithName("DeleteService")
         .WithSummary("Delete Service")
@@ -72,7 +72,7 @@ public static class ServiceEndpoints
                 new GetServiceByIdQuery(serviceId),
                 cancellationToken);
 
-            return Results.Ok(result);
+            return TypedResults.Ok(result);
         })
         .WithName("GetServiceById")
         .WithSummary("Get Service By Id")
@@ -86,7 +86,7 @@ public static class ServiceEndpoints
             CancellationToken cancellationToken) =>
         {
             var result = await mediator.Send(query, cancellationToken);
-            return Results.Ok(result);
+            return TypedResults.Ok(result);
         })
         .WithName("GetServices")
         .WithSummary("Get Services")

@@ -219,5 +219,63 @@
   <data name="Notification" xml:space="preserve">
     <value>सूचना</value>
   </data>
+<data name="Email" xml:space="preserve">
+  <value>ईमेल</value>
+</data>
 
+<data name="MobileNumber" xml:space="preserve">
+  <value>मोबाईल क्रमांक</value>
+</data>
+
+<data name="Password" xml:space="preserve">
+  <value>पासवर्ड</value>
+</data>
+
+<data name="CurrentPassword" xml:space="preserve">
+  <value>सध्याचा पासवर्ड</value>
+</data>
+
+<data name="NewPassword" xml:space="preserve">
+  <value>नवीन पासवर्ड</value>
+</data>
+
+<data name="ConfirmPassword" xml:space="preserve">
+  <value>पासवर्डची पुष्टी</value>
+</data>
+
+<data name="ResetToken" xml:space="preserve">
+  <value>पासवर्ड रीसेट टोकन</value>
+</data>
+
+<data name="FullName" xml:space="preserve">
+  <value>पूर्ण नाव</value>
+</data>
+
+<data name="Role" xml:space="preserve">
+  <value>भूमिका</value>
+</data>
+
+<data name="User" xml:space="preserve">
+  <value>वापरकर्ता</value>
+</data>
+
+<data name="Permission" xml:space="preserve">
+  <value>परवानगी</value>
+</data>
+
+<data name="OTP" xml:space="preserve">
+  <value>वन-टाइम पासवर्ड (OTP)</value>
+</data>
+
+<data name="Device" xml:space="preserve">
+  <value>डिव्हाइस</value>
+</data>
+
+<data name="RefreshToken" xml:space="preserve">
+  <value>रिफ्रेश टोकन</value>
+</data>
+
+<data name="AccessToken" xml:space="preserve">
+  <value>एक्सेस टोकन</value>
+</data>
 </root>

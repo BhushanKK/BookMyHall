@@ -4,10 +4,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+
 using BookMyHall.Application.Abstractions.Authentication;
+using BookMyHall.Application.Abstractions.Email;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Application.Abstractions.Security;
 using BookMyHall.Infrastructure.Authentication;
+using BookMyHall.Infrastructure.Email;
+using BookMyHall.Infrastructure.Options;
 using BookMyHall.Infrastructure.Security;
 using BookMyHall.Shared.Constants;
 
@@ -19,8 +23,18 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        // Register MediatR handlers from Infrastructure assembly
+        services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
+        });
+
         // Password Hasher
         services.AddScoped<IPasswordHasher, PasswordHasher>();
+
+        // Token Services
+        services.AddScoped<ITokenGenerator, TokenGenerator>();
+        services.AddScoped<ITokenHasher, Sha256TokenHasher>();
 
         // JWT Options
         services.Configure<JwtOptions>(
@@ -115,8 +129,17 @@ public static class DependencyInjection
         // Current User
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, CurrentUser>();
-        services.AddScoped<ITokenGenerator, TokenGenerator>();  
-        services.AddScoped<ITokenHasher, Sha256TokenHasher>();
+
+        // Email Configuration
+        services.Configure<EmailOptions>(
+            configuration.GetSection(EmailOptions.SectionName));
+
+        services.Configure<FrontendOptions>(
+            configuration.GetSection(FrontendOptions.SectionName));
+
+        services.AddScoped<IEmailSender, SmtpEmailSender>();
+        services.AddScoped<IEmailTemplateService, EmailTemplateService>();
+
         return services;
     }
 

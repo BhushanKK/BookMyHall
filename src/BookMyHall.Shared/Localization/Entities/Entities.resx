@@ -219,5 +219,63 @@
   <data name="Notification" xml:space="preserve">
     <value>Notification</value>
   </data>
+<data name="Email" xml:space="preserve">
+  <value>Email</value>
+</data>
 
+<data name="MobileNumber" xml:space="preserve">
+  <value>Mobile Number</value>
+</data>
+
+<data name="Password" xml:space="preserve">
+  <value>Password</value>
+</data>
+
+<data name="CurrentPassword" xml:space="preserve">
+  <value>Current Password</value>
+</data>
+
+<data name="NewPassword" xml:space="preserve">
+  <value>New Password</value>
+</data>
+
+<data name="ConfirmPassword" xml:space="preserve">
+  <value>Confirm Password</value>
+</data>
+
+<data name="ResetToken" xml:space="preserve">
+  <value>Reset Token</value>
+</data>
+
+<data name="FullName" xml:space="preserve">
+  <value>Full Name</value>
+</data>
+
+<data name="Role" xml:space="preserve">
+  <value>Role</value>
+</data>
+
+<data name="User" xml:space="preserve">
+  <value>User</value>
+</data>
+
+<data name="Permission" xml:space="preserve">
+  <value>Permission</value>
+</data>
+
+<data name="OTP" xml:space="preserve">
+  <value>One-Time Password (OTP)</value>
+</data>
+
+<data name="Device" xml:space="preserve">
+  <value>Device</value>
+</data>
+
+<data name="RefreshToken" xml:space="preserve">
+  <value>Refresh Token</value>
+</data>
+
+<data name="AccessToken" xml:space="preserve">
+  <value>Access Token</value>
+</data>
 </root>

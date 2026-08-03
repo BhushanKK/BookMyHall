@@ -4,6 +4,7 @@ using BookMyHall.Contracts.Common;
 using BookMyHall.Application.Features.Identity.Users;
 using BookMyHall.Application.Features.Identity.Authentication;
 using BookMyHall.Application.Features.Authentication.Commands.ForgotPassword;
+using BookMyHall.Application.Features.Authentication.Commands.ResetPassword;
 
 namespace BookMyHall.Api.Endpoints.Identity;
 
@@ -96,5 +97,20 @@ public static class AuthenticationEndpoints
         .WithDescription("Generates a password reset token for the specified email address.")
         .Produces<ApiResponse<ForgotPasswordResponse>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<ForgotPasswordResponse>>(StatusCodes.Status400BadRequest);
+
+        group.MapPost("/reset-password", async (
+        ResetPasswordCommand command,
+        IMediator mediator,
+        CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .AllowAnonymous()
+        .WithName("ResetPassword")
+        .WithSummary("Reset Password")
+        .WithDescription("Resets the user's password using a valid password reset token.")
+        .Produces<ApiResponse<ResetPasswordResponse>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<ResetPasswordResponse>>(StatusCodes.Status400BadRequest);
     }
 }

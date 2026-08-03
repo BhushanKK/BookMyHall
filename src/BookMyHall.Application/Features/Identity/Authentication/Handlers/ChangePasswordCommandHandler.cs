@@ -1,15 +1,12 @@
-using System.Net;
-
-using FluentValidation;
-
 using MediatR;
-
-using BookMyHall.Application.Abstractions.Persistence;
-using BookMyHall.Application.Abstractions.Persistence.Repositories;
-using BookMyHall.Application.Abstractions.Security;
+using System.Net;
+using FluentValidation;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Persistence;
+using BookMyHall.Application.Abstractions.Security;
+using BookMyHall.Application.Abstractions.Persistence.Repositories;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 

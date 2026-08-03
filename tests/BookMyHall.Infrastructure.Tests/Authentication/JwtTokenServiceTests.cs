@@ -1,7 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+
 using FluentAssertions;
-using Microsoft.Extensions.Options;
+
 using BookMyHall.Application.Abstractions.Authentication;
 using BookMyHall.Infrastructure.Authentication;
 
