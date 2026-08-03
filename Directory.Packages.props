@@ -26,7 +26,7 @@
     <!-- ASP.NET Core -->
     <!-- ========================= -->
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.Localization" Version="2.3.11" />
+    <!-- Microsoft.AspNetCore.Localization is provided by the shared framework; remove to avoid unnecessary package reference -->
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
 
     <!-- ========================= -->
