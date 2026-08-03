@@ -1,8 +1,6 @@
 using BookMyHall.Api.Endpoints.Identity;
 using BookMyHall.Api.Endpoints.Master;
 using BookMyHall.Api.Endpoints.Role;
-using BookMyHall.Application.Features.Master;
-
 namespace BookMyHall.Api.Extensions;
 
 public static class EndpointRouteBuilderExtensions

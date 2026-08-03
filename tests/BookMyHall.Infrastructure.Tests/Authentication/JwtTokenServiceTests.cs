@@ -1,8 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-
 using FluentAssertions;
-
 using BookMyHall.Application.Abstractions.Authentication;
 using BookMyHall.Infrastructure.Authentication;
 
@@ -23,7 +21,7 @@ public sealed class JwtTokenServiceTests
             AccessTokenExpiryMinutes = 60
         };
 
-        _service = new JwtTokenService(Options.Create(_options));
+        _service = new JwtTokenService(Microsoft.Extensions.Options.Options.Create(_options));
     }
 
     private static JwtUser CreateUser()
@@ -31,8 +29,8 @@ public sealed class JwtTokenServiceTests
         return new JwtUser
         {
             UserId = Guid.NewGuid(),
-            FullName = "John Doe",
-            EmailAddress = "john@test.com",
+            FullName = "Bhushan Kachave",
+            EmailAddress = "bhushankachave@bookmyhall.com",
             MobileNumber = "9876543210",
             Roles =
             [
