@@ -5,6 +5,8 @@ using BookMyHall.Application.Features.Identity.Users;
 using BookMyHall.Application.Features.Identity.Authentication;
 using BookMyHall.Application.Features.Authentication.Commands.ForgotPassword;
 using BookMyHall.Application.Features.Authentication.Commands.ResetPassword;
+using BookMyHall.Application.Features.Authentication.Commands.VerifyEmail;
+using BookMyHall.Application.Features.Authentication.Commands.ResendVerificationEmail;
 
 namespace BookMyHall.Api.Endpoints.Identity;
 
@@ -112,5 +114,36 @@ public static class AuthenticationEndpoints
         .WithDescription("Resets the user's password using a valid password reset token.")
         .Produces<ApiResponse<ResetPasswordResponse>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<ResetPasswordResponse>>(StatusCodes.Status400BadRequest);
+
+        group.MapPost("/verify-email", async (
+            VerifyEmailCommand command,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .AllowAnonymous()
+        .WithName("VerifyEmail")
+        .WithSummary("Verify Email")
+        .WithDescription("Verifies the user's email address using a valid email verification token.")
+        .Produces<ApiResponse<VerifyEmailResponse>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<VerifyEmailResponse>>(StatusCodes.Status400BadRequest)
+        .Produces<ApiResponse<VerifyEmailResponse>>(StatusCodes.Status404NotFound);
+
+        group.MapPost("/resend-verification-email", async (
+            ResendVerificationEmailCommand command,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .AllowAnonymous()
+        .WithName("ResendVerificationEmail")
+        .WithSummary("Resend Verification Email")
+        .WithDescription("Resends an email verification link if the email address is registered and not yet verified.")
+        .Produces<ApiResponse<ResendVerificationEmailResponse>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<ResendVerificationEmailResponse>>(StatusCodes.Status400BadRequest);
     }
 }

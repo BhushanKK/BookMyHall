@@ -56,4 +56,5 @@ public class User : BaseEntity
     public void RevokeAllSessions() => InvalidateTokens();
     private void InvalidateTokens() => TokenVersion++;
     public ICollection<PasswordResetToken> PasswordResetTokens { get; private set; } = [];
+    public ICollection<EmailVerificationToken> EmailVerificationTokens { get; private set; } = [];
 }

@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Domain.Identity;
 using BookMyHall.Persistence.Context;

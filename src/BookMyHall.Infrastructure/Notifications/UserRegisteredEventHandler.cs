@@ -1,45 +1,54 @@
 using MediatR;
-using Microsoft.AspNetCore.Hosting;
-using BookMyHall.Application.Abstractions.Email;
+using BookMyHall.Application.Abstractions.Authentication;
+using BookMyHall.Application.Abstractions.Persistence;
+using BookMyHall.Application.Abstractions.Persistence.Identity;
 using BookMyHall.Application.Features.Authentication.Events;
+using BookMyHall.Domain.Entities.Identity;
 
 namespace BookMyHall.Infrastructure.Notifications;
 
 public sealed class UserRegisteredEventHandler(
-    IEmailTemplateService emailTemplateService,
-    IEmailSender emailSender,
-    IWebHostEnvironment environment)
+    IEmailVerificationTokenRepository emailVerificationTokenRepository,
+    ITokenGenerator tokenGenerator,
+    ITokenHasher tokenHasher,
+    IUnitOfWork unitOfWork,
+    IMediator mediator)
     : INotificationHandler<UserRegisteredEvent>
 {
-    public async Task Handle(UserRegisteredEvent notification,
+    private const int EmailVerificationExpiryInMinutes = 30;
+
+    public async Task Handle(
+        UserRegisteredEvent notification,
         CancellationToken cancellationToken)
     {
-        var logoPath = Path.Combine(environment.WebRootPath,"images","logo.png");
-
-        var html = await emailTemplateService.RenderAsync(
-            "Welcome",
-            new Dictionary<string, string>
-            {
-                ["UserName"] = notification.UserName,
-                ["CurrentYear"] = DateTime.UtcNow.Year.ToString()
-            },
+        await emailVerificationTokenRepository.DeleteByUserIdAsync(
+            notification.UserId,
             cancellationToken);
 
-        var email = new EmailMessage
-        {
-            To = notification.Email,
-            Subject = "Welcome to BookMyHall 🎉",
-            HtmlBody = html,
-            InlineAttachments =
-            [
-                new EmailAttachment
-                {
-                    FilePath = logoPath,
-                    ContentId = "bookmyhall-logo"
-                }
-            ]
-        };
+        var verificationToken =
+            tokenGenerator.GenerateEmailVerificationToken();
 
-        await emailSender.SendAsync(email,cancellationToken);
+        var tokenHash =
+            tokenHasher.Hash(verificationToken);
+
+        var entity = EmailVerificationToken.Create(
+            notification.UserId,
+            tokenHash,
+            DateTimeOffset.UtcNow.AddMinutes(
+                EmailVerificationExpiryInMinutes));
+
+        await emailVerificationTokenRepository.AddAsync(
+            entity,
+            cancellationToken);
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await mediator.Publish(
+            new EmailVerificationRequestedEvent(
+                notification.UserId,
+                notification.UserName,
+                notification.Email,
+                verificationToken),
+            cancellationToken);
     }
 }

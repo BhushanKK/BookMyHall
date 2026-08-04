@@ -18,6 +18,7 @@ public static class EntityKeys
 
   public const string FirstName = "FirstName";
   public const string EmailAddress = "EmailAddress";
+  public const string Token = "Token";
 
   // Hall
 

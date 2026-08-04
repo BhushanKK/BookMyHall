@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookMyHall - Verify Email</title>
+</head>
+
+<body style="
+    margin:0;
+    padding:0;
+    background:#f3f6fb;
+    font-family:'Segoe UI',Arial,sans-serif;">
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+        style="background:#f3f6fb;padding:40px 0;">
+
+        <tr>
+
+            <td align="center">
+
+                <table role="presentation" width="650" cellpadding="0" cellspacing="0" border="0" style="
+            background:#ffffff;
+            border-radius:18px;
+            overflow:hidden;
+            box-shadow:0 10px 35px rgba(0,0,0,.08);">
+
+                    <!-- Top Gradient -->
+
+                    <tr>
+                        <td style="
+        height:8px;
+        background:linear-gradient(90deg,#5B21B6,#EC4899);">
+                        </td>
+                    </tr>
+
+                    <!-- HEADER -->
+
+                    <tr>
+
+                        <td align="center" style="
+        padding:45px 40px 30px;
+        background:#ffffff;">
+
+                            <img src="cid:bookmyhall-logo" alt="BookMyHall" width="120" style="
+        display:block;
+        margin:0 auto;
+        border:none;
+        outline:none;">
+
+                            <h1 style="
+    margin:20px 0 8px;
+    font-size:40px;
+    color:#24124D;
+    font-weight:700;
+    letter-spacing:1px;">
+
+                                Book<span style="color:#EC4899;">My</span>Hall
+
+                            </h1>
+
+                            <p style="
+    margin:0;
+    color:#7C3AED;
+    font-size:16px;
+    letter-spacing:2px;">
+
+                                FIND • COMPARE • BOOK
+
+                            </p>
+
+                        </td>
+
+                    </tr>
+
+                    <!-- BODY -->
+
+                    <tr>
+
+                        <td style="padding:20px 55px 10px;">
+
+                            <h2 style="
+    margin-top:0;
+    color:#24124D;
+    font-size:30px;">
+
+                                Hello {{UserName}},
+
+                            </h2>
+
+                            <p style="
+    color:#4B5563;
+    font-size:17px;
+    line-height:30px;">
+
+                                Welcome to
+                                <strong style="color:#EC4899;">
+                                    BookMyHall
+                                </strong>!
+
+                                We're excited to have you with us.
+
+                            </p>
+
+                            <p style="
+    color:#4B5563;
+    font-size:17px;
+    line-height:30px;">
+
+                                To activate your account and start booking venues,
+                                please verify your email address by clicking the button below.
+
+                            </p>
+
+                            <!-- ====================================================== -->
+                            <!-- VERIFY EMAIL BUTTON -->
+                            <!-- ====================================================== -->
+
+                            <table role="presentation" align="center" cellpadding="0" cellspacing="0"
+                                style="margin:40px auto;">
+
+                                <tr>
+
+                                    <td align="center" bgcolor="#7C3AED" style="border-radius:12px;">
+
+                                        <a href="{{VerificationLink}}" style="
+        display:inline-block;
+        padding:18px 50px;
+        font-size:18px;
+        font-weight:700;
+        color:#ffffff;
+        text-decoration:none;
+        background:linear-gradient(90deg,#5B21B6,#EC4899);
+        border-radius:12px;">
+
+                                            ✅ VERIFY EMAIL
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                            </table>
+
+                            <p style="
+    text-align:center;
+    color:#6B7280;
+    font-size:16px;
+    margin-bottom:35px;">
+
+                                This verification link will expire in
+
+                                <strong style="color:#EC4899;">
+
+                                    {{ExpiryMinutes}} minutes
+
+                                </strong>.
+
+                            </p>
+
+                            <!-- ====================================================== -->
+                            <!-- SECURITY NOTICE -->
+                            <!-- ====================================================== -->
+
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="
+            background:#EEF6FF;
+            border:1px solid #C7DDFC;
+            border-left:6px solid #2563EB;
+            border-radius:12px;
+            margin-bottom:30px;">
+
+                                <tr>
+
+                                    <td style="padding:25px;">
+
+                                        <h3 style="
+    margin-top:0;
+    margin-bottom:15px;
+    color:#1D4ED8;
+    font-size:22px;">
+
+                                            🔐 Secure Your Account
+
+                                        </h3>
+
+                                        <p style="
+    margin:0;
+    color:#475569;
+    font-size:16px;
+    line-height:28px;">
+
+                                            Verifying your email address helps us protect your account,
+                                            improves account security, and enables important notifications.
+
+                                        </p>
+
+                                        <p style="
+    margin-top:15px;
+    margin-bottom:0;
+    color:#475569;
+    font-size:16px;
+    line-height:28px;">
+
+                                            For your security, never share this verification link with anyone.
+
+                                        </p>
+
+                                    </td>
+
+                                </tr>
+
+                            </table>
+                            <!-- ====================================================== -->
+                            <!-- FALLBACK LINK -->
+                            <!-- ====================================================== -->
+
+                            <h3 style="
+    color:#24124D;
+    margin-bottom:18px;
+    font-size:22px;">
+
+                                Having trouble with the button?
+
+                            </h3>
+
+                            <p style="
+    color:#4B5563;
+    font-size:16px;
+    line-height:28px;">
+
+                                Copy and paste the following URL into your browser to verify your email address.
+
+                            </p>
+
+                            <div style="
+    background:#F8FAFC;
+    border:1px solid #E5E7EB;
+    border-radius:10px;
+    padding:18px;
+    word-break:break-all;
+    font-size:14px;
+    line-height:26px;
+    color:#2563EB;
+    font-family:Consolas,Courier New,monospace;">
+
+                                {{VerificationLink}}
+
+                            </div>
+
+                            <!-- ====================================================== -->
+                            <!-- WARNING -->
+                            <!-- ====================================================== -->
+
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="
+            background:#FFF7ED;
+            border:1px solid #FED7AA;
+            border-left:6px solid #F97316;
+            border-radius:12px;
+            margin-top:35px;">
+
+                                <tr>
+
+                                    <td style="padding:25px;">
+
+                                        <h3 style="
+    margin-top:0;
+    color:#EA580C;
+    font-size:22px;">
+
+                                            ⚠ Didn't create a BookMyHall account?
+
+                                        </h3>
+
+                                        <p style="
+    margin-bottom:0;
+    color:#7C2D12;
+    font-size:16px;
+    line-height:28px;">
+
+                                            If you didn't register for a BookMyHall account,
+                                            please ignore this email.
+
+                                            No account will be activated until your email address
+                                            has been successfully verified.
+
+                                        </p>
+
+                                    </td>
+
+                                </tr>
+
+                            </table>
+
+                            <!-- ====================================================== -->
+                            <!-- SUPPORT -->
+                            <!-- ====================================================== -->
+
+                            <hr style="
+    margin:45px 0;
+    border:none;
+    border-top:1px solid #E5E7EB;">
+
+                            <h3 style="
+    color:#24124D;
+    margin-bottom:15px;">
+
+                                Need Help?
+
+                            </h3>
+
+                            <p style="
+    color:#4B5563;
+    font-size:16px;
+    line-height:28px;
+    margin-top:0;">
+
+                                If you're having trouble verifying your email,
+                                our support team is ready to assist you.
+
+                            </p>
+
+                            <p style="
+    margin-bottom:5px;
+    color:#EC4899;
+    font-size:17px;
+    font-weight:700;">
+
+                                📧 support@bookmyhall.com
+
+                            </p>
+
+                            <p style="
+    margin-top:0;
+    color:#6B7280;
+    font-size:15px;">
+
+                                We're always happy to help.
+
+                            </p>
+
+                            <!-- ====================================================== -->
+                            <!-- THANK YOU -->
+                            <!-- ====================================================== -->
+
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                                style="margin-top:20px;">
+
+                                <tr>
+
+                                    <td align="center">
+
+                                        <p style="
+    margin:0;
+    font-size:18px;
+    color:#374151;
+    line-height:30px;">
+
+                                            Thank you for choosing
+
+                                            <strong style="color:#7C3AED;">
+
+                                                BookMyHall
+
+                                            </strong>
+
+                                            💜
+
+                                        </p>
+
+                                        <p style="
+    margin-top:10px;
+    color:#6B7280;
+    font-size:15px;">
+
+                                            India's Smart Hall Booking Platform
+
+                                        </p>
+
+                                    </td>
+
+                                </tr>
+
+                            </table>
+
+                        </td>
+
+                    </tr>
+
+                    <!-- ====================================================== -->
+                    <!-- FOOTER -->
+                    <!-- ====================================================== -->
+
+                    <tr>
+
+                        <td align="center" style="
+        background:#24124D;
+        padding:45px 40px;">
+
+                            <img src="cid:bookmyhall-logo" alt="BookMyHall" width="70" style="
+        display:block;
+        margin:0 auto 18px;">
+
+                            <h2 style="
+    margin:0;
+    color:#ffffff;
+    font-size:28px;
+    font-weight:700;">
+
+                                Book<span style="color:#EC4899;">My</span>Hall
+
+                            </h2>
+
+                            <p style="
+    margin:12px 0 25px;
+    color:#D1D5DB;
+    font-size:15px;
+    line-height:26px;">
+
+                                Find • Compare • Book Premium Banquet Halls,<br>
+                                Marriage Lawns, Convention Centers and Event Venues
+                                across India.
+
+                            </p>
+
+                            <hr style="
+    border:none;
+    border-top:1px solid rgba(255,255,255,.15);
+    margin:30px 0;">
+
+                            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+
+                                <tr>
+
+                                    <td align="center" style="
+        color:#D1D5DB;
+        font-size:15px;
+        line-height:30px;">
+
+                                        📧 support@bookmyhall.com
+
+                                        <br>
+
+                                        🌐 www.bookmyhall.com
+
+                                        <br>
+
+                                        📍 Maharashtra, India
+
+                                    </td>
+
+                                </tr>
+
+                            </table>
+
+                            <p style="
+    margin-top:35px;
+    color:#9CA3AF;
+    font-size:14px;
+    line-height:24px;">
+
+                                This is an automated email from
+                                <strong style="color:#ffffff;">
+                                    BookMyHall
+                                </strong>.
+
+                                Please do not reply directly to this email.
+
+                            </p>
+
+                            <p style="
+    margin-top:18px;
+    color:#9CA3AF;
+    font-size:13px;">
+
+                                © {{CurrentYear}} BookMyHall.
+                                All Rights Reserved.
+
+                            </p>
+
+                        </td>
+
+                    </tr>
+
+                </table>
+
+            </td>
+
+        </tr>
+
+    </table>
+
+</body>
+
+</html>

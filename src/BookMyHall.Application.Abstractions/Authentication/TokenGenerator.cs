@@ -12,4 +12,9 @@ public sealed class TokenGenerator : ITokenGenerator
         var bytes = RandomNumberGenerator.GetBytes(size);
         return Convert.ToHexString(bytes);
     }
+
+    public string GenerateEmailVerificationToken() 
+        => GenerateSecureToken();
+    private static string GenerateSecureToken() 
+        => Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
 }
