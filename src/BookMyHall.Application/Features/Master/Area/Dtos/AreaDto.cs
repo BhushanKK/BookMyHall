@@ -1,7 +1,10 @@
+using System.Text.Json.Serialization;
+
 namespace BookMyHall.Application.Features.Master;
 
 public class AreaDto
 {
+    [JsonIgnore]
     public Guid AreaId { get; set; }
     public string AreaName { get; set; } = string.Empty;
     public string Pincode { get; set; } = string.Empty;
