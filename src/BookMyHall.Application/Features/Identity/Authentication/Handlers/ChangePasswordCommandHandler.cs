@@ -7,6 +7,7 @@ using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Security;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
+using BookMyHall.Application.Features.Authentication.Events;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
@@ -18,7 +19,8 @@ public sealed class ChangePasswordCommandHandler(
     IPasswordHasher passwordHasher,
     ICurrentUser currentUser,
     IValidator<ChangePasswordCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,
+    IMediator mediator)
     : IRequestHandler<ChangePasswordCommand, ApiResponse<bool>>
 {
     public async Task<ApiResponse<bool>> Handle(
@@ -114,9 +116,16 @@ public sealed class ChangePasswordCommandHandler(
         // Commit Transaction
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(
+        await mediator.Publish
+        (
+            new PasswordChangedEvent(user.UserId, user.FullName, user.EmailAddress   
+        ), cancellationToken);
+
+        return ApiResponse<bool>.SuccessResponse
+        (
             true,
             messageHelper.PasswordChangedSuccessfully(),
-            HttpStatusCode.OK);
+            HttpStatusCode.OK
+        );
     }
 }

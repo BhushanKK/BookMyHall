@@ -6,6 +6,7 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Application.Abstractions.Security;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Application.Features.Identity.Authentication;
+using BookMyHall.Application.Features.Authentication.Events;
 
 namespace BookMyHall.Application.Features.Authentication.Commands.ResetPassword;
 
@@ -14,7 +15,8 @@ public sealed class ResetPasswordCommandHandler(
     IPasswordResetTokenRepository passwordResetTokenRepository,
     ITokenHasher tokenHasher,
     IPasswordHasher passwordHasher,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IMediator mediator)
     : IRequestHandler<ResetPasswordCommand, ApiResponse<ResetPasswordResponse>>
 {
     public async Task<ApiResponse<ResetPasswordResponse>> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
@@ -61,6 +63,14 @@ public sealed class ResetPasswordCommandHandler(
         // Remove all password reset tokens for this user
         await passwordResetTokenRepository.DeleteByUserIdAsync(user.UserId, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+        
+        await mediator.Publish(
+        new PasswordResetCompletedEvent(
+        user.UserId,
+        user.FullName,
+        user.EmailAddress),
+        cancellationToken);
+        
         return ApiResponse<ResetPasswordResponse>.SuccessResponse(new ResetPasswordResponse { Message = "Password has been reset successfully." }, "Password has been reset successfully.");
     }
 }

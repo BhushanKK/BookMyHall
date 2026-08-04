@@ -11,6 +11,7 @@ using BookMyHall.Shared.Constants;
 using BookMyHall.Domain.Identity;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
+using BookMyHall.Application.Features.Authentication.Events;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
@@ -21,7 +22,8 @@ public sealed class CreateUserCommandHandler(
     IPasswordHasher passwordHasher,
     IMapper mapper,
     IValidator<CreateUserCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,
+    IMediator mediator)
     : IRequestHandler<CreateUserCommand, ApiResponse<UserDto>>
 {
     public async Task<ApiResponse<UserDto>> Handle(
@@ -68,6 +70,11 @@ public sealed class CreateUserCommandHandler(
         {
             await userRepository.AddAsync(user, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
+            await mediator.Publish
+            (
+                new UserRegisteredEvent(user.UserId,user.FullName,user.EmailAddress),
+                cancellationToken
+            );
         }
         catch (DuplicateRecordException)
         {
