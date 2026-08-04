@@ -1,7 +1,10 @@
+using System.Text.Json.Serialization;
+
 namespace BookMyHall.Application.Features.Master;
 
 public class CancellationPolicyDto
 {
+    [JsonIgnore]
     public Guid CancellationPolicyId { get; set; }
 
     public string PolicyName { get; set; } = string.Empty;
