@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-
 using BookMyHall.Application.Abstractions.Authentication;
 using BookMyHall.Application.Abstractions.Email;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
@@ -129,6 +128,7 @@ public static class DependencyInjection
         // Current User
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, CurrentUser>();
+        services.AddScoped<IClientInfoService, ClientInfoService>();
 
         // Email Configuration
         services.Configure<EmailOptions>(

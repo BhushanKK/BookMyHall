@@ -1,6 +1,5 @@
-using BookMyHall.Domain.Common;
 namespace BookMyHall.Domain.Audit;
-public class UserLoginHistory : BaseEntity
+public class UserLoginHistory
 {
     public Guid UserLoginHistoryId { get; set; }
     public Guid UserId { get; set; }
@@ -10,9 +9,12 @@ public class UserLoginHistory : BaseEntity
     public string LoginStatus { get; set; } = string.Empty;
     public string LoginMethod { get; set; }=string.Empty;
     public string UserAgent { get; set; } = string.Empty;
-    public string DeviceeType { get; set; } = string.Empty;
-    public string OpratingSystem { get; set; } = string.Empty;
+    public string DeviceType { get; set; } = string.Empty;
+    public string OperatingSystem { get; set; } = string.Empty;
     public string Browser { get; set; } = string.Empty;
-    public Guid SeesionId { get; set; }
+    public Guid SessionId { get; set; }
     public string FailureReason { get; set; } = string.Empty;
+    public string LoginSource { get; set; } = string.Empty;
+    public bool IsMfaUsed { get; set; } = false;
+    public int SessionDurationSeconds { get; set; } = 0;
 }

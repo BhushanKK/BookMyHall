@@ -7,3 +7,4 @@ public abstract class BaseEntity
     public Guid? UpdatedBy { get; set; }
     public DateTimeOffset? UpdatedDate { get; set; }
 }
+

@@ -8,8 +8,7 @@ public sealed class UserLoginHistoryConfiguration : IEntityTypeConfiguration<Use
 {
     public void Configure(EntityTypeBuilder<UserLoginHistory> builder)
     {
-        builder.ToTable("UserLoginHistory", "identity");
+        builder.ToTable("UserLoginHistory", "audit");
         builder.HasKey(x =>  x.UserLoginHistoryId );
-        builder.Property(x => x.UserLoginHistoryId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

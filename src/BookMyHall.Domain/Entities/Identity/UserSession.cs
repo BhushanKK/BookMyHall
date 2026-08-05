@@ -14,7 +14,7 @@ public class UserSession : BaseEntity
     public DateTimeOffset LastActivity { get; set; }
     public DateTimeOffset? SessionEnd { get; set; }
     public bool IsActive { get; set; } = true;
-    public string? LoggedOutReason { get; set; }
+    public string? LogoutReason { get; set; }
     public User User { get; set; } = default!;
     public RefreshToken RefreshToken { get; set; } = default!;
     public Device? Device { get; set; }

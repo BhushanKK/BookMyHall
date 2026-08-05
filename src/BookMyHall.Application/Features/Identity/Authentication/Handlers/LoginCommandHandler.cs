@@ -11,6 +11,8 @@ using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Identity;
 using BookMyHall.Infrastructure.Authentication;
 using BookMyHall.Shared.Common;
+using BookMyHall.Domain.Audit;
+using BookMyHall.Domain.Common;
 
 namespace BookMyHall.Application.Features.Identity.Authentication;
 
@@ -24,7 +26,10 @@ public sealed class LoginCommandHandler(
     IValidator<LoginCommand> validator,
     IMessageHelper messageHelper,
     IMapper mapper,
-    IOptions<JwtOptions> jwtOptions)
+    IOptions<JwtOptions> jwtOptions,
+    IUserLoginHistoryRepository userLoginHistoryRepository,
+    IClientInfoService clientInfoService,
+    IDeviceRepository deviceRepository)
     : IRequestHandler<LoginCommand, ApiResponse<LoginResponse>>
 {
     public async Task<ApiResponse<LoginResponse>> Handle(
@@ -52,6 +57,25 @@ public sealed class LoginCommandHandler(
 
         if (user is null)
         {
+            await userLoginHistoryRepository.AddAsync(
+                new UserLoginHistory
+                {
+                    LoginDate = DateTimeOffset.UtcNow,
+                    LoginStatus = LoginStatuses.Failed,
+                    LoginMethod = LoginMethods.Password,
+                    FailureReason = "Invalid mobile number.",
+                    IpAddress = clientInfoService.IpAddress ?? "Unknown",
+                    UserAgent = clientInfoService.UserAgent?? "Unknown",
+                    Browser = clientInfoService.Browser ?? "Unknown",
+                    OperatingSystem = clientInfoService.OperatingSystem ?? "Unknown",
+                    DeviceType = clientInfoService.DeviceType ?? "Unknown",
+                    LoginSource = clientInfoService.LoginSource ?? "Unknown",
+                    IsMfaUsed = false
+                },
+                cancellationToken);
+
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+
             return ApiResponse<LoginResponse>.FailureResponse
             (
                 messageHelper.InvalidCredentials(),
@@ -65,6 +89,26 @@ public sealed class LoginCommandHandler(
 
         if (!passwordHasher.VerifyPassword(user.PasswordHash, request.Password))
         {
+            await userLoginHistoryRepository.AddAsync(
+                new UserLoginHistory
+                {
+                    UserId = user.UserId,
+                    LoginDate = DateTimeOffset.UtcNow,
+                    LoginStatus = LoginStatuses.Failed,
+                    LoginMethod = LoginMethods.Password,
+                    FailureReason = "Invalid password.",
+                    IpAddress = clientInfoService.IpAddress ?? "Unknown",
+                    UserAgent = clientInfoService.UserAgent ?? "Unknown",
+                    Browser = clientInfoService.Browser ?? "Unknown",
+                    OperatingSystem = clientInfoService.OperatingSystem ?? "Unknown",
+                    DeviceType = clientInfoService.DeviceType ?? "Unknown",
+                    LoginSource = clientInfoService.LoginSource ?? "Unknown",
+                    IsMfaUsed = false
+                },
+                cancellationToken);
+
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+
             return ApiResponse<LoginResponse>.FailureResponse
             (
                 messageHelper.InvalidCredentials(),
@@ -78,6 +122,26 @@ public sealed class LoginCommandHandler(
 
         if (!user.IsActive)
         {
+            await userLoginHistoryRepository.AddAsync(
+                new UserLoginHistory
+                {
+                    UserId = user.UserId,
+                    LoginDate = DateTimeOffset.UtcNow,
+                    LoginStatus = LoginStatuses.Locked,
+                    LoginMethod = LoginMethods.Password,
+                    FailureReason = "User account is inactive.",
+                    IpAddress = clientInfoService.IpAddress ?? "Unknown",
+                    UserAgent = clientInfoService.UserAgent ?? "Unknown",
+                    Browser = clientInfoService.Browser ?? "Unknown",
+                    OperatingSystem = clientInfoService.OperatingSystem ?? "Unknown",
+                    DeviceType = clientInfoService.DeviceType ?? "Unknown",
+                    LoginSource = clientInfoService.LoginSource ?? "Unknown",
+                    IsMfaUsed = false
+                },
+                cancellationToken);
+
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+
             return ApiResponse<LoginResponse>.FailureResponse
             (
                 messageHelper.UserInactive(),
@@ -130,14 +194,62 @@ public sealed class LoginCommandHandler(
         // Create User Session
         // ---------------------------------------------------------
 
-        var now = DateTimeOffset.UtcNow;
+        // ---------------------------------------------------------
+// Register / Update Device
+// ---------------------------------------------------------
+
+var now = DateTimeOffset.UtcNow;
+
+var device = await deviceRepository.GetByDeviceIdentifierAsync(
+    user.UserId,
+    request.DeviceIdentifier,
+    cancellationToken);
+
+if (device is null)
+{
+    device = new Device
+    {
+        DeviceId = Guid.NewGuid(),
+        UserId = user.UserId,
+        DeviceIdentifier = request.DeviceIdentifier,
+        PushNotificationToken = request.PushNotificationToken,
+        DeviceName = request.DeviceName,
+        DeviceType = clientInfoService.DeviceType ?? "Desktop",
+        OperatingSystem = clientInfoService.OperatingSystem,
+        Browser = clientInfoService.Browser,
+        AppVersion = request.AppVersion,
+        LastIpAddress = clientInfoService.IpAddress,
+        LastLoginDate = now,
+        LastActivity = now,
+        IsTrusted = false,
+        IsActive = true,
+        CreatedDate = now
+    };
+
+    await deviceRepository.AddAsync(device, cancellationToken);
+}
+else
+{
+    device.PushNotificationToken = request.PushNotificationToken;
+    device.DeviceName = request.DeviceName;
+    device.DeviceType = clientInfoService.DeviceType ?? "Desktop";
+    device.OperatingSystem = clientInfoService.OperatingSystem;
+    device.Browser = clientInfoService.Browser;
+    device.AppVersion = request.AppVersion;
+    device.LastIpAddress = clientInfoService.IpAddress;
+    device.LastLoginDate = now;
+    device.LastActivity = now;
+    device.UpdatedDate = now;
+
+    await deviceRepository.UpdateAsync(device, cancellationToken);
+}
 
         var userSession = new UserSession
         {
             UserSessionId = Guid.NewGuid(),
             UserId = user.UserId,
             RefreshTokenId = refreshToken.RefreshTokenId,
-            DeviceId = null,
+            DeviceId = device.DeviceId,
             SessionStart = now,
             LastActivity = now,
             IsActive = true,
@@ -145,6 +257,25 @@ public sealed class LoginCommandHandler(
         };
 
         await userSessionRepository.AddAsync(userSession, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await userLoginHistoryRepository.AddAsync
+        (
+            new UserLoginHistory
+            {
+                UserId = user.UserId,
+                SessionId = userSession.UserSessionId,
+                LoginDate = now,
+                LoginStatus = LoginStatuses.Success,
+                LoginMethod = LoginMethods.Password,
+                IpAddress = clientInfoService.IpAddress ?? "Unknown",
+                UserAgent = clientInfoService.UserAgent ?? "Unknown",
+                Browser = clientInfoService.Browser ?? "Unknown",
+                OperatingSystem = clientInfoService.OperatingSystem ?? "Unknown",
+                DeviceType = clientInfoService.DeviceType ?? "Unknown",
+                LoginSource = clientInfoService.LoginSource
+            },
+            cancellationToken
+        );
         // ---------------------------------------------------------
         // Persist Everything
         // ---------------------------------------------------------

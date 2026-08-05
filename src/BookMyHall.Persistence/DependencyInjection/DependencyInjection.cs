@@ -7,6 +7,8 @@ using BookMyHall.Persistence.Context;
 using BookMyHall.Persistence.Repositories;
 using BookMyHall.Persistence.Repositories.Identity;
 using BookMyHall.Application.Abstractions.Persistence.Identity;
+using BookMyHall.Persistence.Repositories.Audit;
+using BookMyHall.Infrastructure.Authentication;
 
 namespace BookMyHall.Persistence;
 
@@ -37,6 +39,8 @@ public static class DependencyInjection
         services.AddScoped<IUserSessionRepository, UserSessionRepository>();
         services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
         services.AddScoped<IEmailVerificationTokenRepository, EmailVerificationTokenRepository>();
+        services.AddScoped<IUserLoginHistoryRepository, UserLoginHistoryRepository>();
+        services.AddScoped<IDeviceRepository, DeviceRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         return services;
     }
