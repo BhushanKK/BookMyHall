@@ -127,6 +127,6 @@ public sealed class UserSessionTests
         userSession.LastActivity.Should().Be(default(DateTimeOffset));
         userSession.SessionEnd.Should().BeNull();
         userSession.IsActive.Should().BeTrue();
-        userSession.LoggedOutReason.Should().BeNull();
+        userSession.LogoutReason.Should().BeNull();
     }
 }

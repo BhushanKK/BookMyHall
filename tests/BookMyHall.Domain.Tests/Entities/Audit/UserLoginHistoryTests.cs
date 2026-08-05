@@ -1,4 +1,5 @@
 using FluentAssertions;
+
 using BookMyHall.Domain.Audit;
 
 namespace BookMyHall.Domain.Tests.Entities.Audit;
@@ -14,6 +15,16 @@ public sealed class UserLoginHistoryTests
         userLoginHistory.UserLoginHistoryId = id;
 
         userLoginHistory.UserLoginHistoryId.Should().Be(id);
+    }
+
+    [Fact]
+    public void UserLoginHistory_Should_Assign_SessionDurationSeconds()
+    {
+        var userLoginHistory = new UserLoginHistory();
+
+        userLoginHistory.SessionDurationSeconds = 3600;
+
+        userLoginHistory.SessionDurationSeconds.Should().Be(3600);
     }
 
     [Fact]
@@ -94,9 +105,9 @@ public sealed class UserLoginHistoryTests
     {
         var userLoginHistory = new UserLoginHistory();
 
-        userLoginHistory.DeviceeType = "Desktop";
+        userLoginHistory.DeviceType = "Desktop";
 
-        userLoginHistory.DeviceeType.Should().Be("Desktop");
+        userLoginHistory.DeviceType.Should().Be("Desktop");
     }
 
     [Fact]
@@ -104,9 +115,9 @@ public sealed class UserLoginHistoryTests
     {
         var userLoginHistory = new UserLoginHistory();
 
-        userLoginHistory.OpratingSystem = "Windows 11";
+        userLoginHistory.OperatingSystem = "Windows 11";
 
-        userLoginHistory.OpratingSystem.Should().Be("Windows 11");
+        userLoginHistory.OperatingSystem.Should().Be("Windows 11");
     }
 
     [Fact]
@@ -125,9 +136,9 @@ public sealed class UserLoginHistoryTests
         var userLoginHistory = new UserLoginHistory();
         var sessionId = Guid.NewGuid();
 
-        userLoginHistory.SeesionId = sessionId;
+        userLoginHistory.SessionId = sessionId;
 
-        userLoginHistory.SeesionId.Should().Be(sessionId);
+        userLoginHistory.SessionId.Should().Be(sessionId);
     }
 
     [Fact]
@@ -159,10 +170,10 @@ public sealed class UserLoginHistoryTests
             LoginStatus = "Success",
             LoginMethod = "Password",
             UserAgent = "Mozilla/5.0",
-            DeviceeType = "Desktop",
-            OpratingSystem = "Windows 11",
+            DeviceType = "Desktop",
+            OperatingSystem = "Windows 11",
             Browser = "Chrome",
-            SeesionId = sessionId,
+            SessionId = sessionId,
             FailureReason = string.Empty
         };
 
@@ -174,10 +185,10 @@ public sealed class UserLoginHistoryTests
         userLoginHistory.LoginStatus.Should().Be("Success");
         userLoginHistory.LoginMethod.Should().Be("Password");
         userLoginHistory.UserAgent.Should().Be("Mozilla/5.0");
-        userLoginHistory.DeviceeType.Should().Be("Desktop");
-        userLoginHistory.OpratingSystem.Should().Be("Windows 11");
+        userLoginHistory.DeviceType.Should().Be("Desktop");
+        userLoginHistory.OperatingSystem.Should().Be("Windows 11");
         userLoginHistory.Browser.Should().Be("Chrome");
-        userLoginHistory.SeesionId.Should().Be(sessionId);
+        userLoginHistory.SessionId.Should().Be(sessionId);
         userLoginHistory.FailureReason.Should().BeEmpty();
     }
 
@@ -194,10 +205,10 @@ public sealed class UserLoginHistoryTests
         userLoginHistory.LoginStatus.Should().BeEmpty();
         userLoginHistory.LoginMethod.Should().BeEmpty();
         userLoginHistory.UserAgent.Should().BeEmpty();
-        userLoginHistory.DeviceeType.Should().BeEmpty();
-        userLoginHistory.OpratingSystem.Should().BeEmpty();
+        userLoginHistory.DeviceType.Should().BeEmpty();
+        userLoginHistory.OperatingSystem.Should().BeEmpty();
         userLoginHistory.Browser.Should().BeEmpty();
-        userLoginHistory.SeesionId.Should().Be(Guid.Empty);
+        userLoginHistory.SessionId.Should().Be(Guid.Empty);
         userLoginHistory.FailureReason.Should().BeEmpty();
     }
 }

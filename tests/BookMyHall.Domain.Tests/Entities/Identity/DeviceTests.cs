@@ -38,13 +38,13 @@ public sealed class DeviceTests
     }
 
     [Fact]
-    public void Device_Should_Assign_DeviceToken()
+    public void Device_Should_Assign_DeviceIdentifier()
     {
         var device = new Device();
 
-        device.DeviceToken = "device-token-123";
+        device.DeviceIdentifier = "device-token-123";
 
-        device.DeviceToken.Should().Be("device-token-123");
+        device.DeviceIdentifier.Should().Be("device-token-123");
     }
 
     [Fact]
@@ -97,8 +97,8 @@ public sealed class DeviceTests
         {
             DeviceId = deviceId,
             UserId = userId,
+            DeviceIdentifier = "device-token-123",
             DeviceName = "John's iPhone",
-            DeviceToken = "device-token-123",
             DeviceType = "Mobile",
             OperatingSystem = "Android 15",
             AppVersion = "1.0.0",
@@ -107,8 +107,8 @@ public sealed class DeviceTests
 
         device.DeviceId.Should().Be(deviceId);
         device.UserId.Should().Be(userId);
+        device.DeviceIdentifier.Should().Be("device-token-123");
         device.DeviceName.Should().Be("John's iPhone");
-        device.DeviceToken.Should().Be("device-token-123");
         device.DeviceType.Should().Be("Mobile");
         device.OperatingSystem.Should().Be("Android 15");
         device.AppVersion.Should().Be("1.0.0");
@@ -122,11 +122,11 @@ public sealed class DeviceTests
 
         device.DeviceId.Should().Be(Guid.Empty);
         device.UserId.Should().Be(Guid.Empty);
-        device.DeviceName.Should().BeEmpty();
-        device.DeviceToken.Should().BeEmpty();
+        device.DeviceName.Should().BeNull();
+        device.DeviceIdentifier.Should().BeEmpty();
         device.DeviceType.Should().BeEmpty();
-        device.OperatingSystem.Should().BeEmpty();
-        device.AppVersion.Should().BeEmpty();
+        device.OperatingSystem.Should().BeNull();
+        device.AppVersion.Should().BeNull();
         device.IsActive.Should().BeFalse();
     }
 }
