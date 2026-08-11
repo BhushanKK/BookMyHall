@@ -18,4 +18,5 @@ public partial class BookMyHallDbContext
     public DbSet<UserSession> UserSessions => Set<UserSession>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>();
+    public DbSet<UserPreference> UserPreferences => Set<UserPreference>();
 }

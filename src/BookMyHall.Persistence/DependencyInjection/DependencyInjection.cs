@@ -41,6 +41,7 @@ public static class DependencyInjection
         services.AddScoped<IEmailVerificationTokenRepository, EmailVerificationTokenRepository>();
         services.AddScoped<IUserLoginHistoryRepository, UserLoginHistoryRepository>();
         services.AddScoped<IDeviceRepository, DeviceRepository>();
+        services.AddScoped<IUserPreferenceRepository, UserPreferenceRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         return services;
     }
