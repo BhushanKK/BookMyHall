@@ -11,6 +11,7 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapRoleEndpoints();
         endpoints.MapUserEndpoints();
         endpoints.MapAuthenticationEndpoints();
+        endpoints.MapDeviceEndpoints();
         endpoints.MapStateEndpoints();
         endpoints.MapAmenityEndpoints();
         endpoints.MapAreaEndpoints();

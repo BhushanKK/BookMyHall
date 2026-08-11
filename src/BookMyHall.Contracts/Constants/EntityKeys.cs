@@ -20,6 +20,16 @@ public static class EntityKeys
   public const string EmailAddress = "EmailAddress";
   public const string Token = "Token";
 
+  public const string Device = "Device";
+  public const string DeviceIdentifier = "Device Identifier";
+  public const string DeviceType = "Device Type";
+  public const string DeviceName = "Device Name";
+  public const string PushNotificationToken = "Push Notification Token";
+  public const string OperatingSystem = "Operating System";
+  public const string Browser = "Browser";
+  public const string AppVersion = "App Version";
+  public const string LastIpAddress = "Last IP Address";
+
   // Hall
 
   public const string Hall = nameof(Hall);
