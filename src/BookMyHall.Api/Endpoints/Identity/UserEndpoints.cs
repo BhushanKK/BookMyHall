@@ -9,8 +9,7 @@ public static class UserEndpoints
     public static IEndpointRouteBuilder MapUserEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/users")
-            .WithTags("Users")
-            .RequireAuthorization();
+            .WithTags("Users");
 
         group.MapPost("/", async (
             CreateUserCommand command,
@@ -53,7 +52,7 @@ public static class UserEndpoints
         .Produces<ApiResponse<UserDto>>(StatusCodes.Status400BadRequest)
         .Produces<ApiResponse<UserDto>>(StatusCodes.Status404NotFound)
         .Produces<ApiResponse<UserDto>>(StatusCodes.Status409Conflict)
-        .Produces(StatusCodes.Status401Unauthorized);
+        .Produces(StatusCodes.Status401Unauthorized).RequireAuthorization();
 
         group.MapDelete("/{userId:guid}", async (
             Guid userId,
@@ -68,7 +67,7 @@ public static class UserEndpoints
         .WithDescription("Deletes an existing user.")
         .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<bool>>(StatusCodes.Status404NotFound)
-        .Produces(StatusCodes.Status401Unauthorized);
+        .Produces(StatusCodes.Status401Unauthorized).RequireAuthorization();
 
         group.MapGet("/", async (
             [AsParameters] PaginationRequest request,
@@ -82,7 +81,7 @@ public static class UserEndpoints
         .WithSummary("Get Users")
         .WithDescription("Returns a paginated list of users.")
         .Produces<ApiResponse<PaginatedResponse<UserDto>>>(StatusCodes.Status200OK)
-        .Produces(StatusCodes.Status401Unauthorized);
+        .Produces(StatusCodes.Status401Unauthorized).RequireAuthorization();
 
         group.MapGet("/{userId:guid}", async (
             Guid userId,
@@ -97,7 +96,7 @@ public static class UserEndpoints
         .WithDescription("Returns a user by its identifier.")
         .Produces<ApiResponse<UserDto>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<UserDto>>(StatusCodes.Status404NotFound)
-        .Produces(StatusCodes.Status401Unauthorized);
+        .Produces(StatusCodes.Status401Unauthorized).RequireAuthorization();
 
         return app;
     }
