@@ -1,4 +1,4 @@
-name: BookMyHall CI/CD
+name: BookMyHall CI
 
 on:
   push:
@@ -10,13 +10,8 @@ on:
       - main
 
 jobs:
-
-  # ============================================================
-  # BUILD + TEST
-  # ============================================================
-  build-and-test:
-
-    name: Build and Test
+  build-test-publish:
+    name: Build, Test and Publish
 
     runs-on:
       - self-hosted
@@ -25,24 +20,22 @@ jobs:
 
     steps:
 
-      # --------------------------------------------------------
-      # 1. Checkout
-      # --------------------------------------------------------
+      # ============================================================
+      # 1. CHECKOUT
+      # ============================================================
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      # --------------------------------------------------------
-      # 2. Show environment
-      # --------------------------------------------------------
+      # ============================================================
+      # 2. SHOW ENVIRONMENT
+      # ============================================================
       - name: Show environment
         shell: powershell
         run: |
-
           Write-Host "======================================"
-          Write-Host "BookMyHall CI/CD"
+          Write-Host "BookMyHall CI Environment"
           Write-Host "======================================"
 
-          Write-Host ""
           Write-Host "Computer:"
           Write-Host $env:COMPUTERNAME
 
@@ -51,264 +44,258 @@ jobs:
           Write-Host $env:USERNAME
 
           Write-Host ""
+          Write-Host "GitHub Workspace:"
+          Write-Host $env:GITHUB_WORKSPACE
+
+          Write-Host ""
           Write-Host "Current Directory:"
           Get-Location
 
           Write-Host ""
-          Write-Host ".NET Information:"
+          Write-Host "======================================"
+          Write-Host ".NET Information"
+          Write-Host "======================================"
+
           dotnet --info
 
-      # --------------------------------------------------------
-      # 3. Restore
-      # --------------------------------------------------------
-      - name: Restore dependencies
+          Write-Host ""
+          Write-Host "Installed SDKs:"
+          dotnet --list-sdks
+
+          Write-Host ""
+          Write-Host "Installed Runtimes:"
+          dotnet --list-runtimes
+
+          Write-Host ""
+          Write-Host "Git Version:"
+          git --version
+
+      # ============================================================
+      # 3. VERIFY SOLUTION
+      # ============================================================
+      - name: Verify solution structure
         shell: powershell
         run: |
-          dotnet restore .\BookMyHall.slnx
+          Write-Host "======================================"
+          Write-Host "Verifying BookMyHall Solution"
+          Write-Host "======================================"
 
-      # --------------------------------------------------------
-      # 4. Build
-      # --------------------------------------------------------
+          $solution = Join-Path $env:GITHUB_WORKSPACE "BookMyHall.slnx"
+          $project = Join-Path $env:GITHUB_WORKSPACE "src\BookMyHall.Api\BookMyHall.Api.csproj"
+
+          Write-Host "Solution:"
+          Write-Host $solution
+
+          Write-Host ""
+          Write-Host "API Project:"
+          Write-Host $project
+
+          if (-not (Test-Path $solution)) {
+              throw "Solution file not found: $solution"
+          }
+
+          if (-not (Test-Path $project)) {
+              throw "API project not found: $project"
+          }
+
+          Write-Host ""
+          Write-Host "Solution and API project found successfully."
+
+      # ============================================================
+      # 4. RESTORE
+      # ============================================================
+      - name: Restore NuGet packages
+        shell: powershell
+        run: |
+          Write-Host "======================================"
+          Write-Host "Restoring NuGet Packages"
+          Write-Host "======================================"
+
+          $solution = Join-Path $env:GITHUB_WORKSPACE "BookMyHall.slnx"
+
+          dotnet restore $solution
+
+          if ($LASTEXITCODE -ne 0) {
+              throw "dotnet restore failed."
+          }
+
+          Write-Host ""
+          Write-Host "NuGet restore completed successfully."
+
+      # ============================================================
+      # 5. BUILD
+      # ============================================================
       - name: Build solution
         shell: powershell
         run: |
-          dotnet build .\BookMyHall.slnx `
+          Write-Host "======================================"
+          Write-Host "Building BookMyHall"
+          Write-Host "======================================"
+
+          $solution = Join-Path $env:GITHUB_WORKSPACE "BookMyHall.slnx"
+
+          dotnet build $solution `
             --configuration Release `
             --no-restore
 
-      # --------------------------------------------------------
-      # 5. Test
-      # --------------------------------------------------------
+          if ($LASTEXITCODE -ne 0) {
+              throw "dotnet build failed."
+          }
+
+          Write-Host ""
+          Write-Host "Build completed successfully."
+
+      # ============================================================
+      # 6. TEST
+      # ============================================================
       - name: Run tests
         shell: powershell
         run: |
-          dotnet test .\BookMyHall.slnx `
+          Write-Host "======================================"
+          Write-Host "Running BookMyHall Tests"
+          Write-Host "======================================"
+
+          $solution = Join-Path $env:GITHUB_WORKSPACE "BookMyHall.slnx"
+
+          dotnet test $solution `
             --configuration Release `
             --no-build `
             --verbosity normal
 
-  # ============================================================
-  # DEPLOY
-  # ============================================================
-  deploy:
+          if ($LASTEXITCODE -ne 0) {
+              throw "dotnet test failed."
+          }
 
-    name: Deploy to IIS
+          Write-Host ""
+          Write-Host "Test execution completed successfully."
+          Write-Host ""
+          Write-Host "Note:"
+          Write-Host "Application.Tests and Api.Tests currently contain"
+          Write-Host "no test cases. They will be implemented later."
 
-    needs: build-and-test
-
-    # Deploy ONLY after push to main.
-    # Pull requests should build/test but should NOT deploy.
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-    runs-on:
-      - self-hosted
-      - Windows
-      - X64
-
-    steps:
-
-      # --------------------------------------------------------
-      # 1. Checkout
-      # --------------------------------------------------------
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      # --------------------------------------------------------
-      # 2. Publish
-      # --------------------------------------------------------
+      # ============================================================
+      # 7. PUBLISH
+      # ============================================================
       - name: Publish BookMyHall API
         shell: powershell
         run: |
-
           Write-Host "======================================"
           Write-Host "Publishing BookMyHall API"
           Write-Host "======================================"
 
-          if (Test-Path ".\publish") {
-              Remove-Item ".\publish" -Recurse -Force
+          $project = Join-Path $env:GITHUB_WORKSPACE "src\BookMyHall.Api\BookMyHall.Api.csproj"
+          $publishPath = Join-Path $env:GITHUB_WORKSPACE "publish"
+
+          Write-Host "Project:"
+          Write-Host $project
+
+          Write-Host ""
+          Write-Host "Publish Directory:"
+          Write-Host $publishPath
+
+          if (-not (Test-Path $project)) {
+              throw "BookMyHall.Api.csproj not found: $project"
           }
 
-          dotnet publish .\src\BookMyHall.Api\BookMyHall.Api.csproj `
+          # Remove previous publish directory
+          if (Test-Path $publishPath) {
+              Write-Host ""
+              Write-Host "Removing previous publish directory..."
+
+              Remove-Item `
+                $publishPath `
+                -Recurse `
+                -Force
+          }
+
+          # Publish API
+          dotnet publish $project `
             --configuration Release `
-            --output ".\publish" `
-            --no-restore
+            --no-restore `
+            --output $publishPath
 
           if ($LASTEXITCODE -ne 0) {
               throw "dotnet publish failed."
           }
 
           Write-Host ""
+          Write-Host "======================================"
+          Write-Host "Publish completed successfully"
+          Write-Host "======================================"
+
+          Write-Host ""
           Write-Host "Published files:"
-          Get-ChildItem ".\publish"
 
-      # --------------------------------------------------------
-      # 3. Create release directory
-      # --------------------------------------------------------
-      - name: Create release
+          Get-ChildItem $publishPath -Recurse |
+            Select-Object FullName, Length
+
+      # ============================================================
+      # 8. VERIFY PUBLISHED API
+      # ============================================================
+      - name: Verify published API
         shell: powershell
         run: |
-
-          $deploymentRoot = "C:\Websites\BookMyHall"
-          $releasesRoot = "$deploymentRoot\releases"
-
-          $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-
-          $releasePath = "$releasesRoot\$timestamp"
-
-          Write-Host "Deployment Root:"
-          Write-Host $deploymentRoot
-
-          Write-Host ""
-          Write-Host "Release:"
-          Write-Host $releasePath
-
-          New-Item `
-            -ItemType Directory `
-            -Path $releasePath `
-            -Force | Out-Null
-
-          Copy-Item `
-            ".\publish\*" `
-            $releasePath `
-            -Recurse `
-            -Force
-
-          Write-Host ""
-          Write-Host "Release created successfully."
-
-          Write-Host ""
-          Write-Host "Release contents:"
-          Get-ChildItem $releasePath
-
-          # Store release path for next steps
-          "RELEASE_PATH=$releasePath" >> $env:GITHUB_ENV
-
-      # --------------------------------------------------------
-      # 4. Stop IIS App Pool
-      # --------------------------------------------------------
-      - name: Stop BookMyHall AppPool
-        shell: powershell
-        run: |
-
-          Write-Host "Stopping BookMyHall AppPool..."
-
-          Import-Module WebAdministration
-
-          if ((Get-WebAppPoolState "BookMyHallAppPool").Value -eq "Started") {
-
-              Stop-WebAppPool "BookMyHallAppPool"
-
-              Start-Sleep -Seconds 3
-          }
-
-          Write-Host "AppPool stopped."
-
-      # --------------------------------------------------------
-      # 5. Update IIS physical path
-      # --------------------------------------------------------
-      - name: Update IIS application path
-        shell: powershell
-        run: |
-
-          Import-Module WebAdministration
-
-          $releasePath = $env:RELEASE_PATH
-
-          Write-Host "New release:"
-          Write-Host $releasePath
-
-          Set-ItemProperty `
-            "IIS:\Sites\BookMyHall" `
-            -Name physicalPath `
-            -Value $releasePath
-
-          Write-Host "IIS path updated."
-
-      # --------------------------------------------------------
-      # 6. Start IIS App Pool
-      # --------------------------------------------------------
-      - name: Start BookMyHall AppPool
-        shell: powershell
-        run: |
-
-          Import-Module WebAdministration
-
-          Start-WebAppPool "BookMyHallAppPool"
-
-          Start-Sleep -Seconds 5
-
-          $state = (Get-WebAppPoolState "BookMyHallAppPool").Value
-
-          Write-Host "BookMyHall AppPool State: $state"
-
-          if ($state -ne "Started") {
-              throw "BookMyHall AppPool failed to start."
-          }
-
-      # --------------------------------------------------------
-      # 7. Verify deployment
-      # --------------------------------------------------------
-      - name: Verify deployment
-        shell: powershell
-        run: |
-
-          $releasePath = $env:RELEASE_PATH
-
           Write-Host "======================================"
-          Write-Host "Deployment Verification"
+          Write-Host "Verifying Published API"
+          Write-Host "======================================"
+
+          $publishPath = Join-Path $env:GITHUB_WORKSPACE "publish"
+
+          $apiDll = Join-Path $publishPath "BookMyHall.Api.dll"
+          $apiExe = Join-Path $publishPath "BookMyHall.Api.exe"
+          $webConfig = Join-Path $publishPath "web.config"
+          $appSettings = Join-Path $publishPath "appsettings.json"
+
+          Write-Host "Checking:"
+          Write-Host $apiDll
+          Write-Host $apiExe
+          Write-Host $webConfig
+          Write-Host $appSettings
+
+          if (-not (Test-Path $apiDll)) {
+              throw "BookMyHall.Api.dll was not found."
+          }
+
+          if (-not (Test-Path $apiExe)) {
+              throw "BookMyHall.Api.exe was not found."
+          }
+
+          if (-not (Test-Path $webConfig)) {
+              throw "web.config was not found."
+          }
+
+          if (-not (Test-Path $appSettings)) {
+              throw "appsettings.json was not found."
+          }
+
+          Write-Host ""
+          Write-Host "All required publish files are present."
+
+      # ============================================================
+      # 9. FINAL SUMMARY
+      # ============================================================
+      - name: CI Summary
+        shell: powershell
+        run: |
+          Write-Host ""
+          Write-Host "======================================"
+          Write-Host "BOOKMYHALL CI SUCCESS"
           Write-Host "======================================"
 
           Write-Host ""
-          Write-Host "Release:"
-          Write-Host $releasePath
+          Write-Host "Checkout       : SUCCESS"
+          Write-Host "Restore        : SUCCESS"
+          Write-Host "Build          : SUCCESS"
+          Write-Host "Tests          : SUCCESS"
+          Write-Host "Publish        : SUCCESS"
+          Write-Host "Verification   : SUCCESS"
 
           Write-Host ""
-          Write-Host "BookMyHall API DLL:"
-
-          Get-Item "$releasePath\BookMyHall.Api.dll" |
-            Select-Object Name, LastWriteTime, Length
+          Write-Host "BookMyHall API has been successfully built and published."
 
           Write-Host ""
-          Write-Host "IIS Site:"
+          Write-Host "Publish location:"
+          Write-Host (Join-Path $env:GITHUB_WORKSPACE "publish")
 
-          & "$env:windir\system32\inetsrv\appcmd.exe" `
-            list site "BookMyHall" /config
-
-      # --------------------------------------------------------
-      # 8. Test OpenAPI
-      # --------------------------------------------------------
-      - name: Test BookMyHall API
-        shell: powershell
-        run: |
-
-          Start-Sleep -Seconds 5
-
-          Write-Host "Testing BookMyHall API..."
-
-          try {
-
-              $response = Invoke-WebRequest `
-                "http://localhost:8065/openapi/v1.json" `
-                -UseBasicParsing `
-                -TimeoutSec 30
-
-              Write-Host ""
-              Write-Host "HTTP Status:"
-              Write-Host $response.StatusCode
-
-              if ($response.StatusCode -ne 200) {
-                  throw "OpenAPI endpoint returned HTTP $($response.StatusCode)"
-              }
-
-              Write-Host ""
-              Write-Host "BookMyHall API is responding successfully."
-
-          }
-          catch {
-
-              Write-Host ""
-              Write-Host "API verification failed."
-              Write-Host $_
-
-              throw
-          }
+          Write-Host ""
+          Write-Host "======================================"
