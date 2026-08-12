@@ -88,7 +88,7 @@ jobs:
 
           $solution = Join-Path `
             $env:GITHUB_WORKSPACE `
-            "BookMyHall.sln"
+            "BookMyHall.slnx"
 
           $project = Join-Path `
             $env:GITHUB_WORKSPACE `
@@ -125,7 +125,7 @@ jobs:
 
           $solution = Join-Path `
             $env:GITHUB_WORKSPACE `
-            "BookMyHall.sln"
+            "BookMyHall.slnx"
 
           dotnet restore $solution
 
@@ -148,7 +148,7 @@ jobs:
 
           $solution = Join-Path `
             $env:GITHUB_WORKSPACE `
-            "BookMyHall.sln"
+            "BookMyHall.slnx"
 
           dotnet build $solution `
             --configuration Release `
@@ -173,7 +173,7 @@ jobs:
 
           $solution = Join-Path `
             $env:GITHUB_WORKSPACE `
-            "BookMyHall.sln"
+            "BookMyHall.slnx"
 
           dotnet test $solution `
             --configuration Release `
