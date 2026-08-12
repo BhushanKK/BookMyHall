@@ -78,7 +78,7 @@ jobs:
           name: BookMyHall-publish
           path: ${{ runner.temp }}/BookMyHall-publish
           run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ github.token }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       # ============================================================
       # 3. VERIFY DOWNLOADED ARTIFACT
