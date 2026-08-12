@@ -1,4 +1,5 @@
 name: CI
+
 on:
   push:
     branches: [main]
@@ -14,12 +15,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
-
-      - name: Configure NuGet
-        shell: powershell
-        run: |
-          dotnet nuget list source
-          dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org
 
       - name: Restore
         run: dotnet restore BookMyHall.slnx --source https://api.nuget.org/v3/index.json
