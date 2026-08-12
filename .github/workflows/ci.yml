@@ -46,14 +46,21 @@ jobs:
       # ==========================================
       # 6. DEPLOY
       # ==========================================
-      - name: Deploy to VM
+      - name: Deploy to IIS
         shell: powershell
         run: |
 
+          $ErrorActionPreference = "Stop"
+
+          # ==========================================
+          # CONFIGURATION
+          # ==========================================
+
           $releaseRoot = "C:\Websites\BookMyHall\releases"
+          $current = "C:\Websites\BookMyHall\current"
+          $appPool = "BookMyHall"
 
           $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-
           $release = Join-Path $releaseRoot $timestamp
 
           Write-Host "======================================"
@@ -64,13 +71,33 @@ jobs:
           Write-Host "Release:"
           Write-Host $release
 
-          # Create release directory
+          # ==========================================
+          # VALIDATE IIS
+          # ==========================================
+
+          Import-Module WebAdministration
+
+          if (-not (Test-Path "IIS:\AppPools\$appPool")) {
+              throw "IIS Application Pool '$appPool' does not exist."
+          }
+
+          Write-Host ""
+          Write-Host "IIS Application Pool found:"
+          Write-Host $appPool
+
+          # ==========================================
+          # CREATE RELEASE DIRECTORY
+          # ==========================================
+
           New-Item `
             -ItemType Directory `
             -Path $release `
             -Force | Out-Null
 
-          # Copy published application
+          # ==========================================
+          # COPY PUBLISHED APPLICATION
+          # ==========================================
+
           Copy-Item `
             ".\publish\*" `
             $release `
@@ -78,19 +105,32 @@ jobs:
             -Force
 
           Write-Host ""
-          Write-Host "Application copied successfully."
+          Write-Host "Application copied to release successfully."
+
+          # ==========================================
+          # STOP IIS APPLICATION POOL
+          # ==========================================
+
+          Write-Host ""
+          Write-Host "Stopping IIS Application Pool..."
+
+          $poolState = (Get-WebAppPoolState -Name $appPool).Value
+
+          if ($poolState -eq "Started") {
+              Stop-WebAppPool -Name $appPool
+              Start-Sleep -Seconds 3
+          }
+
+          Write-Host "Application Pool stopped."
 
           # ==========================================
           # UPDATE CURRENT
           # ==========================================
 
-          $current = "C:\Websites\BookMyHall\current"
+          Write-Host ""
+          Write-Host "Updating current deployment..."
 
           if (Test-Path $current) {
-
-              Write-Host ""
-              Write-Host "Removing previous current deployment..."
-
               Remove-Item `
                 $current `
                 -Recurse `
@@ -112,34 +152,81 @@ jobs:
           Write-Host "Current deployment updated."
 
           # ==========================================
-          # RESTART SERVICE
+          # VERIFY DEPLOYED FILE
           # ==========================================
 
-          Write-Host ""
-          Write-Host "Restarting BookMyHall service..."
+          $apiExe = Join-Path $current "BookMyHall.Api.exe"
+          $webConfig = Join-Path $current "web.config"
 
-          Restart-Service `
-            -Name "BookMyHall" `
-            -Force
-
-          Write-Host ""
-          Write-Host "Service restarted."
-
-          # ==========================================
-          # VERIFY SERVICE
-          # ==========================================
-
-          $service = Get-Service `
-            -Name "BookMyHall"
-
-          Write-Host ""
-          Write-Host "Service status:"
-          Write-Host $service.Status
-
-          if ($service.Status -ne "Running") {
-
-              throw "BookMyHall service is not running."
+          if (-not (Test-Path $apiExe)) {
+              throw "BookMyHall.Api.exe was not found in current deployment."
           }
+
+          if (-not (Test-Path $webConfig)) {
+              throw "web.config was not found in current deployment."
+          }
+
+          Write-Host ""
+          Write-Host "Deployment files verified."
+
+          Write-Host "API:"
+          Write-Host $apiExe
+
+          Write-Host "Web.config:"
+          Write-Host $webConfig
+
+          # ==========================================
+          # START IIS APPLICATION POOL
+          # ==========================================
+
+          Write-Host ""
+          Write-Host "Starting IIS Application Pool..."
+
+          Start-WebAppPool -Name $appPool
+
+          Start-Sleep -Seconds 5
+
+          # ==========================================
+          # VERIFY IIS APPLICATION POOL
+          # ==========================================
+
+          $poolState = (Get-WebAppPoolState -Name $appPool).Value
+
+          Write-Host ""
+          Write-Host "Application Pool status:"
+          Write-Host $poolState
+
+          if ($poolState -ne "Started") {
+              throw "BookMyHall IIS Application Pool failed to start."
+          }
+
+          # ==========================================
+          # VERIFY IIS WEBSITE
+          # ==========================================
+
+          $website = Get-Website -Name "BookMyHall"
+
+          Write-Host ""
+          Write-Host "IIS Website:"
+          Write-Host $website.Name
+
+          Write-Host "Website State:"
+          Write-Host $website.State
+
+          Write-Host "Physical Path:"
+          Write-Host $website.PhysicalPath
+
+          if ($website.State -ne "Started") {
+              throw "BookMyHall IIS Website is not running."
+          }
+
+          if ($website.PhysicalPath -ne $current) {
+              throw "IIS Physical Path is '$($website.PhysicalPath)' but expected '$current'."
+          }
+
+          # ==========================================
+          # DEPLOYMENT SUCCESS
+          # ==========================================
 
           Write-Host ""
           Write-Host "======================================"
