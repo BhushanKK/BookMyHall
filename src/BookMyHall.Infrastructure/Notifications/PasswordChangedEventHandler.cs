@@ -9,7 +9,7 @@ public sealed class PasswordChangedEventHandler(
     IEmailTemplateService emailTemplateService,
     IEmailSender emailSender,
     IWebHostEnvironment environment)
-    : INotificationHandler<PasswordChangedEvent>
+    : INotificationHandler<PasswordChangedEvent> 
 {
     public async Task Handle(PasswordChangedEvent notification,CancellationToken cancellationToken)
     {
