@@ -143,5 +143,6 @@ jobs:
 
           Write-Host ""
           Write-Host "======================================"
-          Write-Host "DEPLOYMENT SUCCESSFUL"
+          Write-Host "DEPLOYMENT SUCCESSFUL!!!"
           Write-Host "======================================"
+
