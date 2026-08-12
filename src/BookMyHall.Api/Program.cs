@@ -137,7 +137,7 @@ app.MapScalarApiReference(options =>
 // BookMyHall currently runs on HTTP :8065.
 // Do NOT enable HTTPS redirection until BookMyHall
 // has its own HTTPS binding/certificate.
-//
+//http://bookmyhallapi.sycits.co.in/scalar/
 // ETGS SSL on port 443 is completely independent.
 //
 // app.UseHttpsRedirection();
