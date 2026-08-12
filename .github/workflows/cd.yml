@@ -3,19 +3,18 @@ name: CD
 on:
   workflow_run:
     workflows: ["CI"]
-    types:
-      - completed
+    types: [completed]
 
 jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: self-hosted
 
-    steps:
+    permissions:
+      actions: read
+      contents: read
 
-      # ============================================================
-      # 1. DOWNLOAD ARTIFACT FROM THE CI RUN
-      # ============================================================
+    steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
@@ -24,280 +23,33 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
 
-      # ============================================================
-      # 2. VERIFY ARTIFACT
-      # ============================================================
       - name: Verify artifact
         shell: powershell
         run: |
-          Write-Host "======================================"
-          Write-Host "BookMyHall Artifact"
-          Write-Host "======================================"
-
-          Write-Host ""
-          Write-Host "CI Run ID:"
-          Write-Host "${{ github.event.workflow_run.id }}"
-
-          Write-Host ""
-          Write-Host "Publish directory:"
-          Write-Host (Resolve-Path ".\publish")
-
-          Write-Host ""
-          Write-Host "Files:"
+          Write-Host "Downloaded files:"
           Get-ChildItem ".\publish" -Recurse
 
-      # ============================================================
-      # 3. CREATE RELEASE
-      # ============================================================
-      - name: Create release
+      - name: Deploy
         shell: powershell
         run: |
-          $releaseRoot = "C:\Websites\BookMyHall\releases"
+          $release = "C:\Websites\BookMyHall\releases\$(Get-Date -Format yyyyMMdd-HHmmss)"
 
-          $releaseName = "release-${{ github.event.workflow_run.id }}"
+          Write-Host "Creating release directory: $release"
 
-          $release = Join-Path $releaseRoot $releaseName
+          New-Item -ItemType Directory -Force -Path $release
 
-          Write-Host "======================================"
-          Write-Host "Creating BookMyHall Release"
-          Write-Host "======================================"
+          Copy-Item ".\publish\*" $release -Recurse -Force
 
-          Write-Host ""
-          Write-Host "Release:"
-          Write-Host $release
-
-          New-Item `
-            -ItemType Directory `
-            -Force `
-            -Path $release | Out-Null
-
-          Copy-Item `
-            ".\publish\*" `
-            $release `
-            -Recurse `
-            -Force
-
-          Write-Host ""
-          Write-Host "Release created successfully."
-
-      # ============================================================
-      # 4. UPDATE IIS WEBSITE
-      # ============================================================
-      - name: Update IIS
-        shell: powershell
-        run: |
-          Import-Module WebAdministration
-
-          $siteName = "BookMyHall"
-
-          $releaseRoot = "C:\Websites\BookMyHall\releases"
-
-          $releaseName = "release-${{ github.event.workflow_run.id }}"
-
-          $release = Join-Path `
-            $releaseRoot `
-            $releaseName
-
-          Write-Host "======================================"
-          Write-Host "Updating IIS"
-          Write-Host "======================================"
-
-          Write-Host ""
-          Write-Host "Site:"
-          Write-Host $siteName
-
-          Write-Host ""
-          Write-Host "New physical path:"
-          Write-Host $release
-
-          if (-not (Test-Path $release)) {
-              throw "Release directory does not exist: $release"
+          if (Test-Path "C:\Websites\BookMyHall\current") {
+              Remove-Item "C:\Websites\BookMyHall\current" -Recurse -Force
           }
 
-          Set-ItemProperty `
-            "IIS:\Sites\$siteName" `
-            -Name physicalPath `
-            -Value $release
+          New-Item -ItemType Directory -Force -Path "C:\Websites\BookMyHall\current"
 
-          Write-Host ""
-          Write-Host "IIS physical path updated successfully."
+          Copy-Item "$release\*" "C:\Websites\BookMyHall\current" -Recurse -Force
 
-      # ============================================================
-      # 5. RESTART IIS SITE
-      # ============================================================
-      - name: Restart IIS site
-        shell: powershell
-        run: |
-          Import-Module WebAdministration
+          Write-Host "Restarting BookMyHall service..."
 
-          Write-Host "======================================"
-          Write-Host "Restarting IIS Site"
-          Write-Host "======================================"
+          Restart-Service "BookMyHall"
 
-          Stop-Website `
-            -Name "BookMyHall"
-
-          Start-Sleep `
-            -Seconds 2
-
-          Start-Website `
-            -Name "BookMyHall"
-
-          Write-Host ""
-          Write-Host "IIS site restarted successfully."
-
-      # ============================================================
-      # 6. VERIFY IIS PATH
-      # ============================================================
-      - name: Verify IIS deployment
-        shell: powershell
-        run: |
-          Import-Module WebAdministration
-
-          $site = Get-Website `
-            -Name "BookMyHall"
-
-          $expectedPath = Join-Path `
-            "C:\Websites\BookMyHall\releases" `
-            "release-${{ github.event.workflow_run.id }}"
-
-          Write-Host "======================================"
-          Write-Host "Verifying IIS Deployment"
-          Write-Host "======================================"
-
-          Write-Host ""
-          Write-Host "Expected:"
-          Write-Host $expectedPath
-
-          Write-Host ""
-          Write-Host "Actual:"
-          Write-Host $site.PhysicalPath
-
-          $actualPath = $site.PhysicalPath.TrimEnd('\')
-
-          $expectedPathNormalized = `
-            $expectedPath.TrimEnd('\')
-
-          if ($actualPath -ne $expectedPathNormalized) {
-              throw "IIS physical path does not match deployed release."
-          }
-
-          Write-Host ""
-          Write-Host "IIS deployment verified successfully."
-
-      # ============================================================
-      # 7. HEALTH CHECK
-      # ============================================================
-      - name: Health check
-        shell: powershell
-        run: |
-          $healthUrl = "http://127.0.0.1:8065/health"
-
-          Write-Host "======================================"
-          Write-Host "BookMyHall Health Check"
-          Write-Host "======================================"
-
-          Write-Host ""
-          Write-Host "Health URL:"
-          Write-Host $healthUrl
-
-          $success = $false
-
-          for ($i = 1; $i -le 12; $i++) {
-
-              Write-Host ""
-              Write-Host "Health check attempt $i of 12..."
-
-              try {
-
-                  $response = Invoke-WebRequest `
-                    -Uri $healthUrl `
-                    -UseBasicParsing `
-                    -TimeoutSec 10
-
-                  Write-Host ""
-                  Write-Host "HTTP Status:"
-                  Write-Host $response.StatusCode
-
-                  if ($response.StatusCode -eq 200) {
-
-                      $success = $true
-
-                      Write-Host ""
-                      Write-Host "Health check successful."
-
-                      break
-                  }
-
-              }
-              catch {
-
-                  Write-Host ""
-                  Write-Host "Application not ready yet."
-                  Write-Host $_.Exception.Message
-              }
-
-              Start-Sleep `
-                -Seconds 5
-          }
-
-          if (-not $success) {
-              throw "BookMyHall health check failed."
-          }
-
-      # ============================================================
-      # 8. CLEAN OLD RELEASES
-      # ============================================================
-      - name: Cleanup old releases
-        shell: powershell
-        run: |
-          $releaseRoot = "C:\Websites\BookMyHall\releases"
-
-          $currentRelease = `
-            "release-${{ github.event.workflow_run.id }}"
-
-          $keep = 5
-
-          Write-Host "======================================"
-          Write-Host "Cleaning Old Releases"
-          Write-Host "======================================"
-
-          $releases = @(
-              Get-ChildItem `
-                $releaseRoot `
-                -Directory |
-              Where-Object {
-                  $_.Name -like "release-*"
-              } |
-              Sort-Object CreationTime -Descending
-          )
-
-          Write-Host ""
-          Write-Host "Total releases:"
-          Write-Host $releases.Count
-
-          if ($releases.Count -gt $keep) {
-
-              $oldReleases = `
-                $releases |
-                Select-Object -Skip $keep
-
-              foreach ($release in $oldReleases) {
-
-                  if ($release.Name -eq $currentRelease) {
-                      continue
-                  }
-
-                  Write-Host ""
-                  Write-Host "Removing:"
-                  Write-Host $release.FullName
-
-                  Remove-Item `
-                    $release.FullName `
-                    -Recurse `
-                    -Force
-              }
-          }
-
-          Write-Host ""
-          Write-Host "Cleanup completed."
+          Write-Host "Deployment completed successfully."
