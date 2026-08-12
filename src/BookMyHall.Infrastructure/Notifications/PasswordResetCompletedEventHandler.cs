@@ -31,7 +31,7 @@ public sealed class PasswordResetCompletedEventHandler(
         var emailMessage = new EmailMessage
         {
             To = notification.Email,
-            Subject = "Your BookMyHall password has been changed successfully",
+            Subject = "Your BookMyHall password has been reset successfully",
             HtmlBody = html,
 
             InlineAttachments =
