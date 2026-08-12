@@ -104,6 +104,7 @@ jobs:
           name: BookMyHall-publish
           path: ${{ runner.temp }}/BookMyHall-publish
           run-id: ${{ github.event.workflow_run.id }}
+          repository: ${{ github.repository }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       # ============================================================
