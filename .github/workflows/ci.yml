@@ -1,32 +1,147 @@
-name: CI
+name: CI-CD
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
-  build:
+  build-test-deploy:
     runs-on: self-hosted
 
     steps:
-      - uses: actions/checkout@v4
 
+      # ==========================================
+      # 1. CHECKOUT
+      # ==========================================
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ==========================================
+      # 2. SETUP .NET
+      # ==========================================
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
 
+      # ==========================================
+      # 3. RESTORE
+      # ==========================================
       - name: Restore
         run: dotnet restore BookMyHall.slnx --source https://api.nuget.org/v3/index.json
 
+      # ==========================================
+      # 4. TEST
+      # ==========================================
       - name: Test
         run: dotnet test BookMyHall.slnx --no-restore
 
+      # ==========================================
+      # 5. PUBLISH
+      # ==========================================
       - name: Publish
         run: dotnet publish src/BookMyHall.Api/BookMyHall.Api.csproj -c Release -o publish --no-restore
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: BookMyHall
-          path: publish
+      # ==========================================
+      # 6. DEPLOY
+      # ==========================================
+      - name: Deploy to VM
+        shell: powershell
+        run: |
+
+          $releaseRoot = "C:\Websites\BookMyHall\releases"
+
+          $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+
+          $release = Join-Path $releaseRoot $timestamp
+
+          Write-Host "======================================"
+          Write-Host "BookMyHall Deployment"
+          Write-Host "======================================"
+
+          Write-Host ""
+          Write-Host "Release:"
+          Write-Host $release
+
+          # Create release directory
+          New-Item `
+            -ItemType Directory `
+            -Path $release `
+            -Force | Out-Null
+
+          # Copy published application
+          Copy-Item `
+            ".\publish\*" `
+            $release `
+            -Recurse `
+            -Force
+
+          Write-Host ""
+          Write-Host "Application copied successfully."
+
+          # ==========================================
+          # UPDATE CURRENT
+          # ==========================================
+
+          $current = "C:\Websites\BookMyHall\current"
+
+          if (Test-Path $current) {
+
+              Write-Host ""
+              Write-Host "Removing previous current deployment..."
+
+              Remove-Item `
+                $current `
+                -Recurse `
+                -Force
+          }
+
+          New-Item `
+            -ItemType Directory `
+            -Path $current `
+            -Force | Out-Null
+
+          Copy-Item `
+            "$release\*" `
+            $current `
+            -Recurse `
+            -Force
+
+          Write-Host ""
+          Write-Host "Current deployment updated."
+
+          # ==========================================
+          # RESTART SERVICE
+          # ==========================================
+
+          Write-Host ""
+          Write-Host "Restarting BookMyHall service..."
+
+          Restart-Service `
+            -Name "BookMyHall" `
+            -Force
+
+          Write-Host ""
+          Write-Host "Service restarted."
+
+          # ==========================================
+          # VERIFY SERVICE
+          # ==========================================
+
+          $service = Get-Service `
+            -Name "BookMyHall"
+
+          Write-Host ""
+          Write-Host "Service status:"
+          Write-Host $service.Status
+
+          if ($service.Status -ne "Running") {
+
+              throw "BookMyHall service is not running."
+          }
+
+          Write-Host ""
+          Write-Host "======================================"
+          Write-Host "DEPLOYMENT SUCCESSFUL"
+          Write-Host "======================================"
