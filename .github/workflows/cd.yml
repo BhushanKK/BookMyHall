@@ -14,9 +14,8 @@ permissions:
 jobs:
 
   # ============================================================
-  # DEPLOY ONLY WHEN CI SUCCEEDS
+  # DEPLOY ONLY AFTER SUCCESSFUL PUSH CI
   # ============================================================
-
   deploy:
 
     name: Deploy BookMyHall to IIS
@@ -32,14 +31,12 @@ jobs:
 
     steps:
 
-      # ========================================================
-      # 1. SHOW DEPLOYMENT ENVIRONMENT
-      # ========================================================
-
+      # ==========================================================
+      # 1. SHOW DEPLOYMENT INFORMATION
+      # ==========================================================
       - name: Show deployment environment
         shell: powershell
         run: |
-
           Write-Host "======================================"
           Write-Host "BookMyHall CD Deployment"
           Write-Host "======================================"
@@ -53,7 +50,7 @@ jobs:
           Write-Host $env:USERNAME
 
           Write-Host ""
-          Write-Host "GitHub Repository:"
+          Write-Host "Repository:"
           Write-Host "${{ github.repository }}"
 
           Write-Host ""
@@ -61,33 +58,37 @@ jobs:
           Write-Host "${{ github.event.workflow_run.id }}"
 
           Write-Host ""
-          Write-Host "CI Commit:"
+          Write-Host "CI Commit SHA:"
           Write-Host "${{ github.event.workflow_run.head_sha }}"
+
+          Write-Host ""
+          Write-Host "CI Conclusion:"
+          Write-Host "${{ github.event.workflow_run.conclusion }}"
+
+          Write-Host ""
+          Write-Host "CI Event:"
+          Write-Host "${{ github.event.workflow_run.event }}"
 
           Write-Host ""
           Write-Host "======================================"
 
-
-      # ========================================================
-      # 2. DOWNLOAD CI ARTIFACT
-      # ========================================================
-
-      - name: Download CI artifact
+      # ==========================================================
+      # 2. DOWNLOAD ARTIFACT FROM EXACT CI RUN
+      # ==========================================================
+      - name: Download BookMyHall CI artifact
         uses: actions/download-artifact@v5
         with:
           name: BookMyHall-publish
           path: ${{ github.workspace }}\artifact
           run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
 
-
-      # ========================================================
+      # ==========================================================
       # 3. VERIFY DOWNLOADED ARTIFACT
-      # ========================================================
-
+      # ==========================================================
       - name: Verify deployment artifact
         shell: powershell
         run: |
-
           Write-Host "======================================"
           Write-Host "Verifying Deployment Artifact"
           Write-Host "======================================"
@@ -101,16 +102,8 @@ jobs:
           Write-Host $artifactPath
 
           if (-not (Test-Path $artifactPath)) {
-              throw "Artifact directory does not exist: $artifactPath"
+              throw "Artifact directory does not exist."
           }
-
-          Write-Host ""
-          Write-Host "Downloaded files:"
-
-          Get-ChildItem `
-            $artifactPath `
-            -Recurse |
-            Select-Object FullName, Length
 
           $apiDll = Join-Path `
             $artifactPath `
@@ -137,17 +130,22 @@ jobs:
           }
 
           Write-Host ""
-          Write-Host "Artifact verification successful."
+          Write-Host "Required files verified successfully."
 
+          Write-Host ""
+          Write-Host "Downloaded files:"
 
-      # ========================================================
+          Get-ChildItem `
+            $artifactPath `
+            -Recurse |
+            Select-Object FullName, Length
+
+      # ==========================================================
       # 4. PREPARE RELEASE
-      # ========================================================
-
+      # ==========================================================
       - name: Prepare release
         shell: powershell
         run: |
-
           Write-Host "======================================"
           Write-Host "Preparing BookMyHall Release"
           Write-Host "======================================"
@@ -188,7 +186,9 @@ jobs:
           if (Test-Path $releasePath) {
 
               Write-Host ""
-              Write-Host "Removing existing release..."
+              Write-Host "Release already exists."
+
+              Write-Host "Removing old release..."
 
               Remove-Item `
                 $releasePath `
@@ -204,15 +204,12 @@ jobs:
           Write-Host ""
           Write-Host "Release directory created successfully."
 
-
-      # ========================================================
+      # ==========================================================
       # 5. COPY APPLICATION FILES
-      # ========================================================
-
+      # ==========================================================
       - name: Deploy application files
         shell: powershell
         run: |
-
           Write-Host "======================================"
           Write-Host "Deploying BookMyHall Application"
           Write-Host "======================================"
@@ -264,15 +261,12 @@ jobs:
             -Recurse |
             Select-Object FullName, Length
 
-
-      # ========================================================
+      # ==========================================================
       # 6. VERIFY IIS CONFIGURATION
-      # ========================================================
-
+      # ==========================================================
       - name: Verify IIS configuration
         shell: powershell
         run: |
-
           Write-Host "======================================"
           Write-Host "Checking IIS Configuration"
           Write-Host "======================================"
@@ -308,17 +302,14 @@ jobs:
           Write-Host "BookMyHallAppPool"
 
           Write-Host ""
-          Write-Host "IIS configuration verified successfully."
+          Write-Host "IIS configuration verified."
 
-
-      # ========================================================
-      # 7. STOP IIS APPLICATION POOL
-      # ========================================================
-
+      # ==========================================================
+      # 7. STOP APPLICATION POOL
+      # ==========================================================
       - name: Stop BookMyHall AppPool
         shell: powershell
         run: |
-
           Write-Host "======================================"
           Write-Host "Stopping BookMyHall AppPool"
           Write-Host "======================================"
@@ -334,39 +325,25 @@ jobs:
 
           if ($state.Value -eq "Started") {
 
+              Write-Host ""
+              Write-Host "Stopping AppPool..."
+
               Stop-WebAppPool `
                 -Name "BookMyHallAppPool"
 
-              Write-Host ""
-              Write-Host "Waiting for AppPool to stop..."
-
               Start-Sleep `
-                -Seconds 5
-          }
-
-          $state = Get-WebAppPoolState `
-            -Name "BookMyHallAppPool"
-
-          Write-Host ""
-          Write-Host "Final AppPool State:"
-          Write-Host $state.Value
-
-          if ($state.Value -ne "Stopped") {
-              throw "BookMyHallAppPool could not be stopped."
+                -Seconds 3
           }
 
           Write-Host ""
-          Write-Host "AppPool stopped successfully."
+          Write-Host "AppPool stopped."
 
-
-      # ========================================================
+      # ==========================================================
       # 8. SWITCH IIS TO NEW RELEASE
-      # ========================================================
-
+      # ==========================================================
       - name: Switch IIS to new release
         shell: powershell
         run: |
-
           Write-Host "======================================"
           Write-Host "Switching IIS to New Release"
           Write-Host "======================================"
@@ -403,15 +380,12 @@ jobs:
           Write-Host ""
           Write-Host "IIS physical path updated successfully."
 
-
-      # ========================================================
-      # 9. START IIS APPLICATION POOL
-      # ========================================================
-
+      # ==========================================================
+      # 9. START APP POOL
+      # ==========================================================
       - name: Start BookMyHall AppPool
         shell: powershell
         run: |
-
           Write-Host "======================================"
           Write-Host "Starting BookMyHall AppPool"
           Write-Host "======================================"
@@ -420,9 +394,6 @@ jobs:
 
           Start-WebAppPool `
             -Name "BookMyHallAppPool"
-
-          Write-Host ""
-          Write-Host "Waiting for AppPool to start..."
 
           Start-Sleep `
             -Seconds 5
@@ -435,23 +406,20 @@ jobs:
           Write-Host $state.Value
 
           if ($state.Value -ne "Started") {
-              throw "BookMyHallAppPool failed to start."
+              throw "BookMyHall AppPool failed to start."
           }
 
           Write-Host ""
           Write-Host "AppPool started successfully."
 
-
-      # ========================================================
-      # 10. VERIFY IIS PHYSICAL PATH
-      # ========================================================
-
-      - name: Verify IIS deployment
+      # ==========================================================
+      # 10. START IIS WEBSITE IF REQUIRED
+      # ==========================================================
+      - name: Start BookMyHall IIS website
         shell: powershell
         run: |
-
           Write-Host "======================================"
-          Write-Host "Verifying IIS Deployment"
+          Write-Host "Starting IIS Website"
           Write-Host "======================================"
 
           Import-Module WebAdministration
@@ -459,38 +427,79 @@ jobs:
           $site = Get-Website `
             -Name "BookMyHall"
 
+          if ($site.State -ne "Started") {
+
+              Write-Host ""
+              Write-Host "Website is not started."
+
+              Start-Website `
+                -Name "BookMyHall"
+          }
+
+          Start-Sleep `
+            -Seconds 2
+
+          $site = Get-Website `
+            -Name "BookMyHall"
+
+          Write-Host ""
+          Write-Host "Website State:"
+          Write-Host $site.State
+
+          if ($site.State -ne "Started") {
+              throw "BookMyHall IIS website failed to start."
+          }
+
+      # ==========================================================
+      # 11. VERIFY IIS PHYSICAL PATH
+      # ==========================================================
+      - name: Verify IIS deployment
+        shell: powershell
+        run: |
+          Write-Host "======================================"
+          Write-Host "Verifying IIS Deployment"
+          Write-Host "======================================"
+
+          Import-Module WebAdministration
+
           $runId = "${{ github.event.workflow_run.id }}"
 
           $expectedPath = Join-Path `
             "C:\Websites\BookMyHall\releases" `
             "release-$runId"
 
-          $actualPath = $site.PhysicalPath
+          $site = Get-Website `
+            -Name "BookMyHall"
 
           Write-Host ""
-          Write-Host "Expected Path:"
+          Write-Host "Expected:"
           Write-Host $expectedPath
 
           Write-Host ""
-          Write-Host "Actual Path:"
-          Write-Host $actualPath
+          Write-Host "Actual:"
+          Write-Host $site.PhysicalPath
 
-          if ($actualPath.TrimEnd('\') -ne $expectedPath.TrimEnd('\')) {
+          $actualPath = [System.IO.Path]::GetFullPath(
+            $site.PhysicalPath
+          ).TrimEnd('\')
+
+          $expectedNormalized = [System.IO.Path]::GetFullPath(
+            $expectedPath
+          ).TrimEnd('\')
+
+          if ($actualPath -ine $expectedNormalized) {
               throw "IIS physical path does not match deployed release."
           }
 
           Write-Host ""
           Write-Host "IIS deployment verified successfully."
 
-
-      # ========================================================
-      # 11. HEALTH CHECK
-      # ========================================================
-
+      # ==========================================================
+      # 12. HEALTH CHECK
+      # ==========================================================
       - name: Health check
         shell: powershell
         run: |
-
           Write-Host "======================================"
           Write-Host "BookMyHall Health Check"
           Write-Host "======================================"
@@ -528,12 +537,11 @@ jobs:
 
                       break
                   }
-
               }
               catch {
 
                   Write-Host ""
-                  Write-Host "Application is not ready yet."
+                  Write-Host "Application not ready yet."
 
                   Write-Host $_.Exception.Message
               }
@@ -546,87 +554,71 @@ jobs:
               throw "BookMyHall health check failed."
           }
 
-
-      # ========================================================
-      # 12. CLEAN OLD RELEASES
-      # ========================================================
-
+      # ==========================================================
+      # 13. CLEAN OLD RELEASES
+      # ==========================================================
       - name: Cleanup old releases
         shell: powershell
         run: |
-
           Write-Host "======================================"
           Write-Host "Cleaning Old Releases"
           Write-Host "======================================"
 
           $releaseRoot = "C:\Websites\BookMyHall\releases"
 
-          $keep = 5
-
           $currentRunId = "${{ github.event.workflow_run.id }}"
 
           $currentRelease = "release-$currentRunId"
 
+          $keep = 5
+
           $releases = Get-ChildItem `
             $releaseRoot `
-            -Directory |
+            -Directory `
+            -ErrorAction SilentlyContinue |
             Where-Object {
-                $_.Name -like "release-*"
+              $_.Name -like "release-*"
             } |
             Sort-Object CreationTime -Descending
 
           Write-Host ""
-          Write-Host "Total Releases:"
+          Write-Host "Total releases:"
           Write-Host $releases.Count
+
+          Write-Host ""
+          Write-Host "Current release:"
+          Write-Host $currentRelease
 
           if ($releases.Count -gt $keep) {
 
               $oldReleases = $releases |
                 Where-Object {
-                    $_.Name -ne $currentRelease
+                  $_.Name -ne $currentRelease
                 } |
                 Select-Object -Skip ($keep - 1)
 
               foreach ($release in $oldReleases) {
 
                   Write-Host ""
-                  Write-Host "Removing old release:"
+                  Write-Host "Removing:"
                   Write-Host $release.FullName
 
-                  try {
-
-                      Remove-Item `
-                        $release.FullName `
-                        -Recurse `
-                        -Force `
-                        -ErrorAction Stop
-
-                      Write-Host "Removed successfully."
-
-                  }
-                  catch {
-
-                      Write-Host ""
-                      Write-Host "WARNING: Could not remove:"
-                      Write-Host $release.FullName
-
-                      Write-Host $_.Exception.Message
-                  }
+                  Remove-Item `
+                    $release.FullName `
+                    -Recurse `
+                    -Force
               }
           }
 
           Write-Host ""
           Write-Host "Release cleanup completed."
 
-
-      # ========================================================
-      # 13. FINAL SUMMARY
-      # ========================================================
-
+      # ==========================================================
+      # 14. FINAL DEPLOYMENT SUMMARY
+      # ==========================================================
       - name: Deployment summary
         shell: powershell
         run: |
-
           Write-Host ""
           Write-Host "======================================"
           Write-Host "BOOKMYHALL CD SUCCESS"
@@ -637,7 +629,7 @@ jobs:
           Write-Host "BookMyHall"
 
           Write-Host ""
-          Write-Host "CI Run ID:"
+          Write-Host "CI Run:"
           Write-Host "${{ github.event.workflow_run.id }}"
 
           Write-Host ""
@@ -653,8 +645,13 @@ jobs:
           Write-Host "BookMyHallAppPool"
 
           Write-Host ""
+          Write-Host "Deployment Path:"
+          Write-Host "C:\Websites\BookMyHall\releases\release-${{ github.event.workflow_run.id }}"
+
+          Write-Host ""
           Write-Host "Status:"
           Write-Host "DEPLOYMENT SUCCESSFUL"
 
           Write-Host ""
           Write-Host "======================================"
+

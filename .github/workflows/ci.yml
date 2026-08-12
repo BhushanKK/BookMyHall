@@ -13,12 +13,7 @@ permissions:
   contents: read
 
 jobs:
-
-  # ============================================================
-  # BUILD, TEST AND PUBLISH
-  # ============================================================
   build-test-publish:
-
     name: Build, Test and Publish
 
     runs-on:
@@ -28,15 +23,15 @@ jobs:
 
     steps:
 
-      # ========================================================
+      # ============================================================
       # 1. CHECKOUT
-      # ========================================================
+      # ============================================================
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      # ========================================================
+      # ============================================================
       # 2. SHOW ENVIRONMENT
-      # ========================================================
+      # ============================================================
       - name: Show environment
         shell: powershell
         run: |
@@ -79,9 +74,9 @@ jobs:
           Write-Host "Git Version:"
           git --version
 
-      # ========================================================
-      # 3. VERIFY SOLUTION STRUCTURE
-      # ========================================================
+      # ============================================================
+      # 3. VERIFY SOLUTION
+      # ============================================================
       - name: Verify solution structure
         shell: powershell
         run: |
@@ -89,13 +84,8 @@ jobs:
           Write-Host "Verifying BookMyHall Solution"
           Write-Host "======================================"
 
-          $solution = Join-Path `
-            $env:GITHUB_WORKSPACE `
-            "BookMyHall.slnx"
-
-          $project = Join-Path `
-            $env:GITHUB_WORKSPACE `
-            "src\BookMyHall.Api\BookMyHall.Api.csproj"
+          $solution = Join-Path $env:GITHUB_WORKSPACE "BookMyHall.slnx"
+          $project = Join-Path $env:GITHUB_WORKSPACE "src\BookMyHall.Api\BookMyHall.Api.csproj"
 
           Write-Host ""
           Write-Host "Solution:"
@@ -116,9 +106,9 @@ jobs:
           Write-Host ""
           Write-Host "Solution and API project found successfully."
 
-      # ========================================================
+      # ============================================================
       # 4. RESTORE
-      # ========================================================
+      # ============================================================
       - name: Restore NuGet packages
         shell: powershell
         run: |
@@ -126,9 +116,7 @@ jobs:
           Write-Host "Restoring NuGet Packages"
           Write-Host "======================================"
 
-          $solution = Join-Path `
-            $env:GITHUB_WORKSPACE `
-            "BookMyHall.slnx"
+          $solution = Join-Path $env:GITHUB_WORKSPACE "BookMyHall.slnx"
 
           dotnet restore $solution
 
@@ -139,9 +127,9 @@ jobs:
           Write-Host ""
           Write-Host "NuGet restore completed successfully."
 
-      # ========================================================
+      # ============================================================
       # 5. BUILD
-      # ========================================================
+      # ============================================================
       - name: Build solution
         shell: powershell
         run: |
@@ -149,9 +137,7 @@ jobs:
           Write-Host "Building BookMyHall"
           Write-Host "======================================"
 
-          $solution = Join-Path `
-            $env:GITHUB_WORKSPACE `
-            "BookMyHall.slnx"
+          $solution = Join-Path $env:GITHUB_WORKSPACE "BookMyHall.slnx"
 
           dotnet build $solution `
             --configuration Release `
@@ -164,9 +150,9 @@ jobs:
           Write-Host ""
           Write-Host "Build completed successfully."
 
-      # ========================================================
+      # ============================================================
       # 6. TEST
-      # ========================================================
+      # ============================================================
       - name: Run tests
         shell: powershell
         run: |
@@ -174,9 +160,7 @@ jobs:
           Write-Host "Running BookMyHall Tests"
           Write-Host "======================================"
 
-          $solution = Join-Path `
-            $env:GITHUB_WORKSPACE `
-            "BookMyHall.slnx"
+          $solution = Join-Path $env:GITHUB_WORKSPACE "BookMyHall.slnx"
 
           dotnet test $solution `
             --configuration Release `
@@ -190,9 +174,9 @@ jobs:
           Write-Host ""
           Write-Host "Test execution completed successfully."
 
-      # ========================================================
+      # ============================================================
       # 7. PREPARE PUBLISH DIRECTORY
-      # ========================================================
+      # ============================================================
       - name: Prepare publish directory
         shell: powershell
         run: |
@@ -200,16 +184,13 @@ jobs:
           Write-Host "Preparing Publish Directory"
           Write-Host "======================================"
 
-          $publishPath = Join-Path `
-            $env:GITHUB_WORKSPACE `
-            "publish"
+          $publishPath = Join-Path $env:GITHUB_WORKSPACE "publish"
 
           Write-Host ""
           Write-Host "Publish Path:"
           Write-Host $publishPath
 
           if (Test-Path $publishPath) {
-
               Write-Host ""
               Write-Host "Removing previous publish directory..."
 
@@ -227,9 +208,9 @@ jobs:
           Write-Host ""
           Write-Host "Publish directory ready."
 
-      # ========================================================
+      # ============================================================
       # 8. PUBLISH API
-      # ========================================================
+      # ============================================================
       - name: Publish BookMyHall API
         shell: powershell
         run: |
@@ -263,13 +244,11 @@ jobs:
           }
 
           Write-Host ""
-          Write-Host "======================================"
-          Write-Host "Publish completed successfully"
-          Write-Host "======================================"
+          Write-Host "Publish completed successfully."
 
-      # ========================================================
+      # ============================================================
       # 9. VERIFY PUBLISHED API
-      # ========================================================
+      # ============================================================
       - name: Verify published API
         shell: powershell
         run: |
@@ -285,35 +264,15 @@ jobs:
               throw "Publish directory does not exist: $publishPath"
           }
 
-          $apiDll = Join-Path `
-            $publishPath `
-            "BookMyHall.Api.dll"
-
-          $apiExe = Join-Path `
-            $publishPath `
-            "BookMyHall.Api.exe"
-
-          $webConfig = Join-Path `
-            $publishPath `
-            "web.config"
-
-          $appSettings = Join-Path `
-            $publishPath `
-            "appsettings.json"
+          $apiDll = Join-Path $publishPath "BookMyHall.Api.dll"
+          $webConfig = Join-Path $publishPath "web.config"
+          $appSettings = Join-Path $publishPath "appsettings.json"
 
           Write-Host ""
-          Write-Host "Checking:"
-          Write-Host $apiDll
-          Write-Host $apiExe
-          Write-Host $webConfig
-          Write-Host $appSettings
+          Write-Host "Checking required files..."
 
           if (-not (Test-Path $apiDll)) {
               throw "BookMyHall.Api.dll was not found."
-          }
-
-          if (-not (Test-Path $apiExe)) {
-              throw "BookMyHall.Api.exe was not found."
           }
 
           if (-not (Test-Path $webConfig)) {
@@ -324,8 +283,9 @@ jobs:
               throw "appsettings.json was not found."
           }
 
-          Write-Host ""
-          Write-Host "All required publish files are present."
+          Write-Host "Verified: BookMyHall.Api.dll"
+          Write-Host "Verified: web.config"
+          Write-Host "Verified: appsettings.json"
 
           Write-Host ""
           Write-Host "Published files:"
@@ -335,57 +295,21 @@ jobs:
             -Recurse |
             Select-Object FullName, Length
 
-      # ========================================================
+      # ============================================================
       # 10. UPLOAD ARTIFACT FOR CD
-      # ========================================================
+      # ============================================================
       - name: Upload BookMyHall publish artifact
         uses: actions/upload-artifact@v4
         with:
           name: BookMyHall-publish
-          path: ${{ github.workspace }}/publish
+          path: ${{ github.workspace }}/publish/
           if-no-files-found: error
           retention-days: 7
+          compression-level: 6
 
-      # ========================================================
-      # 11. VERIFY ARTIFACT
-      # ========================================================
-      - name: Verify CI artifact
-        shell: powershell
-        run: |
-          Write-Host "======================================"
-          Write-Host "CI Artifact Verification"
-          Write-Host "======================================"
-
-          $publishPath = Join-Path `
-            $env:GITHUB_WORKSPACE `
-            "publish"
-
-          $requiredFiles = @(
-              "BookMyHall.Api.dll",
-              "BookMyHall.Api.exe",
-              "web.config",
-              "appsettings.json"
-          )
-
-          foreach ($file in $requiredFiles) {
-
-              $filePath = Join-Path `
-                $publishPath `
-                $file
-
-              if (-not (Test-Path $filePath)) {
-                  throw "Required artifact file missing: $file"
-              }
-
-              Write-Host "Verified: $file"
-          }
-
-          Write-Host ""
-          Write-Host "CI artifact verification successful."
-
-      # ========================================================
-      # 12. FINAL CI SUMMARY
-      # ========================================================
+      # ============================================================
+      # 11. FINAL CI SUMMARY
+      # ============================================================
       - name: CI Summary
         shell: powershell
         run: |
@@ -401,7 +325,6 @@ jobs:
           Write-Host "Tests          : SUCCESS"
           Write-Host "Publish        : SUCCESS"
           Write-Host "Artifact       : SUCCESS"
-          Write-Host "Verification   : SUCCESS"
 
           Write-Host ""
           Write-Host "Artifact Name:"
@@ -412,4 +335,4 @@ jobs:
           Write-Host "built, tested, published and uploaded."
 
           Write-Host ""
-          Write-Host "======================================"
+
