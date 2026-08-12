@@ -58,7 +58,7 @@ jobs:
 
           $releaseRoot = "C:\Websites\BookMyHall\releases"
           $current = "C:\Websites\BookMyHall\current"
-          $appPool = "BookMyHall"
+          $appPool = "BookMyHallAppPool"
 
           $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
           $release = Join-Path $releaseRoot $timestamp
