@@ -300,7 +300,7 @@ jobs:
       # 10. UPLOAD ARTIFACT
       # ============================================================
       - name: Upload BookMyHall publish artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
           name: BookMyHall-publish
           path: publish
