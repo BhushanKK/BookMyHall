@@ -1,0 +1,579 @@
+name: BookMyHall CD
+
+on:
+  workflow_run:
+    workflows:
+      - "BookMyHall CI"
+    types:
+      - completed
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+
+  # ============================================================
+  # DEPLOY ONLY WHEN CI SUCCEEDS
+  # ============================================================
+  deploy:
+
+    name: Deploy BookMyHall to IIS
+
+    if: >
+      ${{ github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.event == 'push' }}
+
+    runs-on:
+      - self-hosted
+      - Windows
+      - X64
+
+    steps:
+
+      # ========================================================
+      # 1. SHOW DEPLOYMENT ENVIRONMENT
+      # ========================================================
+      - name: Show deployment environment
+        shell: powershell
+        run: |
+          Write-Host "======================================"
+          Write-Host "BookMyHall CD Deployment"
+          Write-Host "======================================"
+
+          Write-Host ""
+          Write-Host "Computer:"
+          Write-Host $env:COMPUTERNAME
+
+          Write-Host ""
+          Write-Host "User:"
+          Write-Host $env:USERNAME
+
+          Write-Host ""
+          Write-Host "GitHub Run:"
+          Write-Host "${{ github.event.workflow_run.id }}"
+
+          Write-Host ""
+          Write-Host "======================================"
+
+      # ========================================================
+      # 2. DOWNLOAD CI ARTIFACT
+      # ========================================================
+      - name: Download CI artifact
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+
+          Write-Host "======================================"
+          Write-Host "Downloading CI Artifact"
+          Write-Host "======================================"
+
+          $artifactName = "BookMyHall-publish"
+
+          $downloadPath = Join-Path $env:GITHUB_WORKSPACE "artifact"
+
+          if (Test-Path $downloadPath) {
+              Remove-Item `
+                $downloadPath `
+                -Recurse `
+                -Force
+          }
+
+          New-Item `
+            -ItemType Directory `
+            -Path $downloadPath `
+            -Force | Out-Null
+
+          Write-Host ""
+          Write-Host "Artifact:"
+          Write-Host $artifactName
+
+          Write-Host ""
+          Write-Host "Download Path:"
+          Write-Host $downloadPath
+
+          # Download artifact from the CI workflow run
+          gh run download `
+            "${{ github.event.workflow_run.id }}" `
+            -n $artifactName `
+            -D $downloadPath
+
+          if ($LASTEXITCODE -ne 0) {
+              throw "Failed to download CI artifact."
+          }
+
+          Write-Host ""
+          Write-Host "Artifact downloaded successfully."
+
+          Write-Host ""
+          Write-Host "Downloaded files:"
+
+          Get-ChildItem `
+            $downloadPath `
+            -Recurse |
+            Select-Object FullName, Length
+
+      # ========================================================
+      # 3. VERIFY ARTIFACT
+      # ========================================================
+      - name: Verify deployment artifact
+        shell: powershell
+        run: |
+
+          Write-Host "======================================"
+          Write-Host "Verifying Deployment Artifact"
+          Write-Host "======================================"
+
+          $artifactPath = Join-Path `
+            $env:GITHUB_WORKSPACE `
+            "artifact"
+
+          $apiDll = Join-Path `
+            $artifactPath `
+            "BookMyHall.Api.dll"
+
+          $webConfig = Join-Path `
+            $artifactPath `
+            "web.config"
+
+          $appSettings = Join-Path `
+            $artifactPath `
+            "appsettings.json"
+
+          if (-not (Test-Path $apiDll)) {
+              throw "BookMyHall.Api.dll not found."
+          }
+
+          if (-not (Test-Path $webConfig)) {
+              throw "web.config not found."
+          }
+
+          if (-not (Test-Path $appSettings)) {
+              throw "appsettings.json not found."
+          }
+
+          Write-Host ""
+          Write-Host "Artifact verification successful."
+
+      # ========================================================
+      # 4. DEFINE RELEASE
+      # ========================================================
+      - name: Prepare release
+        shell: powershell
+        run: |
+
+          Write-Host "======================================"
+          Write-Host "Preparing Release"
+          Write-Host "======================================"
+
+          $releaseRoot = "C:\Websites\BookMyHall\releases"
+
+          $releaseName = "release-${{ github.event.workflow_run.id }}"
+
+          $releasePath = Join-Path `
+            $releaseRoot `
+            $releaseName
+
+          Write-Host ""
+          Write-Host "Release Root:"
+          Write-Host $releaseRoot
+
+          Write-Host ""
+          Write-Host "Release Name:"
+          Write-Host $releaseName
+
+          Write-Host ""
+          Write-Host "Release Path:"
+          Write-Host $releasePath
+
+          if (-not (Test-Path $releaseRoot)) {
+
+              Write-Host ""
+              Write-Host "Creating release root..."
+
+              New-Item `
+                -ItemType Directory `
+                -Path $releaseRoot `
+                -Force | Out-Null
+          }
+
+          if (Test-Path $releasePath) {
+
+              Write-Host ""
+              Write-Host "Removing existing release..."
+
+              Remove-Item `
+                $releasePath `
+                -Recurse `
+                -Force
+          }
+
+          New-Item `
+            -ItemType Directory `
+            -Path $releasePath `
+            -Force | Out-Null
+
+          Write-Host ""
+          Write-Host "Release directory created."
+
+      # ========================================================
+      # 5. COPY APPLICATION
+      # ========================================================
+      - name: Deploy application files
+        shell: powershell
+        run: |
+
+          Write-Host "======================================"
+          Write-Host "Deploying BookMyHall"
+          Write-Host "======================================"
+
+          $artifactPath = Join-Path `
+            $env:GITHUB_WORKSPACE `
+            "artifact"
+
+          $releaseRoot = "C:\Websites\BookMyHall\releases"
+
+          $releaseName = "release-${{ github.event.workflow_run.id }}"
+
+          $releasePath = Join-Path `
+            $releaseRoot `
+            $releaseName
+
+          Write-Host ""
+          Write-Host "Source:"
+          Write-Host $artifactPath
+
+          Write-Host ""
+          Write-Host "Destination:"
+          Write-Host $releasePath
+
+          Copy-Item `
+            "$artifactPath\*" `
+            $releasePath `
+            -Recurse `
+            -Force
+
+          Write-Host ""
+          Write-Host "Application files copied successfully."
+
+          Write-Host ""
+          Write-Host "Release files:"
+
+          Get-ChildItem `
+            $releasePath `
+            -Recurse |
+            Select-Object FullName, Length
+
+      # ========================================================
+      # 6. CHECK IIS
+      # ========================================================
+      - name: Verify IIS configuration
+        shell: powershell
+        run: |
+
+          Write-Host "======================================"
+          Write-Host "Checking IIS"
+          Write-Host "======================================"
+
+          Import-Module WebAdministration
+
+          $website = Get-Website `
+            -Name "BookMyHall" `
+            -ErrorAction SilentlyContinue
+
+          if ($null -eq $website) {
+              throw "IIS website 'BookMyHall' does not exist."
+          }
+
+          $appPool = Get-WebAppPoolState `
+            -Name "BookMyHallAppPool" `
+            -ErrorAction SilentlyContinue
+
+          if ($null -eq $appPool) {
+              throw "IIS application pool 'BookMyHallAppPool' does not exist."
+          }
+
+          Write-Host ""
+          Write-Host "Website:"
+          Write-Host $website.Name
+
+          Write-Host ""
+          Write-Host "Current Physical Path:"
+          Write-Host $website.PhysicalPath
+
+          Write-Host ""
+          Write-Host "Application Pool:"
+          Write-Host "BookMyHallAppPool"
+
+          Write-Host ""
+          Write-Host "IIS configuration verified."
+
+      # ========================================================
+      # 7. STOP APPLICATION POOL
+      # ========================================================
+      - name: Stop BookMyHall AppPool
+        shell: powershell
+        run: |
+
+          Write-Host "======================================"
+          Write-Host "Stopping BookMyHall AppPool"
+          Write-Host "======================================"
+
+          Import-Module WebAdministration
+
+          Stop-WebAppPool `
+            -Name "BookMyHallAppPool"
+
+          Start-Sleep `
+            -Seconds 3
+
+          Write-Host ""
+          Write-Host "AppPool stopped."
+
+      # ========================================================
+      # 8. UPDATE IIS PHYSICAL PATH
+      # ========================================================
+      - name: Switch IIS to new release
+        shell: powershell
+        run: |
+
+          Write-Host "======================================"
+          Write-Host "Switching IIS to New Release"
+          Write-Host "======================================"
+
+          Import-Module WebAdministration
+
+          $releaseRoot = "C:\Websites\BookMyHall\releases"
+
+          $releaseName = "release-${{ github.event.workflow_run.id }}"
+
+          $releasePath = Join-Path `
+            $releaseRoot `
+            $releaseName
+
+          Write-Host ""
+          Write-Host "New IIS Path:"
+          Write-Host $releasePath
+
+          if (-not (Test-Path $releasePath)) {
+              throw "Release path does not exist: $releasePath"
+          }
+
+          Set-ItemProperty `
+            "IIS:\Sites\BookMyHall" `
+            -Name physicalPath `
+            -Value $releasePath
+
+          Write-Host ""
+          Write-Host "IIS physical path updated."
+
+      # ========================================================
+      # 9. START APPLICATION POOL
+      # ========================================================
+      - name: Start BookMyHall AppPool
+        shell: powershell
+        run: |
+
+          Write-Host "======================================"
+          Write-Host "Starting BookMyHall AppPool"
+          Write-Host "======================================"
+
+          Import-Module WebAdministration
+
+          Start-WebAppPool `
+            -Name "BookMyHallAppPool"
+
+          Start-Sleep `
+            -Seconds 5
+
+          $state = Get-WebAppPoolState `
+            -Name "BookMyHallAppPool"
+
+          Write-Host ""
+          Write-Host "AppPool State:"
+          Write-Host $state.Value
+
+          if ($state.Value -ne "Started") {
+              throw "BookMyHall AppPool failed to start."
+          }
+
+          Write-Host ""
+          Write-Host "AppPool started successfully."
+
+      # ========================================================
+      # 10. VERIFY IIS PATH
+      # ========================================================
+      - name: Verify IIS deployment
+        shell: powershell
+        run: |
+
+          Write-Host "======================================"
+          Write-Host "Verifying IIS Deployment"
+          Write-Host "======================================"
+
+          Import-Module WebAdministration
+
+          $site = Get-Website `
+            -Name "BookMyHall"
+
+          $expectedPath = Join-Path `
+            "C:\Websites\BookMyHall\releases" `
+            "release-${{ github.event.workflow_run.id }}"
+
+          Write-Host ""
+          Write-Host "Expected:"
+          Write-Host $expectedPath
+
+          Write-Host ""
+          Write-Host "Actual:"
+          Write-Host $site.PhysicalPath
+
+          if ($site.PhysicalPath -ne $expectedPath) {
+              throw "IIS physical path does not match deployed release."
+          }
+
+          Write-Host ""
+          Write-Host "IIS deployment verified."
+
+      # ========================================================
+      # 11. HEALTH CHECK
+      # ========================================================
+      - name: Health check
+        shell: powershell
+        run: |
+
+          Write-Host "======================================"
+          Write-Host "BookMyHall Health Check"
+          Write-Host "======================================"
+
+          $healthUrl = "http://127.0.0.1:8065/health"
+
+          Write-Host ""
+          Write-Host "Health URL:"
+          Write-Host $healthUrl
+
+          $success = $false
+
+          for ($i = 1; $i -le 12; $i++) {
+
+              Write-Host ""
+              Write-Host "Health check attempt $i of 12..."
+
+              try {
+
+                  $response = Invoke-WebRequest `
+                    -Uri $healthUrl `
+                    -UseBasicParsing `
+                    -TimeoutSec 10
+
+                  Write-Host ""
+                  Write-Host "HTTP Status:"
+                  Write-Host $response.StatusCode
+
+                  if ($response.StatusCode -eq 200) {
+
+                      Write-Host ""
+                      Write-Host "Health check successful."
+
+                      $success = $true
+
+                      break
+                  }
+              }
+              catch {
+
+                  Write-Host ""
+                  Write-Host "Application not ready yet."
+
+                  Write-Host $_.Exception.Message
+              }
+
+              Start-Sleep `
+                -Seconds 5
+          }
+
+          if (-not $success) {
+              throw "BookMyHall health check failed."
+          }
+
+      # ========================================================
+      # 12. CLEAN OLD RELEASES
+      # ========================================================
+      - name: Cleanup old releases
+        shell: powershell
+        run: |
+
+          Write-Host "======================================"
+          Write-Host "Cleaning Old Releases"
+          Write-Host "======================================"
+
+          $releaseRoot = "C:\Websites\BookMyHall\releases"
+
+          $keep = 5
+
+          $releases = Get-ChildItem `
+            $releaseRoot `
+            -Directory |
+            Where-Object {
+              $_.Name -like "release-*"
+            } |
+            Sort-Object CreationTime -Descending
+
+          Write-Host ""
+          Write-Host "Total releases:"
+          Write-Host $releases.Count
+
+          if ($releases.Count -gt $keep) {
+
+              $oldReleases = $releases | Select-Object -Skip $keep
+
+              foreach ($release in $oldReleases) {
+
+                  Write-Host ""
+                  Write-Host "Removing:"
+                  Write-Host $release.FullName
+
+                  Remove-Item `
+                    $release.FullName `
+                    -Recurse `
+                    -Force
+              }
+          }
+
+          Write-Host ""
+          Write-Host "Release cleanup completed."
+
+      # ========================================================
+      # 13. FINAL SUMMARY
+      # ========================================================
+      - name: Deployment summary
+        shell: powershell
+        run: |
+
+          Write-Host ""
+          Write-Host "======================================"
+          Write-Host "BOOKMYHALL CD SUCCESS"
+          Write-Host "======================================"
+
+          Write-Host ""
+          Write-Host "Application : BookMyHall"
+
+          Write-Host ""
+          Write-Host "Release:"
+          Write-Host "release-${{ github.event.workflow_run.id }}"
+
+          Write-Host ""
+          Write-Host "IIS Site:"
+          Write-Host "BookMyHall"
+
+          Write-Host ""
+          Write-Host "App Pool:"
+          Write-Host "BookMyHallAppPool"
+
+          Write-Host ""
+          Write-Host "Status:"
+          Write-Host "DEPLOYMENT SUCCESSFUL"
+
+          Write-Host ""
+          Write-Host "======================================"
