@@ -57,7 +57,6 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
         new RequestCulture(Languages.English);
 
     options.SupportedCultures = supportedCultures;
-
     options.SupportedUICultures = supportedCultures;
 
     options.RequestCultureProviders =
@@ -93,14 +92,13 @@ app.UseRequestLocalization(localizationOptions.Value);
 // ============================================================
 // OpenAPI
 // ============================================================
-// Enabled outside Development so that Scalar/OpenAPI
-// is also available when hosted through IIS in Production.
-// ============================================================
+
 app.MapOpenApi();
 
 // ============================================================
 // Scalar API Documentation
 // ============================================================
+
 app.MapScalarApiReference(options =>
 {
     options
@@ -109,9 +107,15 @@ app.MapScalarApiReference(options =>
 });
 
 // ============================================================
-// HTTPS Redirection
+// IMPORTANT
 // ============================================================
-app.UseHttpsRedirection();
+// BookMyHall currently runs on HTTP :8065.
+// Do NOT enable HTTPS redirection until BookMyHall
+// has its own HTTPS binding/certificate.
+//
+// ETGS SSL on port 443 is completely independent.
+//
+// app.UseHttpsRedirection();
 
 // ============================================================
 // Global Exception Handling
