@@ -105,7 +105,7 @@ jobs:
           path: ${{ runner.temp }}/BookMyHall-publish
           run-id: ${{ github.event.workflow_run.id }}
           repository: ${{ github.repository }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ github.token }}
 
       # ============================================================
       # 3. VERIFY DOWNLOADED ARTIFACT (recursive search)

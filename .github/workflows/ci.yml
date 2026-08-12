@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: read
+  actions: write
 
 jobs:
   build-test-publish:
@@ -29,14 +30,6 @@ jobs:
       # ============================================================
       - name: Checkout source code
         uses: actions/checkout@v4
-
-      # ============================================================
-      # (Optional) Ensure .NET SDK is available
-      # ============================================================
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.x' # adjust to the SDK version you target (e.g. 7.0.x or 8.0.x)
 
       # ============================================================
       # 2. SHOW ENVIRONMENT
