@@ -29,6 +29,14 @@ public static class EntityKeys
   public const string Browser = "Browser";
   public const string AppVersion = "App Version";
   public const string LastIpAddress = "Last IP Address";
+  public const string UserPreference = "User Preference";
+  public const string CurrencyCode = "Currency Code";
+  public const string TimeZone = "Time Zone";
+  public const string DateFormat = "Date Format";
+  public const string TimeFormat = "Time Format";
+  public const string LanguageCode = "Language Code";
+  public const string Theme = "Theme";
+
 
   // Hall
 

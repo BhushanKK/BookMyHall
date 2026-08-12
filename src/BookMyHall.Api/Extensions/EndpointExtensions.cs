@@ -23,6 +23,7 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapFoodTypeEndpoints();
         endpoints.MapPaymentModeEndpoints();
         endpoints.MapServiceEndpoints();
+        endpoints.MapUserPreferenceEndpoints();
         return endpoints;
     }
 }
