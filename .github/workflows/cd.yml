@@ -70,10 +70,36 @@ jobs:
           Write-Host "======================================"
 
       # ============================================================
+      # DEBUG: list artifacts for CI run (helps diagnose missing artifact)
+      # ============================================================
+      - name: "Debug: list artifacts for CI run"
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          Write-Host "======================================"
+          Write-Host "Listing artifacts for CI run"
+          Write-Host "======================================"
+          Write-Host ""
+          Write-Host "CI Run ID: ${{ github.event.workflow_run.id }}"
+          $uri = "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts"
+          $headers = @{ Authorization = "Bearer $env:GITHUB_TOKEN"; 'User-Agent' = 'github-actions' }
+          try {
+              $response = Invoke-RestMethod -Uri $uri -Headers $headers -Method Get
+              if ($null -eq $response.artifacts -or $response.artifacts.Count -eq 0) {
+                  Write-Host "No artifacts found for this run."
+              } else {
+                  $response.artifacts | ForEach-Object { Write-Host "Artifact: $($_.name) - Size: $($_.size_in_bytes)" }
+              }
+          } catch {
+              Write-Host "Failed to list artifacts: $($_.Exception.Message)"
+          }
+
+      # ============================================================
       # 2. DOWNLOAD ARTIFACT FROM CI RUN
       # ============================================================
       - name: Download CI artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v4
         with:
           name: BookMyHall-publish
           path: ${{ runner.temp }}/BookMyHall-publish
@@ -81,7 +107,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       # ============================================================
-      # 3. VERIFY DOWNLOADED ARTIFACT
+      # 3. VERIFY DOWNLOADED ARTIFACT (recursive search)
       # ============================================================
       - name: Verify downloaded artifact
         shell: powershell
@@ -90,9 +116,7 @@ jobs:
           Write-Host "Verifying CI Artifact"
           Write-Host "======================================"
 
-          $artifactPath = Join-Path `
-            $env:RUNNER_TEMP `
-            "BookMyHall-publish"
+          $artifactPath = Join-Path $env:RUNNER_TEMP "BookMyHall-publish"
 
           Write-Host ""
           Write-Host "Artifact path:"
@@ -104,11 +128,7 @@ jobs:
 
           Write-Host ""
           Write-Host "Artifact contents:"
-
-          Get-ChildItem `
-            $artifactPath `
-            -Recurse |
-            Select-Object FullName, Length
+          Get-ChildItem $artifactPath -Recurse | Select-Object FullName, Length | ForEach-Object { Write-Host "$($_.FullName) ($($_.Length) bytes)" }
 
           $requiredFiles = @(
               "BookMyHall.Api.dll",
@@ -117,17 +137,16 @@ jobs:
               "appsettings.json"
           )
 
-          foreach ($file in $requiredFiles) {
+          # Get all files under artifact directory and match by file name
+          $allFiles = Get-ChildItem $artifactPath -Recurse -File
 
-              $filePath = Join-Path `
-                $artifactPath `
-                $file
-
-              if (-not (Test-Path $filePath)) {
-                  throw "Required artifact file missing: $file"
+          foreach ($fileName in $requiredFiles) {
+              $found = $allFiles | Where-Object { $_.Name -eq $fileName }
+              if (-not $found) {
+                  throw "Required artifact file missing: $fileName"
+              } else {
+                  Write-Host "Verified: $($found.FullName)"
               }
-
-              Write-Host "Verified: $file"
           }
 
           Write-Host ""
@@ -199,9 +218,7 @@ jobs:
           Write-Host "Deploying BookMyHall Application"
           Write-Host "======================================"
 
-          $artifactPath = Join-Path `
-            $env:RUNNER_TEMP `
-            "BookMyHall-publish"
+          $artifactPath = Join-Path $env:RUNNER_TEMP "BookMyHall-publish"
 
           $releaseRoot = "C:\Websites\BookMyHall\releases"
 
