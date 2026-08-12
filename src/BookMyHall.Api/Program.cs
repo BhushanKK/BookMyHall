@@ -172,7 +172,7 @@ app.UseStaticFiles();
 // ============================================================
 // This endpoint is used by the CD pipeline:
 //
-// GET http://127.0.0.1:8065/health
+// GET http://localhost:5152/health
 //
 // Expected response:
 // HTTP 200
