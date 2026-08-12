@@ -180,7 +180,6 @@ app.UseStaticFiles();
 // It verifies that the ASP.NET Core application is running.
 app.MapHealthChecks("/health");
 
-
 // ============================================================
 // BookMyHall Endpoints
 // ============================================================
