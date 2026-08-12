@@ -64,6 +64,10 @@ jobs:
 
           dotnet --info
 
+          if ($LASTEXITCODE -ne 0) {
+              throw "Unable to execute dotnet --info."
+          }
+
           Write-Host ""
           Write-Host "Installed SDKs:"
           dotnet --list-sdks
@@ -77,7 +81,7 @@ jobs:
           git --version
 
       # ============================================================
-      # 3. VERIFY SOLUTION
+      # 3. VERIFY SOLUTION STRUCTURE
       # ============================================================
       - name: Verify solution structure
         shell: powershell
@@ -94,6 +98,10 @@ jobs:
             $env:GITHUB_WORKSPACE `
             "src\BookMyHall.Api\BookMyHall.Api.csproj"
 
+          $packagesProps = Join-Path `
+            $env:GITHUB_WORKSPACE `
+            "Directory.Packages.props"
+
           Write-Host ""
           Write-Host "Solution:"
           Write-Host $solution
@@ -101,6 +109,10 @@ jobs:
           Write-Host ""
           Write-Host "API Project:"
           Write-Host $project
+
+          Write-Host ""
+          Write-Host "Central Package Management:"
+          Write-Host $packagesProps
 
           if (-not (Test-Path $solution)) {
               throw "Solution file not found: $solution"
@@ -110,11 +122,63 @@ jobs:
               throw "API project not found: $project"
           }
 
+          if (-not (Test-Path $packagesProps)) {
+              throw "Directory.Packages.props not found: $packagesProps"
+          }
+
           Write-Host ""
-          Write-Host "Solution and API project found successfully."
+          Write-Host "Solution:"
+          Write-Host "  FOUND"
+
+          Write-Host "API Project:"
+          Write-Host "  FOUND"
+
+          Write-Host "Directory.Packages.props:"
+          Write-Host "  FOUND"
 
       # ============================================================
-      # 4. RESTORE
+      # 4. DISPLAY CENTRAL PACKAGE MANAGEMENT
+      # ============================================================
+      - name: Display package management configuration
+        shell: powershell
+        run: |
+          Write-Host "======================================"
+          Write-Host "Directory.Packages.props"
+          Write-Host "======================================"
+
+          $packagesProps = Join-Path `
+            $env:GITHUB_WORKSPACE `
+            "Directory.Packages.props"
+
+          Get-Content $packagesProps
+
+      # ============================================================
+      # 5. CLEAR NUGET CACHE
+      # ============================================================
+      #
+      # IMPORTANT:
+      # The runner is self-hosted and persistent.
+      # Clearing the NuGet cache prevents stale package state.
+      #
+      # ============================================================
+      - name: Clear NuGet cache
+        shell: powershell
+        run: |
+          Write-Host "======================================"
+          Write-Host "Clearing NuGet Cache"
+          Write-Host "======================================"
+
+          dotnet nuget locals all --clear
+
+          if ($LASTEXITCODE -ne 0) {
+              throw "Failed to clear NuGet cache."
+          }
+
+          Write-Host ""
+          Write-Host "NuGet cache cleared successfully."
+
+      # ============================================================
+      # 6. RESTORE
       # ============================================================
       - name: Restore NuGet packages
         shell: powershell
@@ -127,7 +191,9 @@ jobs:
             $env:GITHUB_WORKSPACE `
             "BookMyHall.slnx"
 
-          dotnet restore $solution
+          dotnet restore $solution `
+            --force `
+            --no-cache
 
           if ($LASTEXITCODE -ne 0) {
               throw "dotnet restore failed."
@@ -137,7 +203,78 @@ jobs:
           Write-Host "NuGet restore completed successfully."
 
       # ============================================================
-      # 5. BUILD
+      # 7. VERIFY OPENAPI / SWAGGER PACKAGES
+      # ============================================================
+      - name: Verify OpenAPI package versions
+        shell: powershell
+        run: |
+          Write-Host "======================================"
+          Write-Host "OpenAPI / Swagger Package Versions"
+          Write-Host "======================================"
+
+          $project = Join-Path `
+            $env:GITHUB_WORKSPACE `
+            "src\BookMyHall.Api\BookMyHall.Api.csproj"
+
+          dotnet list $project package --include-transitive |
+            Select-String `
+              "Microsoft.OpenApi|Swashbuckle|Microsoft.AspNetCore.OpenApi"
+
+          if ($LASTEXITCODE -ne 0) {
+              throw "Unable to inspect OpenAPI packages."
+          }
+
+      # ============================================================
+      # 8. VERIFY MICROSOFT.OPENAPI DEPENDENCY GRAPH
+      # ============================================================
+      - name: Verify Microsoft.OpenApi dependency graph
+        shell: powershell
+        run: |
+          Write-Host "======================================"
+          Write-Host "Microsoft.OpenApi Dependency Graph"
+          Write-Host "======================================"
+
+          $project = Join-Path `
+            $env:GITHUB_WORKSPACE `
+            "src\BookMyHall.Api\BookMyHall.Api.csproj"
+
+          dotnet nuget why `
+            $project `
+            Microsoft.OpenApi
+
+          if ($LASTEXITCODE -ne 0) {
+              throw "Unable to determine Microsoft.OpenApi dependency graph."
+          }
+
+      # ============================================================
+      # 9. SECURITY / VULNERABILITY SCAN
+      # ============================================================
+      - name: Check vulnerable NuGet packages
+        shell: powershell
+        run: |
+          Write-Host "======================================"
+          Write-Host "NuGet Vulnerability Scan"
+          Write-Host "======================================"
+
+          $project = Join-Path `
+            $env:GITHUB_WORKSPACE `
+            "src\BookMyHall.Api\BookMyHall.Api.csproj"
+
+          dotnet list `
+            $project `
+            package `
+            --vulnerable `
+            --include-transitive
+
+          if ($LASTEXITCODE -ne 0) {
+              throw "NuGet vulnerability scan failed."
+          }
+
+          Write-Host ""
+          Write-Host "NuGet vulnerability scan completed."
+
+      # ============================================================
+      # 10. BUILD
       # ============================================================
       - name: Build solution
         shell: powershell
@@ -162,7 +299,7 @@ jobs:
           Write-Host "Build completed successfully."
 
       # ============================================================
-      # 6. TEST
+      # 11. TEST
       # ============================================================
       - name: Run tests
         shell: powershell
@@ -188,7 +325,7 @@ jobs:
           Write-Host "Test execution completed successfully."
 
       # ============================================================
-      # 7. PREPARE PUBLISH DIRECTORY
+      # 12. PREPARE PUBLISH DIRECTORY
       # ============================================================
       - name: Prepare publish directory
         shell: powershell
@@ -202,6 +339,8 @@ jobs:
             "publish"
 
           if (Test-Path $publishPath) {
+              Write-Host "Removing existing publish directory..."
+
               Remove-Item `
                 $publishPath `
                 -Recurse `
@@ -218,7 +357,7 @@ jobs:
           Write-Host $publishPath
 
       # ============================================================
-      # 8. PUBLISH API
+      # 13. PUBLISH API
       # ============================================================
       - name: Publish BookMyHall API
         shell: powershell
@@ -248,7 +387,7 @@ jobs:
           Write-Host "Publish completed successfully."
 
       # ============================================================
-      # 9. VERIFY PUBLISH
+      # 14. VERIFY PUBLISH
       # ============================================================
       - name: Verify published API
         shell: powershell
@@ -260,6 +399,10 @@ jobs:
           $publishPath = Join-Path `
             $env:GITHUB_WORKSPACE `
             "publish"
+
+          if (-not (Test-Path $publishPath)) {
+              throw "Publish directory does not exist: $publishPath"
+          }
 
           $requiredFiles = @(
               "BookMyHall.Api.dll",
@@ -283,14 +426,15 @@ jobs:
 
           Write-Host ""
           Write-Host "Published files:"
-          
+          Write-Host "--------------------------------------"
+
           Get-ChildItem `
             $publishPath `
             -Recurse |
             Select-Object FullName, Length
 
       # ============================================================
-      # 10. UPLOAD ARTIFACT
+      # 15. UPLOAD ARTIFACT
       # ============================================================
       - name: Upload BookMyHall publish artifact
         uses: actions/upload-artifact@v4
@@ -301,7 +445,7 @@ jobs:
           retention-days: 7
 
       # ============================================================
-      # 11. FINAL SUMMARY
+      # 16. FINAL SUMMARY
       # ============================================================
       - name: CI Summary
         shell: powershell
@@ -313,7 +457,10 @@ jobs:
 
           Write-Host ""
           Write-Host "Checkout       : SUCCESS"
+          Write-Host "Environment    : SUCCESS"
           Write-Host "Restore        : SUCCESS"
+          Write-Host "OpenAPI Check  : SUCCESS"
+          Write-Host "Security Scan  : SUCCESS"
           Write-Host "Build          : SUCCESS"
           Write-Host "Tests          : SUCCESS"
           Write-Host "Publish        : SUCCESS"
@@ -324,4 +471,6 @@ jobs:
           Write-Host "BookMyHall-publish"
 
           Write-Host ""
+          Write-Host "======================================"
+          Write-Host "BookMyHall CI pipeline completed."
           Write-Host "======================================"

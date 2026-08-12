@@ -14,25 +14,125 @@ on:
 jobs:
   build-and-test:
 
+    name: Build and Test
+
     runs-on: windows-latest
 
     steps:
+
+      # ============================================================
+      # Checkout
+      # ============================================================
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # ============================================================
+      # Setup .NET 10
+      # ============================================================
       - name: Setup .NET 10 SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
 
+      # ============================================================
+      # Display .NET information
+      # ============================================================
       - name: Display .NET Information
         run: dotnet --info
 
+      # ============================================================
+      # Verify repository
+      # ============================================================
+      - name: Display Repository Information
+        shell: pwsh
+        run: |
+          Write-Host "=============================================="
+          Write-Host "Current Directory"
+          Write-Host "=============================================="
+          Get-Location
+
+          Write-Host ""
+          Write-Host "=============================================="
+          Write-Host "Git Commit"
+          Write-Host "=============================================="
+          git log -1 --oneline
+
+          Write-Host ""
+          Write-Host "=============================================="
+          Write-Host "Directory.Packages.props"
+          Write-Host "=============================================="
+
+          if (Test-Path ".\Directory.Packages.props") {
+              Get-Content ".\Directory.Packages.props"
+          }
+          else {
+              Write-Error "Directory.Packages.props was not found!"
+              exit 1
+          }
+
+      # ============================================================
+      # Clear NuGet caches
+      # ============================================================
+      - name: Clear NuGet Cache
+        run: dotnet nuget locals all --clear
+
+      # ============================================================
+      # Restore
+      # ============================================================
       - name: Restore NuGet Packages
-        run: dotnet restore
+        run: dotnet restore .\BookMyHall.slnx --force --no-cache
 
+      # ============================================================
+      # Verify OpenAPI / Swagger package versions
+      # ============================================================
+      - name: Verify OpenAPI Packages
+        shell: pwsh
+        run: |
+          Write-Host "=============================================="
+          Write-Host "OpenAPI / Swagger Packages"
+          Write-Host "=============================================="
+
+          dotnet list .\src\BookMyHall.Api\BookMyHall.Api.csproj package --include-transitive |
+            Select-String "Microsoft.OpenApi|Swashbuckle|Microsoft.AspNetCore.OpenApi"
+
+      # ============================================================
+      # Verify Microsoft.OpenApi dependency graph
+      # ============================================================
+      - name: Check OpenAPI Dependency Graph
+        shell: pwsh
+        run: |
+          Write-Host "=============================================="
+          Write-Host "Microsoft.OpenApi Dependency Graph"
+          Write-Host "=============================================="
+
+          dotnet nuget why `
+            .\src\BookMyHall.Api\BookMyHall.Api.csproj `
+            Microsoft.OpenApi
+
+      # ============================================================
+      # Security / Vulnerability Scan
+      # ============================================================
+      - name: Check Vulnerable NuGet Packages
+        shell: pwsh
+        run: |
+          Write-Host "=============================================="
+          Write-Host "NuGet Vulnerability Scan"
+          Write-Host "=============================================="
+
+          dotnet list `
+            .\src\BookMyHall.Api\BookMyHall.Api.csproj `
+            package `
+            --vulnerable `
+            --include-transitive
+
+      # ============================================================
+      # Build
+      # ============================================================
       - name: Build Solution
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build .\BookMyHall.slnx --configuration Release --no-restore
 
+      # ============================================================
+      # Run tests
+      # ============================================================
       - name: Execute Unit Tests
-        run: dotnet test --configuration Release --no-build --verbosity normal
+        run: dotnet test .\BookMyHall.slnx --configuration Release --no-build --verbosity normal
