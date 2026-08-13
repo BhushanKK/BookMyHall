@@ -103,9 +103,12 @@ public static class EntityKeys
     public const string ConfirmPassword = nameof(ConfirmPassword);
 
     //Hall
-    public const string HallOwnerId = "HallOwnerId";
-    public const string HallCategoryId = "HallCategoryId";
-    public const string HallName = "HallName";
-    public const string AddressLine1 = "AddressLine1";
-    public const string ContactPersonName = "ContactPersonName";
+    public const string HallOwnerId = nameof(HallOwnerId);
+    public const string HallCategoryId = nameof(HallCategoryId);
+    public const string HallName = nameof(HallName);
+    public const string AddressLine1 = nameof(AddressLine1);
+    public const string ContactPersonName = nameof(ContactPersonName);
+    public const string HallPricing=nameof(HallPricing);
+    public const string PackageName = nameof(PackageName);
+    public const string HallPricingId = nameof(HallPricingId);
 }
