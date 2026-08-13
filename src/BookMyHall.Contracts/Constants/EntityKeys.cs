@@ -61,7 +61,8 @@ public static class EntityKeys
     public const string AreaId = nameof(AreaId);
     public const string Pincode = nameof(Pincode);
     public const string AreaName = nameof(AreaName);
-
+    public const string HallCategoryId = nameof(HallCategoryId);
+    public const string HallCategory = nameof(HallCategory);
     public const string CancellationPolicy = nameof(CancellationPolicy);
     public const string CancellationPolicyId = nameof(CancellationPolicyId);
     public const string PolicyName = nameof(PolicyName);
@@ -104,7 +105,7 @@ public static class EntityKeys
 
     //Hall
     public const string HallOwnerId = nameof(HallOwnerId);
-    public const string HallCategoryId = nameof(HallCategoryId);
+
     public const string HallName = nameof(HallName);
     public const string AddressLine1 = nameof(AddressLine1);
     public const string ContactPersonName = nameof(ContactPersonName);

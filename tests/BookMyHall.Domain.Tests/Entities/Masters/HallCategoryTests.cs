@@ -1,7 +1,7 @@
 using FluentAssertions;
-using BookMyHall.Domain.Venue;
+using BookMyHall.Domain.Masters;
 
-namespace BookMyHall.Domain.Tests.Venue;
+namespace BookMyHall.Domain.Tests.Masters;
 
 public sealed class HallCategoryTests
 {
