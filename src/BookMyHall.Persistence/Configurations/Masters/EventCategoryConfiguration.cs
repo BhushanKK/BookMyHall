@@ -10,6 +10,5 @@ public sealed class EventCategoryConfiguration : IEntityTypeConfiguration<EventC
     {
         builder.ToTable("EventCategory", "masters");
         builder.HasKey(x =>  x.EventCategoryId );
-        builder.Property(x => x.EventCategoryId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

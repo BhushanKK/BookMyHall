@@ -10,6 +10,5 @@ public sealed class AmenityConfiguration : IEntityTypeConfiguration<Amenity>
     {
         builder.ToTable("Amenity", "masters");
         builder.HasKey(x =>  x.AmenityId );
-        builder.Property(x => x.AmenityId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

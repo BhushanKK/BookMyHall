@@ -10,6 +10,5 @@ public sealed class ApiRequestLogConfiguration : IEntityTypeConfiguration<ApiReq
     {
         builder.ToTable("ApiRequestLog", "audit");
         builder.HasKey(x =>  x.ApiRequestLogId );
-        builder.Property(x => x.ApiRequestLogId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

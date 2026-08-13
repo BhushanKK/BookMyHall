@@ -10,6 +10,5 @@ public sealed class NotificationLogConfiguration : IEntityTypeConfiguration<Noti
     {
         builder.ToTable("NotificationLog", "notification");
         builder.HasKey(x =>  x.NotificationLogId );
-        builder.Property(x => x.NotificationLogId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

@@ -10,6 +10,5 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
     {
         builder.ToTable("Invoice", "payment");
         builder.HasKey(x =>  x.InvoiceId );
-        builder.Property(x => x.InvoiceId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

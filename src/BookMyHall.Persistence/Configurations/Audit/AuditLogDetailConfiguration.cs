@@ -10,6 +10,5 @@ public sealed class AuditLogDetailConfiguration : IEntityTypeConfiguration<Audit
     {
         builder.ToTable("AuditLogDetail", "audit");
         builder.HasKey(x =>  x.AuditLogDetailId );
-        builder.Property(x => x.AuditLogDetailId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

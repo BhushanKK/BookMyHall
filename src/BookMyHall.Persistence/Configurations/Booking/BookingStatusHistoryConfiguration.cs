@@ -10,6 +10,5 @@ public sealed class BookingStatusHistoryConfiguration : IEntityTypeConfiguration
     {
         builder.ToTable("BookingStatusHistory", "booking");
         builder.HasKey(x =>  x.BookingStatusHistoryId );
-        builder.Property(x => x.BookingStatusHistoryId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

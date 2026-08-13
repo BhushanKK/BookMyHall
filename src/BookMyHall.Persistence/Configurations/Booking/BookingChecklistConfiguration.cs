@@ -9,6 +9,5 @@ public sealed class BookingChecklistConfiguration : IEntityTypeConfiguration<Boo
     {
         builder.ToTable("BookingChecklist", "booking");
         builder.HasKey(x =>  x.BookingChecklistId );
-        builder.Property(x => x.BookingChecklistId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

@@ -10,6 +10,5 @@ public sealed class NotificationProviderConfiguration : IEntityTypeConfiguration
     {
         builder.ToTable("NotificationProvider", "notification");
         builder.HasKey(x =>  x.NotificationProviderId );
-        builder.Property(x => x.NotificationProviderId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

@@ -10,6 +10,5 @@ public sealed class PaymentWebhookConfiguration : IEntityTypeConfiguration<Payme
     {
         builder.ToTable("PaymentWebhook", "payment");
         builder.HasKey(x =>  x.PaymentWebhookId );
-        builder.Property(x => x.PaymentWebhookId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

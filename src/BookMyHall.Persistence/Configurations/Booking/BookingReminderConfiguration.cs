@@ -9,6 +9,5 @@ public sealed class BookingReminderConfiguration : IEntityTypeConfiguration<Book
     {
         builder.ToTable("BookingReminder", "booking");
         builder.HasKey(x =>  x.BookingReminderId );
-        builder.Property(x => x.BookingReminderId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

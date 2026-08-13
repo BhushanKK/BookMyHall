@@ -8,6 +8,5 @@ public sealed class StateConfiguration : IEntityTypeConfiguration<State>
     {
         builder.ToTable("State", "masters");
         builder.HasKey(x =>  x.StateId );
-        builder.Property(x => x.StateId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

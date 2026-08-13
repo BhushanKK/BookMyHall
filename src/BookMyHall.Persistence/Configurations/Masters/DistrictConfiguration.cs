@@ -10,6 +10,5 @@ public sealed class DistrictConfiguration : IEntityTypeConfiguration<District>
     {
         builder.ToTable("District", "masters");
         builder.HasKey(x =>  x.DistrictId );
-        builder.Property(x => x.DistrictId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

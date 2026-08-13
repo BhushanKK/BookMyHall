@@ -10,6 +10,5 @@ public sealed class CancellationPolicyConfiguration : IEntityTypeConfiguration<C
     {
         builder.ToTable("CancellationPolicy", "masters");
         builder.HasKey(x =>  x.CancellationPolicyId );
-        builder.Property(x => x.CancellationPolicyId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

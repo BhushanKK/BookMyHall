@@ -10,6 +10,5 @@ public sealed class RefundConfiguration : IEntityTypeConfiguration<Refund>
     {
         builder.ToTable("Refund", "payment");
         builder.HasKey(x =>  x.RefundId );
-        builder.Property(x => x.RefundId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

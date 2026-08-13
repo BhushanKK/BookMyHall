@@ -10,6 +10,5 @@ public sealed class HallFavouriteConfiguration : IEntityTypeConfiguration<HallFa
     {
         builder.ToTable("HallFavourite", "review");
         builder.HasKey(x =>  x.HallFavouriteId );
-        builder.Property(x => x.HallFavouriteId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

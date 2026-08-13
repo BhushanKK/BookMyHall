@@ -1,4 +1,4 @@
-using BookMyHall.Domain.Venue;
+using BookMyHall.Domain.Masters;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -10,6 +10,5 @@ public sealed class HallCategoryConfiguration : IEntityTypeConfiguration<HallCat
     {
         builder.ToTable("HallCategory", "masters");
         builder.HasKey(x =>  x.HallCategoryId );
-        builder.Property(x => x.HallCategoryId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

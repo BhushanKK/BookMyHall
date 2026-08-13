@@ -10,6 +10,5 @@ public sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
     {
         builder.ToTable("Payment", "payment");
         builder.HasKey(x =>  x.PaymentId );
-        builder.Property(x => x.PaymentId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

@@ -9,6 +9,5 @@ public sealed class HallPricingConfiguration : IEntityTypeConfiguration<HallPric
     {
         builder.ToTable("HallPricing", "venue");
         builder.HasKey(x =>  x.HallPricingId );
-        builder.Property(x => x.HallPricingId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

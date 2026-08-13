@@ -1,5 +1,5 @@
 using BookMyHall.Domain.Common;
-namespace BookMyHall.Domain.Venue;   
+namespace BookMyHall.Domain.Masters;   
 public class HallCategory: BaseEntity
 {
     public Guid HallCategoryId { get; set; }

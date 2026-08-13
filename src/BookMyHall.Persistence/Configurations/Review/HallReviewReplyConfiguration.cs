@@ -10,6 +10,5 @@ public sealed class HallReviewReplyConfiguration : IEntityTypeConfiguration<Hall
     {
         builder.ToTable("HallReviewReply", "review");
         builder.HasKey(x =>  x.HallReviewReplyId );
-        builder.Property(x => x.HallReviewReplyId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

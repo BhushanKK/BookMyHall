@@ -9,6 +9,5 @@ public sealed class BookingDocumentConfiguration : IEntityTypeConfiguration<Book
     {
         builder.ToTable("BookingDocument", "booking");
         builder.HasKey(x =>  x.BookingDocumentId );
-        builder.Property(x => x.BookingDocumentId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

@@ -10,6 +10,5 @@ public sealed class ErrorLogConfiguration : IEntityTypeConfiguration<ErrorLog>
     {
         builder.ToTable("ErrorLog", "audit");
         builder.HasKey(x =>  x.ErrorLogId );
-        builder.Property(x => x.ErrorLogId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

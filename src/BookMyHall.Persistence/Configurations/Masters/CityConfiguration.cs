@@ -10,6 +10,5 @@ public sealed class CityConfiguration : IEntityTypeConfiguration<City>
     {
         builder.ToTable("City", "masters");
         builder.HasKey(x =>  x.CityId );
-        builder.Property(x => x.CityId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

@@ -9,6 +9,5 @@ public sealed class FacilityConfiguration : IEntityTypeConfiguration<Facility>
     {
         builder.ToTable("Facility", "masters");
         builder.HasKey(x =>  x.FacilityId );
-        builder.Property(x => x.FacilityId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

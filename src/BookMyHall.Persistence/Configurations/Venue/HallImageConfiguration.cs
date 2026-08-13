@@ -10,6 +10,5 @@ public sealed class HallImageConfiguration : IEntityTypeConfiguration<HallImage>
     {
         builder.ToTable("HallImage", "venue");
         builder.HasKey(x =>  x.HallImageId );
-        builder.Property(x => x.HallImageId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

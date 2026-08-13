@@ -10,6 +10,5 @@ public sealed class BookingPaymentScheduleConfiguration : IEntityTypeConfigurati
     {
         builder.ToTable("BookingPaymentSchedule", "booking");
         builder.HasKey(x =>  x.BookingPaymentScheduleId );
-        builder.Property(x => x.BookingPaymentScheduleId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

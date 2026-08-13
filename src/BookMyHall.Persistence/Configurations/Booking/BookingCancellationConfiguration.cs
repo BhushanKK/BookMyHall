@@ -10,6 +10,5 @@ public sealed class BookingCancellationConfiguration : IEntityTypeConfiguration<
     {
         builder.ToTable("BookingCancellation", "booking");
         builder.HasKey(x =>  x.BookingCancellationId );
-        builder.Property(x => x.BookingCancellationId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }
