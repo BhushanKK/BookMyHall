@@ -9,13 +9,25 @@ public sealed class DeviceMappingProfile : Profile
     {
         CreateMap<Device, DeviceDto>();
 
-        CreateMap<RegisterDeviceCommand, Device>();
+        CreateMap<RegisterDeviceCommand, Device>()
+            .ForMember(
+                dest => dest.User,
+                opt => opt.Ignore());
 
         CreateMap<UpdateDeviceCommand, Device>()
-            .ForMember(dest => dest.DeviceId, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
-            .ForMember(dest => dest.User, opt => opt.Ignore());
+            .ForMember(
+                dest => dest.DeviceId,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.CreatedDate,
+                opt => opt.Ignore())
+            .ForMember(
+                dest => dest.User,
+                opt => opt.Ignore());
 
-        CreateMap<DeviceDto, Device>();
+        CreateMap<DeviceDto, Device>()
+            .ForMember(
+                dest => dest.User,
+                opt => opt.Ignore());
     }
 }
