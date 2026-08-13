@@ -190,3 +190,6 @@ app.MapBookMyHallEndpoints();
 // Run Application
 // ============================================================
 await app.RunAsync();
+public partial class Program
+{
+}
