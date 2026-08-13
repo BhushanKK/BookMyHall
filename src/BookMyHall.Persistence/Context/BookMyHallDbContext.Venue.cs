@@ -1,3 +1,4 @@
+using BookMyHall.Domain.Masters;
 using BookMyHall.Domain.Venue;
 using Microsoft.EntityFrameworkCore;
 namespace BookMyHall.Persistence.Context;
