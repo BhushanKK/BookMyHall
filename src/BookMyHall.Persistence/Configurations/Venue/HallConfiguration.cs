@@ -1,5 +1,4 @@
 using BookMyHall.Domain.Venue;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,8 +7,17 @@ public sealed class HallConfiguration : IEntityTypeConfiguration<Hall>
 {
     public void Configure(EntityTypeBuilder<Hall> builder)
     {
-        builder.ToTable("Hall", "masters");
+        builder.ToTable("Hall", "venue");
         builder.HasKey(x =>  x.HallId );
-        builder.Property(x => x.HallId).HasDefaultValueSql("gen_random_uuid()");;
+
+         // Enum -> VARCHAR
+        builder.Property(x => x.ApprovalStatus)
+            .HasConversion<string>()
+            .HasMaxLength(20);
+
+        // Enum -> VARCHAR
+        builder.Property(x => x.VerificationStatus)
+            .HasConversion<string>()
+            .HasMaxLength(20);
     }
 }

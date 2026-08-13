@@ -36,14 +36,12 @@ public static class DependencyInjection
         services.AddScoped<ITokenHasher, Sha256TokenHasher>();
 
         // JWT Options
-        services.Configure<JwtOptions>(
-            configuration.GetSection(JwtOptions.SectionName));
+        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
 
         var jwtOptions = configuration
             .GetSection(JwtOptions.SectionName)
             .Get<JwtOptions>()
-            ?? throw new InvalidOperationException(
-                "JWT configuration section is missing.");
+            ?? throw new InvalidOperationException("JWT configuration section is missing.");
 
         ValidateJwtOptions(jwtOptions);
 
@@ -131,11 +129,8 @@ public static class DependencyInjection
         services.AddScoped<IClientInfoService, ClientInfoService>();
 
         // Email Configuration
-        services.Configure<EmailOptions>(
-            configuration.GetSection(EmailOptions.SectionName));
-
-        services.Configure<FrontendOptions>(
-            configuration.GetSection(FrontendOptions.SectionName));
+        services.Configure<EmailOptions>(configuration.GetSection(EmailOptions.SectionName));
+        services.Configure<FrontendOptions>(configuration.GetSection(FrontendOptions.SectionName));
 
         services.AddScoped<IEmailSender, SmtpEmailSender>();
         services.AddScoped<IEmailTemplateService, EmailTemplateService>();

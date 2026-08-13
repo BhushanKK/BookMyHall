@@ -42,6 +42,7 @@ public static class DependencyInjection
         services.AddScoped<IUserLoginHistoryRepository, UserLoginHistoryRepository>();
         services.AddScoped<IDeviceRepository, DeviceRepository>();
         services.AddScoped<IUserPreferenceRepository, UserPreferenceRepository>();
+        services.AddScoped<IHallRepository, HallRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         return services;
     }
