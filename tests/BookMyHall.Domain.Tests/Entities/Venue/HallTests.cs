@@ -1,4 +1,5 @@
 using FluentAssertions;
+using BookMyHall.Domain.Enums;
 using BookMyHall.Domain.Venue;
 
 namespace BookMyHall.Domain.Tests.Venue;
@@ -6,10 +7,27 @@ namespace BookMyHall.Domain.Tests.Venue;
 public sealed class HallTests
 {
     [Fact]
-    public void Hall_Should_Be_Inactive_By_Default()
+    public void Hall_Should_Be_Active_By_Default()
     {
         var hall = new Hall();
-        hall.IsActive.Should().BeFalse();
+
+        hall.IsActive.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Hall_Should_Have_Pending_ApprovalStatus_By_Default()
+    {
+        var hall = new Hall();
+
+        hall.ApprovalStatus.Should().Be(HallApprovalStatus.Pending);
+    }
+
+    [Fact]
+    public void Hall_Should_Have_Pending_VerificationStatus_By_Default()
+    {
+        var hall = new Hall();
+
+        hall.VerificationStatus.Should().Be(HallVerificationStatus.Pending);
     }
 
     [Fact]
@@ -17,7 +35,9 @@ public sealed class HallTests
     {
         var hall = new Hall();
         var id = Guid.NewGuid();
+
         hall.HallId = id;
+
         hall.HallId.Should().Be(id);
     }
 
@@ -25,7 +45,9 @@ public sealed class HallTests
     public void Hall_Should_Assign_HallName()
     {
         var hall = new Hall();
+
         hall.HallName = "Royal Banquet Hall";
+
         hall.HallName.Should().Be("Royal Banquet Hall");
     }
 
@@ -34,7 +56,9 @@ public sealed class HallTests
     {
         var hall = new Hall();
         var ownerId = Guid.NewGuid();
+
         hall.HallOwnerId = ownerId;
+
         hall.HallOwnerId.Should().Be(ownerId);
     }
 
@@ -43,7 +67,9 @@ public sealed class HallTests
     {
         var hall = new Hall();
         var categoryId = Guid.NewGuid();
+
         hall.HallCategoryId = categoryId;
+
         hall.HallCategoryId.Should().Be(categoryId);
     }
 
@@ -52,7 +78,9 @@ public sealed class HallTests
     {
         var hall = new Hall();
         var policyId = Guid.NewGuid();
+
         hall.CancellationPolicyId = policyId;
+
         hall.CancellationPolicyId.Should().Be(policyId);
     }
 
@@ -60,7 +88,9 @@ public sealed class HallTests
     public void Hall_Should_Assign_Description()
     {
         var hall = new Hall();
+
         hall.Description = "Luxury wedding venue.";
+
         hall.Description.Should().Be("Luxury wedding venue.");
     }
 
@@ -68,7 +98,9 @@ public sealed class HallTests
     public void Hall_Should_Assign_AddressLine1()
     {
         var hall = new Hall();
+
         hall.AddressLine1 = "MG Road";
+
         hall.AddressLine1.Should().Be("MG Road");
     }
 
@@ -76,7 +108,9 @@ public sealed class HallTests
     public void Hall_Should_Assign_AddressLine2()
     {
         var hall = new Hall();
+
         hall.AddressLine2 = "Near Bus Stand";
+
         hall.AddressLine2.Should().Be("Near Bus Stand");
     }
 
@@ -85,7 +119,9 @@ public sealed class HallTests
     {
         var hall = new Hall();
         var areaId = Guid.NewGuid();
+
         hall.AreaId = areaId;
+
         hall.AreaId.Should().Be(areaId);
     }
 
@@ -93,7 +129,9 @@ public sealed class HallTests
     public void Hall_Should_Assign_Pincode()
     {
         var hall = new Hall();
+
         hall.Pincode = "411001";
+
         hall.Pincode.Should().Be("411001");
     }
 
@@ -101,7 +139,9 @@ public sealed class HallTests
     public void Hall_Should_Assign_Latitude()
     {
         var hall = new Hall();
+
         hall.Latitude = 18.5204m;
+
         hall.Latitude.Should().Be(18.5204m);
     }
 
@@ -109,7 +149,9 @@ public sealed class HallTests
     public void Hall_Should_Assign_Longitude()
     {
         var hall = new Hall();
+
         hall.Longitude = 73.8567m;
+
         hall.Longitude.Should().Be(73.8567m);
     }
 
@@ -117,7 +159,9 @@ public sealed class HallTests
     public void Hall_Should_Assign_ContactPersonName()
     {
         var hall = new Hall();
+
         hall.ContactPersonName = "Aniket Yadav";
+
         hall.ContactPersonName.Should().Be("Aniket Yadav");
     }
 
@@ -125,7 +169,9 @@ public sealed class HallTests
     public void Hall_Should_Assign_MobileNumber()
     {
         var hall = new Hall();
+
         hall.MobileNumber = "9876543210";
+
         hall.MobileNumber.Should().Be("9876543210");
     }
 
@@ -133,7 +179,9 @@ public sealed class HallTests
     public void Hall_Should_Assign_EmailAddress()
     {
         var hall = new Hall();
+
         hall.EmailAddress = "hall@example.com";
+
         hall.EmailAddress.Should().Be("hall@example.com");
     }
 
@@ -141,7 +189,9 @@ public sealed class HallTests
     public void Hall_Should_Assign_AlternateMobileNumber()
     {
         var hall = new Hall();
+
         hall.AlternateMobileNumber = "9876500000";
+
         hall.AlternateMobileNumber.Should().Be("9876500000");
     }
 
@@ -149,7 +199,9 @@ public sealed class HallTests
     public void Hall_Should_Assign_Website()
     {
         var hall = new Hall();
+
         hall.Website = "https://royalhall.com";
+
         hall.Website.Should().Be("https://royalhall.com");
     }
 
@@ -157,16 +209,20 @@ public sealed class HallTests
     public void Hall_Should_Assign_MinimumCapacity()
     {
         var hall = new Hall();
-        hall.MinimumCapacity = "100";
-        hall.MinimumCapacity.Should().Be("100");
+
+        hall.MinimumCapacity = 100;
+
+        hall.MinimumCapacity.Should().Be(100);
     }
 
     [Fact]
     public void Hall_Should_Assign_MaximumCapacity()
     {
         var hall = new Hall();
-        hall.MaximumCapacity = "500";
-        hall.MaximumCapacity.Should().Be("500");
+
+        hall.MaximumCapacity = 500;
+
+        hall.MaximumCapacity.Should().Be(500);
     }
 
     [Fact]
@@ -174,7 +230,9 @@ public sealed class HallTests
     {
         var hall = new Hall();
         var time = new TimeSpan(9, 0, 0);
+
         hall.CheckInTime = time;
+
         hall.CheckInTime.Should().Be(time);
     }
 
@@ -183,7 +241,9 @@ public sealed class HallTests
     {
         var hall = new Hall();
         var time = new TimeSpan(22, 0, 0);
+
         hall.CheckOutTime = time;
+
         hall.CheckOutTime.Should().Be(time);
     }
 
@@ -191,32 +251,42 @@ public sealed class HallTests
     public void Hall_Should_Assign_GoogleMapLocationUrl()
     {
         var hall = new Hall();
+
         hall.GoogleMapLocationUrl = "https://maps.google.com/test";
-        hall.GoogleMapLocationUrl.Should().Be("https://maps.google.com/test");
+
+        hall.GoogleMapLocationUrl.Should().Be(
+            "https://maps.google.com/test");
     }
 
     [Fact]
     public void Hall_Should_Assign_ApprovalStatus()
     {
         var hall = new Hall();
-        hall.ApprovalStatus = "Approved";
-        hall.ApprovalStatus.Should().Be("Approved");
+
+        hall.ApprovalStatus = HallApprovalStatus.Approved;
+
+        hall.ApprovalStatus.Should().Be(HallApprovalStatus.Approved);
     }
 
     [Fact]
     public void Hall_Should_Assign_VerificationStatus()
     {
         var hall = new Hall();
-        hall.VerificationStatus = "Verified";
-        hall.VerificationStatus.Should().Be("Verified");
+
+        hall.VerificationStatus = HallVerificationStatus.Verified;
+
+        hall.VerificationStatus.Should().Be(
+            HallVerificationStatus.Verified);
     }
 
     [Fact]
     public void Hall_Should_Assign_IsActive()
     {
         var hall = new Hall();
-        hall.IsActive = true;
-        hall.IsActive.Should().BeTrue();
+
+        hall.IsActive = false;
+
+        hall.IsActive.Should().BeFalse();
     }
 
     [Fact]
@@ -227,6 +297,7 @@ public sealed class HallTests
         var categoryId = Guid.NewGuid();
         var policyId = Guid.NewGuid();
         var areaId = Guid.NewGuid();
+
         var hall = new Hall
         {
             HallId = hallId,
@@ -246,13 +317,13 @@ public sealed class HallTests
             EmailAddress = "hall@example.com",
             AlternateMobileNumber = "9876500000",
             Website = "https://royalhall.com",
-            MinimumCapacity = "100",
-            MaximumCapacity = "500",
+            MinimumCapacity = 100,
+            MaximumCapacity = 500,
             CheckInTime = new TimeSpan(9, 0, 0),
             CheckOutTime = new TimeSpan(22, 0, 0),
             GoogleMapLocationUrl = "https://maps.google.com/test",
-            ApprovalStatus = "Approved",
-            VerificationStatus = "Verified",
+            ApprovalStatus = HallApprovalStatus.Approved,
+            VerificationStatus = HallVerificationStatus.Verified,
             IsActive = true
         };
 
@@ -273,13 +344,16 @@ public sealed class HallTests
         hall.EmailAddress.Should().Be("hall@example.com");
         hall.AlternateMobileNumber.Should().Be("9876500000");
         hall.Website.Should().Be("https://royalhall.com");
-        hall.MinimumCapacity.Should().Be("100");
-        hall.MaximumCapacity.Should().Be("500");
+        hall.MinimumCapacity.Should().Be(100);
+        hall.MaximumCapacity.Should().Be(500);
         hall.CheckInTime.Should().Be(new TimeSpan(9, 0, 0));
         hall.CheckOutTime.Should().Be(new TimeSpan(22, 0, 0));
-        hall.GoogleMapLocationUrl.Should().Be("https://maps.google.com/test");
-        hall.ApprovalStatus.Should().Be("Approved");
-        hall.VerificationStatus.Should().Be("Verified");
+        hall.GoogleMapLocationUrl.Should().Be(
+            "https://maps.google.com/test");
+        hall.ApprovalStatus.Should().Be(
+            HallApprovalStatus.Approved);
+        hall.VerificationStatus.Should().Be(
+            HallVerificationStatus.Verified);
         hall.IsActive.Should().BeTrue();
     }
 
@@ -289,29 +363,42 @@ public sealed class HallTests
         var hall = new Hall();
 
         hall.HallId.Should().Be(Guid.Empty);
-        hall.HallName.Should().BeEmpty();
         hall.HallOwnerId.Should().Be(Guid.Empty);
         hall.HallCategoryId.Should().Be(Guid.Empty);
-        hall.CancellationPolicyId.Should().Be(Guid.Empty);
-        hall.Description.Should().BeEmpty();
+        hall.CancellationPolicyId.Should().BeNull();
+
+        hall.HallName.Should().BeEmpty();
+        hall.Description.Should().BeNull();
         hall.AddressLine1.Should().BeEmpty();
-        hall.AddressLine2.Should().BeEmpty();
+        hall.AddressLine2.Should().BeNull();
+
         hall.AreaId.Should().Be(Guid.Empty);
-        hall.Pincode.Should().BeEmpty();
-        hall.Latitude.Should().Be(0);
-        hall.Longitude.Should().Be(0);
+        hall.Pincode.Should().BeNull();
+
+        hall.Latitude.Should().BeNull();
+        hall.Longitude.Should().BeNull();
+
         hall.ContactPersonName.Should().BeEmpty();
         hall.MobileNumber.Should().BeEmpty();
-        hall.EmailAddress.Should().BeEmpty();
-        hall.AlternateMobileNumber.Should().BeEmpty();
-        hall.Website.Should().BeEmpty();
-        hall.MinimumCapacity.Should().BeEmpty();
-        hall.MaximumCapacity.Should().BeEmpty();
-        hall.CheckInTime.Should().Be(TimeSpan.Zero);
-        hall.CheckOutTime.Should().Be(TimeSpan.Zero);
-        hall.GoogleMapLocationUrl.Should().BeEmpty();
-        hall.ApprovalStatus.Should().BeEmpty();
-        hall.VerificationStatus.Should().BeEmpty();
-        hall.IsActive.Should().BeFalse();
+
+        hall.AlternateMobileNumber.Should().BeNull();
+        hall.EmailAddress.Should().BeNull();
+        hall.Website.Should().BeNull();
+
+        hall.MinimumCapacity.Should().BeNull();
+        hall.MaximumCapacity.Should().BeNull();
+
+        hall.CheckInTime.Should().BeNull();
+        hall.CheckOutTime.Should().BeNull();
+
+        hall.GoogleMapLocationUrl.Should().BeNull();
+
+        hall.ApprovalStatus.Should().Be(
+            HallApprovalStatus.Pending);
+
+        hall.VerificationStatus.Should().Be(
+            HallVerificationStatus.Pending);
+
+        hall.IsActive.Should().BeTrue();
     }
 }

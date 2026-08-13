@@ -38,11 +38,11 @@ public sealed class HallImageTests
     }
 
     [Fact]
-    public void HallImage_Should_Assign_ImagePath()
+    public void HallImage_Should_Assign_ImageUrl()
     {
         var image = new HallImage();
-        image.ImagePath = "/images/hall/main.jpg";
-        image.ImagePath.Should().Be("/images/hall/main.jpg");
+        image.ImageUrl = "/images/hall/main.jpg";
+        image.ImageUrl.Should().Be("/images/hall/main.jpg");
     }
 
     [Fact]
@@ -86,7 +86,7 @@ public sealed class HallImageTests
         {
             HallImageId = hallImageId,
             HallId = hallId,
-            ImagePath = "/images/hall/main.jpg",
+            ImageUrl = "/images/hall/main.jpg",
             ThumbnailUrl = "/images/hall/thumb.jpg",
             DisplayOrder = "1",
             IsCoverImage = true,
@@ -95,7 +95,7 @@ public sealed class HallImageTests
 
         image.HallImageId.Should().Be(hallImageId);
         image.HallId.Should().Be(hallId);
-        image.ImagePath.Should().Be("/images/hall/main.jpg");
+        image.ImageUrl.Should().Be("/images/hall/main.jpg");
         image.ThumbnailUrl.Should().Be("/images/hall/thumb.jpg");
         image.DisplayOrder.Should().Be("1");
         image.IsCoverImage.Should().BeTrue();
@@ -106,9 +106,10 @@ public sealed class HallImageTests
     public void HallImage_Should_Have_Default_Values()
     {
         var image = new HallImage();
+
         image.HallImageId.Should().Be(Guid.Empty);
         image.HallId.Should().Be(Guid.Empty);
-        image.ImagePath.Should().BeEmpty();
+        image.ImageUrl.Should().BeEmpty();
         image.ThumbnailUrl.Should().BeEmpty();
         image.DisplayOrder.Should().BeEmpty();
         image.IsCoverImage.Should().BeFalse();

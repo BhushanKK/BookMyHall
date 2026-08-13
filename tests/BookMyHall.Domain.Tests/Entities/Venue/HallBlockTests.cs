@@ -34,7 +34,7 @@ public sealed class HallBlockTests
     public void HallBlock_Should_Assign_BlockFromDate()
     {
         var hallBlock = new HallBlock();
-        var fromDate = DateTime.UtcNow;
+        var fromDate = DateOnly.FromDateTime(DateTime.UtcNow);
         hallBlock.BlockFromDate = fromDate;
         hallBlock.BlockFromDate.Should().Be(fromDate);
     }
@@ -43,7 +43,7 @@ public sealed class HallBlockTests
     public void HallBlock_Should_Assign_BlockToDate()
     {
         var hallBlock = new HallBlock();
-        var toDate = DateTime.UtcNow.AddDays(2);
+        var toDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(2));
         hallBlock.BlockToDate = toDate;
         hallBlock.BlockToDate.Should().Be(toDate);
     }
@@ -87,8 +87,8 @@ public sealed class HallBlockTests
     {
         var hallBlockId = Guid.NewGuid();
         var hallId = Guid.NewGuid();
-        var fromDate = DateTime.UtcNow;
-        var toDate = DateTime.UtcNow.AddDays(2);
+        var fromDate = DateOnly.FromDateTime(DateTime.UtcNow);
+        var toDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(2));
         var startTime = new TimeSpan(10, 0, 0);
         var endTime = new TimeSpan(18, 0, 0);
 
