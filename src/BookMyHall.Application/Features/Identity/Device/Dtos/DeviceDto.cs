@@ -5,6 +5,7 @@ public class DeviceDto
 {
     [JsonIgnore]
     public Guid DeviceId { get; set; }
+    [JsonIgnore]
     public Guid UserId { get; set; }
     public string DeviceIdentifier { get; set; } = string.Empty;
     public string PushNotificationToken { get; set; }= string.Empty;
