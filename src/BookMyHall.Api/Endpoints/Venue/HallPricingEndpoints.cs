@@ -47,6 +47,26 @@ public static class HallPricingEndpoints
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status404NotFound)
         .Produces(StatusCodes.Status409Conflict);
+
+        group.MapDelete("/{hallPricingId:guid}", async (
+            Guid hallPricingId,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new DeleteHallPricingCommand(hallPricingId),
+                cancellationToken);
+
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("DeleteHallPricing")
+        .WithSummary("Delete Hall Pricing")
+        .WithDescription("Deletes an existing hall pricing configuration.")
+        .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
+        
        
         group.MapGet("/{hallPricingId:guid}", async (
             Guid hallPricingId,
