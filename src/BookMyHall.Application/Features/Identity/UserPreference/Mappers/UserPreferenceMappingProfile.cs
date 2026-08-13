@@ -1,5 +1,4 @@
 using AutoMapper;
-using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Entities.Identity;
 
 namespace BookMyHall.Application.Features.Identity;
