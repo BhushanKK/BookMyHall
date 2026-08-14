@@ -51,8 +51,7 @@ public static class EntityKeys
     //Master
     public const string State = nameof(State);
     public const string StateId = nameof(StateId);
-    public const string Country = nameof(Country);
-    public const string CountryId = nameof(CountryId);
+    
 
     public const string Amenity = nameof(Amenity);
     public const string AmenityId = nameof(AmenityId);
