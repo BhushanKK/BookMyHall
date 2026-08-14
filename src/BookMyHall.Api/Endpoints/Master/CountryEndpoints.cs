@@ -1,6 +1,7 @@
 using MediatR;
 using BookMyHall.Application.Features.Master;
 using BookMyHall.Contracts.Common;
+using BookMyHall.Domain.Masters;
 
 namespace BookMyHall.Api.Endpoints.Master;
 
@@ -112,7 +113,7 @@ public static class CountryEndpoints
         .WithName("GetCountries")
         .WithSummary("Get Countries")
         .WithDescription("Returns a paginated list of countries.")
-        .Produces<ApiResponse<PaginatedResponse<CountryDto>>>(
+        .Produces<ApiResponse<PaginatedResult<Country>>>(
             StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
     }
