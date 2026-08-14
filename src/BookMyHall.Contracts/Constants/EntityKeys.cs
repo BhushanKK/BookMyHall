@@ -77,6 +77,11 @@ public static class EntityKeys
     public const string DistrictId = nameof(DistrictId);
     public const string DistrictName = nameof(DistrictName);
 
+    public const string Country = nameof(Country);
+    public const string CountryId = nameof(CountryId);
+    public const string CountryName = nameof(CountryName);
+    public const string CountryCode = nameof(CountryCode);
+
     public const string EventCategory = nameof(EventCategory);
     public const string EventCategoryId = nameof(EventCategoryId);
     public const string EventCategoryName = nameof(EventCategoryName);
@@ -119,4 +124,6 @@ public static class EntityKeys
     public const string FileName = nameof(FileName);
     public const string ContentType = nameof(ContentType);
     public const string HallImage = nameof(HallImage);
+
+    
 }

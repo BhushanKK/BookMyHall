@@ -19,6 +19,7 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapCancellationPolicyEndpoints();
         endpoints.MapCityEndpoints();
         endpoints.MapDistrictEndpoints();
+        endpoints.MapCountryEndpoints();
         endpoints.MapEventCategoryEndpoints();
         endpoints.MapFacilityEndpoints();
         endpoints.MapFoodTypeEndpoints();
@@ -30,6 +31,7 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapHallCategoryEndpoints();
         endpoints.MapHallBlockEndpoints();
         endpoints.MapHallImageEndpoints();
+
         return endpoints;
     }
 }

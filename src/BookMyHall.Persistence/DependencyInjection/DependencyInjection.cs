@@ -50,6 +50,7 @@ public static class DependencyInjection
         services.AddScoped<IHallBlockRepository, HallBlockRepository>();
         services.AddScoped<IHallImageRepository, HallImageRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<ICountryRepository, CountryRepository>();
         return services;
     }
 }
