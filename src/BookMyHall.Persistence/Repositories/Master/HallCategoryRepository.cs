@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Masters;
 using BookMyHall.Persistence.Context;
-using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 
 namespace BookMyHall.Persistence.Repositories;
@@ -41,16 +40,7 @@ public sealed class HallCategoryRepository(BookMyHallDbContext context): IHallCa
     }
 
     public async Task AddAsync(HallCategory hallCategory,CancellationToken cancellationToken = default)
-    {
-        var exists = await context.HallCategories
-            .AnyAsync(x => x.HallCategoryName == hallCategory.HallCategoryName,cancellationToken);
-
-        if (exists)
-        {
-            throw new DuplicateRecordException();
-        }
-        await context.HallCategories.AddAsync(hallCategory, cancellationToken);
-    }
+      =>  await context.HallCategories.AddAsync(hallCategory, cancellationToken);
 
     public Task UpdateAsync(HallCategory hallCategory, CancellationToken cancellationToken = default)
     {

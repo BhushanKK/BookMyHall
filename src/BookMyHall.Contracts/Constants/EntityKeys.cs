@@ -112,4 +112,8 @@ public static class EntityKeys
     public const string HallPricing=nameof(HallPricing);
     public const string PackageName = nameof(PackageName);
     public const string HallPricingId = nameof(HallPricingId);
+
+    //Venue
+    public const string HallBlock = nameof(HallBlock);
+    public const string HallBlockId = nameof(HallBlockId);
 }
