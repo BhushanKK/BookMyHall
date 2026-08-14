@@ -18,4 +18,5 @@ public partial class BookMyHallDbContext
     public DbSet<PaymentMode> PaymentModes => Set<PaymentMode>();
     public DbSet<CancellationPolicy> CancellationPolicies => Set<CancellationPolicy>();
     public DbSet<HallCategory> HallCategories => Set<HallCategory>();
+    public DbSet<Country> Countries => Set<Country>();
 }
