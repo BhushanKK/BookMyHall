@@ -40,13 +40,11 @@ public sealed class HallCategoryRepository(BookMyHallDbContext context): IHallCa
 
     public async Task AddAsync(HallCategory hallCategory,CancellationToken cancellationToken = default)
         => await context.HallCategories.AddAsync(hallCategory, cancellationToken);
-    
     public Task UpdateAsync(HallCategory hallCategory, CancellationToken cancellationToken = default)
     {
         context.HallCategories.Update(hallCategory);
         return Task.CompletedTask;
     }
-
     public Task DeleteAsync(HallCategory hallCategory, CancellationToken cancellationToken = default)
     {
         context.HallCategories.Remove(hallCategory);

@@ -30,6 +30,8 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapHallPricingEndpoints();
         endpoints.MapHallCategoryEndpoints();
         endpoints.MapR2TestEndpoints();
+        endpoints.MapHallBlockEndpoints();
+        endpoints.MapHallCategoryEndpoints();
         return endpoints;
     }
 }

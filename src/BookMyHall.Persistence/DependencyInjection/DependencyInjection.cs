@@ -45,6 +45,7 @@ public static class DependencyInjection
         services.AddScoped<IHallRepository, HallRepository>();
         services.AddScoped<IHallPricingRepository, HallPricingRepository>();
         services.AddScoped<IHallCategoryRepository, HallCategoryRepository>();
+        services.AddScoped<IHallBlockRepository, HallBlockRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         return services;
     }
