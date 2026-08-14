@@ -7,11 +7,9 @@ using BookMyHall.Shared.Localization;
 
 namespace BookMyHall.Application.Validations;
 
-public sealed class CreateHallPricingCommandValidator
-    : AbstractValidator<CreateHallPricingCommand>
+public sealed class CreateHallPricingCommandValidator: AbstractValidator<CreateHallPricingCommand>
 {
-    public CreateHallPricingCommandValidator(
-        ILocalizationService localizer)
+    public CreateHallPricingCommandValidator(ILocalizationService localizer)
     {
         RuleFor(x => x.HallId)
             .Required(localizer, EntityKeys.HallId);

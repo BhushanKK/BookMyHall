@@ -17,6 +17,12 @@ public sealed class HallRepository(BookMyHallDbContext context) : IHallRepositor
         context.Halls.Update(hall);
         return Task.CompletedTask;
     }
+
+    public Task DeleteAsync(Hall hall,CancellationToken cancellationToken = default)
+    {
+        context.Halls.Remove(hall);
+        return Task.CompletedTask;
+    }
     public async Task<Hall?> GetByIdAsync(Guid hallId,CancellationToken cancellationToken = default)
         => await context.Halls.AsNoTracking().FirstOrDefaultAsync(x => x.HallId == hallId,cancellationToken);
     public async Task<Hall?> GetByHallNameAndAreaAsync(

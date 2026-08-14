@@ -16,6 +16,12 @@ public sealed class HallPricingRepository(BookMyHallDbContext context)
         return Task.CompletedTask;
     }
 
+    public Task DeleteAsync(HallPricing hallPricing, CancellationToken cancellationToken = default)
+    {
+        context.HallPricings.Remove(hallPricing);
+        return Task.CompletedTask;
+    }   
+
     public async Task<HallPricing?> GetByIdAsync(Guid hallPricingId,CancellationToken cancellationToken = default)
         => await context.HallPricings
             .AsNoTracking()

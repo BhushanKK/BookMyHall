@@ -1,4 +1,5 @@
 using MediatR;
+
 using BookMyHall.Application.Features.Venue;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Venue;
@@ -18,8 +19,8 @@ public static class HallEndpoints
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var response = await mediator.Send(command,cancellationToken);
-            return Results.Json(response,statusCode: response.StatusCode);
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
         })
         .WithName("CreateHall")
         .WithSummary("Create Hall")
@@ -59,14 +60,31 @@ public static class HallEndpoints
         .Produces(
             StatusCodes.Status409Conflict);
 
+
+        group.MapDelete("/{hallId:guid}", async (
+            Guid hallId,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var command = new DeleteHallCommand(hallId);
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("DeleteHall")
+        .WithSummary("Delete Hall")
+        .WithDescription("Deletes an existing hall.")
+        .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
+
         group.MapGet("/{hallId:guid}", async (
             Guid hallId,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var response = await mediator.Send(new GetHallByIdQuery(hallId),cancellationToken);
+            var response = await mediator.Send(new GetHallByIdQuery(hallId), cancellationToken);
 
-            return Results.Json(response,statusCode: response.StatusCode);
+            return Results.Json(response, statusCode: response.StatusCode);
         })
         .WithName("GetHallById")
         .WithSummary("Get Hall By Id")
@@ -80,8 +98,8 @@ public static class HallEndpoints
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var response = await mediator.Send(new GetHallQuery(request),cancellationToken);
-            return Results.Json(response,statusCode: response.StatusCode);
+            var response = await mediator.Send(new GetHallQuery(request), cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
         })
         .WithName("GetHalls")
         .WithSummary("Get Halls")
@@ -89,7 +107,7 @@ public static class HallEndpoints
         .Produces<ApiResponse<PaginatedResult<Hall>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
 
-        group.MapGet("/by-name", async (string hallName,Guid areaId,IMediator mediator,
+        group.MapGet("/by-name", async (string hallName, Guid areaId, IMediator mediator,
             CancellationToken cancellationToken) =>
         {
             var response = await mediator.Send(new GetHallByHallNameAndAreaQuery(hallName, areaId), cancellationToken);
@@ -100,6 +118,6 @@ public static class HallEndpoints
         .WithDescription("Returns a hall by hall name and area.")
         .Produces<ApiResponse<Hall>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized)
-        .Produces(StatusCodes.Status404NotFound);        
+        .Produces(StatusCodes.Status404NotFound);
     }
 }
