@@ -1,9 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-
-using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Venue;
 using BookMyHall.Persistence.Context;
+using BookMyHall.Application.Abstractions.Persistence.Repositories;
 
 namespace BookMyHall.Persistence.Repositories;
 
