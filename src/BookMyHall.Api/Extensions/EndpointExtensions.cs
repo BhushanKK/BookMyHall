@@ -28,6 +28,7 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapHallEndpoints();
         endpoints.MapHallPricingEndpoints();
         endpoints.MapHallBlockEndpoints();
+        endpoints.MapHallCategoryEndpoints();
         return endpoints;
     }
 }
