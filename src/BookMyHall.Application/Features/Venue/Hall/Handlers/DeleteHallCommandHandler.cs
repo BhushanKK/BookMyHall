@@ -1,7 +1,6 @@
 using System.Net;
 using MediatR;
 using FluentValidation;
-
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
