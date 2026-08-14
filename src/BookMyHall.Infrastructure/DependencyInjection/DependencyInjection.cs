@@ -13,6 +13,11 @@ using BookMyHall.Infrastructure.Email;
 using BookMyHall.Infrastructure.Options;
 using BookMyHall.Infrastructure.Security;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Infrastructure.Storage.CloudflareR2;
+
+using Amazon.S3;
+using Microsoft.Extensions.Options;
+using BookMyHall.Application.Common.Interfaces.Storage;
 
 namespace BookMyHall.Infrastructure;
 
@@ -134,7 +139,28 @@ public static class DependencyInjection
 
         services.AddScoped<IEmailSender, SmtpEmailSender>();
         services.AddScoped<IEmailTemplateService, EmailTemplateService>();
+        
+        services.Configure<CloudflareR2Options>(configuration.GetSection(CloudflareR2Options.SectionName));
 
+        services.AddSingleton<IAmazonS3>(sp =>
+        {
+            var options = sp
+                .GetRequiredService<IOptions<CloudflareR2Options>>()
+                .Value;
+
+            var config = new AmazonS3Config
+            {
+                ServiceURL = options.Endpoint,
+                ForcePathStyle = true,
+                AuthenticationRegion = options.Region
+            };
+
+            return new AmazonS3Client(
+                options.AccessKeyId,
+                options.SecretAccessKey,
+                config);
+        });
+        services.AddScoped<IR2StorageService, CloudflareR2StorageService>();
         return services;
     }
 

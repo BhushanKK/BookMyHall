@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" />
     <ProjectReference Include="..\BookMyHall.Application\BookMyHall.Application.csproj" />
     <ProjectReference Include="..\BookMyHall.Application.Abstractions\BookMyHall.Application.Abstractions.csproj" />
     <ProjectReference Include="..\BookMyHall.Persistence\BookMyHall.Persistence.csproj" />

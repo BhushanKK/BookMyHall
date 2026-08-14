@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
     <ProjectReference Include="..\BookMyHall.Application\BookMyHall.Application.csproj" />
@@ -26,6 +26,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <UserSecretsId>5dc96c38-9e1d-46f7-86c6-63b106834e50</UserSecretsId>
   </PropertyGroup>
 
 </Project>
