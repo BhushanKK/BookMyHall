@@ -15,4 +15,8 @@ public interface IR2StorageService
     Task<bool> ExistsAsync(
         string objectKey,
         CancellationToken cancellationToken = default);
+
+    Task<Stream?> GetAsync(
+        string objectKey,
+        CancellationToken cancellationToken = default);
 }
