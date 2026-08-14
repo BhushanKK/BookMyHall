@@ -116,4 +116,7 @@ public static class EntityKeys
     //Venue
     public const string HallBlock = nameof(HallBlock);
     public const string HallBlockId = nameof(HallBlockId);
+    public const string FileName = nameof(FileName);
+    public const string ContentType = nameof(ContentType);
+    public const string HallImage = nameof(HallImage);
 }

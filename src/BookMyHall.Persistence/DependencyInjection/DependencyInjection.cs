@@ -9,6 +9,8 @@ using BookMyHall.Persistence.Repositories.Identity;
 using BookMyHall.Application.Abstractions.Persistence.Identity;
 using BookMyHall.Persistence.Repositories.Audit;
 using BookMyHall.Infrastructure.Authentication;
+using BookMyHall.Persistence.Repositories.Venue;
+using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
 
 namespace BookMyHall.Persistence;
 
@@ -46,6 +48,7 @@ public static class DependencyInjection
         services.AddScoped<IHallPricingRepository, HallPricingRepository>();
         services.AddScoped<IHallCategoryRepository, HallCategoryRepository>();
         services.AddScoped<IHallBlockRepository, HallBlockRepository>();
+        services.AddScoped<IHallImageRepository, HallImageRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         return services;
     }

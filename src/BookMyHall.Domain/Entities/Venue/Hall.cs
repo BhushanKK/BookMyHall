@@ -32,4 +32,7 @@ public class Hall : BaseEntity
     public HallVerificationStatus VerificationStatus { get; set; }
         = HallVerificationStatus.Pending;
     public bool IsActive { get; set; } = true;
+
+    public ICollection<HallImage> HallImages { get; private set; }
+    = new List<HallImage>();
 }
