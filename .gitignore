@@ -56,5 +56,4 @@ CodeCoverage/
 TestResult.xml
 nunit-*.xml
 
-launchSettings.json
 **/Properties/launchSettings.json
