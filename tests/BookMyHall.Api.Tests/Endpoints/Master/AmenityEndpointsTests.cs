@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Mvc.Testing;
 namespace BookMyHall.Api.Tests;
 
 public sealed class AmenityEndpointsTests(
-    WebApplicationFactory<Program> factory)
-    : IClassFixture<WebApplicationFactory<Program>>
+    BookMyHallWebApplicationFactory factory)
+    : IClassFixture<BookMyHallWebApplicationFactory>
 {
-    private readonly WebApplicationFactory<Program> _factory = factory;
+    private readonly BookMyHallWebApplicationFactory _factory = factory;
 
     [Fact]
     public async Task GetAmenities_WithoutAuthentication_ShouldReturnUnauthorized()

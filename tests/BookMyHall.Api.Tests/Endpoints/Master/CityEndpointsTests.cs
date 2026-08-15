@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace BookMyHall.Api.Tests;
 
-public sealed class CityEndpointsTests(WebApplicationFactory<Program> factory)
-    : IClassFixture<WebApplicationFactory<Program>>
+public sealed class CityEndpointsTests(BookMyHallWebApplicationFactory factory)
+    : IClassFixture<BookMyHallWebApplicationFactory>
 {
-    private readonly WebApplicationFactory<Program> _factory = factory;
+    private readonly BookMyHallWebApplicationFactory _factory = factory;
 
     [Fact]
     public async Task GetCities_WithoutAuthentication_ShouldReturnUnauthorized()
