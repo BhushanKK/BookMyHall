@@ -1,5 +1,4 @@
 using FluentAssertions;
-
 using BookMyHall.Domain.Audit;
 
 namespace BookMyHall.Domain.Tests.Entities.Audit;
@@ -208,7 +207,7 @@ public sealed class UserLoginHistoryTests
         userLoginHistory.DeviceType.Should().BeEmpty();
         userLoginHistory.OperatingSystem.Should().BeEmpty();
         userLoginHistory.Browser.Should().BeEmpty();
-        userLoginHistory.SessionId.Should().Be(Guid.Empty);
+        userLoginHistory.SessionId.Should().BeNull();
         userLoginHistory.FailureReason.Should().BeEmpty();
     }
 }
