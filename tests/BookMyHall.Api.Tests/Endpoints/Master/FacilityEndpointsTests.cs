@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace BookMyHall.Api.Tests;
 
-public sealed class FacilityEndpointsTests(WebApplicationFactory<Program> factory)
+public sealed class FacilityEndpointsTests(
+    WebApplicationFactory<Program> factory)
     : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly WebApplicationFactory<Program> _factory = factory;
@@ -14,119 +15,177 @@ public sealed class FacilityEndpointsTests(WebApplicationFactory<Program> factor
     public async Task GetFacilities_WithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
 
         // Act
-        var response = await client.GetAsync("/api/facilities");
+        var response = await client.GetAsync(
+            "/api/facilities");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task GetFacilityById_WithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
+
         var facilityId = Guid.NewGuid();
 
         // Act
-        var response = await client.GetAsync($"/api/facilities/{facilityId}");
+        var response = await client.GetAsync(
+            $"/api/facilities/{facilityId}");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task GetFacilityById_WithInvalidRouteId_ShouldReturnNotFound()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
 
         // Act
-        var response = await client.GetAsync("/api/facilities/not-a-guid");
+        var response = await client.GetAsync(
+            "/api/facilities/not-a-guid");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.NotFound);
     }
 
     [Fact]
     public async Task CreateFacility_WithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
+
         var request = new
         {
             facilityName = "Parking"
         };
 
         // Act
-        var response = await client.PostAsJsonAsync("/api/facilities",request);
+        var response = await client.PostAsJsonAsync(
+            "/api/facilities",
+            request);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task UpdateFacility_WithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
+
         var facilityId = Guid.NewGuid();
+
         var request = new
         {
             facilityName = "Updated Parking"
         };
 
         // Act
-        var response = await client.PutAsJsonAsync($"/api/facilities/{facilityId}",request);
+        var response = await client.PutAsJsonAsync(
+            $"/api/facilities/{facilityId}",
+            request);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task UpdateFacility_WithInvalidRouteId_ShouldReturnNotFound()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
+
         var request = new
         {
             facilityName = "Updated Parking"
         };
 
         // Act
-        var response = await client.PutAsJsonAsync("/api/facilities/not-a-guid",request);
+        var response = await client.PutAsJsonAsync(
+            "/api/facilities/not-a-guid",
+            request);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.NotFound);
     }
 
     [Fact]
     public async Task DeleteFacility_WithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
+
         var facilityId = Guid.NewGuid();
 
         // Act
-        var response = await client.DeleteAsync($"/api/facilities/{facilityId}");
+        var response = await client.DeleteAsync(
+            $"/api/facilities/{facilityId}");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task DeleteFacility_WithInvalidRouteId_ShouldReturnNotFound()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
 
         // Act
         var response = await client.DeleteAsync(
             "/api/facilities/not-a-guid");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.NotFound);
+    }
+
+    // =========================================================
+    // Helpers
+    // =========================================================
+
+    private HttpClient CreateClient()
+    {
+        return _factory.CreateClient(
+            new WebApplicationFactoryClientOptions
+            {
+                AllowAutoRedirect = false
+            });
+    }
+
+    private static async Task AssertStatusCodeAsync(
+        HttpResponseMessage response,
+        HttpStatusCode expectedStatusCode)
+    {
+        var responseBody =
+            await response.Content.ReadAsStringAsync();
+
+        response.StatusCode.Should().Be(
+            expectedStatusCode,
+            $"Actual status code: {(int)response.StatusCode} {response.StatusCode}. " +
+            $"Response body: {responseBody}");
     }
 }

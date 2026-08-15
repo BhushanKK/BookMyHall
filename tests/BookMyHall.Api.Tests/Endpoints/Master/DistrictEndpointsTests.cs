@@ -15,20 +15,23 @@ public sealed class DistrictEndpointsTests(
     public async Task GetDistricts_WithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
 
         // Act
-        var response = await client.GetAsync("/api/districts");
+        var response = await client.GetAsync(
+            "/api/districts");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task GetDistrictById_WithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
 
         var districtId = Guid.NewGuid();
 
@@ -37,28 +40,32 @@ public sealed class DistrictEndpointsTests(
             $"/api/districts/{districtId}");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task GetDistrictById_WithInvalidRouteId_ShouldReturnNotFound()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
 
         // Act
         var response = await client.GetAsync(
             "/api/districts/not-a-guid");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.NotFound);
     }
 
     [Fact]
     public async Task CreateDistrict_WithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
 
         var request = new
         {
@@ -71,14 +78,16 @@ public sealed class DistrictEndpointsTests(
             request);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task UpdateDistrict_WithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
 
         var districtId = Guid.NewGuid();
 
@@ -93,14 +102,16 @@ public sealed class DistrictEndpointsTests(
             request);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task UpdateDistrict_WithInvalidRouteId_ShouldReturnNotFound()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
 
         var request = new
         {
@@ -113,14 +124,16 @@ public sealed class DistrictEndpointsTests(
             request);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.NotFound);
     }
 
     [Fact]
     public async Task DeleteDistrict_WithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
 
         var districtId = Guid.NewGuid();
 
@@ -129,20 +142,50 @@ public sealed class DistrictEndpointsTests(
             $"/api/districts/{districtId}");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task DeleteDistrict_WithInvalidRouteId_ShouldReturnNotFound()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
 
         // Act
         var response = await client.DeleteAsync(
             "/api/districts/not-a-guid");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.NotFound);
+    }
+
+    // =========================================================
+    // Helpers
+    // =========================================================
+
+    private HttpClient CreateClient()
+    {
+        return _factory.CreateClient(
+            new WebApplicationFactoryClientOptions
+            {
+                AllowAutoRedirect = false
+            });
+    }
+
+    private static async Task AssertStatusCodeAsync(
+        HttpResponseMessage response,
+        HttpStatusCode expectedStatusCode)
+    {
+        var responseBody =
+            await response.Content.ReadAsStringAsync();
+
+        response.StatusCode.Should().Be(
+            expectedStatusCode,
+            $"Actual status code: {(int)response.StatusCode} {response.StatusCode}. " +
+            $"Response body: {responseBody}");
     }
 }

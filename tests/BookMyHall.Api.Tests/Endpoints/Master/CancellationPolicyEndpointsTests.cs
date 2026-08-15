@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace BookMyHall.Api.Tests;
 
-public sealed class CancellationPolicyEndpointsTests(WebApplicationFactory<Program> factory)
+public sealed class CancellationPolicyEndpointsTests(
+    WebApplicationFactory<Program> factory)
     : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly WebApplicationFactory<Program> _factory = factory;
@@ -14,50 +15,57 @@ public sealed class CancellationPolicyEndpointsTests(WebApplicationFactory<Progr
     public async Task GetCancellationPolicies_WithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
 
         // Act
         var response = await client.GetAsync(
             "/api/cancellation-policies");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task GetCancellationPolicyById_WithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
 
         var cancellationPolicyId = Guid.NewGuid();
 
         // Act
-        var response = await client.GetAsync($"/api/cancellation-policies/{cancellationPolicyId}");
+        var response = await client.GetAsync(
+            $"/api/cancellation-policies/{cancellationPolicyId}");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task GetCancellationPolicyById_WithInvalidRouteId_ShouldReturnNotFound()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
 
         // Act
         var response = await client.GetAsync(
             "/api/cancellation-policies/not-a-guid");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.NotFound);
     }
 
     [Fact]
     public async Task CreateCancellationPolicy_WithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
 
         var request = new
         {
@@ -70,14 +78,16 @@ public sealed class CancellationPolicyEndpointsTests(WebApplicationFactory<Progr
             request);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task UpdateCancellationPolicy_WithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
 
         var cancellationPolicyId = Guid.NewGuid();
 
@@ -92,14 +102,16 @@ public sealed class CancellationPolicyEndpointsTests(WebApplicationFactory<Progr
             request);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task UpdateCancellationPolicy_WithInvalidRouteId_ShouldReturnNotFound()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
 
         var request = new
         {
@@ -112,14 +124,16 @@ public sealed class CancellationPolicyEndpointsTests(WebApplicationFactory<Progr
             request);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.NotFound);
     }
 
     [Fact]
     public async Task DeleteCancellationPolicy_WithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
 
         var cancellationPolicyId = Guid.NewGuid();
 
@@ -128,19 +142,50 @@ public sealed class CancellationPolicyEndpointsTests(WebApplicationFactory<Progr
             $"/api/cancellation-policies/{cancellationPolicyId}");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task DeleteCancellationPolicy_WithInvalidRouteId_ShouldReturnNotFound()
     {
         // Arrange
-        var client = _factory.CreateClient();
+        using var client = CreateClient();
 
         // Act
-        var response = await client.DeleteAsync("/api/cancellation-policies/not-a-guid");
+        var response = await client.DeleteAsync(
+            "/api/cancellation-policies/not-a-guid");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        await AssertStatusCodeAsync(
+            response,
+            HttpStatusCode.NotFound);
+    }
+
+    // =========================================================
+    // Helpers
+    // =========================================================
+
+    private HttpClient CreateClient()
+    {
+        return _factory.CreateClient(
+            new WebApplicationFactoryClientOptions
+            {
+                AllowAutoRedirect = false
+            });
+    }
+
+    private static async Task AssertStatusCodeAsync(
+        HttpResponseMessage response,
+        HttpStatusCode expectedStatusCode)
+    {
+        var responseBody =
+            await response.Content.ReadAsStringAsync();
+
+        response.StatusCode.Should().Be(
+            expectedStatusCode,
+            $"Actual status code: {(int)response.StatusCode} {response.StatusCode}. " +
+            $"Response body: {responseBody}");
     }
 }
