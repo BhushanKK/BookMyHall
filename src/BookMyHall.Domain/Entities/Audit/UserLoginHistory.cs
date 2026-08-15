@@ -12,7 +12,7 @@ public class UserLoginHistory
     public string DeviceType { get; set; } = string.Empty;
     public string OperatingSystem { get; set; } = string.Empty;
     public string Browser { get; set; } = string.Empty;
-    public Guid SessionId { get; set; }
+    public Guid? SessionId { get; set; }
     public string FailureReason { get; set; } = string.Empty;
     public string LoginSource { get; set; } = string.Empty;
     public bool IsMfaUsed { get; set; } = false;

@@ -76,6 +76,7 @@ public sealed class LoginCommandHandler(
                 new UserLoginHistory
                 {
                     UserId = user.UserId,
+                    SessionId = null,
                     LoginDate = DateTimeOffset.UtcNow,
                     LoginStatus = LoginStatuses.Failed,
                     LoginMethod = LoginMethods.Password,
