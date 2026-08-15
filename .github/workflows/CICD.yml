@@ -35,7 +35,11 @@ jobs:
       # 4. TEST
       # ==========================================
       - name: Test
-        run: dotnet test BookMyHall.slnx --no-restore
+        shell: powershell
+        env:
+          Jwt__SecretKey: ${{ secrets.JWT_SECRET_KEY }}
+        run: |
+          dotnet test BookMyHall.slnx --no-restore
 
       # ==========================================
       # 5. PUBLISH
