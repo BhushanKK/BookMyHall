@@ -18,7 +18,7 @@ public class User : BaseEntity
     public bool IsActive { get; set; } = true;
 
     /// <summary>
-    /// Increment whenever user changes password or signs out from all devices.
+    /// Increment whenever the password changes or all sessions are revoked.
     /// Existing JWTs become invalid.
     /// </summary>
     public int TokenVersion { get; set; } = 1;
@@ -33,8 +33,12 @@ public class User : BaseEntity
     /// </summary>
     public DateTimeOffset? PasswordChangedAt { get; set; }
     public ICollection<UserRole> UserRoles { get; set; } = [];
+    public ICollection<PasswordResetToken> PasswordResetTokens { get; private set; } = [];
+    public ICollection<EmailVerificationToken> EmailVerificationTokens { get; private set; } = [];
+
     public string FullName =>
-        string.Join(" ",
+        string.Join(
+            " ",
             new[]
             {
                 FirstName,
@@ -46,15 +50,13 @@ public class User : BaseEntity
     public void VerifyEmail() => IsEmailVerified = true;
     public void Activate() => IsActive = true;
     public void Deactivate() => IsActive = false;
-    public void RecordLogin() => LastLoginAt = DateTimeOffset.UtcNow;
     public void UpdatePassword(string passwordHash)
     {
         PasswordHash = passwordHash;
         PasswordChangedAt = DateTimeOffset.UtcNow;
         InvalidateTokens();
     }
+
     public void RevokeAllSessions() => InvalidateTokens();
     private void InvalidateTokens() => TokenVersion++;
-    public ICollection<PasswordResetToken> PasswordResetTokens { get; private set; } = [];
-    public ICollection<EmailVerificationToken> EmailVerificationTokens { get; private set; } = [];
 }
