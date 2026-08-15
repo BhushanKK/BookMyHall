@@ -1,13 +1,13 @@
-using MediatR;
 using System.Net;
 using FluentValidation;
+using MediatR;
+using BookMyHall.Application.Abstractions.Persistence;
+using BookMyHall.Application.Abstractions.Persistence.Repositories;
+using BookMyHall.Application.Abstractions.Security;
+using BookMyHall.Application.Features.Authentication.Events;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
-using BookMyHall.Application.Abstractions.Persistence;
-using BookMyHall.Application.Abstractions.Security;
-using BookMyHall.Application.Abstractions.Persistence.Repositories;
-using BookMyHall.Application.Features.Authentication.Events;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
@@ -27,99 +27,148 @@ public sealed class ChangePasswordCommandHandler(
         ChangePasswordCommand request,
         CancellationToken cancellationToken)
     {
+        // ---------------------------------------------------------
         // Validate Request
-        var validationResult = await validator.ValidateAsync(
-            request,
-            cancellationToken);
+        // ---------------------------------------------------------
+
+        var validationResult = await validator.ValidateAsync(request,cancellationToken);
 
         if (!validationResult.IsValid)
         {
-            return ApiResponse<bool>.FailureResponse(
-                string.Join(" | ",
-                    validationResult.Errors.Select(x => x.ErrorMessage)),
-                HttpStatusCode.BadRequest);
+            return ApiResponse<bool>.FailureResponse
+            (
+                string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage)),
+                HttpStatusCode.BadRequest
+            );
         }
 
+        // ---------------------------------------------------------
         // Check Authentication
+        // ---------------------------------------------------------
+
         if (!currentUser.UserId.HasValue)
         {
-            return ApiResponse<bool>.FailureResponse(
+            return ApiResponse<bool>.FailureResponse
+            (
                 messageHelper.Unauthorized(),
-                HttpStatusCode.Unauthorized);
+                HttpStatusCode.Unauthorized
+            );
         }
 
+        var userId = currentUser.UserId.Value;
+
+        // ---------------------------------------------------------
         // Load User
-        var user = await userRepository.GetByIdAsync(
-            currentUser.UserId.Value,
-            cancellationToken);
+        // ---------------------------------------------------------
+
+        var user = await userRepository.GetByIdAsync(userId, cancellationToken);
 
         if (user is null)
         {
-            return ApiResponse<bool>.FailureResponse(
-                messageHelper.NotFoundEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.User),
-                HttpStatusCode.NotFound);
+            return ApiResponse<bool>.FailureResponse
+            (
+                messageHelper.NotFoundEntity(ResourceNames.Entities, EntityKeys.User),
+                HttpStatusCode.NotFound
+            );
         }
 
-        // User must be active
+        // ---------------------------------------------------------
+        // Check User Status
+        // ---------------------------------------------------------
+
         if (!user.IsActive)
         {
-            return ApiResponse<bool>.FailureResponse(
+            return ApiResponse<bool>.FailureResponse
+            (
                 messageHelper.UserInactive(),
-                HttpStatusCode.Forbidden);
+                HttpStatusCode.Forbidden
+            );
         }
 
+        // ---------------------------------------------------------
         // Verify Current Password
-        if (!passwordHasher.VerifyPassword(
-                user.PasswordHash,
-                request.CurrentPassword))
+        // ---------------------------------------------------------
+
+        var currentPasswordValid = passwordHasher.VerifyPassword(user.PasswordHash, request.CurrentPassword);
+
+        if (!currentPasswordValid)
         {
-            return ApiResponse<bool>.FailureResponse(
+            return ApiResponse<bool>.FailureResponse
+            (
                 messageHelper.PasswordMismatch(),
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest
+            );
         }
 
-        // Prevent Same Password
-        if (passwordHasher.VerifyPassword(
-                user.PasswordHash,
-                request.NewPassword))
+        // ---------------------------------------------------------
+        // Prevent Reusing Current Password
+        // ---------------------------------------------------------
+
+        var samePassword =passwordHasher.VerifyPassword(user.PasswordHash,request.NewPassword);
+
+        if (samePassword)
         {
-            return ApiResponse<bool>.FailureResponse(
+            return ApiResponse<bool>.FailureResponse
+            (
                 messageHelper.PasswordAlreadyUsed(),
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest
+            );
         }
 
+        // ---------------------------------------------------------
+        // Hash New Password
+        // ---------------------------------------------------------
+
+        var newPasswordHash = passwordHasher.HashPassword(request.NewPassword);
+
+        // ---------------------------------------------------------
         // Update Password
-        user.UpdatePassword(
-            passwordHasher.HashPassword(request.NewPassword));
+        // ---------------------------------------------------------
 
-        // Audit
-        user.UpdatedBy = currentUser.UserId;
-        user.UpdatedDate = DateTimeOffset.UtcNow;
+        user.UpdatePassword(newPasswordHash);
 
-        // Revoke all refresh tokens
-        await refreshTokenRepository.RevokeAllByUserIdAsync(
-            user.UserId,
-            cancellationToken);
+        var now = DateTimeOffset.UtcNow;
 
-        // End all active sessions
-        await userSessionRepository.EndAllSessionsAsync(
-            user.UserId,
-            cancellationToken);
+        user.UpdatedBy = userId;
+        user.UpdatedDate = now;
 
-        // Update user
-        await userRepository.UpdateAsync(
-            user,
-            cancellationToken);
+        // ---------------------------------------------------------
+        // Revoke All Refresh Tokens
+        // ---------------------------------------------------------
 
+        await refreshTokenRepository.RevokeAllByUserIdAsync(userId, cancellationToken);
+
+        // ---------------------------------------------------------
+        // End All Active Sessions
+        // ---------------------------------------------------------
+
+        await userSessionRepository.EndAllSessionsAsync(userId, cancellationToken);
+
+        // ---------------------------------------------------------
+        // Update User
+        // ---------------------------------------------------------
+
+        await userRepository.UpdateAsync(user, cancellationToken);
+
+        // ---------------------------------------------------------
         // Commit Transaction
+        // ---------------------------------------------------------
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // ---------------------------------------------------------
+        // Publish Password Changed Event
+        // ---------------------------------------------------------
 
         await mediator.Publish
         (
-            new PasswordChangedEvent(user.UserId, user.FullName, user.EmailAddress   
-        ), cancellationToken);
+            new PasswordChangedEvent(user.UserId, user.FullName, user.EmailAddress),
+            cancellationToken
+        );
+
+        // ---------------------------------------------------------
+        // Return Response
+        // ---------------------------------------------------------
 
         return ApiResponse<bool>.SuccessResponse
         (

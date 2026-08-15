@@ -4,6 +4,7 @@ using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Persistence.Context;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
+using BookMyHall.Application.Features.Identity.Authentication;
 
 namespace BookMyHall.Persistence.Repositories;
 
@@ -24,11 +25,43 @@ public sealed class UserRepository(BookMyHallDbContext context)
         .AsNoTracking()
         .FirstOrDefaultAsync(x => x.UserId == userId, cancellationToken);
 
-    public async Task<User?> GetForLoginAsync(string mobileNumber, CancellationToken cancellationToken = default)
-        => await context.Users
-            .Include(x => x.UserRoles)
-            .ThenInclude(x => x.Role)
-            .FirstOrDefaultAsync(x => x.MobileNumber == mobileNumber && x.IsActive, cancellationToken);
+    public async Task<UserLoginDto?> GetForLoginAsync(
+    string mobileNumber,
+    CancellationToken cancellationToken = default)
+{
+    return await context.Users
+        .AsNoTracking()
+        .Where(x => x.MobileNumber == mobileNumber && x.IsActive)
+        .Select(x => new UserLoginDto
+        {
+            UserId = x.UserId,
+            MobileNumber = x.MobileNumber,
+            EmailAddress = x.EmailAddress,
+            FullName = x.FullName,
+            PasswordHash = x.PasswordHash,
+            TokenVersion = x.TokenVersion,
+
+            Roles = x.UserRoles
+                .Select(ur => ur.Role.RoleName)
+                .ToList()
+        })
+        .FirstOrDefaultAsync(cancellationToken);
+}
+
+public async Task RecordLoginAsync(
+    Guid userId,
+    DateTimeOffset loginDate,
+    CancellationToken cancellationToken = default)
+{
+    await context.Users
+        .Where(x => x.UserId == userId)
+        .ExecuteUpdateAsync(
+            setters => setters
+                .SetProperty(x => x.LastLoginAt, loginDate)
+                .SetProperty(x => x.UpdatedBy, userId)
+                .SetProperty(x => x.UpdatedDate, loginDate),
+            cancellationToken);
+}
 
     public async Task<PaginatedResult<User>> GetAllAsync(
         PaginationRequest request,

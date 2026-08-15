@@ -8,11 +8,11 @@ using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Application.Abstractions.Security;
 using BookMyHall.Contracts.Common;
+using BookMyHall.Domain.Audit;
+using BookMyHall.Domain.Common;
 using BookMyHall.Domain.Identity;
 using BookMyHall.Infrastructure.Authentication;
 using BookMyHall.Shared.Common;
-using BookMyHall.Domain.Audit;
-using BookMyHall.Domain.Common;
 
 namespace BookMyHall.Application.Features.Identity.Authentication;
 
@@ -41,41 +41,24 @@ public sealed class LoginCommandHandler(
         // ---------------------------------------------------------
 
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
         if (!validationResult.IsValid)
         {
             return ApiResponse<LoginResponse>.FailureResponse
             (
-                string.Join(" | ",
-                    validationResult.Errors.Select(x => x.ErrorMessage)),
+                string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage)),
                 HttpStatusCode.BadRequest
             );
         }
+
         // ---------------------------------------------------------
-        // Load User
+        // Load User Login Information
         // ---------------------------------------------------------
+
         var user = await userRepository.GetForLoginAsync(request.MobileNumber, cancellationToken);
 
         if (user is null)
         {
-            await userLoginHistoryRepository.AddAsync(
-                new UserLoginHistory
-                {
-                    LoginDate = DateTimeOffset.UtcNow,
-                    LoginStatus = LoginStatuses.Failed,
-                    LoginMethod = LoginMethods.Password,
-                    FailureReason = "Invalid mobile number.",
-                    IpAddress = clientInfoService.IpAddress ?? "Unknown",
-                    UserAgent = clientInfoService.UserAgent?? "Unknown",
-                    Browser = clientInfoService.Browser ?? "Unknown",
-                    OperatingSystem = clientInfoService.OperatingSystem ?? "Unknown",
-                    DeviceType = clientInfoService.DeviceType ?? "Unknown",
-                    LoginSource = clientInfoService.LoginSource ?? "Unknown",
-                    IsMfaUsed = false
-                },
-                cancellationToken);
-
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-
             return ApiResponse<LoginResponse>.FailureResponse
             (
                 messageHelper.InvalidCredentials(),
@@ -93,6 +76,7 @@ public sealed class LoginCommandHandler(
                 new UserLoginHistory
                 {
                     UserId = user.UserId,
+                    SessionId = null,
                     LoginDate = DateTimeOffset.UtcNow,
                     LoginStatus = LoginStatuses.Failed,
                     LoginMethod = LoginMethods.Password,
@@ -117,45 +101,11 @@ public sealed class LoginCommandHandler(
         }
 
         // ---------------------------------------------------------
-        // Verify User Status
-        // ---------------------------------------------------------
-
-        if (!user.IsActive)
-        {
-            await userLoginHistoryRepository.AddAsync(
-                new UserLoginHistory
-                {
-                    UserId = user.UserId,
-                    LoginDate = DateTimeOffset.UtcNow,
-                    LoginStatus = LoginStatuses.Locked,
-                    LoginMethod = LoginMethods.Password,
-                    FailureReason = "User account is inactive.",
-                    IpAddress = clientInfoService.IpAddress ?? "Unknown",
-                    UserAgent = clientInfoService.UserAgent ?? "Unknown",
-                    Browser = clientInfoService.Browser ?? "Unknown",
-                    OperatingSystem = clientInfoService.OperatingSystem ?? "Unknown",
-                    DeviceType = clientInfoService.DeviceType ?? "Unknown",
-                    LoginSource = clientInfoService.LoginSource ?? "Unknown",
-                    IsMfaUsed = false
-                },
-                cancellationToken);
-
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-
-            return ApiResponse<LoginResponse>.FailureResponse
-            (
-                messageHelper.UserInactive(),
-                HttpStatusCode.Forbidden
-            );
-        }
-        // ---------------------------------------------------------
         // Update Login Information
         // ---------------------------------------------------------
-        user.RecordLogin();
-        user.UpdatedBy = user.UserId;
-        user.UpdatedDate = DateTimeOffset.UtcNow;
 
-        await userRepository.UpdateAsync(user, cancellationToken);
+        var now = DateTimeOffset.UtcNow;
+        await userRepository.RecordLoginAsync(user.UserId, now, cancellationToken);
 
         // ---------------------------------------------------------
         // Generate JWT Access Token
@@ -169,9 +119,7 @@ public sealed class LoginCommandHandler(
                 MobileNumber = user.MobileNumber,
                 EmailAddress = user.EmailAddress,
                 TokenVersion = user.TokenVersion,
-                Roles = user.UserRoles
-                    .Select(x => x.Role.RoleName)
-                    .ToList()
+                Roles = user.Roles
             });
 
         // ---------------------------------------------------------
@@ -179,70 +127,69 @@ public sealed class LoginCommandHandler(
         // ---------------------------------------------------------
 
         var refreshTokenValue = jwtTokenService.GenerateRefreshToken();
+
         var refreshToken = new RefreshToken
         {
             RefreshTokenId = Guid.NewGuid(),
             UserId = user.UserId,
             Token = refreshTokenValue,
-            ExpiresAt = DateTimeOffset.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpiryDays),
+            ExpiresAt = now.AddDays(jwtOptions.Value.RefreshTokenExpiryDays),
             CreatedBy = user.UserId
         };
 
         await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
 
         // ---------------------------------------------------------
+        // Register / Update Device
+        // ---------------------------------------------------------
+
+        var device =
+            await deviceRepository.GetByDeviceIdentifierAsync(
+                user.UserId,
+                request.DeviceIdentifier,
+                cancellationToken);
+
+        if (device is null)
+        {
+            device = new Device
+            {
+                DeviceId = Guid.NewGuid(),
+                UserId = user.UserId,
+                DeviceIdentifier = request.DeviceIdentifier,
+                PushNotificationToken = request.PushNotificationToken,
+                DeviceName = request.DeviceName,
+                DeviceType = clientInfoService.DeviceType ?? "Desktop",
+                OperatingSystem = clientInfoService.OperatingSystem,
+                Browser = clientInfoService.Browser,
+                AppVersion = request.AppVersion,
+                LastIpAddress = clientInfoService.IpAddress,
+                LastLoginDate = now,
+                LastActivity = now,
+                IsTrusted = false,
+                IsActive = true,
+                CreatedDate = now
+            };
+
+            await deviceRepository.AddAsync(device, cancellationToken);
+        }
+        else
+        {
+            device.PushNotificationToken = request.PushNotificationToken;
+            device.DeviceName =request.DeviceName;
+            device.DeviceType = clientInfoService.DeviceType ?? "Desktop";
+            device.OperatingSystem =clientInfoService.OperatingSystem;
+            device.Browser = clientInfoService.Browser;
+            device.AppVersion = request.AppVersion;
+            device.LastIpAddress = clientInfoService.IpAddress;
+            device.LastLoginDate = now;
+            device.LastActivity = now;
+            device.UpdatedDate = now;
+            await deviceRepository.UpdateAsync(device, cancellationToken);
+        }
+
+        // ---------------------------------------------------------
         // Create User Session
         // ---------------------------------------------------------
-
-        // ---------------------------------------------------------
-// Register / Update Device
-// ---------------------------------------------------------
-
-var now = DateTimeOffset.UtcNow;
-
-var device = await deviceRepository.GetByDeviceIdentifierAsync(
-    user.UserId,
-    request.DeviceIdentifier,
-    cancellationToken);
-
-if (device is null)
-{
-    device = new Device
-    {
-        DeviceId = Guid.NewGuid(),
-        UserId = user.UserId,
-        DeviceIdentifier = request.DeviceIdentifier,
-        PushNotificationToken = request.PushNotificationToken,
-        DeviceName = request.DeviceName,
-        DeviceType = clientInfoService.DeviceType ?? "Desktop",
-        OperatingSystem = clientInfoService.OperatingSystem,
-        Browser = clientInfoService.Browser,
-        AppVersion = request.AppVersion,
-        LastIpAddress = clientInfoService.IpAddress,
-        LastLoginDate = now,
-        LastActivity = now,
-        IsTrusted = false,
-        IsActive = true,
-        CreatedDate = now
-    };
-
-    await deviceRepository.AddAsync(device, cancellationToken);
-}
-else
-{
-    device.PushNotificationToken = request.PushNotificationToken;
-    device.DeviceName = request.DeviceName;
-    device.DeviceType = clientInfoService.DeviceType ?? "Desktop";
-    device.OperatingSystem = clientInfoService.OperatingSystem;
-    device.Browser = clientInfoService.Browser;
-    device.AppVersion = request.AppVersion;
-    device.LastIpAddress = clientInfoService.IpAddress;
-    device.LastLoginDate = now;
-    device.LastActivity = now;
-    device.UpdatedDate = now;
-
-    await deviceRepository.UpdateAsync(device, cancellationToken);
-}
 
         var userSession = new UserSession
         {
@@ -257,9 +204,18 @@ else
         };
 
         await userSessionRepository.AddAsync(userSession, cancellationToken);
+
+        // ---------------------------------------------------------
+        // Persist Refresh Token, Device and Session
+        // ---------------------------------------------------------
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await userLoginHistoryRepository.AddAsync
-        (
+
+        // ---------------------------------------------------------
+        // Add Successful Login History
+        // ---------------------------------------------------------
+
+        await userLoginHistoryRepository.AddAsync(
             new UserLoginHistory
             {
                 UserId = user.UserId,
@@ -274,20 +230,23 @@ else
                 DeviceType = clientInfoService.DeviceType ?? "Unknown",
                 LoginSource = clientInfoService.LoginSource
             },
-            cancellationToken
-        );
+            cancellationToken);
+
         // ---------------------------------------------------------
-        // Persist Everything
+        // Persist Login History
         // ---------------------------------------------------------
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         // ---------------------------------------------------------
         // Prepare Response
         // ---------------------------------------------------------
+
         var response = mapper.Map<LoginResponse>(user);
         response.AccessToken = jwtResult.AccessToken;
         response.RefreshToken = refreshTokenValue;
         response.ExpiresAt = jwtResult.ExpiresAt;
+
         return ApiResponse<LoginResponse>.SuccessResponse
         (
             response,
