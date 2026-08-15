@@ -1,0 +1,371 @@
+name: CI-CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-test-deploy:
+    runs-on: self-hosted
+
+    steps:
+
+      # ==========================================
+      # 1. CHECKOUT
+      # ==========================================
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ==========================================
+      # 2. SETUP .NET
+      # ==========================================
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # ==========================================
+      # 3. RESTORE
+      # ==========================================
+      - name: Restore
+        run: dotnet restore BookMyHall.slnx --source https://api.nuget.org/v3/index.json
+
+      # ==========================================
+      # 4. TEST
+      # ==========================================
+      - name: Test
+        run: dotnet test BookMyHall.slnx --no-restore
+
+      # ==========================================
+      # 5. PUBLISH
+      # ==========================================
+      - name: Publish
+        run: dotnet publish src/BookMyHall.Api/BookMyHall.Api.csproj -c Release -o publish --no-restore
+
+      # ==========================================
+      # 6. DEPLOY
+      # ==========================================
+      - name: Deploy to IIS
+        shell: powershell
+        run: |
+
+          $ErrorActionPreference = "Stop"
+
+          # ==========================================
+          # CONFIGURATION
+          # ==========================================
+
+          $releaseRoot = "C:\Websites\BookMyHall\releases"
+          $current = "C:\Websites\BookMyHall\current"
+          $appPool = "BookMyHallAppPool"
+
+          $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+          $release = Join-Path $releaseRoot $timestamp
+
+          Write-Host "======================================"
+          Write-Host "BookMyHall Deployment"
+          Write-Host "======================================"
+
+          Write-Host ""
+          Write-Host "Release:"
+          Write-Host $release
+
+          # ==========================================
+          # VALIDATE IIS
+          # ==========================================
+
+          Import-Module WebAdministration
+
+          if (-not (Test-Path "IIS:\AppPools\$appPool")) {
+              throw "IIS Application Pool '$appPool' does not exist."
+          }
+
+          Write-Host ""
+          Write-Host "IIS Application Pool found:"
+          Write-Host $appPool
+
+          # ==========================================
+          # CREATE RELEASE DIRECTORY
+          # ==========================================
+
+          New-Item `
+            -ItemType Directory `
+            -Path $release `
+            -Force | Out-Null
+
+          # ==========================================
+          # COPY PUBLISHED APPLICATION
+          # ==========================================
+
+          Copy-Item `
+            ".\publish\*" `
+            $release `
+            -Recurse `
+            -Force
+
+          Write-Host ""
+          Write-Host "Application copied to release successfully."
+
+          # ==========================================
+          # STOP IIS APPLICATION POOL
+          # ==========================================
+
+          Write-Host ""
+          Write-Host "Stopping IIS Application Pool..."
+
+          $poolState = (Get-WebAppPoolState -Name $appPool).Value
+
+          if ($poolState -eq "Started") {
+              Stop-WebAppPool -Name $appPool
+              Start-Sleep -Seconds 3
+          }
+
+          Write-Host "Application Pool stopped."
+
+          # ==========================================
+          # UPDATE CURRENT
+          # ==========================================
+
+          Write-Host ""
+          Write-Host "Updating current deployment..."
+
+          if (Test-Path $current) {
+              Remove-Item `
+                $current `
+                -Recurse `
+                -Force
+          }
+
+          New-Item `
+            -ItemType Directory `
+            -Path $current `
+            -Force | Out-Null
+
+          Copy-Item `
+            "$release\*" `
+            $current `
+            -Recurse `
+            -Force
+
+          Write-Host ""
+          Write-Host "Current deployment updated."
+
+          # ==========================================
+          # VERIFY DEPLOYED FILE
+          # ==========================================
+
+          $apiExe = Join-Path $current "BookMyHall.Api.exe"
+          $webConfig = Join-Path $current "web.config"
+
+          if (-not (Test-Path $apiExe)) {
+              throw "BookMyHall.Api.exe was not found in current deployment."
+          }
+
+          if (-not (Test-Path $webConfig)) {
+              throw "web.config was not found in current deployment."
+          }
+
+          Write-Host ""
+          Write-Host "Deployment files verified."
+
+          Write-Host "API:"
+          Write-Host $apiExe
+
+          Write-Host "Web.config:"
+          Write-Host $webConfig
+
+          # ==========================================
+          # START IIS APPLICATION POOL
+          # ==========================================
+
+          Write-Host ""
+          Write-Host "Starting IIS Application Pool..."
+
+          Start-WebAppPool -Name $appPool
+
+          Start-Sleep -Seconds 5
+
+          # ==========================================
+          # VERIFY IIS APPLICATION POOL
+          # ==========================================
+
+          $poolState = (Get-WebAppPoolState -Name $appPool).Value
+
+          Write-Host ""
+          Write-Host "Application Pool status:"
+          Write-Host $poolState
+
+          if ($poolState -ne "Started") {
+              throw "BookMyHall IIS Application Pool failed to start."
+          }
+
+          # ==========================================
+          # VERIFY IIS WEBSITE
+          # ==========================================
+
+          $website = Get-Website -Name "BookMyHall"
+
+          Write-Host ""
+          Write-Host "IIS Website:"
+          Write-Host $website.Name
+
+          Write-Host "Website State:"
+          Write-Host $website.State
+
+          Write-Host "Physical Path:"
+          Write-Host $website.PhysicalPath
+
+          if ($website.State -ne "Started") {
+              throw "BookMyHall IIS Website is not running."
+          }
+
+          if ($website.PhysicalPath -ne $current) {
+              throw "IIS Physical Path is '$($website.PhysicalPath)' but expected '$current'."
+          }
+
+          # ==========================================
+          # CLEAN OLD RELEASES
+          # KEEP ONLY 2 MOST RECENT
+          # ==========================================
+
+          Write-Host ""
+          Write-Host "Cleaning old releases..."
+
+          if (Test-Path $releaseRoot) {
+
+              $releases = Get-ChildItem `
+                -Path $releaseRoot `
+                -Directory |
+                Where-Object {
+                    $_.Name -match '^\d{8}-\d{6}$'
+                } |
+                Sort-Object Name -Descending
+
+              Write-Host ""
+              Write-Host "Existing releases:"
+
+              foreach ($item in $releases) {
+                  Write-Host "  $($item.Name)"
+              }
+
+              # ------------------------------------------
+              # KEEP LATEST 2
+              # ------------------------------------------
+
+              $releasesToKeep = $releases | Select-Object -First 2
+
+              # ------------------------------------------
+              # DELETE OLDER RELEASES
+              # ------------------------------------------
+
+              $releasesToDelete = $releases | Select-Object -Skip 2
+
+              foreach ($oldRelease in $releasesToDelete) {
+
+                  Write-Host ""
+                  Write-Host "Removing old release:"
+                  Write-Host $oldRelease.FullName
+
+                  try {
+
+                      Remove-Item `
+                        $oldRelease.FullName `
+                        -Recurse `
+                        -Force `
+                        -ErrorAction Stop
+
+                      Write-Host "Removed successfully."
+
+                  }
+                  catch {
+
+                      Write-Warning `
+                        "Could not remove release '$($oldRelease.FullName)': $($_.Exception.Message)"
+                  }
+              }
+
+              # ------------------------------------------
+              # DISPLAY RETAINED RELEASES
+              # ------------------------------------------
+
+              Write-Host ""
+              Write-Host "Releases retained:"
+
+              foreach ($releaseToKeep in $releasesToKeep) {
+                  Write-Host "  $($releaseToKeep.Name)"
+              }
+          }
+
+          # ==========================================
+          # CLEAN JUNK FILES
+          # ==========================================
+
+          Write-Host ""
+          Write-Host "Cleaning deployment junk files..."
+
+          $junkPatterns = @(
+              "*.tmp",
+              "*.temp",
+              "*.bak",
+              "*.old",
+              "*~",
+              ".DS_Store",
+              "Thumbs.db"
+          )
+
+          foreach ($pattern in $junkPatterns) {
+
+              Get-ChildItem `
+                -Path $releaseRoot `
+                -Recurse `
+                -File `
+                -Filter $pattern `
+                -ErrorAction SilentlyContinue |
+                ForEach-Object {
+
+                    try {
+
+                        Write-Host "Removing junk file:"
+                        Write-Host $_.FullName
+
+                        Remove-Item `
+                          $_.FullName `
+                          -Force `
+                          -ErrorAction Stop
+
+                    }
+                    catch {
+
+                        Write-Warning `
+                          "Could not remove junk file '$($_.FullName)': $($_.Exception.Message)"
+                    }
+                }
+          }
+
+          # ==========================================
+          # FINAL RELEASE STATUS
+          # ==========================================
+
+          Write-Host ""
+          Write-Host "Remaining releases:"
+
+          Get-ChildItem `
+            -Path $releaseRoot `
+            -Directory |
+            Where-Object {
+                $_.Name -match '^\d{8}-\d{6}$'
+            } |
+            Sort-Object Name -Descending |
+            ForEach-Object {
+                Write-Host "  $($_.Name)"
+            }
+
+          # ==========================================
+          # DEPLOYMENT SUCCESS
+          # ==========================================
+
+          Write-Host ""
+          Write-Host "======================================"
+          Write-Host "DEPLOYMENT SUCCESSFUL!!!"
+          Write-Host "======================================"
