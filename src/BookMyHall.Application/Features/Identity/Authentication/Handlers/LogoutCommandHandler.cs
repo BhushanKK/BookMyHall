@@ -51,8 +51,7 @@ public sealed class LogoutCommandHandler(
         refreshToken.IsRevoked = true;
         refreshToken.RevokedAt = DateTimeOffset.UtcNow;
         refreshToken.RevokedBy = refreshToken.UserId;
-
-        await refreshTokenRepository.UpdateAsync(refreshToken, cancellationToken);
+        await refreshTokenRepository.RevokeAsync(refreshToken.RefreshTokenId, refreshToken.UserId, cancellationToken);
 
         // End active session
         var session = await userSessionRepository.GetByRefreshTokenIdAsync(refreshToken.RefreshTokenId, cancellationToken);

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 using BookMyHall.Persistence.Context;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
+using BookMyHall.Application.Features.Identity.Authentication;
 
 namespace BookMyHall.Persistence.Repositories;
 
@@ -10,17 +11,40 @@ public sealed class RefreshTokenRepository(BookMyHallDbContext context)
 {
     public async Task AddAsync(RefreshToken refreshToken, CancellationToken cancellationToken = default)
         => await context.RefreshTokens.AddAsync(refreshToken, cancellationToken);
-
+    
     public Task UpdateAsync(RefreshToken refreshToken, CancellationToken cancellationToken = default)
     {
         context.RefreshTokens.Update(refreshToken);
         return Task.CompletedTask;
     }
 
-    public async Task<RefreshToken?> GetByTokenAsync(string token, CancellationToken cancellationToken = default)
-        => await context.RefreshTokens
-            .Include(x => x.User)
-            .FirstOrDefaultAsync(x => x.Token == token, cancellationToken);
+    public async Task<RefreshTokenWithUserDto?> GetByTokenAsync(
+    string token,
+    CancellationToken cancellationToken = default)
+    {
+        return await context.RefreshTokens
+            .AsNoTracking()
+            .Where(x => x.Token == token)
+            .Select(x => new RefreshTokenWithUserDto
+            {
+                RefreshTokenId = x.RefreshTokenId,
+                Token = x.Token,
+                ExpiresAt = x.ExpiresAt,
+                IsRevoked = x.IsRevoked,
+
+                UserId = x.User.UserId,
+                FullName = x.User.FullName,
+                MobileNumber = x.User.MobileNumber,
+                EmailAddress = x.User.EmailAddress,
+                TokenVersion = x.User.TokenVersion,
+                IsActive = x.User.IsActive,
+
+                Roles = x.User.UserRoles
+                    .Select(ur => ur.Role.RoleName)
+                    .ToList()
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 
     public async Task<IEnumerable<RefreshToken>> GetActiveTokensByUserIdAsync(
         Guid userId,
@@ -49,16 +73,13 @@ public sealed class RefreshTokenRepository(BookMyHallDbContext context)
         Guid revokedBy,
         CancellationToken cancellationToken = default)
     {
-        var refreshToken = await context.RefreshTokens
-            .FirstOrDefaultAsync(
-                x => x.RefreshTokenId == refreshTokenId,
-                cancellationToken);
-
-        if (refreshToken is null)
-            return;
-
-        refreshToken.IsRevoked = true;
-        refreshToken.RevokedAt = DateTimeOffset.UtcNow;
-        refreshToken.RevokedBy = revokedBy;
+        await context.RefreshTokens
+        .Where(x => x.RefreshTokenId == refreshTokenId)
+        .ExecuteUpdateAsync(
+            setters => setters
+                .SetProperty(x => x.IsRevoked, true)
+                .SetProperty(x => x.RevokedAt, DateTimeOffset.UtcNow)
+                .SetProperty(x => x.RevokedBy, revokedBy),
+            cancellationToken);
     }
 }

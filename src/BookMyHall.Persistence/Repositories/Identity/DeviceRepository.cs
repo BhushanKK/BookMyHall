@@ -15,11 +15,9 @@ public sealed class DeviceRepository(BookMyHallDbContext context)
                   && x.DeviceIdentifier == deviceIdentifier,
                 cancellationToken
         );
-    
-
+        
     public async Task AddAsync(Device device, CancellationToken cancellationToken)
         => await context.Devices.AddAsync(device, cancellationToken);
-    
 
     public Task UpdateAsync(Device device, CancellationToken cancellationToken)
     {

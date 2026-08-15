@@ -1,8 +1,11 @@
 using System.Net;
-using AutoMapper;
+
 using FluentValidation;
+
 using MediatR;
+
 using Microsoft.Extensions.Options;
+
 using BookMyHall.Application.Abstractions.Authentication;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
@@ -19,7 +22,6 @@ public sealed class RefreshTokenCommandHandler(
     IJwtTokenService jwtTokenService,
     IValidator<RefreshTokenCommand> validator,
     IMessageHelper messageHelper,
-    IMapper mapper,
     IOptions<JwtOptions> jwtOptions)
     : IRequestHandler<RefreshTokenCommand, ApiResponse<LoginResponse>>
 {
@@ -45,7 +47,7 @@ public sealed class RefreshTokenCommandHandler(
         }
 
         // ---------------------------------------------------------
-        // Load Refresh Token
+        // Load Refresh Token + Required User Data
         // ---------------------------------------------------------
 
         var refreshToken = await refreshTokenRepository.GetByTokenAsync(
@@ -60,6 +62,10 @@ public sealed class RefreshTokenCommandHandler(
                 HttpStatusCode.Unauthorized
             );
         }
+
+        // ---------------------------------------------------------
+        // Validate Refresh Token
+        // ---------------------------------------------------------
 
         if (refreshToken.IsRevoked)
         {
@@ -79,9 +85,11 @@ public sealed class RefreshTokenCommandHandler(
             );
         }
 
-        var user = refreshToken.User;
+        // ---------------------------------------------------------
+        // Validate User
+        // ---------------------------------------------------------
 
-        if (!user.IsActive)
+        if (!refreshToken.IsActive)
         {
             return ApiResponse<LoginResponse>.FailureResponse
             (
@@ -97,25 +105,24 @@ public sealed class RefreshTokenCommandHandler(
         var jwtResult = jwtTokenService.GenerateToken(
             new JwtUser
             {
-                UserId = user.UserId,
-                FullName = user.FullName,
-                MobileNumber = user.MobileNumber,
-                EmailAddress = user.EmailAddress,
-                TokenVersion = user.TokenVersion,
-                Roles = user.UserRoles
-                    .Select(x => x.Role.RoleName)
-                    .ToList()
+                UserId = refreshToken.UserId,
+                FullName = refreshToken.FullName,
+                MobileNumber = refreshToken.MobileNumber,
+                EmailAddress = refreshToken.EmailAddress,
+                TokenVersion = refreshToken.TokenVersion,
+                Roles = refreshToken.Roles
             });
 
         // ---------------------------------------------------------
         // Revoke Old Refresh Token
         // ---------------------------------------------------------
 
-        refreshToken.IsRevoked = true;
-        refreshToken.RevokedAt = DateTimeOffset.UtcNow;
-        refreshToken.RevokedBy = user.UserId;
-
-        await refreshTokenRepository.UpdateAsync(refreshToken, cancellationToken);
+        await refreshTokenRepository.RevokeAsync
+        (
+            refreshToken.RefreshTokenId,
+            refreshToken.UserId,
+            cancellationToken
+        );
 
         // ---------------------------------------------------------
         // Create New Refresh Token
@@ -126,11 +133,10 @@ public sealed class RefreshTokenCommandHandler(
         var newRefreshToken = new RefreshToken
         {
             RefreshTokenId = Guid.NewGuid(),
-            UserId = user.UserId,
+            UserId = refreshToken.UserId,
             Token = newRefreshTokenValue,
-            ExpiresAt = DateTimeOffset.UtcNow.AddDays(
-                jwtOptions.Value.RefreshTokenExpiryDays),
-            CreatedBy = user.UserId
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpiryDays),
+            CreatedBy = refreshToken.UserId
         };
 
         await refreshTokenRepository.AddAsync(newRefreshToken, cancellationToken);
@@ -154,10 +160,19 @@ public sealed class RefreshTokenCommandHandler(
         // ---------------------------------------------------------
         // Prepare Response
         // ---------------------------------------------------------
-        var response = mapper.Map<LoginResponse>(user);
-        response.AccessToken = jwtResult.AccessToken;
-        response.RefreshToken = newRefreshTokenValue;
-        response.ExpiresAt = jwtResult.ExpiresAt;
+
+        var response = new LoginResponse
+        {
+            UserId = refreshToken.UserId,
+            FullName = refreshToken.FullName,
+            MobileNumber = refreshToken.MobileNumber,
+            EmailAddress = refreshToken.EmailAddress,
+            Roles = refreshToken.Roles,
+
+            AccessToken = jwtResult.AccessToken,
+            RefreshToken = newRefreshTokenValue,
+            ExpiresAt = jwtResult.ExpiresAt
+        };
         return ApiResponse<LoginResponse>.SuccessResponse
         (
             response,
