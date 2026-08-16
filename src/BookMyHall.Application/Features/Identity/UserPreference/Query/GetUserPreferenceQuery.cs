@@ -1,7 +1,8 @@
 using MediatR;
 using BookMyHall.Contracts.Common;
+using BookMyHall.Domain.Entities.Identity;
 
 namespace BookMyHall.Application.Features.Identity;
 
-public sealed record GetUserPreferenceQuery(Guid UserId)
-    : IRequest<ApiResponse<UserPreferenceDto>>;
+public sealed record GetUserPreferenceQuery(PaginationRequest Request)
+    : IRequest<ApiResponse<PaginatedResponse<UserPreference>>>;

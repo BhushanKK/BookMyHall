@@ -102,5 +102,26 @@ public static class UserPreferenceEndpoints
             StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status404NotFound);
+
+        group.MapGet("/", async (
+            [AsParameters] PaginationRequest request,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new GetUserPreferenceQuery(request),
+                cancellationToken);
+
+            return Results.Json(
+                response,
+                statusCode: response.StatusCode);
+        })
+        .WithName("GetUserPreferences")
+        .WithSummary("Get User Preferences")
+        .WithDescription("Returns a paginated list of user preferences.")
+        .Produces<ApiResponse<PaginatedResponse<UserPreferenceDto>>>(
+            StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .RequireAuthorization();
     }
 }
