@@ -6,42 +6,101 @@ namespace BookMyHall.Api.Endpoints.Identity;
 
 public static class UserPreferenceEndpoints
 {
-    public static void MapUserPreferenceEndpoints(this IEndpointRouteBuilder app)
+    public static void MapUserPreferenceEndpoints(
+        this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/user-preferences")
             .WithTags("User Preferences")
             .RequireAuthorization();
 
-        group.MapGet("/", GetUserPreferenceAsync)
-            .WithName("GetUserPreference")
-            .WithSummary("Get User Preference")
-            .WithDescription("Retrieves the preferences of the authenticated user.")
-            .Produces<ApiResponse<UserPreferenceDto>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<UserPreferenceDto>>(StatusCodes.Status401Unauthorized)
-            .Produces<ApiResponse<UserPreferenceDto>>(StatusCodes.Status404NotFound);
+        group.MapPost("/", async (
+            CreateUserPreferenceCommand command,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                command,
+                cancellationToken);
 
-        group.MapPut("/", UpdateUserPreferenceAsync)
-            .WithName("UpdateUserPreference")
-            .WithSummary("Update User Preference")
-            .WithDescription("Updates the preferences of the authenticated user.")
-            .Produces<ApiResponse<UserPreferenceDto>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<UserPreferenceDto>>(StatusCodes.Status400BadRequest)
-            .Produces<ApiResponse<UserPreferenceDto>>(StatusCodes.Status401Unauthorized)
-            .Produces<ApiResponse<UserPreferenceDto>>(StatusCodes.Status404NotFound);
-    }
+            return Results.Json(
+                response,
+                statusCode: response.StatusCode);
+        })
+        .WithName("CreateUserPreference")
+        .WithSummary("Create User Preference")
+        .WithDescription("Creates a new user preference.")
+        .Produces<ApiResponse<UserPreferenceDto>>(
+            StatusCodes.Status201Created)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status409Conflict);
 
-    private static async Task<IResult> GetUserPreferenceAsync(Guid userId,ISender sender,CancellationToken cancellationToken)
-    {
-        var response = await sender.Send(new GetUserPreferenceQuery(userId),cancellationToken);
-        return Results.Json(response,statusCode: response.StatusCode);
-    }
+        group.MapPut("/{userPreferenceId:guid}", async (
+            Guid userPreferenceId,
+            UpdateUserPreferenceCommand command,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            command.UserPreferenceId = userPreferenceId;
 
-    private static async Task<IResult> UpdateUserPreferenceAsync(Guid userId,
-        UpdateUserPreferenceCommand command,
-        ISender sender,CancellationToken cancellationToken)
-    {
-        command.UserId = userId;
-        var response = await sender.Send(command,cancellationToken);
-        return Results.Json(response,statusCode: response.StatusCode);
+            var response = await mediator.Send(
+                command,
+                cancellationToken);
+
+            return Results.Json(
+                response,
+                statusCode: response.StatusCode);
+        })
+        .WithName("UpdateUserPreference")
+        .WithSummary("Update User Preference")
+        .WithDescription("Updates an existing user preference.")
+        .Produces<ApiResponse<UserPreferenceDto>>(
+            StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
+
+        group.MapDelete("/{userPreferenceId:guid}", async (
+            Guid userPreferenceId,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new DeleteUserPreferenceCommand(userPreferenceId),
+                cancellationToken);
+
+            return Results.Json(
+                response,
+                statusCode: response.StatusCode);
+        })
+        .WithName("DeleteUserPreference")
+        .WithSummary("Delete User Preference")
+        .WithDescription("Deletes an existing user preference.")
+        .Produces<ApiResponse<bool>>(
+            StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
+
+        group.MapGet("/{userPreferenceId:guid}", async (
+            Guid userPreferenceId,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(
+                new GetUserPreferenceByIdQuery(userPreferenceId),
+                cancellationToken);
+
+            return Results.Json(
+                response,
+                statusCode: response.StatusCode);
+        })
+        .WithName("GetUserPreferenceById")
+        .WithSummary("Get User Preference By Id")
+        .WithDescription(
+            "Returns a user preference by its identifier.")
+        .Produces<ApiResponse<UserPreferenceDto>>(
+            StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
     }
 }

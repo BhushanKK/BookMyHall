@@ -18,4 +18,15 @@ public sealed class UserPreferenceRepository(BookMyHallDbContext context): IUser
         context.UserPreferences.Update(userPreference);
         return Task.CompletedTask;
     }
+
+    public async Task<UserPreference?> GetByIdAsync(Guid userPreferenceId,CancellationToken cancellationToken = default)
+        => await context.UserPreferences.FirstOrDefaultAsync(
+            x => x.UserPreferenceId == userPreferenceId,
+            cancellationToken);
+
+    public Task DeleteAsync(UserPreference userPreference,CancellationToken cancellationToken = default)
+    {
+        context.UserPreferences.Remove(userPreference);
+        return Task.CompletedTask;
+    }
 }
