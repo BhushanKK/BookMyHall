@@ -160,6 +160,10 @@
     <value>रिफंड</value>
   </data>
 
+  <data name="PaymentMode" xml:space="preserve">
+     <value>भुगतान का तरीका</value>
+  </data>
+
   <!-- ===================================================== -->
   <!-- Masters -->
   <!-- ===================================================== -->
@@ -190,6 +194,9 @@
 
   <data name="FoodCategory" xml:space="preserve">
     <value>भोजन श्रेणी</value>
+  </data>
+  <data name="FoodType" xml:space="preserve">
+    <value>भोजन प्रकार</value>
   </data>
 
   <data name="Cuisine" xml:space="preserve">

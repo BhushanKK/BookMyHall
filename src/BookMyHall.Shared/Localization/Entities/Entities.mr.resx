@@ -147,7 +147,9 @@
   <data name="Refund" xml:space="preserve">
     <value>परतावा</value>
   </data>
-
+  <data name="PaymentMode" xml:space="preserve">
+     <value>पेमेंट प्रकार</value>
+  </data>
   <!-- ===================================================== -->
   <!-- Masters -->
   <!-- ===================================================== -->
@@ -177,6 +179,9 @@
   </data>
 
   <data name="FoodCategory" xml:space="preserve">
+    <value>खाद्य प्रवर्ग</value>
+  </data>
+  <data name="FoodType" xml:space="preserve">
     <value>खाद्य प्रकार</value>
   </data>
 

@@ -163,6 +163,10 @@
   <data name="Refund" xml:space="preserve">
     <value>Refund</value>
   </data>
+  <data name="PaymentMode" xml:space="preserve">
+     <value>Payment Mode</value>
+  </data>
+  
 
   <!-- ===================================================== -->
   <!-- Masters -->
@@ -195,7 +199,9 @@
   <data name="FoodCategory" xml:space="preserve">
     <value>Food Category</value>
   </data>
-
+  <data name="FoodType" xml:space="preserve">
+     <value>Food Type</value>
+  </data>
   <data name="Cuisine" xml:space="preserve">
     <value>Cuisine</value>
   </data>

@@ -1,7 +1,5 @@
 using MediatR;
-
 using Microsoft.AspNetCore.Hosting;
-
 using BookMyHall.Application.Abstractions.Email;
 using BookMyHall.Application.Features.Authentication.Events;
 
