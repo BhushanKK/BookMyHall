@@ -5,8 +5,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace BookMyHall.Api.Tests;
 
-public sealed class DistrictEndpointsTests(
-    BookMyHallWebApplicationFactory factory)
+public sealed class DistrictEndpointsTests(BookMyHallWebApplicationFactory factory)
     : IClassFixture<BookMyHallWebApplicationFactory>
 {
     private readonly BookMyHallWebApplicationFactory _factory = factory;
