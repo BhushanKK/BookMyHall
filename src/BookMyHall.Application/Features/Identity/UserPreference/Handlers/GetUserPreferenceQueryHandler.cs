@@ -10,23 +10,35 @@ namespace BookMyHall.Application.Features.Identity;
 
 public sealed class GetUserPreferenceQueryHandler(
     IUserPreferenceRepository userPreferenceRepository,
-    IMessageHelper messageHelper,
-    IMapper mapper): IRequestHandler<GetUserPreferenceQuery,ApiResponse<UserPreferenceDto>>
+    IMapper mapper,
+    IMessageHelper messageHelper)
+    : IRequestHandler<
+        GetUserPreferenceQuery,
+        ApiResponse<PaginatedResponse<UserPreferenceDto>>>
 {
-    public async Task<ApiResponse<UserPreferenceDto>> Handle(GetUserPreferenceQuery request,CancellationToken cancellationToken)
+    public async Task<ApiResponse<PaginatedResponse<UserPreferenceDto>>> Handle(
+        GetUserPreferenceQuery request,
+        CancellationToken cancellationToken)
     {
-        var userPreference =await userPreferenceRepository.GetByUserIdAsync(request.UserId,cancellationToken);
+        var pagedResult = await userPreferenceRepository.GetAllAsync(
+            request.Request,
+            cancellationToken);
 
-        if (userPreference is null)
+        var response = new PaginatedResponse<UserPreferenceDto>
         {
-            return ApiResponse<UserPreferenceDto>.FailureResponse(
-                messageHelper.NotFound(EntityKeys.UserPreference),
-                HttpStatusCode.NotFound);
-        }
+            Items = mapper.Map<IReadOnlyList<UserPreferenceDto>>(
+                pagedResult.Items),
 
-        var response = mapper.Map<UserPreferenceDto>(userPreference);
+            PageNumber = pagedResult.PageNumber,
+            PageSize = pagedResult.PageSize,
+            TotalRecords = pagedResult.TotalCount
+        };
 
-        return ApiResponse<UserPreferenceDto>.SuccessResponse(response,
-            messageHelper.RetrievedEntity(ResourceNames.Entities,EntityKeys.UserPreference),HttpStatusCode.OK);
+        return ApiResponse<PaginatedResponse<UserPreferenceDto>>.SuccessResponse(
+            response,
+            messageHelper.RetrievedEntity(
+                ResourceNames.Entities,
+                EntityKeys.UserPreference),
+            HttpStatusCode.OK);
     }
 }

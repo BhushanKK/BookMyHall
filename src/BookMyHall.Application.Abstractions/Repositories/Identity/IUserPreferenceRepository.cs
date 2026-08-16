@@ -1,3 +1,4 @@
+using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Entities.Identity;
 
 namespace BookMyHall.Application.Abstractions.Persistence.Repositories;
@@ -9,4 +10,6 @@ public interface IUserPreferenceRepository
     Task UpdateAsync(UserPreference userPreference,CancellationToken cancellationToken);
     Task<UserPreference?> GetByIdAsync(Guid userPreferenceId,CancellationToken cancellationToken = default);
     Task DeleteAsync( UserPreference userPreference,CancellationToken cancellationToken = default);
+    Task<PaginatedResult<UserPreference>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken= default);
+    
 }
