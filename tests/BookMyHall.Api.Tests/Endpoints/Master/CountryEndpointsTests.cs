@@ -1,14 +1,14 @@
 using System.Net;
 using System.Net.Http.Json;
+
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace BookMyHall.Api.Tests;
 
-public sealed class CountryEndpointsTests(WebApplicationFactory<Program> factory)
-    : IClassFixture<WebApplicationFactory<Program>>
+public sealed class CountryEndpointsTests(BookMyHallWebApplicationFactory factory)
+    : IClassFixture<BookMyHallWebApplicationFactory>
 {
-    private readonly WebApplicationFactory<Program> _factory = factory;
+    private readonly BookMyHallWebApplicationFactory _factory = factory;
 
     [Fact]
     public async Task GetCountries_WithoutAuthentication_ShouldReturnUnauthorized()

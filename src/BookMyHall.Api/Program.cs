@@ -76,13 +76,6 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     ];
 });
 
-
-// ============================================================
-// Response Compression
-// ============================================================
-builder.Services.AddResponseCompressionConfiguration();
-
-
 // ============================================================
 // Health Checks
 // ============================================================
