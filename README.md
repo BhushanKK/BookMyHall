@@ -30,6 +30,11 @@ The solution follows **Enterprise Clean Architecture**, **CQRS**, and **Domain-D
 - Hangfire
 - Firebase Cloud Messaging
 - OpenAPI
+- RabbitMq
+- Radis Cache
+- In Memory
+- Power Scripts
+- 
 
 ## Frontend
 
