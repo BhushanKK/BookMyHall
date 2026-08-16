@@ -13,7 +13,7 @@ public sealed class CreateUserPreferenceCommandValidator
         ILocalizationService localizer)
     {
         RuleFor(x => x.UserId)
-            .Required(localizer, EntityKeys.UserId);
+            .Required(localizer, EntityKeys.User);
 
         RuleFor(x => x.CurrencyCode)
             .Required(localizer, EntityKeys.CurrencyCode)
