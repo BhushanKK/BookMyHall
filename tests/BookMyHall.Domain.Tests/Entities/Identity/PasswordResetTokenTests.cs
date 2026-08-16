@@ -134,10 +134,10 @@ public sealed class PasswordResetTokenTests
         var token = PasswordResetToken.Create(
             Guid.NewGuid(),
             "hashed-token",
-            DateTimeOffset.UtcNow.AddMilliseconds(1));
+            DateTimeOffset.UtcNow.AddSeconds(1));
 
         // Allow the token to expire
-        Thread.Sleep(10);
+        Thread.Sleep(TimeSpan.FromSeconds(2));
 
         // Act
         var result = token.IsExpired();

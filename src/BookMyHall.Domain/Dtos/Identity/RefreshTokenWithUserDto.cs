@@ -13,6 +13,5 @@ public sealed class RefreshTokenWithUserDto
     public string EmailAddress { get; set; } = null!;
     public int TokenVersion { get; set; }
     public bool IsActive { get; init; }
-
     public List<string> Roles { get; init; } = [];
 }

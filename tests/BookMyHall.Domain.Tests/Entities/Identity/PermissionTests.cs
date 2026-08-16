@@ -75,4 +75,23 @@ public sealed class PermissionTests
         permission.Description.Should().BeEmpty();
         permission.IsActive.Should().BeFalse();
     }
+
+    [Fact]
+    public void Deactivate_ShouldSet_IsActive_ToFalse()
+    {
+        // Arrange
+        var permission = new Permission
+        {
+            PermissionId = Guid.NewGuid(),
+            PermissionName = "Create Hall",
+            Description = "Allows user to create a hall",
+            IsActive = true
+        };
+
+        // Act
+        permission.Deactivate();
+
+        // Assert
+        permission.IsActive.Should().BeFalse();
+    }
 }

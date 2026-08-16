@@ -5,35 +5,23 @@ namespace BookMyHall.Domain.Entities.Identity;
 public sealed class UserPreference : BaseEntity
 {
     public Guid UserPreferenceId { get; private set; }
-
     public Guid UserId { get; private set; }
-
     // Regional Settings
     public string CurrencyCode { get; private set; } = "INR";
-
     public string TimeZone { get; private set; } = "Asia/Kolkata";
-
     // Date & Time
     public string DateFormat { get; private set; } = "dd-MM-yyyy";
-
     public string TimeFormat { get; private set; } = "24";
-
     // Language
     public string LanguageCode { get; private set; } = "en-IN";
-
     // Notification Preferences
     public bool EmailNotification { get; private set; } = true;
-
     public bool SmsNotification { get; private set; } = true;
-
     public bool PushNotification { get; private set; } = true;
-
     // Theme / UI
     public string Theme { get; private set; } = "Light";
-
     // Navigation
     public User User { get; private set; } = default!;
-
     private UserPreference()
     {
     }
@@ -88,9 +76,7 @@ public sealed class UserPreference : BaseEntity
         PushNotification = pushNotification;
     }
 
-    public void UpdateRegionalSettings(
-        string currencyCode,
-        string timeZone)
+    public void UpdateRegionalSettings(string currencyCode,string timeZone)
     {
         CurrencyCode = currencyCode;
         TimeZone = timeZone;

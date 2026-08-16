@@ -173,4 +173,278 @@ public sealed class UserTests
         user.IsEmailVerified.Should().BeFalse();
         user.IsActive.Should().BeTrue();
     }
+
+    [Fact]
+    public void FullName_Should_Return_FirstName_Only_When_MiddleName_And_LastName_Are_Null()
+    {
+        // Arrange
+        var user = new User
+        {
+            FirstName = "Bhushan",
+            MiddleName = null,
+            LastName = null
+        };
+
+        // Act
+        var result = user.FullName;
+
+        // Assert
+        result.Should().Be("Bhushan");
+    }
+
+    [Fact]
+    public void FullName_Should_Return_FirstName_And_LastName_When_MiddleName_Is_Null()
+    {
+        // Arrange
+        var user = new User
+        {
+            FirstName = "Bhushan",
+            MiddleName = null,
+            LastName = "Kachave"
+        };
+
+        // Act
+        var result = user.FullName;
+
+        // Assert
+        result.Should().Be("Bhushan Kachave");
+    }
+
+    [Fact]
+    public void FullName_Should_Return_All_Names_When_All_Names_Are_Present()
+    {
+        // Arrange
+        var user = new User
+        {
+            FirstName = "Bhushan",
+            MiddleName = "Dattatray",
+            LastName = "Kachave"
+        };
+
+        // Act
+        var result = user.FullName;
+
+        // Assert
+        result.Should().Be("Bhushan Dattatray Kachave");
+    }
+
+    [Fact]
+    public void FullName_Should_Ignore_Whitespace_Names()
+    {
+        // Arrange
+        var user = new User
+        {
+            FirstName = "Bhushan",
+            MiddleName = "   ",
+            LastName = "Kachave"
+        };
+
+        // Act
+        var result = user.FullName;
+
+        // Assert
+        result.Should().Be("Bhushan Kachave");
+    }
+
+    [Fact]
+    public void VerifyMobile_Should_Set_IsMobileVerified_To_True()
+    {
+        // Arrange
+        var user = new User
+        {
+            IsMobileVerified = false
+        };
+
+        // Act
+        user.VerifyMobile();
+
+        // Assert
+        user.IsMobileVerified.Should().BeTrue();
+    }
+
+    [Fact]
+    public void VerifyEmail_Should_Set_IsEmailVerified_To_True()
+    {
+        // Arrange
+        var user = new User
+        {
+            IsEmailVerified = false
+        };
+
+        // Act
+        user.VerifyEmail();
+
+        // Assert
+        user.IsEmailVerified.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Activate_Should_Set_IsActive_To_True()
+    {
+        // Arrange
+        var user = new User
+        {
+            IsActive = false
+        };
+
+        // Act
+        user.Activate();
+
+        // Assert
+        user.IsActive.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Deactivate_Should_Set_IsActive_To_False()
+    {
+        // Arrange
+        var user = new User
+        {
+            IsActive = true
+        };
+
+        // Act
+        user.Deactivate();
+
+        // Assert
+        user.IsActive.Should().BeFalse();
+    }
+
+    [Fact]
+    public void UpdatePassword_Should_Update_PasswordHash()
+    {
+        // Arrange
+        var user = new User
+        {
+            PasswordHash = "old-password-hash"
+        };
+
+        var newPasswordHash = "new-password-hash";
+
+        // Act
+        user.UpdatePassword(newPasswordHash);
+
+        // Assert
+        user.PasswordHash.Should().Be(newPasswordHash);
+    }
+
+    [Fact]
+    public void UpdatePassword_Should_Set_PasswordChangedAt()
+    {
+        // Arrange
+        var user = new User
+        {
+            PasswordHash = "old-password-hash"
+        };
+
+        var beforeUpdate = DateTimeOffset.UtcNow;
+
+        // Act
+        user.UpdatePassword("new-password-hash");
+
+        var afterUpdate = DateTimeOffset.UtcNow;
+
+        // Assert
+        user.PasswordChangedAt.Should().NotBeNull();
+        user.PasswordChangedAt.Should().BeOnOrAfter(beforeUpdate);
+        user.PasswordChangedAt.Should().BeOnOrBefore(afterUpdate);
+    }
+
+    [Fact]
+    public void UpdatePassword_Should_Increment_TokenVersion()
+    {
+        // Arrange
+        var user = new User
+        {
+            TokenVersion = 1
+        };
+
+        // Act
+        user.UpdatePassword("new-password-hash");
+
+        // Assert
+        user.TokenVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void UpdatePassword_Should_Invalidate_Existing_Tokens()
+    {
+        // Arrange
+        var user = new User
+        {
+            TokenVersion = 5
+        };
+
+        // Act
+        user.UpdatePassword("new-password-hash");
+
+        // Assert
+        user.TokenVersion.Should().Be(6);
+    }
+
+    [Fact]
+    public void RevokeAllSessions_Should_Increment_TokenVersion()
+    {
+        // Arrange
+        var user = new User
+        {
+            TokenVersion = 1
+        };
+
+        // Act
+        user.RevokeAllSessions();
+
+        // Assert
+        user.TokenVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void RevokeAllSessions_Should_Invalidate_Existing_Tokens()
+    {
+        // Arrange
+        var user = new User
+        {
+            TokenVersion = 10
+        };
+
+        // Act
+        user.RevokeAllSessions();
+
+        // Assert
+        user.TokenVersion.Should().Be(11);
+    }
+
+    [Fact]
+    public void UpdatePassword_Should_Increment_TokenVersion_Each_Time()
+    {
+        // Arrange
+        var user = new User
+        {
+            TokenVersion = 1
+        };
+
+        // Act
+        user.UpdatePassword("password-hash-1");
+        user.UpdatePassword("password-hash-2");
+
+        // Assert
+        user.TokenVersion.Should().Be(3);
+    }
+
+    [Fact]
+    public void RevokeAllSessions_Should_Increment_TokenVersion_Each_Time()
+    {
+        // Arrange
+        var user = new User
+        {
+            TokenVersion = 1
+        };
+
+        // Act
+        user.RevokeAllSessions();
+        user.RevokeAllSessions();
+
+        // Assert
+        user.TokenVersion.Should().Be(3);
+    }
 }
