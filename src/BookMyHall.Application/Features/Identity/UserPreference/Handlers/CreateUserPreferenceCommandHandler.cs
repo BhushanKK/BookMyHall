@@ -4,6 +4,7 @@ using AutoMapper;
 using FluentValidation;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
+using BookMyHall.Application.Abstractions.Security;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Persistence.Exceptions;
@@ -17,13 +18,28 @@ public sealed class CreateUserPreferenceCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<CreateUserPreferenceCommand> validator,
-    IMessageHelper messageHelper)
-    : IRequestHandler<CreateUserPreferenceCommand, ApiResponse<UserPreferenceDto>>
+    IMessageHelper messageHelper,
+    ICurrentUser currentUser)
+    : IRequestHandler<CreateUserPreferenceCommand,ApiResponse<UserPreferenceDto>>
 {
     public async Task<ApiResponse<UserPreferenceDto>> Handle(
         CreateUserPreferenceCommand request,
         CancellationToken cancellationToken)
     {
+        // Get authenticated user
+        var userId = currentUser.UserId;
+
+        if (!userId.HasValue)
+        {
+            return ApiResponse<UserPreferenceDto>.FailureResponse(
+                "User authentication is required.",
+                HttpStatusCode.Unauthorized);
+        }
+
+        // Set server-controlled value before validation
+        request.UserId = userId.Value;
+
+        // Validate request
         var validationResult = await validator.ValidateAsync(
             request,
             cancellationToken);
@@ -43,10 +59,7 @@ public sealed class CreateUserPreferenceCommandHandler(
 
         try
         {
-            await userPreferenceRepository.AddAsync(
-                userPreference,
-                cancellationToken);
-
+            await userPreferenceRepository.AddAsync(userPreference,cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
         catch (DuplicateRecordException)
