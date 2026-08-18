@@ -37,15 +37,6 @@ public sealed class UserPreferenceRepository(
         => await context.UserPreferences.FirstOrDefaultAsync(
             x => x.UserPreferenceId == userPreferenceId,
             cancellationToken);
-
-    public Task DeleteAsync(
-        UserPreference userPreference,
-        CancellationToken cancellationToken = default)
-    {
-        context.UserPreferences.Remove(userPreference);
-        return Task.CompletedTask;
-    }
-
     public async Task<PaginatedResult<UserPreference>> GetAllAsync(
         PaginationRequest request,
         CancellationToken cancellationToken = default)

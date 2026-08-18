@@ -1,6 +1,5 @@
 using MediatR;
 using System.Net;
-
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -26,8 +25,8 @@ public sealed class DeleteUserPreferenceCommandHandler(
                 messageHelper.NotFoundEntity(ResourceNames.Entities,
                     EntityKeys.UserPreference),HttpStatusCode.NotFound);
         }
-
-        await userPreferenceRepository.DeleteAsync(userPreference,cancellationToken);
+        userPreference.IsActive=false;
+        await userPreferenceRepository.UpdateAsync(userPreference,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return ApiResponse<bool>.SuccessResponse(true,

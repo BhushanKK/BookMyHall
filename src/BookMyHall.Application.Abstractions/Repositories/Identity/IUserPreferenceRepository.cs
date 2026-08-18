@@ -9,7 +9,5 @@ public interface IUserPreferenceRepository
     Task AddAsync(UserPreference userPreference,CancellationToken cancellationToken);
     Task UpdateAsync(UserPreference userPreference,CancellationToken cancellationToken);
     Task<UserPreference?> GetByIdAsync(Guid userPreferenceId,CancellationToken cancellationToken = default);
-    Task DeleteAsync( UserPreference userPreference,CancellationToken cancellationToken = default);
     Task<PaginatedResult<UserPreference>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken= default);
-    
 }

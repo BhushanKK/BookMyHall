@@ -20,6 +20,7 @@ public sealed class UserPreference : BaseEntity
     public bool PushNotification { get; private set; } = true;
     // Theme / UI
     public string Theme { get; private set; } = "Light";
+    public bool IsActive {get;set;}
     // Navigation
     public User User { get; private set; } = default!;
     private UserPreference()

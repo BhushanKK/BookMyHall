@@ -29,7 +29,9 @@ public sealed class UpdateUserPreferenceCommandHandler(
                 HttpStatusCode.Unauthorized);
         }
 
-        var userId = currentUser.UserId.Value;
+        request.UserId = currentUser.UserId.Value;
+        var userId = request.UserId;
+
         var validationResult = await validator.ValidateAsync(request,cancellationToken);
 
         if (!validationResult.IsValid)
