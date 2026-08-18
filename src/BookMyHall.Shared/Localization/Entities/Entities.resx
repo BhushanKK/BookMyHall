@@ -92,7 +92,7 @@
   </data>
 
  <data name="CurrencyCode" xml:space="preserve">
-   <value>Currency Code</value>
+   <value>CurrencyCode</value>
   </data>
 
   <data name="TimeZone" xml:space="preserve">
@@ -100,14 +100,14 @@
   </data>
 
    <data name="DateFormat" xml:space="preserve">
-   <value>Date Format</value>
+   <value>DateFormat</value>
   </data>
 
    <data name="TimeFormat" xml:space="preserve">
-   <value>Time Format</value>Language Code
+   <value>TimeFormat</value>Language Code
   </data>
    <data name="LanguageCode" xml:space="preserve">
-   <value>Language Code</value>
+   <value>LanguageCode</value>
   </data>
 
    <data name="Theme" xml:space="preserve">
@@ -191,28 +191,28 @@
   <!-- Masters -->
   <!-- ===================================================== -->
 
-  <data name="Country" xml:space="preserve">
-    <value>Country</value>
+  <data name="CountryName" xml:space="preserve">
+    <value>CountryName</value>
   </data>
 
-  <data name="State" xml:space="preserve">
-    <value>State</value>
+  <data name="StateName" xml:space="preserve">
+    <value>StateName</value>
   </data>
 
-  <data name="District" xml:space="preserve">
-    <value>District</value>
+  <data name="DistrictName" xml:space="preserve">
+    <value>DistrictName</value>
   </data>
 
-  <data name="City" xml:space="preserve">
-    <value>City</value>
+  <data name="CityName" xml:space="preserve">
+    <value>CityName</value>
   </data>
 
   <data name="Area" xml:space="preserve">
     <value>Area</value>
   </data>
 
-  <data name="EventCategory" xml:space="preserve">
-    <value>Event Category</value>
+  <data name="EventCategoryName" xml:space="preserve">
+    <value>EventCategory Name</value>
   </data>
 
   <data name="Decoration" xml:space="preserve">
