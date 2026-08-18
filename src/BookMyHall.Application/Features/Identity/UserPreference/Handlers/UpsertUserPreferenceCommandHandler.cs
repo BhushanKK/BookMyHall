@@ -67,10 +67,6 @@ public sealed class UpsertUserPreferenceCommandHandler(
             if (existingPreference is not null)
             {
                 mapper.Map(request, existingPreference);
-
-                existingPreference.UpdatedBy = userId;
-                existingPreference.UpdatedDate = DateTimeOffset.UtcNow;
-
                 await userPreferenceRepository.UpdateAsync(existingPreference, cancellationToken);
                 await unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -88,13 +84,7 @@ public sealed class UpsertUserPreferenceCommandHandler(
             var userPreference = mapper.Map<UserPreference>(request);
 
             userPreference.UserId = userId;
-            userPreference.CreatedBy = userId;
-            userPreference.UpdatedBy = userId;
-            userPreference.CreatedDate = DateTimeOffset.UtcNow;
-            userPreference.UpdatedDate = DateTimeOffset.UtcNow;
-
             await userPreferenceRepository.AddAsync(userPreference, cancellationToken);
-
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
             return ApiResponse<UserPreferenceDto>.SuccessResponse

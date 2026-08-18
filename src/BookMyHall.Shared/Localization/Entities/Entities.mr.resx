@@ -71,11 +71,34 @@
   <data name="Otp" xml:space="preserve">
     <value>ओटीपी</value>
   </data>
-
-  <data name="UserPreference" xml:space="preserve">
+ <!-- User Preference -->
+  <data name="User Preference" xml:space="preserve">
   <value>वापरकर्त्याची पसंती</value>
   </data>
 
+   <data name="Currency Code" xml:space="preserve">
+   <value>चलन संकेत</value>
+  </data>
+
+  <data name="Time Zone" xml:space="preserve">
+   <value>काळक्षेत्र</value>
+  </data>
+
+   <data name="Date Format" xml:space="preserve">
+   <value>तारखेचे स्वरूप</value>
+  </data>
+
+   <data name="TimeF ormat" xml:space="preserve">
+   <value>वेळेचे स्वरूप</value>Language Code
+  </data>
+   <data name="Language Code" xml:space="preserve">
+   <value>भाषा संकेत</value>
+  </data>
+
+   <data name="Theme" xml:space="preserve">
+   <value>विषय</value>
+  </data>
+<!-- User Preference End-->
   <!-- ===================================================== -->
   <!-- Hall -->
   <!-- ===================================================== -->
@@ -83,22 +106,50 @@
   <data name="Hall" xml:space="preserve">
     <value>हॉल</value>
   </data>
-
+ <data name="HallName" xml:space="preserve">
+    <value>हॉलचे नाव</value>
+  </data>
+  <data name="AddressLine1" xml:space="preserve">
+    <value>पत्ता ओळ १</value>
+  </data>
+ <data name="AddressLine2" xml:space="preserve">
+    <value>पत्ता ओळ २</value>
+  </data>
+   <data name="ContactPersonName" xml:space="preserve">
+    <value>संपर्क व्यक्तीचे नाव</value>
+  </data>
+     <data name="HallPricing" xml:space="preserve">
+    <value>हॉलचे दर</value>
+  </data>
   <data name="HallId" xml:space="preserve">
     <value>हॉल आयडी</value>
   </data>
 
-  
+<data name="HallBlock" xml:space="preserve">
+    <value>हॉल बंद</value>
+  </data>
+<data name="BlockFromDate" xml:space="preserve">
+    <value>या तारखेपासून बंदी करा</value>
+  </data>
+<data name="BlockToDate" xml:space="preserve">
+    <value>आजपर्यंत बंद करा</value>
+  </data>
 
+ <!-- Amenity -->
   <data name="Amenity" xml:space="preserve">
     <value>सुविधा</value>
   </data>
-
-
+ <data name="AmenityIcon" xml:space="preserve">
+    <value>सुविधा चिन्ह</value>
+  </data>
+ <!-- Amenity End -->
   <data name="HallImage" xml:space="preserve">
     <value>हॉल प्रतिमा</value>
   </data>
 
+<data name="PackageName" xml:space="preserve">
+    <value>पॅकेजचे नाव</value>
+  </data>
   <!-- ===================================================== -->
   <!-- Booking -->
   <!-- ===================================================== -->
@@ -150,21 +201,36 @@
   <!-- ===================================================== -->
   <!-- Masters -->
   <!-- ===================================================== -->
-
-  <data name="Country" xml:space="preserve">
+ <data name="Country" xml:space="preserve">
     <value>देश</value>
   </data>
 
-  <data name="State" xml:space="preserve">
-    <value>राज्य</value>
+  <data name="CountryName" xml:space="preserve">
+    <value>देशाचे नाव</value>
+  </data>
+  <data name="CountryCode" xml:space="preserve">
+    <value>देशाचे कोड</value>
   </data>
 
-  <data name="City" xml:space="preserve">
-    <value>शहर</value>
+  <data name="State" xml:space="preserve">
+    <value>राज्याचे नाव</value>
+  </data>
+
+      <data name="StateCode" xml:space="preserve">
+    <value>राज्य कोड</value>
+  </data>
+ <!--End State ===================================================== -->
+
+  <data name="CityName" xml:space="preserve">
+    <value>शहराचे नाव</value>
   </data>
 
   <data name="Area" xml:space="preserve">
     <value>परिसर</value>
+  </data>
+
+  <data name="Pincode" xml:space="preserve">
+    <value>पिन कोड</value>
   </data>
 
   <data name="EventType" xml:space="preserve">
@@ -179,7 +245,10 @@
     <value>खाद्य प्रवर्ग</value>
   </data>
   <data name="FoodType" xml:space="preserve">
-    <value>खाद्य प्रकार</value>
+    <value>अन्नाचा प्रकार</value>
+  </data>
+  <data name="FoodTypeName" xml:space="preserve">
+    <value>खाद्यप्रकाराचे नाव</value>
   </data>
 
   <data name="Cuisine" xml:space="preserve">
@@ -189,14 +258,27 @@
   <data name="Coupon" xml:space="preserve">
     <value>कूपन</value>
   </data>
-  <data name="Service" xml:space="preserve">
+    <data name="Service" xml:space="preserve">
     <value>सेवा</value>
   </data>
-  <data name="EventCategory" xml:space="preserve">
-    <value>कार्यक्रम श्रेणी</value>
+  <data name="ServiceName" xml:space="preserve">
+    <value>सेवेचे नाव</value>
+  </data>
+
+  <data name="ServiceIcon" xml:space="preserve">
+    <value>सेवा चिन्ह</value>
+  </data>
+    <data name="EventCategory" xml:space="preserve">
+    <value>कार्यक्रमाचा प्रकार</value>
+  </data>
+  <data name="EventCategoryName" xml:space="preserve">
+    <value>कार्यक्रम प्रकारचे नाव</value>
   </data>
   <data name="District" xml:space="preserve">
     <value>जिल्हा</value>
+  </data>
+  <data name="DistrictName" xml:space="preserve">
+    <value>जिल्हाचे नाव</value>
   </data>
   <data name="HallCategory" xml:space="preserve">
     <value>हॉल श्रेणी</value>
@@ -204,10 +286,28 @@
   <data name="PaymentMode" xml:space="preserve">
     <value>पेमेंटचा प्रकार</value>
   </data>
-  <data name="Facility" xml:space="preserve">
-    <value>सुविधा</value>  
+  <data name="PaymentModeName" xml:space="preserve">
+    <value>पेमेंट पद्धतीचे नाव</value>
   </data>
-  
+  <data name="Facility" xml:space="preserve">
+    <value>सुविधा</value>
+  </data>
+  <data name="FacilityName" xml:space="preserve">
+    <value>सुविधाचे नाव</value>  
+  </data>
+    <data name="FacilityIcon" xml:space="preserve">
+    <value>सुविधा चिन्ह</value>  
+  </data>
+      <data name="CancellationPolicy" xml:space="preserve">
+    <value>रद्द करण्याचे धोरण</value>
+  </data>
+  <data name="PolicyName" xml:space="preserve">
+    <value>पॉलिसीचे नाव</value>
+  </data>Description
+
+   <data name="Description" xml:space="preserve">
+    <value>वर्णन</value>
+  </data>
 
   <!-- ===================================================== -->
   <!-- Common -->
@@ -253,9 +353,32 @@
 </data>
 
 <data name="Device" xml:space="preserve">
-  <value>डिव्हाइस</value>
+  <value>उपकरण</value>
 </data>
 
+<data name="DeviceName" xml:space="preserve">
+  <value>उपकरणाचे नाव</value>
+</data>
+
+<data name="DeviceType" xml:space="preserve">
+  <value>उपकरणाचा प्रकार</value>
+</data>
+<data name="OperatingSystem" xml:space="preserve">
+  <value>ऑपरेटिंग सिस्टम</value>
+</data>
+<data name="Browser" xml:space="preserve">
+  <value>ब्राउझर</value>
+</data>
+<data name="AppVersion" xml:space="preserve">
+  <value>ॲप्लिकेशन आवृत्ती</value>
+</data>
+
+<data name="PushNotificationToken" xml:space="preserve">
+  <value>पुश नोटिफिकेशन टोकन</value>
+</data>
+<data name="DeviceIdentifier" xml:space="preserve">
+  <value>उपकरण ओळखकर्ता</value>
+</data>
 <data name="AccessToken" xml:space="preserve">
   <value>एक्सेस टोकन</value>
 </data>
