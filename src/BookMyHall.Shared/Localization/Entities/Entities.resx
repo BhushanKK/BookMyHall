@@ -87,6 +87,9 @@
   <data name="Otp" xml:space="preserve">
     <value>OTP</value>
   </data>
+  <data name="User Preference" xml:space="preserve">
+   <value>User Preference</value>
+  </data>
 
   <!-- ===================================================== -->
   <!-- Hall -->
