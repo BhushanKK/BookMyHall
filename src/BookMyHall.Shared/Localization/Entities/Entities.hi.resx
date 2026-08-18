@@ -87,7 +87,28 @@
   <data name="UserPreference" xml:space="preserve">
   <value>यूज़र की पसंद</value>
   </data>
+<data name="CurrencyCode" xml:space="preserve">
+   <value>मुद्रा कोड</value>
+  </data>
 
+  <data name="TimeZone" xml:space="preserve">
+   <value>समय क्षेत्र</value>
+  </data>
+
+   <data name="DateFormat" xml:space="preserve">
+   <value>तारिख का प्रारूप</value>
+  </data>
+
+   <data name="TimeFormat" xml:space="preserve">
+   <value>समय स्वरूप</value>Language Code
+  </data>
+   <data name="LanguageCode" xml:space="preserve">
+   <value>भाषा कोड</value>
+  </data>
+
+   <data name="Theme" xml:space="preserve">
+   <value>विषय</value>
+  </data>
   <!-- ===================================================== -->
   <!-- Hall -->
   <!-- ===================================================== -->

@@ -76,6 +76,29 @@
   <value>वापरकर्त्याची पसंती</value>
   </data>
 
+   <data name="CurrencyCode" xml:space="preserve">
+   <value>चलन संकेत</value>
+  </data>
+
+  <data name="TimeZone" xml:space="preserve">
+   <value>काळक्षेत्र</value>
+  </data>
+
+   <data name="DateFormat" xml:space="preserve">
+   <value>तारखेचे स्वरूप</value>
+  </data>
+
+   <data name="TimeFormat" xml:space="preserve">
+   <value>वेळेचे स्वरूप</value>Language Code
+  </data>
+   <data name="LanguageCode" xml:space="preserve">
+   <value>भाषा संकेत</value>
+  </data>
+
+   <data name="Theme" xml:space="preserve">
+   <value>विषय</value>
+  </data>
+
   <!-- ===================================================== -->
   <!-- Hall -->
   <!-- ===================================================== -->
