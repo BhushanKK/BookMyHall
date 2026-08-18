@@ -96,18 +96,13 @@
     <value>हॉल आईडी</value>
   </data>
 
-  <data name="HallCategory" xml:space="preserve">
-    <value>हॉल श्रेणी</value>
-  </data>
+
 
   <data name="Amenity" xml:space="preserve">
     <value>सुविधा</value>
   </data>
 
-  <data name="Facility" xml:space="preserve">
-    <value>सुविधा</value>
-  </data>
-
+  
   <data name="HallImage" xml:space="preserve">
     <value>हॉल चित्र</value>
   </data>
@@ -160,9 +155,7 @@
     <value>रिफंड</value>
   </data>
 
-  <data name="PaymentMode" xml:space="preserve">
-     <value>भुगतान का तरीका</value>
-  </data>
+  
 
   <!-- ===================================================== -->
   <!-- Masters -->
@@ -175,7 +168,9 @@
   <data name="State" xml:space="preserve">
     <value>राज्य</value>
   </data>
-
+ <data name="District" xml:space="preserve">
+    <value>जिला</value>
+  </data>
   <data name="City" xml:space="preserve">
     <value>शहर</value>
   </data>
@@ -205,6 +200,23 @@
 
   <data name="Coupon" xml:space="preserve">
     <value>कूपन</value>
+  </data>
+
+  <data name="Facility" xml:space="preserve">
+    <value>सुविधा</value>
+  </data>
+  <data name="HallCategory" xml:space="preserve">
+    <value>हॉल श्रेणी</value>
+  </data>
+  <data name="PaymentMode" xml:space="preserve">
+    <value>भुगतान का तरीका</value>
+  </data>
+  <data name="Service" xml:space="preserve">
+    <value>सेवा</value>
+  </data>
+ 
+  <data name="EventCategory" xml:space="preserve">
+    <value>कार्यक्रम श्रेणी</value>
   </data>
 
   <!-- ===================================================== -->

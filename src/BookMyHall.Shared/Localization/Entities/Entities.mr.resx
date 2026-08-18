@@ -84,17 +84,12 @@
     <value>हॉल आयडी</value>
   </data>
 
-  <data name="HallCategory" xml:space="preserve">
-    <value>हॉल श्रेणी</value>
-  </data>
+  
 
   <data name="Amenity" xml:space="preserve">
     <value>सुविधा</value>
   </data>
 
-  <data name="Facility" xml:space="preserve">
-    <value>सुविधा</value>
-  </data>
 
   <data name="HallImage" xml:space="preserve">
     <value>हॉल प्रतिमा</value>
@@ -147,9 +142,7 @@
   <data name="Refund" xml:space="preserve">
     <value>परतावा</value>
   </data>
-  <data name="PaymentMode" xml:space="preserve">
-     <value>पेमेंट प्रकार</value>
-  </data>
+  
   <!-- ===================================================== -->
   <!-- Masters -->
   <!-- ===================================================== -->
@@ -192,6 +185,25 @@
   <data name="Coupon" xml:space="preserve">
     <value>कूपन</value>
   </data>
+  <data name="Service" xml:space="preserve">
+    <value>सेवा</value>
+  </data>
+  <data name="EventCategory" xml:space="preserve">
+    <value>कार्यक्रम श्रेणी</value>
+  </data>
+  <data name="District" xml:space="preserve">
+    <value>जिल्हा</value>
+  </data>
+  <data name="HallCategory" xml:space="preserve">
+    <value>हॉल श्रेणी</value>
+  </data>
+  <data name="PaymentMode" xml:space="preserve">
+    <value>पेमेंटचा प्रकार</value>
+  </data>
+  <data name="Facility" xml:space="preserve">
+    <value>सुविधा</value>  
+  </data>
+  
 
   <!-- ===================================================== -->
   <!-- Common -->

@@ -9,8 +9,11 @@ public sealed class UserPreferenceMappingProfile : Profile
     {
         CreateMap<UserPreference, UserPreferenceDto>();
 
+        CreateMap<CreateUserPreferenceCommand, UserPreference>()
+            .ForMember(destination => destination.UserPreferenceId,options => options.Ignore());
+
         CreateMap<UpdateUserPreferenceCommand, UserPreference>()
-            .ForMember(dest => dest.UserPreferenceId,opt => opt.Ignore())
-            .ForMember(dest => dest.UserId,opt => opt.Ignore());
+            .ForMember(destination => destination.UserPreferenceId,options => options.Ignore())
+            .ForMember(destination => destination.UserId,options => options.Ignore());
     }
 }

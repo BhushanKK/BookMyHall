@@ -15,34 +15,23 @@ public sealed class DeleteUserPreferenceCommandHandler(
     IMessageHelper messageHelper)
     : IRequestHandler<DeleteUserPreferenceCommand, ApiResponse<bool>>
 {
-    public async Task<ApiResponse<bool>> Handle(
-        DeleteUserPreferenceCommand request,
+    public async Task<ApiResponse<bool>> Handle(DeleteUserPreferenceCommand request,
         CancellationToken cancellationToken)
     {
-        var userPreference = await userPreferenceRepository.GetByIdAsync(
-            request.UserPreferenceId,
-            cancellationToken);
+        var userPreference = await userPreferenceRepository.GetByIdAsync(request.UserPreferenceId,cancellationToken);
 
         if (userPreference is null)
         {
             return ApiResponse<bool>.FailureResponse(
-                messageHelper.NotFoundEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.UserPreference),
-                HttpStatusCode.NotFound);
+                messageHelper.NotFoundEntity(ResourceNames.Entities,
+                    EntityKeys.UserPreference),HttpStatusCode.NotFound);
         }
 
-        await userPreferenceRepository.DeleteAsync(
-            userPreference,
-            cancellationToken);
-
+        await userPreferenceRepository.DeleteAsync(userPreference,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(
-            true,
-            messageHelper.DeletedEntity(
-                ResourceNames.Entities,
-                EntityKeys.UserPreference),
-            HttpStatusCode.OK);
+        return ApiResponse<bool>.SuccessResponse(true,
+            messageHelper.DeletedEntity(ResourceNames.Entities,
+                EntityKeys.UserPreference),HttpStatusCode.OK);
     }
 }

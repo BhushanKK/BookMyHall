@@ -100,17 +100,13 @@
     <value>Hall Id</value>
   </data>
 
-  <data name="HallCategory" xml:space="preserve">
-    <value>Hall Category</value>
-  </data>
+ 
 
   <data name="Amenity" xml:space="preserve">
     <value>Amenity</value>
   </data>
 
-  <data name="Facility" xml:space="preserve">
-    <value>Facility</value>
-  </data>
+  
 
   <data name="HallImage" xml:space="preserve">
     <value>Hall Image</value>
@@ -163,9 +159,7 @@
   <data name="Refund" xml:space="preserve">
     <value>Refund</value>
   </data>
-  <data name="PaymentMode" xml:space="preserve">
-     <value>Payment Mode</value>
-  </data>
+  
   
 
   <!-- ===================================================== -->
@@ -180,6 +174,10 @@
     <value>State</value>
   </data>
 
+  <data name="District" xml:space="preserve">
+    <value>District</value>
+  </data>
+
   <data name="City" xml:space="preserve">
     <value>City</value>
   </data>
@@ -188,8 +186,8 @@
     <value>Area</value>
   </data>
 
-  <data name="EventType" xml:space="preserve">
-    <value>Event Type</value>
+  <data name="EventCategory" xml:space="preserve">
+    <value>Event Category</value>
   </data>
 
   <data name="Decoration" xml:space="preserve">
@@ -208,6 +206,22 @@
 
   <data name="Coupon" xml:space="preserve">
     <value>Coupon</value>
+  </data>
+
+   <data name="Service" xml:space="preserve">
+    <value>Service</value>
+  </data>
+
+  <data name="Facility" xml:space="preserve">
+    <value>Facility</value>
+  </data>
+
+  <data name="HallCategory" xml:space="preserve">
+    <value>Hall Category</value>
+  </data>
+
+<data name="PaymentMode" xml:space="preserve">
+    <value>Payment Mode</value>
   </data>
 
   <!-- ===================================================== -->
