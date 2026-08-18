@@ -3,5 +3,5 @@ using BookMyHall.Contracts.Common;
 
 namespace BookMyHall.Application.Features.Identity;
 
-public sealed class CreateUserPreferenceCommand
+public sealed class UpsertUserPreferenceCommand
 : UserPreferenceDto, IRequest<ApiResponse<UserPreferenceDto>>;

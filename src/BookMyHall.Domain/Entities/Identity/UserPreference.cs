@@ -5,7 +5,7 @@ namespace BookMyHall.Domain.Entities.Identity;
 public sealed class UserPreference : BaseEntity
 {
     public Guid UserPreferenceId { get; private set; }
-    public Guid UserId { get; private set; }
+    public Guid UserId { get; set; }
     // Regional Settings
     public string CurrencyCode { get; private set; } = "INR";
     public string TimeZone { get; private set; } = "Asia/Kolkata";

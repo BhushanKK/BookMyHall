@@ -7,10 +7,9 @@ using BookMyHall.Shared.Localization;
 namespace BookMyHall.Application.Validations;
 
 public sealed class CreateUserPreferenceCommandValidator
-    : AbstractValidator<CreateUserPreferenceCommand>
+    : AbstractValidator<UpsertUserPreferenceCommand>
 {
-    public CreateUserPreferenceCommandValidator(
-        ILocalizationService localizer)
+    public CreateUserPreferenceCommandValidator(ILocalizationService localizer)
     {
         RuleFor(x => x.UserId)
             .Required(localizer, EntityKeys.UserId);

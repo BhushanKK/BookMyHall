@@ -1,7 +1,6 @@
 using MediatR;
 using System.Net;
 using AutoMapper;
-
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Entities.Identity;
