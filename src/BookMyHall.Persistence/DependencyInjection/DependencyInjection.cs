@@ -53,6 +53,8 @@ public static class DependencyInjection
         services.AddScoped<ICountryRepository, CountryRepository>();
         services.AddScoped<IPermissionRepository,PermissionRepository>();
         services.AddScoped< IRolePermissionRepository, RolePermissionRepository>();
+        services.AddScoped<IMenuRepository, MenuRepository>();
+
         return services;
     }
 }

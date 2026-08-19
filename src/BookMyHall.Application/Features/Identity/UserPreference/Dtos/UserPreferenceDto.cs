@@ -7,7 +7,6 @@ public class UserPreferenceDto
     [JsonIgnore]
     public Guid UserPreferenceId { get; set; }
     
-    [JsonIgnore]
     public Guid UserId { get; set; }
 
     // Regional Settings
