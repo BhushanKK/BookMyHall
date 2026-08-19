@@ -109,7 +109,7 @@ app.UseCors(CorsPolicyName);
 // ============================================================
 // Scalar
 // ============================================================
-
+app.MapOpenApi();
 app.MapScalarApiReference(options =>
 {
     options
