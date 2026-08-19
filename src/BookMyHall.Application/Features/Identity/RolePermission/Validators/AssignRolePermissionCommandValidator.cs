@@ -9,7 +9,7 @@ namespace BookMyHall.Application.Validations;
 
 public sealed class AssignRolePermissionCommandValidator: AbstractValidator<AssignRolePermissionCommand>
 {
-    public AssignRolePermissionCommandValidator(LocalizationService localizer)
+    public AssignRolePermissionCommandValidator(ILocalizationService localizer)
     {
         RuleFor(x => x.RoleId)
         .Required(localizer, EntityKeys.Role)
