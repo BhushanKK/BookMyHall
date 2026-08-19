@@ -39,7 +39,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(CorsPolicyName, policy =>
     {
         policy
-            .WithOrigins(allowedOrigins)
+            .WithOrigins("http://localhost:5173") //temp added hardcoded.
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
