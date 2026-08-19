@@ -31,7 +31,8 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapHallCategoryEndpoints();
         endpoints.MapHallBlockEndpoints();
         endpoints.MapHallImageEndpoints();
-
+        endpoints.MapPermissionEndpoints();
+        endpoints.MapRolePermissionEndpoints();
         return endpoints;
     }
 }

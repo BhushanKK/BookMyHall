@@ -51,6 +51,8 @@ public static class DependencyInjection
         services.AddScoped<IHallImageRepository, HallImageRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ICountryRepository, CountryRepository>();
+        services.AddScoped<IPermissionRepository,PermissionRepository>();
+        services.AddScoped< IRolePermissionRepository, RolePermissionRepository>();
         return services;
     }
 }
