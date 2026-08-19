@@ -12,45 +12,51 @@ using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 using Serilog;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
-
-// ============================================================
-// Serilog
-// ============================================================
 builder.AddSerilogLogging();
 
-
-// ============================================================
-// OpenAPI
-// ============================================================
 builder.Services.AddOpenApi();
 
-
-// ============================================================
-// Application / Infrastructure / Persistence
-// ============================================================
 builder.Services
     .AddApplication()
     .AddInfrastructure(builder.Configuration)
     .AddPersistence(builder.Configuration);
 
+// ============================================================
+// CORS
+// ============================================================
+
+const string CorsPolicyName = "BookMyHallFrontend";
+
+var allowedOrigins =
+    builder.Configuration
+        .GetSection("Cors:AllowedOrigins")
+        .Get<string[]>() ?? [];
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(CorsPolicyName, policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173") //temp added hardcoded.
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 // ============================================================
 // Localization
 // ============================================================
+
 builder.Services.AddLocalization(options =>
 {
     options.ResourcesPath = "Localization";
 });
 
-
 builder.Services.AddSingleton<ILocalizationService, LocalizationService>();
 
-
 builder.Services.AddScoped<IMessageHelper, MessageHelper>();
-
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
@@ -61,14 +67,11 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
         new CultureInfo(Languages.Marathi)
     };
 
-
     options.DefaultRequestCulture =
         new RequestCulture(Languages.English);
 
-
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
-
 
     options.RequestCultureProviders =
     [
@@ -79,43 +82,34 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 // ============================================================
 // Health Checks
 // ============================================================
-// Used by IIS / GitHub Actions CD pipeline to verify that
-// the BookMyHall API has started successfully.
+
 builder.Services.AddHealthChecks();
 
-
-// ============================================================
-// Build Application
-// ============================================================
 var app = builder.Build();
 
+// ============================================================
+// Middleware
+// ============================================================
 
-// ============================================================
-// Serilog Request Logging
-// ============================================================
 app.UseSerilogRequestLogging();
 
-
-// ============================================================
-// Request Localization
-// ============================================================
 var localizationOptions =
     app.Services.GetRequiredService<
         IOptions<RequestLocalizationOptions>>();
 
-
 app.UseRequestLocalization(localizationOptions.Value);
 
+// ============================================================
+// CORS
+// IMPORTANT: Before Authentication / Authorization
+// ============================================================
+
+app.UseCors(CorsPolicyName);
 
 // ============================================================
-// OpenAPI
+// Scalar
 // ============================================================
 app.MapOpenApi();
-
-
-// ============================================================
-// Scalar API Documentation
-// ============================================================
 app.MapScalarApiReference(options =>
 {
     options
@@ -123,66 +117,36 @@ app.MapScalarApiReference(options =>
         .WithTheme(ScalarTheme.BluePlanet);
 });
 
+// ============================================================
+// Exception Handling
+// ============================================================
 
-// ============================================================
-// IMPORTANT
-// ============================================================
-// BookMyHall currently runs on HTTP :8065.
-// Do NOT enable HTTPS redirection until BookMyHall
-// has its own HTTPS binding/certificate.
-//http://bookmyhallapi.sycits.co.in/scalar/
-// ETGS SSL on port 443 is completely independent.
-//
-// app.UseHttpsRedirection();
-
-
-// ============================================================
-// Global Exception Handling
-// ============================================================
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
+// ============================================================
+// Authentication / Authorization
+// ============================================================
 
-// ============================================================
-// Authentication
-// ============================================================
 app.UseAuthentication();
 
-
-// ============================================================
-// Authorization
-// ============================================================
 app.UseAuthorization();
-
 
 // ============================================================
 // Static Files
 // ============================================================
+
 app.UseStaticFiles();
 
+// ============================================================
+// Endpoints
+// ============================================================
 
-// ============================================================
-// Health Check
-// ============================================================
-// This endpoint is used by the CD pipeline:
-//
-// GET http://localhost:5152/health
-//
-// Expected response:
-// HTTP 200
-//
-// It verifies that the ASP.NET Core application is running.
 app.MapHealthChecks("/health");
 
-// ============================================================
-// BookMyHall Endpoints
-// ============================================================
 app.MapBookMyHallEndpoints();
 
-
-// ============================================================
-// Run Application
-// ============================================================
 await app.RunAsync();
+
 public partial class Program
 {
 }
