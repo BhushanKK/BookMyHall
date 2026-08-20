@@ -1,7 +1,5 @@
 using MediatR;
-
 using System.Net;
-
 using AutoMapper;
 
 using BookMyHall.Contracts.Common;
