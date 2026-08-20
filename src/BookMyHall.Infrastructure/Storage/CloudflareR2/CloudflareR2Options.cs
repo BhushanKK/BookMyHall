@@ -9,4 +9,5 @@ public sealed class CloudflareR2Options
     public string SecretAccessKey { get; set; } = string.Empty;
     public string BucketName { get; set; } = string.Empty;
     public string Region { get; set; } = "auto";
+    public string PublicBaseUrl { get; set; } = string.Empty;
 }

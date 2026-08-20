@@ -13,9 +13,9 @@ public class User : BaseEntity
     public string MobileNumber { get; set; } = string.Empty;
     public string EmailAddress { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
-    public string? ProfileImageUrl { get; set; }
-    public DateTimeOffset DateOfBirth { get; set; }
-    public Gender Gender { get; set; }
+    public string? ProfileImageUrl { get; set; } = string.Empty;
+    public DateTimeOffset? DateOfBirth { get; set; }
+    public Gender? Gender { get; set; }
     public bool IsMobileVerified { get; set; }
     public bool IsEmailVerified { get; set; }
     public bool IsActive { get; set; } = true;
