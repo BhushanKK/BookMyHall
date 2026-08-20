@@ -39,6 +39,8 @@ public static class UserEndpoints
                 request.MiddleName,
                 request.LastName,
                 request.MobileNumber,
+                request.DateOfBirth,
+                request.Gender,
                 request.EmailAddress,
                 request.RoleId);
 

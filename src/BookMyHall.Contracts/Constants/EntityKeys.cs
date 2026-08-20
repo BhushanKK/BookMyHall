@@ -17,7 +17,8 @@ public static class EntityKeys
 
   public const string MobileNumber = "MobileNumber";
   public const string Password = "Password";
-
+  public const string DateOfBirth = "DateOfBirth";
+  public const string Gender = "Gender";
   public const string FirstName = "FirstName";
   public const string EmailAddress = "EmailAddress";
   public const string Token = "Token";
@@ -128,6 +129,4 @@ public static class EntityKeys
   public const string FileName = nameof(FileName);
   public const string ContentType = nameof(ContentType);
   public const string HallImage = nameof(HallImage);
-
-
 }

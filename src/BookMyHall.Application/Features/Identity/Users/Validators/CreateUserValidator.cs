@@ -1,4 +1,5 @@
 using FluentValidation;
+
 using BookMyHall.Application.Common.Extensions;
 using BookMyHall.Application.Features.Identity.Users;
 using BookMyHall.Shared.Constants;
@@ -21,6 +22,13 @@ public sealed class CreateUserValidator
             .Required(localizer, EntityKeys.MobileNumber)
             .MaximumLengthLocalized(localizer, EntityKeys.MobileNumber, 15);
 
+        RuleFor(x => x.DateOfBirth)
+            .LessThanOrEqualTo(DateTimeOffset.UtcNow)
+            .WithMessage("Date of birth cannot be empty.");
+
+        RuleFor(x => x.Gender)
+            .IsInEnum()
+            .WithMessage("Invalid gender.");
 
         RuleFor(x => x.EmailAddress)
             .EmailAddress()
@@ -52,6 +60,14 @@ public sealed class UpdateUserCommandValidator
         RuleFor(x => x.MobileNumber)
             .Required(localizer, EntityKeys.MobileNumber)
             .MaximumLengthLocalized(localizer, EntityKeys.MobileNumber, 15);
+            
+        RuleFor(x => x.DateOfBirth)
+       .LessThanOrEqualTo(DateTimeOffset.UtcNow)
+       .WithMessage("Date of birth cannot be empty.");
+
+        RuleFor(x => x.Gender)
+            .IsInEnum()
+            .WithMessage("Invalid gender.");
 
         RuleFor(x => x.EmailAddress)
             .EmailAddress()
