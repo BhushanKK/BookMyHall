@@ -1,7 +1,6 @@
 using MediatR;
 using System.Net;
 using AutoMapper;
-
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
@@ -35,12 +34,14 @@ public sealed class GetUserByIdQueryHandler(
 
         var userDto = mapper.Map<UserDto>(user);
         
-        var preSignedUrl = await storageService.GetPreSignedUrlAsync(
-        userDto.ProfileImageUrl!,
-        TimeSpan.FromMinutes(15),
-        cancellationToken);
-        
-        userDto.ProfileImageUrl = preSignedUrl;
+        if (!string.IsNullOrWhiteSpace(user.ProfileImageUrl))
+        {
+            userDto.ProfileImageUrl = await storageService.GetPreSignedUrlAsync
+            (
+                user.ProfileImageUrl,TimeSpan.FromMinutes(15),
+                cancellationToken
+            );
+        }
         
         return ApiResponse<UserDto>.SuccessResponse
         (

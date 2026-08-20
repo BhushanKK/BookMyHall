@@ -1,4 +1,4 @@
-using BookMyHall.Domain.Enums;
+using System.Text.Json.Serialization;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
@@ -23,5 +23,6 @@ public sealed class UserDto
     public int? Gender { get; set; }
     public string? EmailAddress { get; set; }
     public bool IsActive { get; set; }
+    [JsonIgnore]
     public IReadOnlyList<string> Roles { get; set; } = [];
 }
