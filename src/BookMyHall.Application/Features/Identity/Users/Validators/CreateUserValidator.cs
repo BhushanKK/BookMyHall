@@ -22,14 +22,6 @@ public sealed class CreateUserValidator
             .Required(localizer, EntityKeys.MobileNumber)
             .MaximumLengthLocalized(localizer, EntityKeys.MobileNumber, 15);
 
-        RuleFor(x => x.DateOfBirth)
-            .LessThanOrEqualTo(DateTimeOffset.UtcNow)
-            .WithMessage("Date of birth cannot be empty.");
-
-        RuleFor(x => x.Gender)
-            .IsInEnum()
-            .WithMessage("Invalid gender.");
-
         RuleFor(x => x.EmailAddress)
             .EmailAddress()
             .When(x => !string.IsNullOrWhiteSpace(x.EmailAddress));

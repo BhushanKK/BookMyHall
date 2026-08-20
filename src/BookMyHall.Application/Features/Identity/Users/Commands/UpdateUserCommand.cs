@@ -10,8 +10,8 @@ public sealed record UpdateUserCommand(
     string? MiddleName,
     string? LastName,
     string MobileNumber,
-    DateTimeOffset DateOfBirth,
-    Gender Gender,
+    DateTimeOffset? DateOfBirth,
+    Gender? Gender,
     string? EmailAddress,
     Guid RoleId)
     : IRequest<ApiResponse<UserDto>>;
@@ -21,7 +21,7 @@ public sealed record UpdateUserRequest(
     string? MiddleName,
     string? LastName,
     string MobileNumber,
-    DateTimeOffset DateOfBirth,
-    Gender Gender,
+    DateTimeOffset? DateOfBirth,
+    Gender? Gender,
     string? EmailAddress,
     Guid RoleId);

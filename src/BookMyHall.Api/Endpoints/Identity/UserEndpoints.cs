@@ -1,6 +1,9 @@
 using MediatR;
+
 using BookMyHall.Application.Features.Identity.Users;
 using BookMyHall.Contracts.Common;
+
+using System.Net;
 
 namespace BookMyHall.Api.Endpoints.Identity;
 
@@ -9,7 +12,9 @@ public static class UserEndpoints
     public static IEndpointRouteBuilder MapUserEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/users")
-            .WithTags("Users");
+            .WithTags("Users")
+            .DisableAntiforgery()
+            .RequireAuthorization();
 
         group.MapPost("/", async (
             CreateUserCommand command,
@@ -56,12 +61,44 @@ public static class UserEndpoints
         .Produces<ApiResponse<UserDto>>(StatusCodes.Status409Conflict)
         .Produces(StatusCodes.Status401Unauthorized).RequireAuthorization();
 
+        group.MapPut("/{userId:guid}/profile-image", async (
+            Guid userId,
+            IFormFile profileImage,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            if (profileImage.Length == 0)
+            {
+                return Results.BadRequest(ApiResponse<UserDto>.FailureResponse(
+                        "Profile image is required.", HttpStatusCode.BadRequest));
+            }
+
+            await using var imageStream =profileImage.OpenReadStream();
+            var command = new UpdateUserProfileImageCommand(
+                userId,
+                imageStream,
+                profileImage.FileName,
+                profileImage.ContentType,
+                profileImage.Length);
+
+            var response = await mediator.Send(command,cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
+        })
+        .WithName("UpdateUserProfileImage")
+        .WithSummary("Update User Profile Image")
+        .WithDescription("Uploads or replaces the user's profile image.")
+        .Produces<ApiResponse<UserDto>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<UserDto>>(StatusCodes.Status400BadRequest)
+        .Produces<ApiResponse<UserDto>>(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .RequireAuthorization();
+
         group.MapDelete("/{userId:guid}", async (
             Guid userId,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var response = await mediator.Send(new DeleteUserCommand(userId),cancellationToken);
+            var response = await mediator.Send(new DeleteUserCommand(userId), cancellationToken);
             return Results.Json(response, statusCode: response.StatusCode);
         })
         .WithName("DeleteUser")
@@ -76,7 +113,7 @@ public static class UserEndpoints
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var response = await mediator.Send(new GetUsersQuery(request),cancellationToken);
+            var response = await mediator.Send(new GetUsersQuery(request), cancellationToken);
             return Results.Json(response, statusCode: response.StatusCode);
         })
         .WithName("GetUsers")
@@ -90,7 +127,7 @@ public static class UserEndpoints
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var response = await mediator.Send(new GetUserByIdQuery(userId),cancellationToken);
+            var response = await mediator.Send(new GetUserByIdQuery(userId), cancellationToken);
             return Results.Json(response, statusCode: response.StatusCode);
         })
         .WithName("GetUserById")
