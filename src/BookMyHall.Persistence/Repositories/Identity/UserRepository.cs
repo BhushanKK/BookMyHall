@@ -40,6 +40,7 @@ public sealed class UserRepository(BookMyHallDbContext context)
             FullName = x.FullName,
             PasswordHash = x.PasswordHash,
             TokenVersion = x.TokenVersion,
+            ProfileImageUrl=x.ProfileImageUrl,
 
             Roles = x.UserRoles
                 .Select(ur => ur.Role.RoleName)

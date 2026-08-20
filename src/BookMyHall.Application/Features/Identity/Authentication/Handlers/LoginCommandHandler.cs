@@ -7,6 +7,7 @@ using BookMyHall.Application.Abstractions.Authentication;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Application.Abstractions.Security;
+using BookMyHall.Application.Common.Interfaces.Storage;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Audit;
 using BookMyHall.Domain.Common;
@@ -29,102 +30,52 @@ public sealed class LoginCommandHandler(
     IOptions<JwtOptions> jwtOptions,
     IUserLoginHistoryRepository userLoginHistoryRepository,
     IClientInfoService clientInfoService,
-    IDeviceRepository deviceRepository)
+    IDeviceRepository deviceRepository,
+    IR2StorageService storageService)
     : IRequestHandler<LoginCommand, ApiResponse<LoginResponse>>
 {
-    public async Task<ApiResponse<LoginResponse>> Handle(
-        LoginCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<LoginResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
-        // ---------------------------------------------------------
-        // Validate Request
-        // ---------------------------------------------------------
-
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
         {
             return ApiResponse<LoginResponse>.FailureResponse
             (
-                string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage)),
+                string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage)),
                 HttpStatusCode.BadRequest
             );
         }
 
-        // ---------------------------------------------------------
-        // Load User Login Information
-        // ---------------------------------------------------------
-
         var user = await userRepository.GetForLoginAsync(request.MobileNumber, cancellationToken);
-
+        
         if (user is null)
+            return ApiResponse<LoginResponse>.FailureResponse(messageHelper.InvalidCredentials(), HttpStatusCode.Unauthorized);
+        
+        if (!string.IsNullOrWhiteSpace(user.ProfileImageUrl))
         {
-            return ApiResponse<LoginResponse>.FailureResponse
-            (
-                messageHelper.InvalidCredentials(),
-                HttpStatusCode.Unauthorized
-            );
+            user.ProfileImageUrl = await storageService.GetPreSignedUrlAsync(
+                user.ProfileImageUrl,
+                TimeSpan.FromDays(7),
+                cancellationToken);
         }
-
-        // ---------------------------------------------------------
-        // Verify Password
-        // ---------------------------------------------------------
-
         if (!passwordHasher.VerifyPassword(user.PasswordHash, request.Password))
         {
-            await userLoginHistoryRepository.AddAsync(
-                new UserLoginHistory
-                {
-                    UserId = user.UserId,
-                    SessionId = null,
-                    LoginDate = DateTimeOffset.UtcNow,
-                    LoginStatus = LoginStatuses.Failed,
-                    LoginMethod = LoginMethods.Password,
-                    FailureReason = "Invalid password.",
-                    IpAddress = clientInfoService.IpAddress ?? "Unknown",
-                    UserAgent = clientInfoService.UserAgent ?? "Unknown",
-                    Browser = clientInfoService.Browser ?? "Unknown",
-                    OperatingSystem = clientInfoService.OperatingSystem ?? "Unknown",
-                    DeviceType = clientInfoService.DeviceType ?? "Unknown",
-                    LoginSource = clientInfoService.LoginSource ?? "Unknown",
-                    IsMfaUsed = false
-                },
-                cancellationToken);
-
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-
-            return ApiResponse<LoginResponse>.FailureResponse
-            (
-                messageHelper.InvalidCredentials(),
-                HttpStatusCode.Unauthorized
-            );
+            await RecordFailedLoginAsync(user.UserId, cancellationToken);
+            return ApiResponse<LoginResponse>.FailureResponse(messageHelper.InvalidCredentials(), HttpStatusCode.Unauthorized);
         }
-
-        // ---------------------------------------------------------
-        // Update Login Information
-        // ---------------------------------------------------------
 
         var now = DateTimeOffset.UtcNow;
         await userRepository.RecordLoginAsync(user.UserId, now, cancellationToken);
-
-        // ---------------------------------------------------------
-        // Generate JWT Access Token
-        // ---------------------------------------------------------
-
-        var jwtResult = jwtTokenService.GenerateToken(
-            new JwtUser
-            {
-                UserId = user.UserId,
-                FullName = user.FullName,
-                MobileNumber = user.MobileNumber,
-                EmailAddress = user.EmailAddress,
-                TokenVersion = user.TokenVersion,
-                Roles = user.Roles
-            });
-
-        // ---------------------------------------------------------
-        // Generate Refresh Token
-        // ---------------------------------------------------------
+        var jwtResult = jwtTokenService.GenerateToken(new JwtUser
+        {
+            UserId = user.UserId,
+            FullName = user.FullName,
+            MobileNumber = user.MobileNumber,
+            EmailAddress = user.EmailAddress,
+            TokenVersion = user.TokenVersion,
+            Roles = user.Roles
+        });
 
         var refreshTokenValue = jwtTokenService.GenerateRefreshToken();
 
@@ -138,23 +89,89 @@ public sealed class LoginCommandHandler(
         };
 
         await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
+        var device = await GetOrCreateDeviceAsync(user.UserId,request, now, cancellationToken);
 
-        // ---------------------------------------------------------
-        // Register / Update Device
-        // ---------------------------------------------------------
+        var userSession = new UserSession
+        {
+            UserSessionId = Guid.NewGuid(),
+            UserId = user.UserId,
+            RefreshTokenId = refreshToken.RefreshTokenId,
+            DeviceId = device.DeviceId,
+            SessionStart = now,
+            LastActivity = now,
+            IsActive = true,
+            CreatedBy = user.UserId
+        };
 
-        var device =
-            await deviceRepository.GetByDeviceIdentifierAsync(
-                user.UserId,
-                request.DeviceIdentifier,
-                cancellationToken);
+        await userSessionRepository.AddAsync(userSession, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var loginHistory = new UserLoginHistory
+        {
+            UserLoginHistoryId = Guid.NewGuid(),
+            UserId = user.UserId,
+            SessionId = userSession.UserSessionId,
+            LoginDate = now,
+            LoginStatus = LoginStatuses.Success,
+            LoginMethod = LoginMethods.Password,
+            IpAddress = clientInfoService.IpAddress ?? "Unknown",
+            UserAgent = clientInfoService.UserAgent ?? "Unknown",
+            Browser = clientInfoService.Browser ?? "Unknown",
+            OperatingSystem = clientInfoService.OperatingSystem ?? "Unknown",
+            DeviceType = clientInfoService.DeviceType ?? "Unknown",
+            LoginSource = clientInfoService.LoginSource ?? "Unknown",
+            IsMfaUsed = false
+        };
+
+        await userLoginHistoryRepository.AddAsync(
+            loginHistory,
+            cancellationToken);
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var response = mapper.Map<LoginResponse>(user);
+
+        response.AccessToken = jwtResult.AccessToken;
+        response.RefreshToken = refreshTokenValue;
+        response.ExpiresAt = jwtResult.ExpiresAt;
+        return ApiResponse<LoginResponse>.SuccessResponse(response, messageHelper.LoginSuccessful(),HttpStatusCode.OK);
+    }
+
+    private async Task RecordFailedLoginAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var failedLoginHistory = new UserLoginHistory
+        {
+            UserLoginHistoryId = Guid.NewGuid(),
+            UserId = userId,
+            SessionId = null,
+            LoginDate = DateTimeOffset.UtcNow,
+            LoginStatus = LoginStatuses.Failed,
+            LoginMethod = LoginMethods.Password,
+            FailureReason = "Invalid password.",
+            IpAddress = clientInfoService.IpAddress ?? "Unknown",
+            UserAgent = clientInfoService.UserAgent ?? "Unknown",
+            Browser = clientInfoService.Browser ?? "Unknown",
+            OperatingSystem = clientInfoService.OperatingSystem ?? "Unknown",
+            DeviceType = clientInfoService.DeviceType ?? "Unknown",
+            LoginSource = clientInfoService.LoginSource ?? "Unknown",
+            IsMfaUsed = false
+        };
+
+        await userLoginHistoryRepository.AddAsync(failedLoginHistory, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task<Device> GetOrCreateDeviceAsync( Guid userId, LoginCommand request,
+        DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        var device = await deviceRepository.GetByDeviceIdentifierAsync(userId, request.DeviceIdentifier, cancellationToken);
 
         if (device is null)
         {
             device = new Device
             {
                 DeviceId = Guid.NewGuid(),
-                UserId = user.UserId,
+                UserId = userId,
                 DeviceIdentifier = request.DeviceIdentifier,
                 PushNotificationToken = request.PushNotificationToken,
                 DeviceName = request.DeviceName,
@@ -171,87 +188,21 @@ public sealed class LoginCommandHandler(
             };
 
             await deviceRepository.AddAsync(device, cancellationToken);
-        }
-        else
-        {
-            device.PushNotificationToken = request.PushNotificationToken;
-            device.DeviceName =request.DeviceName;
-            device.DeviceType = clientInfoService.DeviceType ?? "Desktop";
-            device.OperatingSystem =clientInfoService.OperatingSystem;
-            device.Browser = clientInfoService.Browser;
-            device.AppVersion = request.AppVersion;
-            device.LastIpAddress = clientInfoService.IpAddress;
-            device.LastLoginDate = now;
-            device.LastActivity = now;
-            device.UpdatedDate = now;
-            await deviceRepository.UpdateAsync(device, cancellationToken);
+            return device;
         }
 
-        // ---------------------------------------------------------
-        // Create User Session
-        // ---------------------------------------------------------
+        device.PushNotificationToken = request.PushNotificationToken;
+        device.DeviceName = request.DeviceName;
+        device.DeviceType = clientInfoService.DeviceType ?? "Desktop";
+        device.OperatingSystem = clientInfoService.OperatingSystem;
+        device.Browser = clientInfoService.Browser;
+        device.AppVersion = request.AppVersion;
+        device.LastIpAddress = clientInfoService.IpAddress;
+        device.LastLoginDate = now;
+        device.LastActivity = now;
+        device.UpdatedDate = now;
+        await deviceRepository.UpdateAsync(device, cancellationToken);
 
-        var userSession = new UserSession
-        {
-            UserSessionId = Guid.NewGuid(),
-            UserId = user.UserId,
-            RefreshTokenId = refreshToken.RefreshTokenId,
-            DeviceId = device.DeviceId,
-            SessionStart = now,
-            LastActivity = now,
-            IsActive = true,
-            CreatedBy = user.UserId
-        };
-
-        await userSessionRepository.AddAsync(userSession, cancellationToken);
-
-        // ---------------------------------------------------------
-        // Persist Refresh Token, Device and Session
-        // ---------------------------------------------------------
-
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
-        // ---------------------------------------------------------
-        // Add Successful Login History
-        // ---------------------------------------------------------
-
-        await userLoginHistoryRepository.AddAsync(
-            new UserLoginHistory
-            {
-                UserId = user.UserId,
-                SessionId = userSession.UserSessionId,
-                LoginDate = now,
-                LoginStatus = LoginStatuses.Success,
-                LoginMethod = LoginMethods.Password,
-                IpAddress = clientInfoService.IpAddress ?? "Unknown",
-                UserAgent = clientInfoService.UserAgent ?? "Unknown",
-                Browser = clientInfoService.Browser ?? "Unknown",
-                OperatingSystem = clientInfoService.OperatingSystem ?? "Unknown",
-                DeviceType = clientInfoService.DeviceType ?? "Unknown",
-                LoginSource = clientInfoService.LoginSource
-            },
-            cancellationToken);
-
-        // ---------------------------------------------------------
-        // Persist Login History
-        // ---------------------------------------------------------
-
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
-        // ---------------------------------------------------------
-        // Prepare Response
-        // ---------------------------------------------------------
-
-        var response = mapper.Map<LoginResponse>(user);
-        response.AccessToken = jwtResult.AccessToken;
-        response.RefreshToken = refreshTokenValue;
-        response.ExpiresAt = jwtResult.ExpiresAt;
-
-        return ApiResponse<LoginResponse>.SuccessResponse
-        (
-            response,
-            messageHelper.LoginSuccessful(),
-            HttpStatusCode.OK
-        );
+        return device;
     }
 }
