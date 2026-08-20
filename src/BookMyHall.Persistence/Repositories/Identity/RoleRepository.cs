@@ -19,7 +19,7 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
     PaginationRequest paginationRequest,
     CancellationToken cancellationToken = default)
     {
-        var query = context.Roles.AsNoTracking().Where(x => x.IsActive);
+        var query = context.Roles.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(paginationRequest.SearchText))
             query = query.Where(x => EF.Functions.ILike(x.RoleName, $"%{paginationRequest.SearchText.Trim()}%"));
