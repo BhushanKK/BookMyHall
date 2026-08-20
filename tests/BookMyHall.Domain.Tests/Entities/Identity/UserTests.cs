@@ -8,125 +8,207 @@ public sealed class UserTests
     [Fact]
     public void User_Should_Be_Active_By_Default()
     {
+        // Arrange & Act
         var user = new User();
 
+        // Assert
         user.IsActive.Should().BeTrue();
+    }
+
+    [Fact]
+    public void User_Should_Have_Empty_UserId_By_Default()
+    {
+        // Arrange & Act
+        var user = new User();
+
+        // Assert
+        user.UserId.Should().Be(Guid.Empty);
     }
 
     [Fact]
     public void User_Should_Assign_UserId()
     {
+        // Arrange
         var user = new User();
-        var id = Guid.NewGuid();
+        var userId = Guid.NewGuid();
 
-        user.UserId = id;
+        // Act
+        user.UserId = userId;
 
-        user.UserId.Should().Be(id);
+        // Assert
+        user.UserId.Should().Be(userId);
     }
 
     [Fact]
     public void User_Should_Assign_FirstName()
     {
+        // Arrange
         var user = new User();
 
+        // Act
         user.FirstName = "Rock";
 
+        // Assert
         user.FirstName.Should().Be("Rock");
     }
 
     [Fact]
     public void User_Should_Assign_MiddleName()
     {
+        // Arrange
         var user = new User();
 
+        // Act
         user.MiddleName = "Michael";
 
+        // Assert
         user.MiddleName.Should().Be("Michael");
     }
 
     [Fact]
     public void User_Should_Assign_LastName()
     {
+        // Arrange
         var user = new User();
 
+        // Act
         user.LastName = "Doe";
 
+        // Assert
         user.LastName.Should().Be("Doe");
     }
 
     [Fact]
     public void User_Should_Assign_MobileNumber()
     {
+        // Arrange
         var user = new User();
 
+        // Act
         user.MobileNumber = "9876543210";
 
+        // Assert
         user.MobileNumber.Should().Be("9876543210");
     }
 
     [Fact]
     public void User_Should_Assign_EmailAddress()
     {
+        // Arrange
         var user = new User();
 
+        // Act
         user.EmailAddress = "john@example.com";
 
+        // Assert
         user.EmailAddress.Should().Be("john@example.com");
     }
 
     [Fact]
     public void User_Should_Assign_PasswordHash()
     {
+        // Arrange
         var user = new User();
 
+        // Act
         user.PasswordHash = "hashedPassword";
 
+        // Assert
         user.PasswordHash.Should().Be("hashedPassword");
     }
 
     [Fact]
     public void User_Should_Assign_ProfileImageUrl()
     {
+        // Arrange
         var user = new User();
 
-        user.ProfileImageUrl = "https://example.com/profile.jpg";
+        const string profileImageUrl =
+            "https://images.bookmyhall.com/users/profile.jpg";
 
-        user.ProfileImageUrl.Should().Be("https://example.com/profile.jpg");
+        // Act
+        user.ProfileImageUrl = profileImageUrl;
+
+        // Assert
+        user.ProfileImageUrl.Should().Be(profileImageUrl);
+    }
+
+    [Fact]
+    public void User_Should_Have_Null_ProfileImageUrl_By_Default()
+    {
+        // Arrange & Act
+        var user = new User();
+
+        // Assert
+        user.ProfileImageUrl=string.Empty;
     }
 
     [Fact]
     public void User_Should_Assign_IsMobileVerified()
     {
+        // Arrange
         var user = new User();
 
+        // Act
         user.IsMobileVerified = true;
 
+        // Assert
         user.IsMobileVerified.Should().BeTrue();
     }
 
     [Fact]
     public void User_Should_Assign_IsEmailVerified()
     {
+        // Arrange
         var user = new User();
 
+        // Act
         user.IsEmailVerified = true;
 
+        // Assert
         user.IsEmailVerified.Should().BeTrue();
     }
 
     [Fact]
     public void User_Should_Assign_IsActive()
     {
+        // Arrange
         var user = new User();
 
+        // Act
         user.IsActive = false;
 
+        // Assert
         user.IsActive.Should().BeFalse();
+    }
+
+    [Fact]
+    public void User_Should_Have_Default_Values()
+    {
+        // Arrange & Act
+        var user = new User();
+
+        // Assert
+        user.UserId.Should().Be(Guid.Empty);
+        user.FirstName.Should().BeEmpty();
+        user.MiddleName.Should().BeNull();
+        user.LastName.Should().BeNull();
+        user.MobileNumber.Should().BeEmpty();
+        user.EmailAddress.Should().BeEmpty();
+        user.PasswordHash.Should().BeEmpty();
+
+        // Profile image is optional.
+        user.ProfileImageUrl=string.Empty;
+
+        user.IsMobileVerified.Should().BeFalse();
+        user.IsEmailVerified.Should().BeFalse();
+        user.IsActive.Should().BeTrue();
     }
 
     [Fact]
     public void User_Should_Assign_All_Properties()
     {
+        // Arrange
         var userId = Guid.NewGuid();
 
         var user = new User
@@ -138,12 +220,14 @@ public sealed class UserTests
             MobileNumber = "9876543210",
             EmailAddress = "john@example.com",
             PasswordHash = "hashedPassword",
-            ProfileImageUrl = "https://example.com/profile.jpg",
+            ProfileImageUrl =
+                "https://images.bookmyhall.com/users/profile.jpg",
             IsMobileVerified = true,
             IsEmailVerified = true,
             IsActive = false
         };
 
+        // Assert
         user.UserId.Should().Be(userId);
         user.FirstName.Should().Be("Rock");
         user.MiddleName.Should().Be("Michael");
@@ -151,28 +235,16 @@ public sealed class UserTests
         user.MobileNumber.Should().Be("9876543210");
         user.EmailAddress.Should().Be("john@example.com");
         user.PasswordHash.Should().Be("hashedPassword");
-        user.ProfileImageUrl.Should().Be("https://example.com/profile.jpg");
+
+        user.ProfileImageUrl.Should()
+            .Be("https://images.bookmyhall.com/users/profile.jpg");
+
         user.IsMobileVerified.Should().BeTrue();
         user.IsEmailVerified.Should().BeTrue();
         user.IsActive.Should().BeFalse();
     }
 
-    [Fact]
-    public void User_Should_Have_Default_Values()
-    {
-        var user = new User();
-        user.UserId.Should().Be(Guid.Empty);
-        user.FirstName.Should().BeEmpty();
-        user.MiddleName.Should().BeNull();
-        user.LastName.Should().BeNull();
-        user.MobileNumber.Should().BeEmpty();
-        user.EmailAddress.Should().BeEmpty();
-        user.PasswordHash.Should().BeEmpty(); // Changed
-        user.ProfileImageUrl.Should().BeNull();
-        user.IsMobileVerified.Should().BeFalse();
-        user.IsEmailVerified.Should().BeFalse();
-        user.IsActive.Should().BeTrue();
-    }
+    #region FullName
 
     [Fact]
     public void FullName_Should_Return_FirstName_Only_When_MiddleName_And_LastName_Are_Null()
@@ -225,7 +297,8 @@ public sealed class UserTests
         var result = user.FullName;
 
         // Assert
-        result.Should().Be("Bhushan Dattatray Kachave");
+        result.Should()
+            .Be("Bhushan Dattatray Kachave");
     }
 
     [Fact]
@@ -245,6 +318,10 @@ public sealed class UserTests
         // Assert
         result.Should().Be("Bhushan Kachave");
     }
+
+    #endregion
+
+    #region Verification
 
     [Fact]
     public void VerifyMobile_Should_Set_IsMobileVerified_To_True()
@@ -278,6 +355,10 @@ public sealed class UserTests
         user.IsEmailVerified.Should().BeTrue();
     }
 
+    #endregion
+
+    #region Activation
+
     [Fact]
     public void Activate_Should_Set_IsActive_To_True()
     {
@@ -310,6 +391,10 @@ public sealed class UserTests
         user.IsActive.Should().BeFalse();
     }
 
+    #endregion
+
+    #region Password
+
     [Fact]
     public void UpdatePassword_Should_Update_PasswordHash()
     {
@@ -319,13 +404,15 @@ public sealed class UserTests
             PasswordHash = "old-password-hash"
         };
 
-        var newPasswordHash = "new-password-hash";
+        const string newPasswordHash =
+            "new-password-hash";
 
         // Act
         user.UpdatePassword(newPasswordHash);
 
         // Assert
-        user.PasswordHash.Should().Be(newPasswordHash);
+        user.PasswordHash.Should()
+            .Be(newPasswordHash);
     }
 
     [Fact]
@@ -346,8 +433,12 @@ public sealed class UserTests
 
         // Assert
         user.PasswordChangedAt.Should().NotBeNull();
-        user.PasswordChangedAt.Should().BeOnOrAfter(beforeUpdate);
-        user.PasswordChangedAt.Should().BeOnOrBefore(afterUpdate);
+
+        user.PasswordChangedAt.Should()
+            .BeOnOrAfter(beforeUpdate);
+
+        user.PasswordChangedAt.Should()
+            .BeOnOrBefore(afterUpdate);
     }
 
     [Fact]
@@ -383,6 +474,27 @@ public sealed class UserTests
     }
 
     [Fact]
+    public void UpdatePassword_Should_Increment_TokenVersion_Each_Time()
+    {
+        // Arrange
+        var user = new User
+        {
+            TokenVersion = 1
+        };
+
+        // Act
+        user.UpdatePassword("password-hash-1");
+        user.UpdatePassword("password-hash-2");
+
+        // Assert
+        user.TokenVersion.Should().Be(3);
+    }
+
+    #endregion
+
+    #region Sessions
+
+    [Fact]
     public void RevokeAllSessions_Should_Increment_TokenVersion()
     {
         // Arrange
@@ -415,23 +527,6 @@ public sealed class UserTests
     }
 
     [Fact]
-    public void UpdatePassword_Should_Increment_TokenVersion_Each_Time()
-    {
-        // Arrange
-        var user = new User
-        {
-            TokenVersion = 1
-        };
-
-        // Act
-        user.UpdatePassword("password-hash-1");
-        user.UpdatePassword("password-hash-2");
-
-        // Assert
-        user.TokenVersion.Should().Be(3);
-    }
-
-    [Fact]
     public void RevokeAllSessions_Should_Increment_TokenVersion_Each_Time()
     {
         // Arrange
@@ -447,4 +542,6 @@ public sealed class UserTests
         // Assert
         user.TokenVersion.Should().Be(3);
     }
+
+    #endregion
 }
