@@ -19,4 +19,9 @@ public interface IR2StorageService
     Task<Stream?> GetAsync(
         string objectKey,
         CancellationToken cancellationToken = default);
+
+    Task<string?> GetPreSignedUrlAsync(
+        string objectKey,
+        TimeSpan expiration,
+        CancellationToken cancellationToken = default);
 }

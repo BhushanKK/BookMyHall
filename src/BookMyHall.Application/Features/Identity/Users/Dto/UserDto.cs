@@ -18,7 +18,7 @@ public sealed class UserDto
     public string MobileNumber { get; set; } = string.Empty;
     public DateTimeOffset? DateOfBirth { get; set; }
     public int? Gender { get; set; }
-
+    public string? ProfileImageUrl {get;set;}
     public string? EmailAddress { get; set; }
     public bool IsActive { get; set; }
     public IReadOnlyList<string> Roles { get; set; } = [];

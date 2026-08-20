@@ -1,6 +1,8 @@
 using Amazon.S3;
 using Amazon.S3.Model;
+
 using BookMyHall.Application.Common.Interfaces.Storage;
+
 using Microsoft.Extensions.Options;
 
 namespace BookMyHall.Infrastructure.Storage.CloudflareR2;
@@ -118,5 +120,36 @@ public sealed class CloudflareR2StorageService(
         {
             return null;
         }
+    }
+
+    public async Task<string?> GetPreSignedUrlAsync(
+    string objectKey,
+    TimeSpan expiration,
+    CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(objectKey))
+            return null;
+
+        if (expiration <= TimeSpan.Zero)
+            throw new ArgumentException(
+                "Expiration must be greater than zero.",
+                nameof(expiration));
+
+        var exists = await ExistsAsync(
+            objectKey,
+            cancellationToken);
+
+        if (!exists)
+            return null;
+
+        var request = new GetPreSignedUrlRequest
+        {
+            BucketName = options.Value.BucketName,
+            Key = objectKey,
+            Verb = HttpVerb.GET,
+            Expires = DateTime.UtcNow.Add(expiration)
+        };
+
+        return s3Client.GetPreSignedURL(request);
     }
 }
