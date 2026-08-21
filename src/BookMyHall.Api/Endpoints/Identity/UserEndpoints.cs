@@ -1,12 +1,12 @@
 using MediatR;
 using BookMyHall.Application.Features.Identity.Users;
 using BookMyHall.Contracts.Common;
+using Microsoft.AspNetCore.Mvc;
 using BookMyHall.Domain.Enums;
 namespace BookMyHall.Api.Endpoints.Identity;
 
 public static class UserEndpoints
 {
-
     public static IEndpointRouteBuilder MapUserEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/users")
@@ -30,71 +30,88 @@ public static class UserEndpoints
         .Produces<ApiResponse<UserDto>>(StatusCodes.Status409Conflict)
         .Produces(StatusCodes.Status401Unauthorized);
 
-
-        group.MapPut("/{userId:guid}", async (
-        Guid userId,
-        string firstName,
-        string? middleName,
-        string? lastName,
-        string mobileNumber,
-        DateTimeOffset? dateOfBirth,
-        Gender? gender,
-        string emailAddress,
-        Guid roleId,
-        string? profileImageUrl,
-        IFormFile? image,
-        IMediator mediator,
-        CancellationToken cancellationToken) =>
-    {
-        Stream? imageStream = null;
-
-        try
-        {
-            if (image is not null && image.Length > 0)
+            group.MapPut(
+            "/{userId:guid}",
+            async (
+                Guid userId,
+                [FromForm] UpdateUserForm form,
+                IMediator mediator,
+                CancellationToken cancellationToken) =>
             {
-                imageStream = image.OpenReadStream();
-            }
+                Stream? imageStream = null;
 
-            var command = new UpdateUserCommand(
-                UserId: userId,
-                FirstName: firstName,
-                MiddleName: middleName,
-                LastName: lastName,
-                MobileNumber: mobileNumber,
-                DateOfBirth: dateOfBirth,
-                Gender: gender,
-                EmailAddress: emailAddress,
-                RoleId: roleId,
-                profileImageUrl: profileImageUrl,
-                ImageStream: imageStream,
-                FileName: image?.FileName,
-                ContentType: image?.ContentType,
-                FileSize: image?.Length);
+                try
+                {
+                    // -------------------------------------------------
+                    // Open image stream if supplied
+                    // -------------------------------------------------
 
-            var response = await mediator.Send(command,cancellationToken);
+                    if (form.Image is not null &&
+                        form.Image.Length > 0)
+                    {
+                        imageStream = form.Image.OpenReadStream();
+                    }
 
-            return Results.Json(response,statusCode: (int)response.StatusCode);
-        }
-        finally
-        {
-            if (imageStream is not null)
-            {
-                await imageStream.DisposeAsync();
-            }
-        }
-    })
-    .DisableAntiforgery()
-    .Accepts<IFormFile>("multipart/form-data")
-    .WithName("UpdateUser")
-    .WithSummary("Update User")
-    .WithDescription(
-        "Updates user profile information and optionally uploads a profile picture.")
-    .Produces<ApiResponse<UserDto>>(StatusCodes.Status200OK)
-    .Produces(StatusCodes.Status400BadRequest)
-    .Produces(StatusCodes.Status401Unauthorized)
-    .Produces(StatusCodes.Status404NotFound)
-    .Produces(StatusCodes.Status409Conflict)
-    .RequireAuthorization();
+                    // -------------------------------------------------
+                    // Create application command
+                    // -------------------------------------------------
+
+                    var command = new UpdateUserCommand(
+                        UserId: userId,
+                        FirstName: form.FirstName,
+                        MiddleName: form.MiddleName,
+                        LastName: form.LastName,
+                        MobileNumber: form.MobileNumber,
+                        DateOfBirth: form.DateOfBirth,
+                        Gender: form.Gender,
+                        RoleId: form.RoleId,
+                        EmailAddress: form.EmailAddress,
+                        ImageStream: imageStream,
+                        FileName: form.Image?.FileName,
+                        ContentType: form.Image?.ContentType,
+                        FileSize: form.Image?.Length
+                    );
+
+                    // -------------------------------------------------
+                    // Send command
+                    // -------------------------------------------------
+
+                    var response = await mediator.Send(
+                        command,
+                        cancellationToken);
+
+                    return Results.Json(
+                        response,
+                        statusCode: (int)response.StatusCode);
+                }
+                finally
+                {
+                    // -------------------------------------------------
+                    // Dispose image stream
+                    // -------------------------------------------------
+
+                    if (imageStream is not null)
+                    {
+                        await imageStream.DisposeAsync();
+                    }
+                }
+            })
+            .DisableAntiforgery()
+            .WithName("UpdateUser")
+            .WithSummary("Update User")
+            .WithDescription(
+                "Updates user information and optionally uploads a profile image.")
+            .Produces<ApiResponse<UserDto>>(
+                StatusCodes.Status200OK)
+            .Produces(
+                StatusCodes.Status400BadRequest)
+            .Produces(
+                StatusCodes.Status401Unauthorized)
+            .Produces(
+                StatusCodes.Status404NotFound)
+            .Produces(
+                StatusCodes.Status409Conflict)
+            .RequireAuthorization();
 
         group.MapDelete("/{userId:guid}", async (
             Guid userId,
@@ -142,4 +159,17 @@ public static class UserEndpoints
 
         return app;
     }
+}
+
+public sealed class UpdateUserForm
+{
+    public string FirstName { get; set; } = string.Empty;
+    public string? MiddleName { get; set; }
+    public string? LastName { get; set; }
+    public string MobileNumber { get; set; } = string.Empty;
+    public DateTimeOffset? DateOfBirth { get; set; }
+    public Gender? Gender { get; set; }
+    public Guid RoleId { get; set; }
+    public string EmailAddress { get; set; } = string.Empty;
+    public IFormFile? Image { get; set; }
 }

@@ -6,7 +6,9 @@ using FluentAssertions;
 
 namespace BookMyHall.Api.Tests;
 
-public sealed class UserEndpointsTests(BookMyHallWebApplicationFactory factory): IClassFixture<BookMyHallWebApplicationFactory>
+public sealed class UserEndpointsTests(
+    BookMyHallWebApplicationFactory factory)
+    : IClassFixture<BookMyHallWebApplicationFactory>
 {
     private readonly BookMyHallWebApplicationFactory _factory = factory;
 
@@ -15,7 +17,6 @@ public sealed class UserEndpointsTests(BookMyHallWebApplicationFactory factory):
     [Fact]
     public async Task CreateUser_WithoutAuthentication_ShouldReturnUnauthorized()
     {
-        // Arrange
         var client = _factory.CreateClient();
 
         var request = new
@@ -31,12 +32,10 @@ public sealed class UserEndpointsTests(BookMyHallWebApplicationFactory factory):
             roleId = Guid.NewGuid()
         };
 
-        // Act
         var response = await client.PostAsJsonAsync(
             "/api/users",
             request);
 
-        // Assert
         response.StatusCode.Should()
             .Be(HttpStatusCode.Unauthorized);
     }
@@ -48,14 +47,11 @@ public sealed class UserEndpointsTests(BookMyHallWebApplicationFactory factory):
     [Fact]
     public async Task GetUsers_WithoutAuthentication_ShouldReturnUnauthorized()
     {
-        // Arrange
         var client = _factory.CreateClient();
 
-        // Act
         var response = await client.GetAsync(
             "/api/users");
 
-        // Assert
         response.StatusCode.Should()
             .Be(HttpStatusCode.Unauthorized);
     }
@@ -67,16 +63,13 @@ public sealed class UserEndpointsTests(BookMyHallWebApplicationFactory factory):
     [Fact]
     public async Task GetUserById_WithoutAuthentication_ShouldReturnUnauthorized()
     {
-        // Arrange
         var client = _factory.CreateClient();
 
         var userId = Guid.NewGuid();
 
-        // Act
         var response = await client.GetAsync(
             $"/api/users/{userId}");
 
-        // Assert
         response.StatusCode.Should()
             .Be(HttpStatusCode.Unauthorized);
     }
@@ -84,14 +77,11 @@ public sealed class UserEndpointsTests(BookMyHallWebApplicationFactory factory):
     [Fact]
     public async Task GetUserById_WithInvalidRouteId_ShouldReturnNotFound()
     {
-        // Arrange
         var client = _factory.CreateClient();
 
-        // Act
         var response = await client.GetAsync(
             "/api/users/not-a-guid");
 
-        // Assert
         response.StatusCode.Should()
             .Be(HttpStatusCode.NotFound);
     }
@@ -103,29 +93,16 @@ public sealed class UserEndpointsTests(BookMyHallWebApplicationFactory factory):
     [Fact]
     public async Task UpdateUser_WithoutAuthentication_ShouldReturnUnauthorized()
     {
-        // Arrange
         var client = _factory.CreateClient();
 
         var userId = Guid.NewGuid();
 
-        var request = new
-        {
-            firstName = "Updated",
-            middleName = "Test",
-            lastName = "User",
-            mobileNumber = "9876543210",
-            dateOfBirth = "1998-02-14",
-            gender = 1,
-            emailAddress = "updated@example.com",
-            roleId = Guid.NewGuid()
-        };
+        using var content = CreateUpdateUserContent();
 
-        // Act
-        var response = await client.PutAsJsonAsync(
+        var response = await client.PutAsync(
             $"/api/users/{userId}",
-            request);
+            content);
 
-        // Assert
         response.StatusCode.Should()
             .Be(HttpStatusCode.Unauthorized);
     }
@@ -133,89 +110,32 @@ public sealed class UserEndpointsTests(BookMyHallWebApplicationFactory factory):
     [Fact]
     public async Task UpdateUser_WithInvalidRouteId_ShouldReturnNotFound()
     {
-        // Arrange
         var client = _factory.CreateClient();
 
-        var request = new
-        {
-            firstName = "Updated",
-            middleName = "Test",
-            lastName = "User",
-            mobileNumber = "9876543210",
-            dateOfBirth = "1998-02-14",
-            gender = 1,
-            emailAddress = "updated@example.com",
-            roleId = Guid.NewGuid()
-        };
+        using var content = CreateUpdateUserContent();
 
-        // Act
-        var response = await client.PutAsJsonAsync(
+        var response = await client.PutAsync(
             "/api/users/not-a-guid",
-            request);
-
-        // Assert
-        response.StatusCode.Should()
-            .Be(HttpStatusCode.NotFound);
-    }
-
-    #endregion
-
-    #region Update Profile Image
-
-    [Fact]
-    public async Task UpdateUserProfileImage_WithoutAuthentication_ShouldReturnUnauthorized()
-    {
-        // Arrange
-        var client = _factory.CreateClient();
-
-        var userId = Guid.NewGuid();
-
-        using var content = CreateProfileImageContent();
-
-        // Act
-        var response = await client.PutAsync(
-            $"/api/users/{userId}/profile-image",
             content);
 
-        // Assert
-        response.StatusCode.Should()
-            .Be(HttpStatusCode.Unauthorized);
-    }
-
-    [Fact]
-    public async Task UpdateUserProfileImage_WithInvalidRouteId_ShouldReturnNotFound()
-    {
-        // Arrange
-        var client = _factory.CreateClient();
-
-        using var content = CreateProfileImageContent();
-
-        // Act
-        var response = await client.PutAsync(
-            "/api/users/not-a-guid/profile-image",
-            content);
-
-        // Assert
         response.StatusCode.Should()
             .Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task UpdateUserProfileImage_WithoutImage_ShouldReturnUnauthorized()
+    public async Task UpdateUser_WithImage_WithoutAuthentication_ShouldReturnUnauthorized()
     {
-        // Arrange
         var client = _factory.CreateClient();
 
         var userId = Guid.NewGuid();
 
-        using var content = new MultipartFormDataContent();
+        using var content = CreateUpdateUserContent(
+            includeImage: true);
 
-        // Act
         var response = await client.PutAsync(
-            $"/api/users/{userId}/profile-image",
+            $"/api/users/{userId}",
             content);
 
-        // Assert
         response.StatusCode.Should()
             .Be(HttpStatusCode.Unauthorized);
     }
@@ -227,16 +147,13 @@ public sealed class UserEndpointsTests(BookMyHallWebApplicationFactory factory):
     [Fact]
     public async Task DeleteUser_WithoutAuthentication_ShouldReturnUnauthorized()
     {
-        // Arrange
         var client = _factory.CreateClient();
 
         var userId = Guid.NewGuid();
 
-        // Act
         var response = await client.DeleteAsync(
             $"/api/users/{userId}");
 
-        // Assert
         response.StatusCode.Should()
             .Be(HttpStatusCode.Unauthorized);
     }
@@ -244,14 +161,11 @@ public sealed class UserEndpointsTests(BookMyHallWebApplicationFactory factory):
     [Fact]
     public async Task DeleteUser_WithInvalidRouteId_ShouldReturnNotFound()
     {
-        // Arrange
         var client = _factory.CreateClient();
 
-        // Act
         var response = await client.DeleteAsync(
             "/api/users/not-a-guid");
 
-        // Assert
         response.StatusCode.Should()
             .Be(HttpStatusCode.NotFound);
     }
@@ -260,28 +174,68 @@ public sealed class UserEndpointsTests(BookMyHallWebApplicationFactory factory):
 
     #region Helpers
 
-    private static MultipartFormDataContent CreateProfileImageContent()
+    private static MultipartFormDataContent CreateUpdateUserContent(
+        bool includeImage = false)
     {
         var content = new MultipartFormDataContent();
 
-        var imageBytes = new byte[]
+        content.Add(
+            new StringContent("Updated"),
+            "firstName");
+
+        content.Add(
+            new StringContent("Test"),
+            "middleName");
+
+        content.Add(
+            new StringContent("User"),
+            "lastName");
+
+        content.Add(
+            new StringContent("9876543210"),
+            "mobileNumber");
+
+        content.Add(
+            new StringContent("1998-02-14"),
+            "dateOfBirth");
+
+        content.Add(
+            new StringContent("1"),
+            "gender");
+
+        content.Add(
+            new StringContent("updated@example.com"),
+            "emailAddress");
+
+        content.Add(
+            new StringContent(Guid.NewGuid().ToString()),
+            "roleId");
+
+        if (includeImage)
         {
+            var imageContent = new ByteArrayContent(
+                CreateJpegBytes());
+
+            imageContent.Headers.ContentType =
+                new MediaTypeHeaderValue("image/jpeg");
+
+            content.Add(
+                imageContent,
+                "image",
+                "profile.jpg");
+        }
+
+        return content;
+    }
+
+    private static byte[] CreateJpegBytes()
+    {
+        return
+        [
             0xFF, 0xD8, 0xFF, 0xE0,
             0x00, 0x10, 0x4A, 0x46,
             0x49, 0x46
-        };
-
-        var imageContent = new ByteArrayContent(imageBytes);
-
-        imageContent.Headers.ContentType =
-            new MediaTypeHeaderValue("image/jpeg");
-
-        content.Add(
-            imageContent,
-            "profileImage",
-            "profile.jpg");
-
-        return content;
+        ];
     }
 
     #endregion

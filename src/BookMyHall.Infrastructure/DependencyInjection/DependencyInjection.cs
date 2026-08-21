@@ -166,8 +166,6 @@ public static class DependencyInjection
 
     private static void ValidateJwtOptions(JwtOptions options)
     {
-        ArgumentNullException.ThrowIfNull(options);
-
         if (string.IsNullOrWhiteSpace(options.Issuer))
             throw new InvalidOperationException("Jwt:Issuer is missing.");
 

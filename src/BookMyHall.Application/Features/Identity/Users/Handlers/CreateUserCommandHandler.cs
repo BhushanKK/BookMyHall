@@ -62,7 +62,7 @@ public sealed class CreateUserCommandHandler(
             {
                 RoleId = role.RoleId,
                 CreatedDate = currentDate,
-                CreatedBy = Guid.Empty
+                CreatedBy = user.CreatedBy
             }
         ];
 
