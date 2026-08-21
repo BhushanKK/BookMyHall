@@ -35,7 +35,9 @@
   <data name="RoleId" xml:space="preserve">
     <value>Role Id</value>
   </data>
-
+ <data name="RolePermission" xml:space="preserve">
+    <value>RolePermission</value>
+  </data>
   <data name="Permission" xml:space="preserve">
     <value>Permission</value>
   </data>

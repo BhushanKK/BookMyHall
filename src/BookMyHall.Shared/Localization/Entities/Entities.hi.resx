@@ -40,6 +40,10 @@
     <value>अनुमति</value>
   </data>
 
+  <data name="RolePermission" xml:space="preserve">
+    <value>भूमिका अनुमति</value>
+  </data>
+
   <data name="UserRole" xml:space="preserve">
     <value>उपयोगकर्ता भूमिका</value>
   </data>

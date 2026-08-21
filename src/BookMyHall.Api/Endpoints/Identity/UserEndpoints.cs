@@ -1,14 +1,12 @@
 using MediatR;
-
 using BookMyHall.Application.Features.Identity.Users;
 using BookMyHall.Contracts.Common;
-
-using System.Net;
-
+using BookMyHall.Domain.Enums;
 namespace BookMyHall.Api.Endpoints.Identity;
 
 public static class UserEndpoints
 {
+
     public static IEndpointRouteBuilder MapUserEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/users")
@@ -32,66 +30,71 @@ public static class UserEndpoints
         .Produces<ApiResponse<UserDto>>(StatusCodes.Status409Conflict)
         .Produces(StatusCodes.Status401Unauthorized);
 
+
         group.MapPut("/{userId:guid}", async (
-            Guid userId,
-            UpdateUserRequest request,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
-        {
-            var command = new UpdateUserCommand(
-                userId,
-                request.FirstName,
-                request.MiddleName,
-                request.LastName,
-                request.MobileNumber,
-                request.DateOfBirth,
-                request.Gender,
-                request.EmailAddress,
-                request.RoleId);
+        Guid userId,
+        string firstName,
+        string? middleName,
+        string? lastName,
+        string mobileNumber,
+        DateTimeOffset? dateOfBirth,
+        Gender? gender,
+        string emailAddress,
+        Guid roleId,
+        string? profileImageUrl,
+        IFormFile? image,
+        IMediator mediator,
+        CancellationToken cancellationToken) =>
+    {
+        Stream? imageStream = null;
 
-            var response = await mediator.Send(command, cancellationToken);
-            return Results.Json(response, statusCode: response.StatusCode);
-        })
-        .WithName("UpdateUser")
-        .WithSummary("Update User")
-        .WithDescription("Updates an existing user.")
-        .Produces<ApiResponse<UserDto>>(StatusCodes.Status200OK)
-        .Produces<ApiResponse<UserDto>>(StatusCodes.Status400BadRequest)
-        .Produces<ApiResponse<UserDto>>(StatusCodes.Status404NotFound)
-        .Produces<ApiResponse<UserDto>>(StatusCodes.Status409Conflict)
-        .Produces(StatusCodes.Status401Unauthorized).RequireAuthorization();
-
-        group.MapPut("/{userId:guid}/profile-image", async (
-            Guid userId,
-            IFormFile profileImage,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
+        try
         {
-            if (profileImage.Length == 0)
+            if (image is not null && image.Length > 0)
             {
-                return Results.BadRequest(ApiResponse<UserDto>.FailureResponse(
-                        "Profile image is required.", HttpStatusCode.BadRequest));
+                imageStream = image.OpenReadStream();
             }
 
-            await using var imageStream =profileImage.OpenReadStream();
-            var command = new UpdateUserProfileImageCommand(
-                userId,
-                imageStream,
-                profileImage.FileName,
-                profileImage.ContentType,
-                profileImage.Length);
+            var command = new UpdateUserCommand(
+                UserId: userId,
+                FirstName: firstName,
+                MiddleName: middleName,
+                LastName: lastName,
+                MobileNumber: mobileNumber,
+                DateOfBirth: dateOfBirth,
+                Gender: gender,
+                EmailAddress: emailAddress,
+                RoleId: roleId,
+                profileImageUrl: profileImageUrl,
+                ImageStream: imageStream,
+                FileName: image?.FileName,
+                ContentType: image?.ContentType,
+                FileSize: image?.Length);
 
             var response = await mediator.Send(command,cancellationToken);
-            return Results.Json(response,statusCode: response.StatusCode);
-        })
-        .WithName("UpdateUserProfileImage")
-        .WithSummary("Update User Profile Image")
-        .WithDescription("Uploads or replaces the user's profile image.")
-        .Produces<ApiResponse<UserDto>>(StatusCodes.Status200OK)
-        .Produces<ApiResponse<UserDto>>(StatusCodes.Status400BadRequest)
-        .Produces<ApiResponse<UserDto>>(StatusCodes.Status404NotFound)
-        .Produces(StatusCodes.Status401Unauthorized)
-        .RequireAuthorization();
+
+            return Results.Json(response,statusCode: (int)response.StatusCode);
+        }
+        finally
+        {
+            if (imageStream is not null)
+            {
+                await imageStream.DisposeAsync();
+            }
+        }
+    })
+    .DisableAntiforgery()
+    .Accepts<IFormFile>("multipart/form-data")
+    .WithName("UpdateUser")
+    .WithSummary("Update User")
+    .WithDescription(
+        "Updates user profile information and optionally uploads a profile picture.")
+    .Produces<ApiResponse<UserDto>>(StatusCodes.Status200OK)
+    .Produces(StatusCodes.Status400BadRequest)
+    .Produces(StatusCodes.Status401Unauthorized)
+    .Produces(StatusCodes.Status404NotFound)
+    .Produces(StatusCodes.Status409Conflict)
+    .RequireAuthorization();
 
         group.MapDelete("/{userId:guid}", async (
             Guid userId,

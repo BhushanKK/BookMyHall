@@ -1,7 +1,6 @@
-using BookMyHall.Domain.Common;
 using BookMyHall.Domain.Entities.Identity;
 namespace BookMyHall.Domain.Identity;
-public class RolePermission : BaseEntity
+public class RolePermission 
 {
     public Guid RolePermissionId { get; set; }
     public Guid RoleId { get; set; }

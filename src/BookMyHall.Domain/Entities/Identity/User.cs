@@ -38,7 +38,30 @@ public class User : BaseEntity
     public ICollection<UserRole> UserRoles { get; set; } = [];
     public ICollection<PasswordResetToken> PasswordResetTokens { get; private set; } = [];
     public ICollection<EmailVerificationToken> EmailVerificationTokens { get; private set; } = [];
+public void UpdateUserProfile(
+    string firstName,
+    string? middleName,
+    string? lastName,
+    string mobileNumber,
+    DateTimeOffset? dateOfBirth,
+    Gender? gender,
+    string emailAddress
+    )
+{
+    FirstName = firstName;
+    MiddleName = middleName;
+    LastName = lastName;
+    MobileNumber = mobileNumber;
+    DateOfBirth = dateOfBirth;
+    Gender = gender;
+    EmailAddress = emailAddress;
+   
+}
 
+public void UpdateProfilePicture(string? profileImageUrl)
+{
+    ProfileImageUrl = profileImageUrl;
+}
     public string FullName =>
         string.Join(
             " ",

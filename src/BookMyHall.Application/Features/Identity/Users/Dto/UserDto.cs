@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using BookMyHall.Domain.Enums;
+
 namespace BookMyHall.Application.Features.Identity.Users;
 
 public sealed class UserDto
@@ -19,8 +21,9 @@ public sealed class UserDto
             .Where(x => !string.IsNullOrWhiteSpace(x)));
     public string MobileNumber { get; set; } = string.Empty;
      public string? ProfileImageUrl { get; set; } = string.Empty;
+     
     public DateTimeOffset? DateOfBirth { get; set; }
-    public int? Gender { get; set; }
+    public Gender? Gender { get; set; }
     public string? EmailAddress { get; set; }
     public bool IsActive { get; set; }
     [JsonIgnore]
