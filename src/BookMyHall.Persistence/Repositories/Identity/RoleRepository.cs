@@ -12,7 +12,7 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
     public async Task<Role?> GetByIdAsync(
         Guid roleId,
         CancellationToken cancellationToken = default)
-       => await context.Roles.FirstOrDefaultAsync(x => x.RoleId == roleId && x.IsActive,
+       => await context.Roles.FirstOrDefaultAsync(x => x.RoleId == roleId,
         cancellationToken);
 
     public async Task<PaginatedResult<Role>> GetAllAsync(
