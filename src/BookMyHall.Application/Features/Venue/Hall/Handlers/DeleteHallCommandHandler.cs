@@ -6,14 +6,13 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Venue;
 
-public sealed class DeleteHallCommandHandler(
-    IHallRepository hallRepository,
-    IUnitOfWork unitOfWork,
-    IValidator<DeleteHallCommand> validator,
-    IMessageHelper messageHelper)
+public sealed class DeleteHallCommandHandler(IHallRepository hallRepository,
+    IUnitOfWork unitOfWork,IValidator<DeleteHallCommand> validator,
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<DeleteHallCommand, ApiResponse<bool>>
 {
     public async Task<ApiResponse<bool>> Handle(DeleteHallCommand request,CancellationToken cancellationToken)
@@ -36,7 +35,8 @@ public sealed class DeleteHallCommandHandler(
         hall.IsActive = false;
         await hallRepository.UpdateAsync(hall,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-
+        await cacheService.RemoveAsync($"{CacheKeys.Hall}:{request.HallId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Hall}:", cancellationToken);
         return ApiResponse<bool>.SuccessResponse(true,messageHelper.DeletedEntity(
                 ResourceNames.Entities,EntityKeys.Hall),HttpStatusCode.OK);
     }

@@ -5,13 +5,14 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity;
 
 public sealed class DeleteDeviceCommandHandler(
     IDeviceRepository deviceRepository,
     IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<DeleteDeviceCommand, ApiResponse<bool>>
 {
     public async Task<ApiResponse<bool>> Handle(DeleteDeviceCommand request,CancellationToken cancellationToken)
@@ -27,7 +28,8 @@ public sealed class DeleteDeviceCommandHandler(
         device.UpdatedDate = DateTimeOffset.UtcNow;
         await deviceRepository.UpdateAsync(device, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-
+        await cacheService.RemoveAsync( $"{CacheKeys.Devices}:{request.UserId}",cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.DevicePaged}:",cancellationToken);
         return ApiResponse<bool>.SuccessResponse(true,
             messageHelper.DeletedEntity(ResourceNames.Entities,EntityKeys.Device),HttpStatusCode.OK);
     }

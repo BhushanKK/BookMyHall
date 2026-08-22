@@ -12,6 +12,7 @@ using BookMyHall.Domain.Identity;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Application.Features.Authentication.Events;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
@@ -23,7 +24,7 @@ public sealed class CreateUserCommandHandler(
     IMapper mapper,
     IValidator<CreateUserCommand> validator,
     IMessageHelper messageHelper,
-    IMediator mediator)
+    IMediator mediator,ICacheService cacheService)
     : IRequestHandler<CreateUserCommand, ApiResponse<UserDto>>
 {
     public async Task<ApiResponse<UserDto>> Handle(
@@ -84,7 +85,7 @@ public sealed class CreateUserCommandHandler(
                 HttpStatusCode.Conflict
             );
         }
-
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Users}:", cancellationToken);
         return ApiResponse<UserDto>.SuccessResponse
         (
             mapper.Map<UserDto>(user),

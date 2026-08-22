@@ -9,6 +9,7 @@ using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Domain.Identity;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity;
 
@@ -17,7 +18,7 @@ public sealed class CreatePermissionCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<CreatePermissionCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<CreatePermissionCommand, ApiResponse<PermissionDto>>
 {
     public async Task<ApiResponse<PermissionDto>> Handle(CreatePermissionCommand request,CancellationToken cancellationToken)
@@ -44,7 +45,8 @@ public sealed class CreatePermissionCommandHandler(
             return ApiResponse<PermissionDto>.FailureResponse(messageHelper.AlreadyExistsEntity(
                     ResourceNames.Entities,EntityKeys.Permission),HttpStatusCode.Conflict);
         }
-
+        await cacheService.RemoveByPrefixAsync(CacheKeys.PermissionPaged,cancellationToken);
+        
         return ApiResponse<PermissionDto>.SuccessResponse( mapper.Map<PermissionDto>(permission),messageHelper.AddedEntity(
                 ResourceNames.Entities,EntityKeys.Permission),HttpStatusCode.Created);
     }

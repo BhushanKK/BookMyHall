@@ -9,6 +9,7 @@ using BookMyHall.Contracts.Common;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity;
 
@@ -17,7 +18,7 @@ public sealed class UpdateMenuCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<UpdateMenuCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<UpdateMenuCommand, ApiResponse<MenuDto>>
 {
     public async Task<ApiResponse<MenuDto>> Handle(
@@ -55,10 +56,7 @@ public sealed class UpdateMenuCommandHandler(
 
         try
         {
-            await menuRepository.UpdateAsync(
-                menu,
-                cancellationToken);
-
+            await menuRepository.UpdateAsync(menu,cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
         catch (DuplicateRecordException)
@@ -70,6 +68,9 @@ public sealed class UpdateMenuCommandHandler(
                 HttpStatusCode.Conflict);
         }
 
+        await cacheService.RemoveAsync($"{CacheKeys.Menus}:{request.MenuId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync(CacheKeys.MenuPaged, cancellationToken);
+        
         return ApiResponse<MenuDto>.SuccessResponse(
             mapper.Map<MenuDto>(menu),
             messageHelper.UpdatedEntity(

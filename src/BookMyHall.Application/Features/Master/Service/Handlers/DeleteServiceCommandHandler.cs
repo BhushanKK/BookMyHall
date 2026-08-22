@@ -5,13 +5,12 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class DeleteServiceCommandHandler(
-    IServiceRepository serviceRepository,
-    IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper)
+public sealed class DeleteServiceCommandHandler(IServiceRepository serviceRepository,
+    IUnitOfWork unitOfWork,IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<DeleteServiceCommand, ApiResponse<bool>>
 {
     public async Task<ApiResponse<bool>> Handle(DeleteServiceCommand request,CancellationToken cancellationToken)
@@ -27,6 +26,8 @@ public sealed class DeleteServiceCommandHandler(
         service.IsActive = false;
         await serviceRepository.UpdateAsync(service, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+        await cacheService.RemoveAsync($"{CacheKeys.Service}:{request.ServiceId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Service}:", cancellationToken);
         return ApiResponse<bool>.SuccessResponse(true,
             messageHelper.DeletedEntity(ResourceNames.Entities,EntityKeys.Service),HttpStatusCode.OK);
     }

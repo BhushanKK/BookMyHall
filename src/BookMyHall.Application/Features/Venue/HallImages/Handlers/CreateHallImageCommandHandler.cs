@@ -10,6 +10,7 @@ using BookMyHall.Domain.Venue;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Venue;
 
@@ -19,7 +20,7 @@ public sealed class CreateHallImageCommandHandler(
     IUnitOfWork unitOfWork,
     IR2StorageService r2StorageService,
     IValidator<CreateHallImageCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<CreateHallImageCommand, ApiResponse<Guid>>
 {
     public async Task<ApiResponse<Guid>> Handle(CreateHallImageCommand request, CancellationToken cancellationToken)
@@ -76,7 +77,8 @@ public sealed class CreateHallImageCommandHandler(
             // 8. Save HallImage
             await hallImageRepository.AddAsync(hallImage, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
-
+            
+            await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallImage}:", cancellationToken);
             // 9. Return success
             return ApiResponse<Guid>.SuccessResponse
             (

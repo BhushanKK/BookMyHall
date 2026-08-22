@@ -1,7 +1,11 @@
 using System.Net;
+
 using AutoMapper;
+
 using FluentValidation;
+
 using MediatR;
+
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -9,6 +13,7 @@ using BookMyHall.Domain.Masters;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
@@ -17,17 +22,18 @@ public sealed class CreateCancellationPolicyCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<CreateCancellationPolicyCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,
+    ICacheService cacheService)
     : IRequestHandler<CreateCancellationPolicyCommand, ApiResponse<CancellationPolicyDto>>
 {
-    public async Task<ApiResponse<CancellationPolicyDto>> Handle(CreateCancellationPolicyCommand request,CancellationToken cancellationToken)
+    public async Task<ApiResponse<CancellationPolicyDto>> Handle(CreateCancellationPolicyCommand request, CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request,cancellationToken);
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
-            var message = string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage));
+            var message = string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage));
 
-            return ApiResponse<CancellationPolicyDto>.FailureResponse(message,HttpStatusCode.BadRequest);
+            return ApiResponse<CancellationPolicyDto>.FailureResponse(message, HttpStatusCode.BadRequest);
         }
 
         var policy = mapper.Map<CancellationPolicy>(request);
@@ -36,17 +42,17 @@ public sealed class CreateCancellationPolicyCommandHandler(
 
         try
         {
-            await cancellationPolicyRepository.AddAsync(policy,cancellationToken);
+            await cancellationPolicyRepository.AddAsync(policy, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
         catch (DuplicateRecordException)
         {
             return ApiResponse<CancellationPolicyDto>.FailureResponse(
-                messageHelper.AlreadyExistsEntity(ResourceNames.Entities,EntityKeys.CancellationPolicy),HttpStatusCode.Conflict);
+                messageHelper.AlreadyExistsEntity(ResourceNames.Entities, EntityKeys.CancellationPolicy), HttpStatusCode.Conflict);
         }
-
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.CancellationPolicy}:", cancellationToken);
         return ApiResponse<CancellationPolicyDto>.SuccessResponse(
             mapper.Map<CancellationPolicyDto>(policy),
-            messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.CancellationPolicy),HttpStatusCode.Created);
+            messageHelper.AddedEntity(ResourceNames.Entities, EntityKeys.CancellationPolicy), HttpStatusCode.Created);
     }
 }

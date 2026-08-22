@@ -5,13 +5,14 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity;
 
 public sealed class DeleteMenuCommandHandler(
     IMenuRepository menuRepository,
     IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<DeleteMenuCommand,ApiResponse<bool>>
 {
     public async Task<ApiResponse<bool>> Handle(
@@ -32,7 +33,8 @@ public sealed class DeleteMenuCommandHandler(
 
         await menuRepository.UpdateAsync(menu,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-
+        await cacheService.RemoveAsync( $"{CacheKeys.Menus}:{request.MenuId}",cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.MenuPaged}:",cancellationToken);
         return ApiResponse<bool>.SuccessResponse
         (
             true,messageHelper.DeletedEntity(ResourceNames.Entities,EntityKeys.Menu),

@@ -8,20 +8,16 @@ using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Venue;
 
-public sealed class UpdateHallCommandHandler(
-    IHallRepository hallRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<UpdateHallCommand> validator,
-    IMessageHelper messageHelper)
+public sealed class UpdateHallCommandHandler(IHallRepository hallRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<UpdateHallCommand> validator,
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<UpdateHallCommand, ApiResponse<HallDto>>
 {
-    public async Task<ApiResponse<HallDto>> Handle(
-        UpdateHallCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<HallDto>> Handle(UpdateHallCommand request,CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
@@ -61,7 +57,8 @@ public sealed class UpdateHallCommandHandler(
                 HttpStatusCode.Conflict
             );
         }
-
+        await cacheService.RemoveAsync($"{CacheKeys.Hall}:{request.HallId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Hall}:", cancellationToken);
         return ApiResponse<HallDto>.SuccessResponse
         (
             mapper.Map<HallDto>(hall),

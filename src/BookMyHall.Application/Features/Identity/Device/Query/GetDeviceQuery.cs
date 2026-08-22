@@ -3,5 +3,5 @@ using BookMyHall.Contracts.Common;
 
 namespace BookMyHall.Application.Features.Identity;
 
-public sealed record GetDeviceQuery(PaginationRequest Request)
+public sealed record GetDeviceQuery(PaginationRequest paginationRequest)
 : IRequest<ApiResponse<PaginatedResponse<DeviceDto>>>;

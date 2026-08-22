@@ -1,32 +1,54 @@
 using System.Net;
 using AutoMapper;
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Domain.Masters;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class GetHallCategoriesQueryHandler(
-    IHallCategoryRepository hallCategoryRepository,
-    IMapper mapper,IMessageHelper messageHelper)
-    : IRequestHandler<GetHallCategoriesQuery,ApiResponse<PaginatedResponse<HallCategoryDto>>>
+public sealed class GetHallCategoriesQueryHandler(IHallCategoryRepository hallCategoryRepository,
+    IMapper mapper, IMessageHelper messageHelper, ICacheService cacheService)
+    : IRequestHandler<GetHallCategoriesQuery, ApiResponse<PaginatedResult<HallCategory>>>
 {
-    public async Task<ApiResponse<PaginatedResponse<HallCategoryDto>>> Handle(GetHallCategoriesQuery request,CancellationToken cancellationToken)
+    public async Task<ApiResponse<PaginatedResult<HallCategory>>> Handle(GetHallCategoriesQuery request, CancellationToken cancellationToken)
     {
-        var pagedResult = await hallCategoryRepository.GetAllAsync(request.Request,cancellationToken);
-        var response = new PaginatedResponse<HallCategoryDto>
+        var pagination = request.paginationRequest;
+
+        var cacheKey = CacheKeyBuilder.BuildPaginatedKey<HallCategory>(
+            CacheKeys.HallCategory,
+            pagination.PageNumber,
+            pagination.PageSize,
+            pagination.SearchText,
+            pagination.SortBy,
+            pagination.SortDescending);
+
+        var cachedResponse = await cacheService.GetAsync<PaginatedResult<HallCategory>>(cacheKey, cancellationToken);
+
+        if (cachedResponse is not null)
         {
-            Items = mapper.Map<IReadOnlyList<HallCategoryDto>>(pagedResult.Items),
+            return ApiResponse<PaginatedResult<HallCategory>>.SuccessResponse
+            (
+                cachedResponse,
+                messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.HallCategory),
+                HttpStatusCode.OK
+            );
+        }
+        var pagedResult = await hallCategoryRepository.GetAllAsync(request.paginationRequest, cancellationToken);
+        var response = new PaginatedResult<HallCategory>
+        {
+            Items = mapper.Map<IReadOnlyList<HallCategory>>(pagedResult.Items),
             PageNumber = pagedResult.PageNumber,
             PageSize = pagedResult.PageSize,
-            TotalRecords = pagedResult.TotalCount
+            TotalCount = pagedResult.TotalCount
         };
 
-        return ApiResponse<PaginatedResponse<HallCategoryDto>>.SuccessResponse(response,
-            messageHelper.RetrievedEntity(ResourceNames.Entities,EntityKeys.HallCategory),HttpStatusCode.OK);
+        await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
+
+        return ApiResponse<PaginatedResult<HallCategory>>.SuccessResponse(response,
+            messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.HallCategory), HttpStatusCode.OK);
     }
 }

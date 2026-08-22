@@ -9,14 +9,14 @@ using BookMyHall.Contracts.Common;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Venue;
 
-public sealed class UpdateHallBlockCommandHandler(
-    IHallBlockRepository hallBlockRepository,
-    IUnitOfWork unitOfWork,IMapper mapper,
-    IValidator<UpdateHallBlockCommand> validator,
-    IMessageHelper messageHelper): IRequestHandler<UpdateHallBlockCommand,ApiResponse<HallBlockDto>>
+public sealed class UpdateHallBlockCommandHandler(IHallBlockRepository hallBlockRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<UpdateHallBlockCommand> validator,
+    IMessageHelper messageHelper,ICacheService cacheService)
+    : IRequestHandler<UpdateHallBlockCommand,ApiResponse<HallBlockDto>>
 {
     public async Task<ApiResponse<HallBlockDto>> Handle(UpdateHallBlockCommand request,CancellationToken cancellationToken)
     {
@@ -50,6 +50,9 @@ public sealed class UpdateHallBlockCommandHandler(
                 messageHelper.AlreadyExistsEntity(ResourceNames.Entities,
                     EntityKeys.HallBlock),HttpStatusCode.Conflict);
         }
+        
+        await cacheService.RemoveAsync($"{CacheKeys.HallBlock}:{request.HallBlockId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallBlock}:", cancellationToken);
 
         return ApiResponse<HallBlockDto>.SuccessResponse(
             mapper.Map<HallBlockDto>(hallBlock),

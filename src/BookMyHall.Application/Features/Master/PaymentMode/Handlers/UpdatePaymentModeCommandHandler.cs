@@ -7,15 +7,13 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class UpdatePaymentModeCommandHandler(
-    IPaymentModeRepository paymentModeRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<UpdatePaymentModeCommand> validator,
-    IMessageHelper messageHelper)
+public sealed class UpdatePaymentModeCommandHandler(IPaymentModeRepository paymentModeRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<UpdatePaymentModeCommand> validator,
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<UpdatePaymentModeCommand, ApiResponse<PaymentModeDto>>
 {
     public async Task<ApiResponse<PaymentModeDto>> Handle(UpdatePaymentModeCommand request,CancellationToken cancellationToken)
@@ -47,7 +45,8 @@ public sealed class UpdatePaymentModeCommandHandler(
         mapper.Map(request, paymentMode);
         await paymentModeRepository.UpdateAsync(paymentMode,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-
+        await cacheService.RemoveAsync($"{CacheKeys.PaymentMode}:{request.PaymentModeId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.PaymentMode}:", cancellationToken);
         return ApiResponse<PaymentModeDto>.SuccessResponse(
             mapper.Map<PaymentModeDto>(paymentMode),
             messageHelper.UpdatedEntity(ResourceNames.Entities,EntityKeys.PaymentMode),HttpStatusCode.OK);

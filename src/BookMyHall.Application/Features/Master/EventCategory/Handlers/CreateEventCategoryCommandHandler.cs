@@ -9,6 +9,7 @@ using BookMyHall.Domain.Masters;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
@@ -17,7 +18,7 @@ public sealed class CreateEventCategoryCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<CreateEventCategoryCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<CreateEventCategoryCommand, ApiResponse<EventCategoryDto>>
 {
     public async Task<ApiResponse<EventCategoryDto>> Handle(CreateEventCategoryCommand request,CancellationToken cancellationToken)
@@ -43,6 +44,7 @@ public sealed class CreateEventCategoryCommandHandler(
             return ApiResponse<EventCategoryDto>.FailureResponse(
                 messageHelper.AlreadyExistsEntity(ResourceNames.Entities,EntityKeys.EventCategory),HttpStatusCode.Conflict);
         }
+         await cacheService.RemoveByPrefixAsync($"{CacheKeys.EventCategory}:",cancellationToken);
 
         return ApiResponse<EventCategoryDto>.SuccessResponse(
             mapper.Map<EventCategoryDto>(eventCategory),
