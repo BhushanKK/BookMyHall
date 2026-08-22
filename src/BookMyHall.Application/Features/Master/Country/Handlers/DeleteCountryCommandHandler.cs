@@ -1,5 +1,6 @@
 using System.Net;
 using MediatR;
+using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -11,7 +12,8 @@ namespace BookMyHall.Application.Features.Master;
 public sealed class DeleteCountryCommandHandler(
     ICountryRepository countryRepository,
     IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,
+    ICacheService cacheService)
     : IRequestHandler<DeleteCountryCommand, ApiResponse<bool>>
 {
     public async Task<ApiResponse<bool>> Handle(
@@ -36,6 +38,14 @@ public sealed class DeleteCountryCommandHandler(
             cancellationToken);
 
         await unitOfWork.SaveChangesAsync(
+            cancellationToken);
+
+        await cacheService.RemoveAsync(
+            $"{CacheKeys.Country}:{request.CountryId}",
+            cancellationToken);
+
+        await cacheService.RemoveByPrefixAsync(
+            $"{CacheKeys.Countries}:",
             cancellationToken);
 
         return ApiResponse<bool>.SuccessResponse(

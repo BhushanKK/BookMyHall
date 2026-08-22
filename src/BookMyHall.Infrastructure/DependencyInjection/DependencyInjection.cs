@@ -18,6 +18,8 @@ using BookMyHall.Infrastructure.Storage.CloudflareR2;
 using Amazon.S3;
 using Microsoft.Extensions.Options;
 using BookMyHall.Application.Common.Interfaces.Storage;
+using BookMyHall.Infrastructure.Caching;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Infrastructure;
 
@@ -161,6 +163,8 @@ public static class DependencyInjection
                 config);
         });
         services.AddScoped<IR2StorageService, CloudflareR2StorageService>();
+        services.AddMemoryCache();
+        services.AddScoped<ICacheService, MemoryCacheService>();
         return services;
     }
 

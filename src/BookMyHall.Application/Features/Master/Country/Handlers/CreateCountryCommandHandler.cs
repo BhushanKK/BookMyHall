@@ -2,6 +2,7 @@ using System.Net;
 using AutoMapper;
 using FluentValidation;
 using MediatR;
+using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -17,7 +18,8 @@ public sealed class CreateCountryCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<CreateCountryCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,
+    ICacheService cacheService)
     : IRequestHandler<CreateCountryCommand, ApiResponse<CountryDto>>
 {
     public async Task<ApiResponse<CountryDto>> Handle(
@@ -25,7 +27,9 @@ public sealed class CreateCountryCommandHandler(
         CancellationToken cancellationToken)
     {
         var validationResult =
-            await validator.ValidateAsync(request, cancellationToken);
+            await validator.ValidateAsync(
+                request,
+                cancellationToken);
 
         if (!validationResult.IsValid)
         {
@@ -60,6 +64,10 @@ public sealed class CreateCountryCommandHandler(
                     EntityKeys.Country),
                 HttpStatusCode.Conflict);
         }
+
+        await cacheService.RemoveByPrefixAsync(
+            $"{CacheKeys.Countries}:",
+            cancellationToken);
 
         return ApiResponse<CountryDto>.SuccessResponse(
             mapper.Map<CountryDto>(country),
