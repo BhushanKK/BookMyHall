@@ -53,7 +53,7 @@ public sealed class UpdateCancellationPolicyCommandHandler(
         await cancellationPolicyRepository.UpdateAsync(policy, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await cacheService.RemoveAsync($"{CacheKeys.CancellationPolicy}:{request.CancellationPolicyId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Countries}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.CancellationPolicy}:", cancellationToken);
         
         return ApiResponse<CancellationPolicyDto>.SuccessResponse(
             mapper.Map<CancellationPolicyDto>(policy),
