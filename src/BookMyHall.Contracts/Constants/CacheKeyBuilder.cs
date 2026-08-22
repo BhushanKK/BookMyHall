@@ -1,20 +1,15 @@
-namespace BookMyHall.Shared.Common;
+namespace BookMyHall.Application.Abstractions.Caching;
 
 public static class CacheKeyBuilder
 {
     public static string BuildPaginatedKey<T>(
-        string baseKey,
+        string prefix,
         int pageNumber,
         int pageSize,
         string? searchText,
         string? sortBy,
         bool sortDescending)
     {
-        return $"{baseKey}:page:" +
-               $"{pageNumber}:" +
-               $"{pageSize}:" +
-               $"{searchText?.Trim().ToLowerInvariant() ?? string.Empty}:" +
-               $"{sortBy?.Trim().ToLowerInvariant() ?? string.Empty}:" +
-               $"{sortDescending}";
+        return $"{prefix}:page:{pageNumber}:{pageSize}:{searchText?.Trim().ToLowerInvariant()}:{sortBy?.Trim().ToLowerInvariant()}:{sortDescending}";
     }
 }

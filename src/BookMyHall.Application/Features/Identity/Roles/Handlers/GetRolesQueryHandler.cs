@@ -31,46 +31,35 @@ public sealed class GetRolesQueryHandler(
             pagination.SortBy,
             pagination.SortDescending);
 
-        var cachedResponse =
-            await cacheService.GetAsync<PaginatedResponse<Role>>(
-                cacheKey,
-                cancellationToken);
+        var cachedResponse = await cacheService.GetAsync<PaginatedResponse<Role>>(cacheKey, cancellationToken);
 
         if (cachedResponse is not null)
         {
-            return ApiResponse<PaginatedResponse<Role>>.SuccessResponse(
+            return ApiResponse<PaginatedResponse<Role>>.SuccessResponse
+            (
                 cachedResponse,
-                messageHelper.RetrievedEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.Role),
-                HttpStatusCode.OK);
+                messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Role),
+                HttpStatusCode.OK
+            );
         }
 
-        var pagedResult =
-            await roleRepository.GetAllAsync(
-                pagination,
-                cancellationToken);
+        var pagedResult = await roleRepository.GetAllAsync(pagination, cancellationToken);
 
         var response = new PaginatedResponse<Role>
         {
-            Items = mapper.Map<IReadOnlyList<Role>>(
-                pagedResult.Items),
+            Items = mapper.Map<IReadOnlyList<Role>>(pagedResult.Items),
             PageNumber = pagedResult.PageNumber,
             PageSize = pagedResult.PageSize,
             TotalRecords = pagedResult.TotalCount
         };
 
-        await cacheService.SetAsync(
-            cacheKey,
-            response,
-            TimeSpan.FromMinutes(30),
-            cancellationToken);
+        await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
 
-        return ApiResponse<PaginatedResponse<Role>>.SuccessResponse(
+        return ApiResponse<PaginatedResponse<Role>>.SuccessResponse
+        (
             response,
-            messageHelper.RetrievedEntity(
-                ResourceNames.Entities,
-                EntityKeys.Role),
-            HttpStatusCode.OK);
+            messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Role),
+            HttpStatusCode.OK
+        );
     }
 }

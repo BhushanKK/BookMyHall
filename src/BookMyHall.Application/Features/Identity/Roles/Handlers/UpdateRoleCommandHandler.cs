@@ -1,14 +1,14 @@
-using MediatR;
 using System.Net;
 using AutoMapper;
 using FluentValidation;
+using MediatR;
+using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
-using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity;
 
@@ -21,16 +21,14 @@ public sealed class UpdateRoleCommandHandler(
     ICacheService cacheService)
     : IRequestHandler<UpdateRoleCommand, ApiResponse<RoleDto>>
 {
-    public async Task<ApiResponse<RoleDto>> Handle(
-        UpdateRoleCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<RoleDto>> Handle(UpdateRoleCommand request, CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
         {
             var message = string.Join(" | ",validationResult.Errors.Select(e => e.ErrorMessage));
-            return ApiResponse<RoleDto>.FailureResponse(message,HttpStatusCode.BadRequest);
+            return ApiResponse<RoleDto>.FailureResponse(message, HttpStatusCode.BadRequest);
         }
 
         var role = await roleRepository.GetByIdAsync(request.RoleId, cancellationToken);
@@ -39,7 +37,7 @@ public sealed class UpdateRoleCommandHandler(
         {
             return ApiResponse<RoleDto>.FailureResponse
             (
-                messageHelper.NotFoundEntity(ResourceNames.Entities,EntityKeys.Role),
+                messageHelper.NotFoundEntity(ResourceNames.Entities, EntityKeys.Role),
                 HttpStatusCode.NotFound
             );
         }
@@ -55,19 +53,18 @@ public sealed class UpdateRoleCommandHandler(
         {
             return ApiResponse<RoleDto>.FailureResponse
             (
-                messageHelper.AlreadyExistsEntity(ResourceNames.Entities,EntityKeys.Role),
+                messageHelper.AlreadyExistsEntity(ResourceNames.Entities, EntityKeys.Role),
                 HttpStatusCode.Conflict
             );
         }
 
         await cacheService.RemoveAsync($"{CacheKeys.Roles}:{request.RoleId}", cancellationToken);
-
         await cacheService.RemoveByPrefixAsync(CacheKeys.RolesPaged, cancellationToken);
 
         return ApiResponse<RoleDto>.SuccessResponse
         (
             mapper.Map<RoleDto>(role),
-            messageHelper.UpdatedEntity(ResourceNames.Entities,EntityKeys.Role),
+            messageHelper.UpdatedEntity(ResourceNames.Entities, EntityKeys.Role),
             HttpStatusCode.OK
         );
     }
