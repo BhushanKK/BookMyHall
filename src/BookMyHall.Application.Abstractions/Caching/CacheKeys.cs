@@ -7,7 +7,6 @@ public static class CacheKeys
     public const string Districts = "districts";
     public const string Cities = "cities";
     public const string Areas = "areas";
-<<<<<<< HEAD
     public const string CancellationPolicy = "cancelationpolicy";
     public const string EventCategory = "eventcategory";
     public const string Facility = "facility";
@@ -21,9 +20,7 @@ public static class CacheKeys
     public const string HallBlock = "hallblock";
     public const string HallPricing = "hallpricing";
     public const string HallCoverImage = "HallCoverImage";
-}
-=======
+
     public const string Roles = "roles";
     public const string RolesPaged = "roles:page:";
 }
->>>>>>> 0569a2115bd07b5bdb8fb49efe094c0701fcacab
