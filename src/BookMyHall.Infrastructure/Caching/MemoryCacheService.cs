@@ -76,9 +76,10 @@ public sealed class MemoryCacheService(
         lock (_lock)
         {
             keys = _cacheKeys
-                .Where(x => x.StartsWith(
-                    prefix,
-                    StringComparison.OrdinalIgnoreCase))
+                .Where(x =>
+                    x.StartsWith(
+                        prefix,
+                        StringComparison.OrdinalIgnoreCase))
                 .ToArray();
         }
 
