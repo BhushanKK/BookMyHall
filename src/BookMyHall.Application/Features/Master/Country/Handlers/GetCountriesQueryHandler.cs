@@ -8,6 +8,7 @@ using BookMyHall.Domain.Masters;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Contracts.Constants;
+using BookMyHall.Domain.Entities.Identity;
 
 namespace BookMyHall.Application.Features.Master;
 
@@ -24,15 +25,13 @@ public sealed class GetCountriesQueryHandler(
     {
         var pagination = request.PaginationRequest;
 
-        var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Country>
-        (
-            CacheKeys.Country,
+        var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Role>(
+            CacheKeys.Roles,
             pagination.PageNumber,
             pagination.PageSize,
             pagination.SearchText,
             pagination.SortBy,
-            pagination.SortDescending
-        );
+            pagination.SortDescending);
 
         var cachedResponse = await cacheService.GetAsync<PaginatedResult<Country>>(cacheKey, cancellationToken);
 
