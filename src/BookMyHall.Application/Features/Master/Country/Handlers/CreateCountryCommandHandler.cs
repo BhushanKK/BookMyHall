@@ -22,24 +22,14 @@ public sealed class CreateCountryCommandHandler(
     ICacheService cacheService)
     : IRequestHandler<CreateCountryCommand, ApiResponse<CountryDto>>
 {
-    public async Task<ApiResponse<CountryDto>> Handle(
-        CreateCountryCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<CountryDto>> Handle(CreateCountryCommand request, CancellationToken cancellationToken)
     {
-        var validationResult =
-            await validator.ValidateAsync(
-                request,
-                cancellationToken);
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
         {
-            var message = string.Join(
-                " | ",
-                validationResult.Errors.Select(x => x.ErrorMessage));
-
-            return ApiResponse<CountryDto>.FailureResponse(
-                message,
-                HttpStatusCode.BadRequest);
+            var message = string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage));
+            return ApiResponse<CountryDto>.FailureResponse(message,HttpStatusCode.BadRequest);
         }
 
         var country = mapper.Map<Country>(request);
@@ -49,31 +39,25 @@ public sealed class CreateCountryCommandHandler(
 
         try
         {
-            await countryRepository.AddAsync(
-                country,
-                cancellationToken);
-
-            await unitOfWork.SaveChangesAsync(
-                cancellationToken);
+            await countryRepository.AddAsync(country,cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
         }
         catch (DuplicateRecordException)
         {
-            return ApiResponse<CountryDto>.FailureResponse(
-                messageHelper.AlreadyExistsEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.Country),
-                HttpStatusCode.Conflict);
+            return ApiResponse<CountryDto>.FailureResponse
+            (
+                messageHelper.AlreadyExistsEntity(ResourceNames.Entities,EntityKeys.Country),
+                HttpStatusCode.Conflict
+            );
         }
 
-        await cacheService.RemoveByPrefixAsync(
-            $"{CacheKeys.Countries}:",
-            cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Country}:", cancellationToken);
 
-        return ApiResponse<CountryDto>.SuccessResponse(
+        return ApiResponse<CountryDto>.SuccessResponse
+        (
             mapper.Map<CountryDto>(country),
-            messageHelper.AddedEntity(
-                ResourceNames.Entities,
-                EntityKeys.Country),
-            HttpStatusCode.Created);
+            messageHelper.AddedEntity(ResourceNames.Entities, EntityKeys.Country),
+            HttpStatusCode.Created
+        );
     }
 }

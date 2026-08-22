@@ -8,6 +8,7 @@ using BookMyHall.Contracts.Common;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity;
 
@@ -16,7 +17,8 @@ public sealed class UpdateRoleCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<UpdateRoleCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,
+    ICacheService cacheService)
     : IRequestHandler<UpdateRoleCommand, ApiResponse<RoleDto>>
 {
     public async Task<ApiResponse<RoleDto>> Handle(
@@ -57,6 +59,9 @@ public sealed class UpdateRoleCommandHandler(
                 HttpStatusCode.Conflict
             );
         }
+
+        await cacheService.RemoveAsync($"{CacheKeys.Roles}:{request.RoleId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Roles}:page:", cancellationToken);
 
         return ApiResponse<RoleDto>.SuccessResponse
         (

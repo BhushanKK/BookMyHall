@@ -1,25 +1,44 @@
-using MediatR;
 using System.Net;
 using AutoMapper;
+using MediatR;
+using BookMyHall.Application.Abstractions.Caching;
+using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
-using BookMyHall.Application.Abstractions.Persistence.Repositories;
 
 namespace BookMyHall.Application.Features.Identity;
 
 public sealed class GetRolesQueryHandler(
     IRoleRepository roleRepository,
     IMapper mapper,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,
+    ICacheService cacheService)
     : IRequestHandler<GetRolesQuery, ApiResponse<PaginatedResponse<Role>>>
 {
-    public async Task<ApiResponse<PaginatedResponse<Role>>> Handle(
-        GetRolesQuery request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<PaginatedResponse<Role>>> Handle(GetRolesQuery request, CancellationToken cancellationToken)
     {
-        var pagedResult = await roleRepository.GetAllAsync(request.Request, cancellationToken);
+        var pagination = request.paginationRequest;
+
+        var cacheKey =
+            $"{CacheKeys.Roles}:" +
+            $"page:{pagination.PageNumber}:" +
+            $"size:{pagination.PageSize}";
+
+        var cachedResponse = await cacheService.GetAsync<PaginatedResponse<Role>>(cacheKey, cancellationToken);
+
+        if (cachedResponse is not null)
+        {
+            return ApiResponse<PaginatedResponse<Role>>.SuccessResponse
+            (
+                cachedResponse,
+                messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Role),
+                HttpStatusCode.OK
+            );
+        }
+
+        var pagedResult = await roleRepository.GetAllAsync(pagination, cancellationToken);
 
         var response = new PaginatedResponse<Role>
         {
@@ -29,10 +48,12 @@ public sealed class GetRolesQueryHandler(
             TotalRecords = pagedResult.TotalCount
         };
 
+        await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
+
         return ApiResponse<PaginatedResponse<Role>>.SuccessResponse
         (
             response,
-            messageHelper.RetrievedEntity(ResourceNames.Entities,EntityKeys.Role),
+            messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Role),
             HttpStatusCode.OK
         );
     }

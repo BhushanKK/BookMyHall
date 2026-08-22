@@ -4,5 +4,5 @@ using BookMyHall.Domain.Entities.Identity;
 
 namespace BookMyHall.Application.Features.Identity;
 
-public sealed record GetRolesQuery(PaginationRequest Request)
+public sealed record GetRolesQuery(PaginationRequest paginationRequest)
     : IRequest<ApiResponse<PaginatedResponse<Role>>>;

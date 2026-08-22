@@ -24,7 +24,7 @@ public sealed class GetCountriesQueryHandler(
         var pagination = request.PaginationRequest;
 
         var cacheKey =
-            $"{CacheKeys.Countries}:" +
+            $"{CacheKeys.Country}:" +
             $"page:{pagination.PageNumber}:" +
             $"size:{pagination.PageSize}";
 

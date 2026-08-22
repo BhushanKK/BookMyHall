@@ -5,13 +5,15 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity;
 
 public sealed class DeleteRoleCommandHandler(
     IRoleRepository roleRepository,
     IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,
+    ICacheService cacheService)
     : IRequestHandler<DeleteRoleCommand, ApiResponse<bool>>
 {
     public async Task<ApiResponse<bool>> Handle(
@@ -33,6 +35,9 @@ public sealed class DeleteRoleCommandHandler(
 
         await roleRepository.UpdateAsync(role, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await cacheService.RemoveAsync($"{CacheKeys.Roles}:{request.RoleId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Roles}:page:", cancellationToken);
 
         return ApiResponse<bool>.SuccessResponse
         (
