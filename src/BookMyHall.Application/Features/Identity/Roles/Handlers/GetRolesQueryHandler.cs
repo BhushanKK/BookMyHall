@@ -7,6 +7,7 @@ using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Contracts.Constants;
 
 namespace BookMyHall.Application.Features.Identity;
 
@@ -21,10 +22,15 @@ public sealed class GetRolesQueryHandler(
     {
         var pagination = request.paginationRequest;
 
-        var cacheKey =
-            $"{CacheKeys.Roles}:" +
-            $"page:{pagination.PageNumber}:" +
-            $"size:{pagination.PageSize}";
+        var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Role>
+        (
+            CacheKeys.Roles,
+            pagination.PageNumber,
+            pagination.PageSize,
+            pagination.SearchText,
+            pagination.SortBy,
+            pagination.SortDescending
+        );
 
         var cachedResponse = await cacheService.GetAsync<PaginatedResponse<Role>>(cacheKey, cancellationToken);
 
