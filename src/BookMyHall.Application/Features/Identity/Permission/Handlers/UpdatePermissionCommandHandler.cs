@@ -7,6 +7,7 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity;
 
@@ -14,7 +15,7 @@ public sealed class UpdatePermissionCommandHandler(
     IPermissionRepository permissionRepository,
     IUnitOfWork unitOfWork,IMapper mapper,
     IValidator<UpdatePermissionCommand> validator,
-    IMessageHelper messageHelper): IRequestHandler<UpdatePermissionCommand, ApiResponse<PermissionDto>>
+    IMessageHelper messageHelper,ICacheService cacheService): IRequestHandler<UpdatePermissionCommand, ApiResponse<PermissionDto>>
 {
     public async Task<ApiResponse<PermissionDto>> Handle(UpdatePermissionCommand request,CancellationToken cancellationToken)
     {
@@ -37,7 +38,8 @@ public sealed class UpdatePermissionCommandHandler(
         mapper.Map(request, permission);
         await permissionRepository.UpdateAsync(permission,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-
+        await cacheService.RemoveAsync($"{CacheKeys.Permissions}:{request.PermissionId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync(CacheKeys.PermissionPaged, cancellationToken);
         return ApiResponse<PermissionDto>.SuccessResponse(mapper.Map<PermissionDto>(permission),
             messageHelper.UpdatedEntity(ResourceNames.Entities,EntityKeys.Permission),HttpStatusCode.OK);
     }

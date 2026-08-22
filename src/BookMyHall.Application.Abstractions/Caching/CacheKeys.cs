@@ -23,4 +23,13 @@ public static class CacheKeys
 
     public const string Roles = "roles";
     public const string RolesPaged = "roles:page:";
+    public const string Users = "users";
+    public const string RolePermissions = "rolepermissions";
+    public const string RolePermissionPaged = "rolepermissions:page:";
+    public const string Permissions = "permissions";
+    public const string PermissionPaged = "permissions:page:";
+     public const string Menus = "menus";
+    public const string MenuPaged = "menu:page:";
+    public const string Devices = "devices";
+    public const string DevicePaged = "device:page:";
 }

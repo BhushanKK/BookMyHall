@@ -18,10 +18,13 @@ public sealed class GetPaymentModesQueryHandler(IPaymentModeRepository paymentMo
     {
         var pagination = request.paginationRequest;
 
-        var cacheKey =
-            $"{CacheKeys.PaymentMode}:" +
-            $"page:{pagination.PageNumber}:" +
-            $"size:{pagination.PageSize}";
+         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<PaymentMode>(
+            CacheKeys.PaymentMode,
+            pagination.PageNumber,
+            pagination.PageSize,
+            pagination.SearchText,
+            pagination.SortBy,
+            pagination.SortDescending);
 
         var cachedResponse = await cacheService.GetAsync<PaginatedResult<PaymentMode>>(cacheKey, cancellationToken);
 

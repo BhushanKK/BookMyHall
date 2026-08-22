@@ -9,6 +9,7 @@ using BookMyHall.Domain.Identity;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity;
 
@@ -16,7 +17,7 @@ public sealed class AssignRolePermissionCommandHandler(
     IRolePermissionRepository rolePermissionRepository,
     IUnitOfWork unitOfWork,IMapper mapper,
     IValidator<AssignRolePermissionCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<AssignRolePermissionCommand,ApiResponse<RolePermissionDto>>
 {
     public async Task<ApiResponse<RolePermissionDto>> Handle(
@@ -46,7 +47,7 @@ public sealed class AssignRolePermissionCommandHandler(
         }
 
         var response = mapper.Map<RolePermissionDto>(rolePermission);
-
+        await cacheService.RemoveByPrefixAsync(CacheKeys.RolePermissionPaged,cancellationToken);
         return ApiResponse<RolePermissionDto>.SuccessResponse(response,
             messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.RolePermission),HttpStatusCode.Created);
     }

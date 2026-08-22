@@ -10,6 +10,7 @@ using BookMyHall.Domain.Identity;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
@@ -20,7 +21,7 @@ public sealed class UpdateUserCommandHandler(
     IMapper mapper,
     IValidator<UpdateUserCommand> validator,
     IMessageHelper messageHelper,
-    IR2StorageService r2StorageService)
+    IR2StorageService r2StorageService,ICacheService cacheService)
     : IRequestHandler<UpdateUserCommand, ApiResponse<UserDto>>
 {
     public async Task<ApiResponse<UserDto>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
@@ -104,7 +105,8 @@ public sealed class UpdateUserCommandHandler(
         }
 
         var userDto = mapper.Map<UserDto>(user);
-
+        await cacheService.RemoveAsync($"{CacheKeys.Users}:{request.UserId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Users}:", cancellationToken);
         return ApiResponse<UserDto>.SuccessResponse
         (
             userDto,

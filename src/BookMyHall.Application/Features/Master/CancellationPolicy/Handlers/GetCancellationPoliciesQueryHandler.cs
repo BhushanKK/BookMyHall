@@ -24,10 +24,13 @@ public sealed class GetCancellationPoliciesQueryHandler(
 
         var pagination = request.paginationRequest;
 
-        var cacheKey =
-            $"{CacheKeys.CancellationPolicy}:" +
-            $"page:{pagination.PageNumber}:" +
-            $"size:{pagination.PageSize}";
+        var cacheKey = CacheKeyBuilder.BuildPaginatedKey<CancellationPolicy>(
+            CacheKeys.CancellationPolicy,
+            pagination.PageNumber,
+            pagination.PageSize,
+            pagination.SearchText,
+            pagination.SortBy,
+            pagination.SortDescending);
 
         var cachedResponse = await cacheService.GetAsync<PaginatedResult<CancellationPolicy>>(cacheKey, cancellationToken);
 

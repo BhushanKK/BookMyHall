@@ -6,6 +6,7 @@ using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Application.Abstractions.Caching;
+using BookMyHall.Domain.Venue;
 
 namespace BookMyHall.Application.Features.Venue;
 public sealed class GetHallPricingQueryHandler(IHallPricingRepository hallPricingRepository,
@@ -17,10 +18,13 @@ public sealed class GetHallPricingQueryHandler(IHallPricingRepository hallPricin
         CancellationToken cancellationToken)
     {
         var pagination = request.paginationRequest;
-        var cacheKey =
-            $"{CacheKeys.HallPricing}:" +
-            $"page:{pagination.PageNumber}:" +
-            $"size:{pagination.PageSize}";
+        var cacheKey = CacheKeyBuilder.BuildPaginatedKey<HallPricing>(
+            CacheKeys.HallPricing,
+            pagination.PageNumber,
+            pagination.PageSize,
+            pagination.SearchText,
+            pagination.SortBy,
+            pagination.SortDescending);
 
         var cachedResponse = await cacheService.GetAsync<PaginatedResult<HallPricingDto>>(cacheKey, cancellationToken);
 

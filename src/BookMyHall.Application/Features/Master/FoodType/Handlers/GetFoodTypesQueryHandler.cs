@@ -24,10 +24,13 @@ public sealed class GetFoodTypesQueryHandler(
 
         var pagination = request.paginationRequest;
 
-        var cacheKey =
-            $"{CacheKeys.Foodtype}:" +
-            $"page:{pagination.PageNumber}:" +
-            $"size:{pagination.PageSize}";
+          var cacheKey = CacheKeyBuilder.BuildPaginatedKey<FoodType>(
+            CacheKeys.Foodtype,
+            pagination.PageNumber,
+            pagination.PageSize,
+            pagination.SearchText,
+            pagination.SortBy,
+            pagination.SortDescending);
 
         var cachedResponse = await cacheService.GetAsync<PaginatedResult<FoodType>>(cacheKey, cancellationToken);
 

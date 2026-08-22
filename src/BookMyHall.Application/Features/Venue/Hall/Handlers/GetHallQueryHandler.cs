@@ -18,10 +18,14 @@ public sealed class GetHallQueryHandler(IHallRepository hallRepository,
         CancellationToken cancellationToken)
     {
         var pagination = request.paginationRequest;
-        var cacheKey =
-            $"{CacheKeys.Hall}:" +
-            $"page:{pagination.PageNumber}:" +
-            $"size:{pagination.PageSize}";
+
+          var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Hall>(
+            CacheKeys.Hall,
+            pagination.PageNumber,
+            pagination.PageSize,
+            pagination.SearchText,
+            pagination.SortBy,
+            pagination.SortDescending);
 
         var cachedResponse = await cacheService.GetAsync<PaginatedResult<Hall>>(cacheKey, cancellationToken);
 

@@ -23,10 +23,13 @@ public sealed class GetEventCategoriesQueryHandler(
     {
         var pagination = request.paginationRequest;
 
-        var cacheKey =
-            $"{CacheKeys.EventCategory}:" +
-            $"page:{pagination.PageNumber}:" +
-            $"size:{pagination.PageSize}";
+        var cacheKey = CacheKeyBuilder.BuildPaginatedKey<EventCategory>(
+            CacheKeys.EventCategory,
+            pagination.PageNumber,
+            pagination.PageSize,
+            pagination.SearchText,
+            pagination.SortBy,
+            pagination.SortDescending);
 
         var cachedResponse = await cacheService.GetAsync<PaginatedResult<EventCategory>>(cacheKey, cancellationToken);
 

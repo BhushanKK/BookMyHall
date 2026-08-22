@@ -7,6 +7,7 @@ using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
 using BookMyHall.Application.Abstractions.Caching;
+using BookMyHall.Domain.Venue;
 
 namespace BookMyHall.Application.Features.Venue;
 
@@ -23,11 +24,13 @@ public sealed class GetHallImagesByHallIdQueryHandler(
         CancellationToken cancellationToken)
     {
         var pagination = request.Pagination;
-        var cacheKey =
-            $"{CacheKeys.HallImage}:" +
-            $"hall:{request.HallId}:" +
-            $"page:{pagination.PageNumber}:" +
-            $"size:{pagination.PageSize}";
+         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<HallImage>(
+            CacheKeys.HallImage,
+            pagination.PageNumber,
+            pagination.PageSize,
+            pagination.SearchText,
+            pagination.SortBy,
+            pagination.SortDescending);
 
         var cachedResult =await cacheService.GetAsync<PaginatedResult<HallImageDto>>(cacheKey,cancellationToken);
 

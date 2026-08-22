@@ -5,13 +5,14 @@ using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
 public sealed class DeleteUserCommandHandler(
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<DeleteUserCommand, ApiResponse<bool>>
 {
     public async Task<ApiResponse<bool>> Handle(DeleteUserCommand request,
@@ -32,7 +33,8 @@ public sealed class DeleteUserCommandHandler(
 
         await userRepository.UpdateAsync(user, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-
+        await cacheService.RemoveAsync( $"{CacheKeys.Users}:{request.UserId}",cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Users}:",cancellationToken);
         return ApiResponse<bool>.SuccessResponse
         (
             true,

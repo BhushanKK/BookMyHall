@@ -23,10 +23,13 @@ public sealed class GetFacilitiesQueryHandler(
     {
         var pagination = request.paginationRequest;
 
-        var cacheKey =
-            $"{CacheKeys.Facility}:" +
-            $"page:{pagination.PageNumber}:" +
-            $"size:{pagination.PageSize}";
+        var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Facility>(
+            CacheKeys.Facility,
+            pagination.PageNumber,
+            pagination.PageSize,
+            pagination.SearchText,
+            pagination.SortBy,
+            pagination.SortDescending);
 
         var cachedResponse = await cacheService.GetAsync<PaginatedResult<Facility>>(cacheKey, cancellationToken);
 
