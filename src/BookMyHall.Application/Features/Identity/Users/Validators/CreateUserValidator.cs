@@ -56,8 +56,5 @@ public sealed class UpdateUserCommandValidator
         RuleFor(x => x.EmailAddress)
             .EmailAddress()
             .When(x => !string.IsNullOrWhiteSpace(x.EmailAddress));
-
-        RuleFor(x => x.RoleId)
-            .Required(localizer, EntityKeys.Role);
     }
 }

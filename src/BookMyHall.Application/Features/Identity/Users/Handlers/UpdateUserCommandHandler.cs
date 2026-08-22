@@ -6,7 +6,6 @@ using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Application.Common.Interfaces.Storage;
 using BookMyHall.Contracts.Common;
-using BookMyHall.Domain.Identity;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
@@ -16,7 +15,6 @@ namespace BookMyHall.Application.Features.Identity.Users;
 
 public sealed class UpdateUserCommandHandler(
     IUserRepository userRepository,
-    IRoleRepository roleRepository,
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<UpdateUserCommand> validator,
