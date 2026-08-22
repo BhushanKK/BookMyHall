@@ -64,7 +64,6 @@ public static class UserEndpoints
                         MobileNumber: form.MobileNumber,
                         DateOfBirth: form.DateOfBirth,
                         Gender: form.Gender,
-                        RoleId: form.RoleId,
                         EmailAddress: form.EmailAddress,
                         ImageStream: imageStream,
                         FileName: form.Image?.FileName,
@@ -169,7 +168,6 @@ public sealed class UpdateUserForm
     public string MobileNumber { get; set; } = string.Empty;
     public DateTimeOffset? DateOfBirth { get; set; }
     public Gender? Gender { get; set; }
-    public Guid RoleId { get; set; }
     public string EmailAddress { get; set; } = string.Empty;
     public IFormFile? Image { get; set; }
 }

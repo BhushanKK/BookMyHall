@@ -43,15 +43,6 @@ public sealed class UpdateUserCommandHandler(
                 HttpStatusCode.NotFound
             );
 
-        var role = await roleRepository.GetByIdAsync(request.RoleId, cancellationToken);
-
-        if (role is null)
-            return ApiResponse<UserDto>.FailureResponse
-            (
-                messageHelper.NotFoundEntity(ResourceNames.Entities, EntityKeys.Role),
-                HttpStatusCode.NotFound
-            );
-
         mapper.Map(request, user);
 
         if (request.DateOfBirth.HasValue)
@@ -76,18 +67,6 @@ public sealed class UpdateUserCommandHandler(
 
             user.ProfileImageUrl = newObjectKey;
         }
-
-        await userRepository.RemoveUserRolesAsync(user.UserId, cancellationToken);
-
-        await userRepository.AddUserRoleAsync(
-            new UserRole
-            {
-                UserId = user.UserId,
-                RoleId = role.RoleId,
-                CreatedBy = user.UserId,
-                CreatedDate = DateTimeOffset.UtcNow
-            },
-            cancellationToken);
 
         try
         {

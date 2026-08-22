@@ -12,7 +12,6 @@ public sealed record UpdateUserCommand(
     string MobileNumber,
     DateTimeOffset? DateOfBirth,
     Gender? Gender,
-    Guid RoleId,
     string EmailAddress,
     Stream? ImageStream = null,
     string? FileName = null,
