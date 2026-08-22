@@ -10,7 +10,7 @@ public static class RoleEndpoints
     {
         var group = app.MapGroup("/api/roles")
             .WithTags("Role")
-            .RequireAuthorization();
+            .RequireAuthorization(policy => policy.RequireRole("Admin"));
 
         group.MapPost("/", async (
             CreateRoleCommand command,
