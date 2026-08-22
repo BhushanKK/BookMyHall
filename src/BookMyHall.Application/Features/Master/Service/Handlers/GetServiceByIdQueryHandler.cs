@@ -6,17 +6,28 @@ using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Domain.Masters;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class GetServiceByIdQueryHandler(
-    IServiceRepository serviceRepository,
-    IMessageHelper messageHelper,
-    IMapper mapper)
+public sealed class GetServiceByIdQueryHandler(IServiceRepository serviceRepository,
+    IMessageHelper messageHelper,IMapper mapper,ICacheService cacheService)
     : IRequestHandler<GetServiceByIdQuery, ApiResponse<Service>>
 {
     public async Task<ApiResponse<Service>> Handle(GetServiceByIdQuery request,CancellationToken cancellationToken)
     {
+        var cacheKey = $"{CacheKeys.Service}:{request.ServiceId}";
+        var cachedPaymentMode = await cacheService.GetAsync<Service>(cacheKey, cancellationToken);
+
+        if (cachedPaymentMode is not null)
+        {
+            return ApiResponse<Service>.SuccessResponse
+            (
+                cachedPaymentMode,
+                messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Service),
+                HttpStatusCode.OK
+            );
+        }
         var service = await serviceRepository.GetByIdAsync(request.ServiceId,cancellationToken);
         if (service is null)
         {
@@ -24,8 +35,10 @@ public sealed class GetServiceByIdQueryHandler(
                 messageHelper.NotFound(EntityKeys.Service),
                 HttpStatusCode.NotFound);
         }
-        return ApiResponse<Service>.SuccessResponse(
-            mapper.Map<Service>(service),
+          var response = mapper.Map<Service>(service);
+        await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
+       
+        return ApiResponse<Service>.SuccessResponse(response,
             messageHelper.RetrievedEntity(ResourceNames.Entities,EntityKeys.Service),HttpStatusCode.OK);
     }
 }

@@ -9,6 +9,7 @@ using BookMyHall.Domain.Venue;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Venue;
 
@@ -16,7 +17,7 @@ public sealed class CreateHallBlockCommandHandler(
     IHallBlockRepository hallBlockRepository,
     IUnitOfWork unitOfWork,IMapper mapper,
     IValidator<CreateHallBlockCommand> validator,
-    IMessageHelper messageHelper): IRequestHandler<CreateHallBlockCommand,ApiResponse<HallBlockDto>>
+    IMessageHelper messageHelper,ICacheService cacheService): IRequestHandler<CreateHallBlockCommand,ApiResponse<HallBlockDto>>
 {
     public async Task<ApiResponse<HallBlockDto>> Handle(CreateHallBlockCommand request,CancellationToken cancellationToken)
     {
@@ -40,7 +41,7 @@ public sealed class CreateHallBlockCommandHandler(
             return ApiResponse<HallBlockDto>.FailureResponse(messageHelper.AlreadyExistsEntity(
                     ResourceNames.Entities,EntityKeys.HallBlock),HttpStatusCode.Conflict);
         }
-
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Hall}:", cancellationToken);
         return ApiResponse<HallBlockDto>.SuccessResponse(
             mapper.Map<HallBlockDto>(hallBlock),
             messageHelper.AddedEntity(ResourceNames.Entities,

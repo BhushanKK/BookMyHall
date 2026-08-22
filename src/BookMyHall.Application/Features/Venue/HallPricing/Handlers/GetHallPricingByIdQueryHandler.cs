@@ -5,13 +5,14 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Venue;
 
 public sealed class GetHallPricingByIdQueryHandler(
     IHallPricingRepository hallPricingRepository,
     IMapper mapper,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<
         GetHallPricingByIdQuery,
         ApiResponse<HallPricingDto>>
@@ -20,10 +21,20 @@ public sealed class GetHallPricingByIdQueryHandler(
         GetHallPricingByIdQuery request,
         CancellationToken cancellationToken)
     {
-        var hallPricing =
-            await hallPricingRepository.GetByIdAsync(
-                request.HallPricingId,
-                cancellationToken);
+         var cacheKey = $"{CacheKeys.HallPricing}:{request.HallPricingId}";
+        var cachedHallPricing = await cacheService.GetAsync<HallPricingDto>(cacheKey, cancellationToken);
+
+        if (cachedHallPricing is not null)
+        {
+            return ApiResponse<HallPricingDto>.SuccessResponse
+            (
+                cachedHallPricing,
+                messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.HallPricing),
+                HttpStatusCode.OK
+            );
+        }
+
+        var hallPricing = await hallPricingRepository.GetByIdAsync(request.HallPricingId,cancellationToken);
 
         if (hallPricing is null)
         {
@@ -33,7 +44,10 @@ public sealed class GetHallPricingByIdQueryHandler(
                     EntityKeys.HallPricing),
                 HttpStatusCode.NotFound);
         }
-
+        
+        var response = mapper.Map<HallPricingDto>(hallPricing);
+        await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
+       
         return ApiResponse<HallPricingDto>.SuccessResponse(
             mapper.Map<HallPricingDto>(hallPricing),
             messageHelper.RetrievedEntity(

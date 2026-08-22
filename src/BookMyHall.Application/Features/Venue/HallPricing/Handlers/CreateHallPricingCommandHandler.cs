@@ -9,6 +9,7 @@ using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Venue;
 public sealed class CreateHallPricingCommandHandler(
@@ -16,7 +17,7 @@ public sealed class CreateHallPricingCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<CreateHallPricingCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<CreateHallPricingCommand, ApiResponse<HallPricingDto>>
 {
     public async Task<ApiResponse<HallPricingDto>> Handle(
@@ -46,6 +47,8 @@ public sealed class CreateHallPricingCommandHandler(
                 HttpStatusCode.Conflict
             );
         }
+        
+       await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallPricing}:", cancellationToken);
 
         return ApiResponse<HallPricingDto>.SuccessResponse
         (

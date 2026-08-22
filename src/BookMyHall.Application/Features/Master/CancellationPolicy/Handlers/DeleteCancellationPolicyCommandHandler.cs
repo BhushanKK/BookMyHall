@@ -6,12 +6,14 @@ using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 
+using BookMyHall.Application.Abstractions.Caching;
+
 namespace BookMyHall.Application.Features.Master;
 
 public sealed class DeleteCancellationPolicyCommandHandler(
     ICancellationPolicyRepository cancellationPolicyRepository,
     IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<DeleteCancellationPolicyCommand, ApiResponse<bool>>
 {
     public async Task<ApiResponse<bool>> Handle(DeleteCancellationPolicyCommand request,CancellationToken cancellationToken)
@@ -25,7 +27,9 @@ public sealed class DeleteCancellationPolicyCommandHandler(
         policy.IsActive = false;
         await cancellationPolicyRepository.UpdateAsync(policy, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-
+        await cacheService.RemoveAsync( $"{CacheKeys.CancellationPolicy}:{request.CancellationPolicyId}",cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.CancellationPolicy}:",cancellationToken);
+        
         return ApiResponse<bool>.SuccessResponse(true,
             messageHelper.DeletedEntity(ResourceNames.Entities,EntityKeys.CancellationPolicy),HttpStatusCode.OK);
     }

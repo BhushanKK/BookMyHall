@@ -9,15 +9,13 @@ using BookMyHall.Domain.Masters;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class CreatePaymentModeCommandHandler(
-    IPaymentModeRepository paymentModeRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<CreatePaymentModeCommand> validator,
-    IMessageHelper messageHelper)
+public sealed class CreatePaymentModeCommandHandler(IPaymentModeRepository paymentModeRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<CreatePaymentModeCommand> validator,
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<CreatePaymentModeCommand, ApiResponse<PaymentModeDto>>
 {
     public async Task<ApiResponse<PaymentModeDto>> Handle(CreatePaymentModeCommand request,CancellationToken cancellationToken)
@@ -44,6 +42,8 @@ public sealed class CreatePaymentModeCommandHandler(
             return ApiResponse<PaymentModeDto>.FailureResponse(
                 messageHelper.AlreadyExistsEntity(ResourceNames.Entities,EntityKeys.PaymentMode),HttpStatusCode.Conflict);
         }
+        
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallCategory}:", cancellationToken);
 
         return ApiResponse<PaymentModeDto>.SuccessResponse(
             mapper.Map<PaymentModeDto>(paymentMode),

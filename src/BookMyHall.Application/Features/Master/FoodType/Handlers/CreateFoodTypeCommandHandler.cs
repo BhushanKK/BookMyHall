@@ -1,7 +1,11 @@
 using System.Net;
+
 using AutoMapper;
+
 using FluentValidation;
+
 using MediatR;
+
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -9,6 +13,7 @@ using BookMyHall.Domain.Masters;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
@@ -17,16 +22,16 @@ public sealed class CreateFoodTypeCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<CreateFoodTypeCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<CreateFoodTypeCommand, ApiResponse<FoodTypeDto>>
 {
-    public async Task<ApiResponse<FoodTypeDto>> Handle(CreateFoodTypeCommand request,CancellationToken cancellationToken)
+    public async Task<ApiResponse<FoodTypeDto>> Handle(CreateFoodTypeCommand request, CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request,cancellationToken);
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
-            var message = string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage));
-            return ApiResponse<FoodTypeDto>.FailureResponse(message,HttpStatusCode.BadRequest);
+            var message = string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage));
+            return ApiResponse<FoodTypeDto>.FailureResponse(message, HttpStatusCode.BadRequest);
         }
 
         var foodType = mapper.Map<FoodType>(request);
@@ -35,17 +40,19 @@ public sealed class CreateFoodTypeCommandHandler(
 
         try
         {
-            await foodTypeRepository.AddAsync(foodType,cancellationToken);
+            await foodTypeRepository.AddAsync(foodType, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
         catch (DuplicateRecordException)
         {
             return ApiResponse<FoodTypeDto>.FailureResponse(
-                messageHelper.AlreadyExistsEntity(ResourceNames.Entities,EntityKeys.FoodType),HttpStatusCode.Conflict);
+                messageHelper.AlreadyExistsEntity(ResourceNames.Entities, EntityKeys.FoodType), HttpStatusCode.Conflict);
         }
+
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Foodtype}:", cancellationToken);
 
         return ApiResponse<FoodTypeDto>.SuccessResponse(
             mapper.Map<FoodTypeDto>(foodType),
-            messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.FoodType),HttpStatusCode.Created);
+            messageHelper.AddedEntity(ResourceNames.Entities, EntityKeys.FoodType), HttpStatusCode.Created);
     }
 }

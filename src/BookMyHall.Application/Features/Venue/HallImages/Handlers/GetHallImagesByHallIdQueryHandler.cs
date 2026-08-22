@@ -6,13 +6,14 @@ using BookMyHall.Contracts.Venue;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Venue;
 
 public sealed class GetHallImagesByHallIdQueryHandler(
     IHallImageRepository hallImageRepository,
     IMapper mapper,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<
         GetHallImagesByHallIdQuery,
         ApiResponse<PaginatedResult<HallImageDto>>>
@@ -21,6 +22,22 @@ public sealed class GetHallImagesByHallIdQueryHandler(
         GetHallImagesByHallIdQuery request,
         CancellationToken cancellationToken)
     {
+        var pagination = request.Pagination;
+        var cacheKey =
+            $"{CacheKeys.HallImage}:" +
+            $"hall:{request.HallId}:" +
+            $"page:{pagination.PageNumber}:" +
+            $"size:{pagination.PageSize}";
+
+        var cachedResult =await cacheService.GetAsync<PaginatedResult<HallImageDto>>(cacheKey,cancellationToken);
+
+        if (cachedResult is not null)
+        {
+            return ApiResponse<PaginatedResult<HallImageDto>>.SuccessResponse(cachedResult,
+                messageHelper.RetrievedEntity( ResourceNames.Entities,
+                    EntityKeys.HallImage),HttpStatusCode.OK);
+        }
+
         var result = await hallImageRepository.GetByHallIdAsync(
             request.HallId,
             request.Pagination,
@@ -46,6 +63,8 @@ public sealed class GetHallImagesByHallIdQueryHandler(
             PageNumber = result.PageNumber,
             PageSize = result.PageSize
         };
+        
+        await cacheService.SetAsync(cacheKey, mappedResult,TimeSpan.FromMinutes(30),cancellationToken);
 
         return ApiResponse<PaginatedResult<HallImageDto>>.SuccessResponse
         (

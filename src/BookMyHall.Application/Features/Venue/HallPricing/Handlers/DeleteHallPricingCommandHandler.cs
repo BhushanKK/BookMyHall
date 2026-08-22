@@ -7,13 +7,14 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Venue;
 public sealed class DeleteHallPricingCommandHandler(
     IHallPricingRepository hallPricingRepository,
     IUnitOfWork unitOfWork,
     IValidator<DeleteHallPricingCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<DeleteHallPricingCommand, ApiResponse<bool>>
 {
     public async Task<ApiResponse<bool>> Handle(DeleteHallPricingCommand request,CancellationToken cancellationToken)
@@ -36,6 +37,9 @@ public sealed class DeleteHallPricingCommandHandler(
         hallPricing.IsActive = false;
         await hallPricingRepository.UpdateAsync(hallPricing,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+        
+        await cacheService.RemoveAsync($"{CacheKeys.HallPricing}:{request.HallPricingId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallPricing}:", cancellationToken);
 
         return ApiResponse<bool>.SuccessResponse(true,messageHelper.DeletedEntity(
                 ResourceNames.Entities,EntityKeys.HallPricing),HttpStatusCode.OK);

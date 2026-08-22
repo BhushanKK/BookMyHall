@@ -1,12 +1,17 @@
 using System.Net;
+
 using AutoMapper;
+
 using FluentValidation;
+
 using MediatR;
+
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
@@ -15,19 +20,19 @@ public sealed class UpdateEventCategoryCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<UpdateEventCategoryCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<UpdateEventCategoryCommand, ApiResponse<EventCategoryDto>>
 {
-    public async Task<ApiResponse<EventCategoryDto>> Handle(UpdateEventCategoryCommand request,CancellationToken cancellationToken)
+    public async Task<ApiResponse<EventCategoryDto>> Handle(UpdateEventCategoryCommand request, CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request,cancellationToken);
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
-            var message = string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage));
-            return ApiResponse<EventCategoryDto>.FailureResponse(message,HttpStatusCode.BadRequest);
+            var message = string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage));
+            return ApiResponse<EventCategoryDto>.FailureResponse(message, HttpStatusCode.BadRequest);
         }
 
-        var eventCategory = await eventCategoryRepository.GetByIdAsync(request.EventCategoryId,cancellationToken);
+        var eventCategory = await eventCategoryRepository.GetByIdAsync(request.EventCategoryId, cancellationToken);
 
         if (eventCategory is null)
         {
@@ -36,7 +41,7 @@ public sealed class UpdateEventCategoryCommandHandler(
                 HttpStatusCode.NotFound);
         }
 
-        var existingEventCategory = await eventCategoryRepository.GetByEventCategoryNameAsync(request.EventCategoryName,cancellationToken);
+        var existingEventCategory = await eventCategoryRepository.GetByEventCategoryNameAsync(request.EventCategoryName, cancellationToken);
         if (existingEventCategory is not null && existingEventCategory.EventCategoryId != request.EventCategoryId)
         {
             return ApiResponse<EventCategoryDto>.FailureResponse(
@@ -45,11 +50,12 @@ public sealed class UpdateEventCategoryCommandHandler(
         }
 
         mapper.Map(request, eventCategory);
-        await eventCategoryRepository.UpdateAsync(eventCategory,cancellationToken);
+        await eventCategoryRepository.UpdateAsync(eventCategory, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-
+        await cacheService.RemoveAsync($"{CacheKeys.EventCategory}:{request.EventCategoryId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.EventCategory}:", cancellationToken);
         return ApiResponse<EventCategoryDto>.SuccessResponse(
             mapper.Map<EventCategoryDto>(eventCategory),
-            messageHelper.UpdatedEntity(ResourceNames.Entities,EntityKeys.EventCategory),HttpStatusCode.OK);
+            messageHelper.UpdatedEntity(ResourceNames.Entities, EntityKeys.EventCategory), HttpStatusCode.OK);
     }
 }

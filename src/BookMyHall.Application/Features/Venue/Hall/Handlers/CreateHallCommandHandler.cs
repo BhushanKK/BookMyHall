@@ -9,14 +9,12 @@ using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
+using BookMyHall.Application.Abstractions.Caching;
 namespace BookMyHall.Application.Features.Venue;
 
-public sealed class CreateHallCommandHandler(
-    IHallRepository hallRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<CreateHallCommand> validator,
-    IMessageHelper messageHelper)
+public sealed class CreateHallCommandHandler(IHallRepository hallRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<CreateHallCommand> validator,
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<CreateHallCommand, ApiResponse<HallDto>>
 {
     public async Task<ApiResponse<HallDto>> Handle(CreateHallCommand request,
@@ -45,7 +43,7 @@ public sealed class CreateHallCommandHandler(
                 HttpStatusCode.Conflict
             );
         }
-
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Hall}:", cancellationToken);
         return ApiResponse<HallDto>.SuccessResponse
         (
             mapper.Map<HallDto>(hall),

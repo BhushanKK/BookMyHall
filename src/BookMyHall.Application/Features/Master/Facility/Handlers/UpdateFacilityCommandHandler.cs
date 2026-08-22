@@ -1,12 +1,17 @@
 using System.Net;
+
 using AutoMapper;
+
 using FluentValidation;
+
 using MediatR;
+
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
@@ -15,19 +20,19 @@ public sealed class UpdateFacilityCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<UpdateFacilityCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<UpdateFacilityCommand, ApiResponse<FacilityDto>>
 {
-    public async Task<ApiResponse<FacilityDto>> Handle(UpdateFacilityCommand request,CancellationToken cancellationToken)
+    public async Task<ApiResponse<FacilityDto>> Handle(UpdateFacilityCommand request, CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request,cancellationToken);
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
-            var message = string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage));
-            return ApiResponse<FacilityDto>.FailureResponse(message,HttpStatusCode.BadRequest);
+            var message = string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage));
+            return ApiResponse<FacilityDto>.FailureResponse(message, HttpStatusCode.BadRequest);
         }
 
-        var facility = await facilityRepository.GetByIdAsync(request.FacilityId,cancellationToken);
+        var facility = await facilityRepository.GetByIdAsync(request.FacilityId, cancellationToken);
         if (facility is null)
         {
             return ApiResponse<FacilityDto>.FailureResponse(
@@ -35,7 +40,7 @@ public sealed class UpdateFacilityCommandHandler(
                 HttpStatusCode.NotFound);
         }
 
-        var existingFacility = await facilityRepository.GetByFacilityNameAsync(request.FacilityName,cancellationToken);
+        var existingFacility = await facilityRepository.GetByFacilityNameAsync(request.FacilityName, cancellationToken);
         if (existingFacility is not null && existingFacility.FacilityId != request.FacilityId)
         {
             return ApiResponse<FacilityDto>.FailureResponse(
@@ -44,11 +49,12 @@ public sealed class UpdateFacilityCommandHandler(
         }
 
         mapper.Map(request, facility);
-        await facilityRepository.UpdateAsync(facility,cancellationToken);
+        await facilityRepository.UpdateAsync(facility, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-
+        await cacheService.RemoveAsync($"{CacheKeys.Facility}:{request.FacilityId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Facility}:", cancellationToken);
         return ApiResponse<FacilityDto>.SuccessResponse(
             mapper.Map<FacilityDto>(facility),
-            messageHelper.UpdatedEntity(ResourceNames.Entities,EntityKeys.Facility),HttpStatusCode.OK);
+            messageHelper.UpdatedEntity(ResourceNames.Entities, EntityKeys.Facility), HttpStatusCode.OK);
     }
 }
