@@ -20,39 +20,30 @@ public sealed class DeleteCountryCommandHandler(
         DeleteCountryCommand request,
         CancellationToken cancellationToken)
     {
-        var country = await countryRepository.GetByIdAsync(
-            request.CountryId,
-            cancellationToken);
+        var country = await countryRepository.GetByIdAsync(request.CountryId, cancellationToken);
 
         if (country is null)
         {
-            return ApiResponse<bool>.FailureResponse(
+            return ApiResponse<bool>.FailureResponse
+            (
                 messageHelper.NotFound(EntityKeys.Country),
-                HttpStatusCode.NotFound);
+                HttpStatusCode.NotFound
+            );
         }
 
         country.IsActive = false;
 
-        await countryRepository.UpdateAsync(
-            country,
-            cancellationToken);
+        await countryRepository.UpdateAsync(country, cancellationToken);
 
-        await unitOfWork.SaveChangesAsync(
-            cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Country}:", cancellationToken);
 
-        await cacheService.RemoveAsync(
-            $"{CacheKeys.Country}:{request.CountryId}",
-            cancellationToken);
-
-        await cacheService.RemoveByPrefixAsync(
-            $"{CacheKeys.Countries}:",
-            cancellationToken);
-
-        return ApiResponse<bool>.SuccessResponse(
+        return ApiResponse<bool>.SuccessResponse
+        (
             true,
-            messageHelper.DeletedEntity(
-                ResourceNames.Entities,
-                EntityKeys.Country),
-            HttpStatusCode.OK);
+            messageHelper.DeletedEntity(ResourceNames.Entities, EntityKeys.Country),
+            HttpStatusCode.OK
+        );
     }
 }

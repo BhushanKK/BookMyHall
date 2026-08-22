@@ -12,15 +12,21 @@ using BookMyHall.Shared.Constants;
 namespace BookMyHall.Application.Features.Master;
 
 public sealed class UpdateCountryCommandHandler(
-    ICountryRepository countryRepository, IUnitOfWork unitOfWork,
-    IMapper mapper, IValidator<UpdateCountryCommand> validator,
-    IMessageHelper messageHelper, ICacheService cacheService)
+    ICountryRepository countryRepository,
+    IUnitOfWork unitOfWork,
+    IMapper mapper,
+    IValidator<UpdateCountryCommand> validator,
+    IMessageHelper messageHelper,
+    ICacheService cacheService)
     : IRequestHandler<UpdateCountryCommand, ApiResponse<CountryDto>>
 {
-    public async Task<ApiResponse<CountryDto>> Handle(UpdateCountryCommand request, 
+    public async Task<ApiResponse<CountryDto>> Handle(
+        UpdateCountryCommand request,
         CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        var validationResult = await validator.ValidateAsync(
+            request,
+            cancellationToken);
 
         if (!validationResult.IsValid)
         {
@@ -33,7 +39,7 @@ public sealed class UpdateCountryCommandHandler(
             );
         }
 
-        var country = await countryRepository.GetByIdAsync(request.CountryId, cancellationToken);
+        var country = await countryRepository.GetByIdAsync(request.CountryId,cancellationToken);
 
         if (country is null)
         {
@@ -59,8 +65,7 @@ public sealed class UpdateCountryCommandHandler(
 
         await countryRepository.UpdateAsync(country, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.Country}:{request.CountryId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Countries}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Country}:", cancellationToken);
 
         return ApiResponse<CountryDto>.SuccessResponse
         (

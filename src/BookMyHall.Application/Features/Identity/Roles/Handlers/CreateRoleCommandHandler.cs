@@ -9,6 +9,7 @@ using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity;
 
@@ -17,7 +18,8 @@ public sealed class CreateRoleCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<CreateRoleCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,
+    ICacheService cacheService)
     : IRequestHandler<CreateRoleCommand, ApiResponse<RoleDto>>
 {
     public async Task<ApiResponse<RoleDto>> Handle(
@@ -28,13 +30,8 @@ public sealed class CreateRoleCommandHandler(
 
         if (!validationResult.IsValid)
         {
-            var message = string.Join(
-                " | ",
-                validationResult.Errors.Select(x => x.ErrorMessage));
-
-            return ApiResponse<RoleDto>.FailureResponse(
-                message,
-                HttpStatusCode.BadRequest);
+            var message = string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage));
+            return ApiResponse<RoleDto>.FailureResponse(message, HttpStatusCode.BadRequest);
         }
 
         var role = mapper.Map<Role>(request);
@@ -52,6 +49,8 @@ public sealed class CreateRoleCommandHandler(
                 HttpStatusCode.Conflict
             );
         }
+        
+        await cacheService.RemoveByPrefixAsync(CacheKeys.RolesPaged,cancellationToken);
 
         return ApiResponse<RoleDto>.SuccessResponse
         (

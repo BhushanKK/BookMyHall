@@ -12,7 +12,7 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
     public async Task<Role?> GetByIdAsync(
         Guid roleId,
         CancellationToken cancellationToken = default)
-       => await context.Roles.FirstOrDefaultAsync(x => x.RoleId == roleId && x.IsActive,
+       => await context.Roles.FirstOrDefaultAsync(x => x.RoleId == roleId,
         cancellationToken);
 
     public async Task<PaginatedResult<Role>> GetAllAsync(
@@ -21,18 +21,30 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
     {
         var query = context.Roles.AsNoTracking();
 
-        if (!string.IsNullOrWhiteSpace(paginationRequest.SearchText))
-            query = query.Where(x => EF.Functions.ILike(x.RoleName, $"%{paginationRequest.SearchText.Trim()}%"));
+        if (!string.IsNullOrWhiteSpace(
+            paginationRequest.SearchText))
+        {
+            var searchText =
+                paginationRequest.SearchText.Trim();
 
-        var totalCount = await query.CountAsync(cancellationToken);
+            query = query.Where(x =>
+                EF.Functions.ILike(
+                    x.RoleName,
+                    $"%{searchText}%"));
+        }
+
+        var totalCount =
+            await query.CountAsync(cancellationToken);
+
+        query = paginationRequest.SortDescending
+            ? query.OrderByDescending(x => x.RoleName)
+            : query.OrderBy(x => x.RoleName);
 
         var roles = await query
-            .OrderBy(x => x.RoleName)
             .Skip(
                 (paginationRequest.PageNumber - 1)
                 * paginationRequest.PageSize)
-            .Take(
-                paginationRequest.PageSize)
+            .Take(paginationRequest.PageSize)
             .ToListAsync(cancellationToken);
 
         return new PaginatedResult<Role>
