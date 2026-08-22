@@ -4,7 +4,6 @@ using MediatR;
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
-using BookMyHall.Contracts.Constants;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
@@ -32,7 +31,7 @@ public sealed class GetRolesQueryHandler(
             pagination.SortBy,
             pagination.SortDescending);
 
-        var cachedResponse = await cacheService.GetAsync<PaginatedResponse<Role>>(cacheKey, cancellationToken);
+        var cachedResponse = await cacheService.GetAsync<PaginatedResponse<Role>>(cacheKey,cancellationToken);
 
         if (cachedResponse is not null)
         {

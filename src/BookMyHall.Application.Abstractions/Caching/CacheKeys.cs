@@ -7,5 +7,6 @@ public static class CacheKeys
     public const string Districts = "districts";
     public const string Cities = "cities";
     public const string Areas = "areas";
-    public const string Roles="roles";
+    public const string Roles = "roles";
+    public const string RolesPaged = "roles:page:";
 }

@@ -50,7 +50,7 @@ public sealed class CreateRoleCommandHandler(
             );
         }
         
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Roles}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync(CacheKeys.RolesPaged,cancellationToken);
 
         return ApiResponse<RoleDto>.SuccessResponse
         (
