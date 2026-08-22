@@ -22,12 +22,23 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
         var query = context.Roles.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(paginationRequest.SearchText))
-            query = query.Where(x => EF.Functions.ILike(x.RoleName, $"%{paginationRequest.SearchText.Trim()}%"));
+        {
+            var searchText = paginationRequest.SearchText.Trim();
 
-        var totalCount = await query.CountAsync(cancellationToken);
+            query = query.Where(x =>
+                EF.Functions.ILike(
+                    x.RoleName,
+                    $"%{searchText}%"));
+        }
+
+        var totalCount = await query.CountAsync(
+            cancellationToken);
+
+        query = paginationRequest.SortDescending
+            ? query.OrderByDescending(x => x.RoleName)
+            : query.OrderBy(x => x.RoleName);
 
         var roles = await query
-            .OrderBy(x => x.RoleName)
             .Skip(
                 (paginationRequest.PageNumber - 1)
                 * paginationRequest.PageSize)
