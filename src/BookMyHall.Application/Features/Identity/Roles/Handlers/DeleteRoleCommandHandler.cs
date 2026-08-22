@@ -36,8 +36,7 @@ public sealed class DeleteRoleCommandHandler(
         await roleRepository.UpdateAsync(role, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        await cacheService.RemoveAsync($"{CacheKeys.Roles}:{request.RoleId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Roles}:page:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Roles}:", cancellationToken);
 
         return ApiResponse<bool>.SuccessResponse
         (

@@ -49,6 +49,7 @@ public sealed class CreateRoleCommandHandler(
                 HttpStatusCode.Conflict
             );
         }
+        
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.Roles}:", cancellationToken);
 
         return ApiResponse<RoleDto>.SuccessResponse

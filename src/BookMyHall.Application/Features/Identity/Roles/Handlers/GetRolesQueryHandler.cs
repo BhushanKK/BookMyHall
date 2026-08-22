@@ -4,10 +4,10 @@ using MediatR;
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
+using BookMyHall.Contracts.Constants;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
-using BookMyHall.Contracts.Constants;
 
 namespace BookMyHall.Application.Features.Identity;
 
@@ -18,19 +18,19 @@ public sealed class GetRolesQueryHandler(
     ICacheService cacheService)
     : IRequestHandler<GetRolesQuery, ApiResponse<PaginatedResponse<Role>>>
 {
-    public async Task<ApiResponse<PaginatedResponse<Role>>> Handle(GetRolesQuery request, CancellationToken cancellationToken)
+    public async Task<ApiResponse<PaginatedResponse<Role>>> Handle(
+        GetRolesQuery request,
+        CancellationToken cancellationToken)
     {
         var pagination = request.paginationRequest;
 
-        var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Role>
-        (
+        var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Role>(
             CacheKeys.Roles,
             pagination.PageNumber,
             pagination.PageSize,
             pagination.SearchText,
             pagination.SortBy,
-            pagination.SortDescending
-        );
+            pagination.SortDescending);
 
         var cachedResponse = await cacheService.GetAsync<PaginatedResponse<Role>>(cacheKey, cancellationToken);
 

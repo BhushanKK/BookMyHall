@@ -21,9 +21,11 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
     {
         var query = context.Roles.AsNoTracking();
 
-        if (!string.IsNullOrWhiteSpace(paginationRequest.SearchText))
+        if (!string.IsNullOrWhiteSpace(
+            paginationRequest.SearchText))
         {
-            var searchText = paginationRequest.SearchText.Trim();
+            var searchText =
+                paginationRequest.SearchText.Trim();
 
             query = query.Where(x =>
                 EF.Functions.ILike(
@@ -31,8 +33,8 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
                     $"%{searchText}%"));
         }
 
-        var totalCount = await query.CountAsync(
-            cancellationToken);
+        var totalCount =
+            await query.CountAsync(cancellationToken);
 
         query = paginationRequest.SortDescending
             ? query.OrderByDescending(x => x.RoleName)
@@ -42,8 +44,7 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
             .Skip(
                 (paginationRequest.PageNumber - 1)
                 * paginationRequest.PageSize)
-            .Take(
-                paginationRequest.PageSize)
+            .Take(paginationRequest.PageSize)
             .ToListAsync(cancellationToken);
 
         return new PaginatedResult<Role>
