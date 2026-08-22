@@ -9,6 +9,7 @@ using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 
 using DomainRole = BookMyHall.Domain.Entities.Identity.Role;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Tests.Features.Identity.Role;
 
@@ -17,7 +18,7 @@ public sealed class GetRolesQueryHandlerTests
     private readonly Mock<IRoleRepository> _roleRepositoryMock = new();
     private readonly Mock<IMapper> _mapperMock = new();
     private readonly Mock<IMessageHelper> _messageHelperMock = new();
-
+    private readonly Mock<ICacheService> _cacheService=new();
     private readonly GetRolesQueryHandler _handler;
 
     public GetRolesQueryHandlerTests()
@@ -25,7 +26,8 @@ public sealed class GetRolesQueryHandlerTests
         _handler = new GetRolesQueryHandler(
             _roleRepositoryMock.Object,
             _mapperMock.Object,
-            _messageHelperMock.Object);
+            _messageHelperMock.Object,
+            _cacheService.Object);
     }
 
     [Fact]

@@ -7,6 +7,7 @@ using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using FluentAssertions;
 using Moq;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Tests.Features.Identity.Role;
 
@@ -16,13 +17,16 @@ public sealed class DeleteRoleCommandHandlerTests
     private readonly Mock<IUnitOfWork> _unitOfWorkMock = new();
     private readonly Mock<IMessageHelper> _messageHelperMock = new();
     private readonly DeleteRoleCommandHandler _handler;
+    private readonly Mock<ICacheService> _cacheService=new();
+    
 
     public DeleteRoleCommandHandlerTests()
     {
             _handler = new DeleteRoleCommandHandler(
             _roleRepositoryMock.Object,
             _unitOfWorkMock.Object,
-            _messageHelperMock.Object);
+            _messageHelperMock.Object,
+            _cacheService.Object);
     }
 
     [Fact]
