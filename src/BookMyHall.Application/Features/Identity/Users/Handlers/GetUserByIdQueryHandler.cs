@@ -1,12 +1,12 @@
-using MediatR;
 using System.Net;
 using AutoMapper;
+using MediatR;
+using BookMyHall.Application.Abstractions.Caching;
+using BookMyHall.Application.Abstractions.Persistence.Repositories;
+using BookMyHall.Application.Common.Interfaces.Storage;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
-using BookMyHall.Application.Abstractions.Persistence.Repositories;
-using BookMyHall.Application.Common.Interfaces.Storage;
-using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
@@ -14,7 +14,8 @@ public sealed class GetUserByIdQueryHandler(
     IUserRepository userRepository,
     IMapper mapper,
     IMessageHelper messageHelper,
-    IR2StorageService storageService,ICacheService cacheService)
+    IR2StorageService storageService,
+    ICacheService cacheService)
     : IRequestHandler<GetUserByIdQuery, ApiResponse<UserDto>>
 {
     public async Task<ApiResponse<UserDto>> Handle(
@@ -26,9 +27,14 @@ public sealed class GetUserByIdQueryHandler(
 
         if (cachedUser is not null)
         {
-            return ApiResponse<UserDto>.SuccessResponse(cachedUser, messageHelper.RetrievedEntity
-            (ResourceNames.Entities, EntityKeys.User), HttpStatusCode.OK);
+            return ApiResponse<UserDto>.SuccessResponse
+            (
+                cachedUser,
+                messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.User),
+                HttpStatusCode.OK
+            );
         }
+
         var user = await userRepository.GetByIdAsync(request.UserId, cancellationToken);
 
         if (user is null)
@@ -41,17 +47,18 @@ public sealed class GetUserByIdQueryHandler(
         }
 
         var userDto = mapper.Map<UserDto>(user);
-        
+
         if (!string.IsNullOrWhiteSpace(user.ProfileImageUrl))
         {
             userDto.ProfileImageUrl = await storageService.GetPreSignedUrlAsync
             (
-                user.ProfileImageUrl,TimeSpan.FromDays(5),
-                cancellationToken
+                user.ProfileImageUrl, 
+                TimeSpan.FromDays(5), cancellationToken
             );
         }
-        var response = mapper.Map<UserDto>(user);
-        await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
+
+        await cacheService.SetAsync(cacheKey, userDto, TimeSpan.FromMinutes(30), cancellationToken);
+
         return ApiResponse<UserDto>.SuccessResponse
         (
             userDto,
