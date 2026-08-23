@@ -10,9 +10,7 @@ public sealed class CountryRepository(BookMyHallDbContext context)
     : ICountryRepository
 {
     public async Task AddAsync(Country country,CancellationToken cancellationToken = default)
-        => await context.Countries.AddAsync(
-            country,
-            cancellationToken);
+        => await context.Countries.AddAsync(country, cancellationToken);
 
     public Task UpdateAsync(Country country,CancellationToken cancellationToken = default)
     {
@@ -39,8 +37,7 @@ public sealed class CountryRepository(BookMyHallDbContext context)
         CancellationToken cancellationToken = default)
     {
         IQueryable<Country> query =
-            context.Countries.AsNoTracking()
-            .Where(x => x.IsActive);
+            context.Countries.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
