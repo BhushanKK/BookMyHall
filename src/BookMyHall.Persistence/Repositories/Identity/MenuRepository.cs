@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Persistence.Context;
-using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Entities.Identity;
 
 namespace BookMyHall.Persistence.Repositories;
@@ -9,40 +8,19 @@ namespace BookMyHall.Persistence.Repositories;
 public sealed class MenuRepository(BookMyHallDbContext context)
 : IMenuRepository
 {
-    public async Task<Menu?> GetByIdAsync(
-        Guid menuId,
-        CancellationToken cancellationToken = default)
-        => await context.Menus.FirstOrDefaultAsync(x => x.MenuId == menuId && x.IsActive,
-        cancellationToken);
+    public async Task<Menu?> GetByIdAsync(Guid menuId,CancellationToken cancellationToken = default)
+        => await context.Menus.FirstOrDefaultAsync(x => x.MenuId == menuId && x.IsActive, cancellationToken);
 
-    public async Task<PaginatedResult<Menu>> GetAllAsync(PaginationRequest paginationRequest,
-    CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Menu>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        var query = context.Menus.AsNoTracking().Where(x => x.IsActive);
-
-        if (!string.IsNullOrWhiteSpace(paginationRequest.SearchText))
-            query = query.Where(x => EF.Functions.ILike(x.MenuName, $"%{paginationRequest.SearchText.Trim()}%"));
-
-        var totalCount = await query.CountAsync(cancellationToken);
-
-        var menus = await query
-            .OrderBy(x => x.MenuName)
-            .Skip(
-                (paginationRequest.PageNumber - 1)
-                * paginationRequest.PageSize)
-            .Take(
-                paginationRequest.PageSize)
+        return await context.Menus
+            .AsNoTracking()
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.Level)
+            .ThenBy(x => x.DisplayOrder)
+            .ThenBy(x => x.MenuName)
             .ToListAsync(cancellationToken);
-
-        return new PaginatedResult<Menu>
-        {
-            Items = menus,
-            TotalCount = totalCount,
-            PageNumber = paginationRequest.PageNumber,
-            PageSize = paginationRequest.PageSize
-        };
     }
-
 
     public async Task AddAsync(Menu menu,CancellationToken cancellationToken = default)
     => await context.Menus.AddAsync(menu,cancellationToken);
@@ -58,5 +36,4 @@ public sealed class MenuRepository(BookMyHallDbContext context)
         context.Menus.Remove(menu);
         return Task.CompletedTask;
     }
-    
 }

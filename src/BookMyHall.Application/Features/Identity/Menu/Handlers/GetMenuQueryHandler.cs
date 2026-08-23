@@ -1,63 +1,59 @@
-using MediatR;
 using System.Net;
 using AutoMapper;
+using MediatR;
+using BookMyHall.Application.Abstractions.Caching;
+using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
-using BookMyHall.Application.Abstractions.Persistence.Repositories;
-using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity;
 
 public sealed class GetMenuQueryHandler(
     IMenuRepository menuRepository,
     IMapper mapper,
-    IMessageHelper messageHelper,ICacheService cacheService)
-    : IRequestHandler<GetMenuQuery,ApiResponse<PaginatedResponse<Menu>>>
+    IMessageHelper messageHelper,
+    ICacheService cacheService)
+    : IRequestHandler<GetMenuQuery, ApiResponse<IReadOnlyList<Menu>>>
 {
-    public async Task<ApiResponse<PaginatedResponse<Menu>>> Handle(
-        GetMenuQuery request,CancellationToken cancellationToken)
+    public async Task<ApiResponse<IReadOnlyList<Menu>>> Handle(
+        GetMenuQuery request,
+        CancellationToken cancellationToken)
     {
-        var pagination = request.paginationRequest;
+        var cacheKey = CacheKeys.Menus;
 
-        var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Menu>(
-            CacheKeys.Menus,
-            pagination.PageNumber,
-            pagination.PageSize,
-            pagination.SearchText,
-            pagination.SortBy,
-            pagination.SortDescending);
+        var cachedMenus =
+            await cacheService.GetAsync<IReadOnlyList<Menu>>(
+                cacheKey,
+                cancellationToken);
 
-        var cachedResponse = await cacheService.GetAsync<PaginatedResponse<Menu>>(cacheKey, cancellationToken);
-
-        if (cachedResponse is not null)
+        if (cachedMenus is not null)
         {
-            return ApiResponse<PaginatedResponse<Menu>>.SuccessResponse
-            (
-                cachedResponse,
-                messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Permission),
-                HttpStatusCode.OK
-            );
+            return ApiResponse<IReadOnlyList<Menu>>.SuccessResponse(
+                cachedMenus,
+                messageHelper.RetrievedEntity(
+                    ResourceNames.Entities,
+                    EntityKeys.Menu),
+                HttpStatusCode.OK);
         }
-        var pagedResult = await menuRepository.GetAllAsync(request.paginationRequest,cancellationToken);
 
-        var response = new PaginatedResponse<Menu>
-        {
-            Items = mapper.Map<IReadOnlyList<Menu>>(pagedResult.Items),
-            PageNumber = pagedResult.PageNumber,
-            PageSize = pagedResult.PageSize,
-            TotalRecords = pagedResult.TotalCount
-        };
+        var menus = await menuRepository.GetAllAsync(
+            cancellationToken);
 
-        await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
-        
-        return ApiResponse<PaginatedResponse<Menu>>.SuccessResponse
-        (
+        var response = mapper.Map<IReadOnlyList<Menu>>(menus);
+
+        await cacheService.SetAsync(
+            cacheKey,
             response,
-            messageHelper.RetrievedEntity(ResourceNames.Entities,EntityKeys.Menu),
-            HttpStatusCode.OK
-        );
+            TimeSpan.FromMinutes(30),
+            cancellationToken);
+
+        return ApiResponse<IReadOnlyList<Menu>>.SuccessResponse(
+            response,
+            messageHelper.RetrievedEntity(
+                ResourceNames.Entities,
+                EntityKeys.Menu),
+            HttpStatusCode.OK);
     }
-    
 }

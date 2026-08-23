@@ -4,5 +4,5 @@ using BookMyHall.Domain.Entities.Identity;
 
 namespace BookMyHall.Application.Features.Identity;
 
-public sealed record GetMenuQuery(PaginationRequest paginationRequest)
-    : IRequest<ApiResponse<PaginatedResponse<Menu>>>;
+public sealed record GetMenuQuery
+    : IRequest<ApiResponse<IReadOnlyList<Menu>>>;

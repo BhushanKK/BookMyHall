@@ -61,33 +61,28 @@ public static class MenuEndpoints
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status404NotFound);
 
-        group.MapGet("/{menuId:guid}", async (
-            Guid menuId,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
+        group.MapGet("/{menuId:guid}", async (Guid menuId,
+            IMediator mediator,CancellationToken cancellationToken) =>
         {
             var response = await mediator.Send(new GetByIdMenuQuery(menuId), cancellationToken);
             return Results.Json(response, statusCode: response.StatusCode);
         })
         .WithName("GetByIdMenu")
-        .WithSummary("Get By Id Menu")
+        .WithSummary("Get Menu By Id")
         .WithDescription("Returns a menu by its identifier.")
         .Produces<ApiResponse<MenuDto>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status404NotFound);
 
-        group.MapGet("/", async (
-            [AsParameters] PaginationRequest request,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
-        {
-            var response = await mediator.Send(new GetMenuQuery(request), cancellationToken);
-            return Results.Json(response, statusCode: response.StatusCode);
-        })
+        group.MapGet("/", async (IMediator mediator,CancellationToken cancellationToken) 
+        =>  {
+                var response = await mediator.Send(new GetMenuQuery(), cancellationToken);
+                return Results.Json(response, statusCode: response.StatusCode);
+            })
         .WithName("GetMenu")
         .WithSummary("Get Menus")
-        .WithDescription("Returns a paginated list of menus.")
-        .Produces<ApiResponse<PaginatedResponse<MenuDto>>>(StatusCodes.Status200OK)
+        .WithDescription("Returns all active menus.")
+        .Produces<ApiResponse<IReadOnlyList<MenuDto>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
     }
 }
