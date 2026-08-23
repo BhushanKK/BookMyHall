@@ -65,6 +65,7 @@ public sealed class UpdateMenuCommandHandler(
         }
 
         await cacheService.RemoveAsync($"{CacheKeys.Menus}:{request.MenuId}", cancellationToken);
+        await cacheService.RemoveAsync(CacheKeys.Menus, cancellationToken);
         
         return ApiResponse<MenuDto>.SuccessResponse
         (

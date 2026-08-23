@@ -31,7 +31,9 @@ public sealed class DeleteMenuCommandHandler(
 
         await menuRepository.UpdateAsync(menu, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
         await cacheService.RemoveAsync(CacheKeys.Menus, cancellationToken);
+        await cacheService.RemoveAsync($"{CacheKeys.Menus}:{request.MenuId}", cancellationToken);
 
         return ApiResponse<bool>.SuccessResponse
         (
