@@ -1,7 +1,5 @@
 using System.Net;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -30,8 +28,10 @@ public sealed class DeleteFoodTypeCommandHandler(
         foodType.IsActive = false;
         await foodTypeRepository.UpdateAsync(foodType, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+        
         await cacheService.RemoveAsync($"{CacheKeys.Foodtype}:{request.FoodTypeId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Foodtype}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.RolesPaged}:", cancellationToken);
+        
         return ApiResponse<bool>.SuccessResponse(true,
             messageHelper.DeletedEntity(ResourceNames.Entities, EntityKeys.FoodType), HttpStatusCode.OK);
     }

@@ -49,7 +49,7 @@ public sealed class CreateFoodTypeCommandHandler(
                 messageHelper.AlreadyExistsEntity(ResourceNames.Entities, EntityKeys.FoodType), HttpStatusCode.Conflict);
         }
 
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Foodtype}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.FoodtypePaged}:", cancellationToken);
 
         return ApiResponse<FoodTypeDto>.SuccessResponse(
             mapper.Map<FoodTypeDto>(foodType),

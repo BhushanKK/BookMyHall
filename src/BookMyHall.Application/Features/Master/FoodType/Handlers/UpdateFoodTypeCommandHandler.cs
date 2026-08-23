@@ -1,11 +1,7 @@
 using System.Net;
-
 using AutoMapper;
-
 using FluentValidation;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -63,7 +59,8 @@ public sealed class UpdateFoodTypeCommandHandler(
         }
 
         await cacheService.RemoveAsync($"{CacheKeys.Foodtype}:{request.FoodTypeId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Foodtype}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.RolesPaged}:", cancellationToken);
+         
         return ApiResponse<FoodTypeDto>.SuccessResponse(
             mapper.Map<FoodTypeDto>(foodType),
             messageHelper.UpdatedEntity(ResourceNames.Entities, EntityKeys.FoodType), HttpStatusCode.OK);

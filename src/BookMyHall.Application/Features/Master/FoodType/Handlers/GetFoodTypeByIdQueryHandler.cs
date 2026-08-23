@@ -1,9 +1,6 @@
 using System.Net;
-
 using AutoMapper;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
@@ -43,7 +40,7 @@ public sealed class GetFoodTypeByIdQueryHandler(
         }
         var response = mapper.Map<FoodType>(foodType);
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
-
+        
         return ApiResponse<FoodType>.SuccessResponse(response,
             messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.FoodType), HttpStatusCode.OK);
     }

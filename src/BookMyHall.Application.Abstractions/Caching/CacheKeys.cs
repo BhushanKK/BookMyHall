@@ -11,6 +11,7 @@ public static class CacheKeys
     public const string EventCategory = "eventcategory";
     public const string Facility = "facility";
     public const string Foodtype = "foodtype";
+    public const string FoodtypePaged = "roles:page:";
     public const string HallCategory = "hallcategory";
     public const string PaymentMode = "paymentmode";
     public const string Service = "service";

@@ -21,13 +21,13 @@ public sealed class GetUserByIdQueryHandler(
         GetUserByIdQuery request,
         CancellationToken cancellationToken)
     {
-       var cacheKey = $"{CacheKeys.Users}:{request.UserId}";
+        var cacheKey = $"{CacheKeys.Users}:{request.UserId}";
         var cachedUser = await cacheService.GetAsync<UserDto>(cacheKey, cancellationToken);
 
         if (cachedUser is not null)
         {
             return ApiResponse<UserDto>.SuccessResponse(cachedUser, messageHelper.RetrievedEntity
-            (ResourceNames.Entities, EntityKeys.CancellationPolicy), HttpStatusCode.OK);
+            (ResourceNames.Entities, EntityKeys.User), HttpStatusCode.OK);
         }
         var user = await userRepository.GetByIdAsync(request.UserId, cancellationToken);
 
