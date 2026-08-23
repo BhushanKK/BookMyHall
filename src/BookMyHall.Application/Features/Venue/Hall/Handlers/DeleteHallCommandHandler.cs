@@ -36,7 +36,7 @@ public sealed class DeleteHallCommandHandler(IHallRepository hallRepository,
         await hallRepository.UpdateAsync(hall,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await cacheService.RemoveAsync($"{CacheKeys.Hall}:{request.HallId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Hall}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallsPaged}:", cancellationToken);
         return ApiResponse<bool>.SuccessResponse(true,messageHelper.DeletedEntity(
                 ResourceNames.Entities,EntityKeys.Hall),HttpStatusCode.OK);
     }

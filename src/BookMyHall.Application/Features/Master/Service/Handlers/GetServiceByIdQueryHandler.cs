@@ -16,7 +16,7 @@ public sealed class GetServiceByIdQueryHandler(IServiceRepository serviceReposit
 {
     public async Task<ApiResponse<Service>> Handle(GetServiceByIdQuery request,CancellationToken cancellationToken)
     {
-        var cacheKey = $"{CacheKeys.Service}:{request.ServiceId}";
+        var cacheKey = $"{CacheKeys.Services}:{request.ServiceId}";
         var cachedPaymentMode = await cacheService.GetAsync<Service>(cacheKey, cancellationToken);
 
         if (cachedPaymentMode is not null)

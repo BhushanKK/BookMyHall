@@ -59,7 +59,7 @@ public sealed class UpdateFoodTypeCommandHandler(
         }
 
         await cacheService.RemoveAsync($"{CacheKeys.Foodtype}:{request.FoodTypeId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.RolesPaged}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.FoodtypePaged}:", cancellationToken);
          
         return ApiResponse<FoodTypeDto>.SuccessResponse(
             mapper.Map<FoodTypeDto>(foodType),

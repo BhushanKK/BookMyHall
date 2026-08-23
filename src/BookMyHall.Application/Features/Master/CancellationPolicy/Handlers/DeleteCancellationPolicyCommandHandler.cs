@@ -27,8 +27,8 @@ public sealed class DeleteCancellationPolicyCommandHandler(
         policy.IsActive = false;
         await cancellationPolicyRepository.UpdateAsync(policy, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync( $"{CacheKeys.CancellationPolicy}:{request.CancellationPolicyId}",cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.CancellationPolicy}:",cancellationToken);
+        await cacheService.RemoveAsync( $"{CacheKeys.CancellationPolicies}:{request.CancellationPolicyId}",cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.CancellationPoliciesPaged}:",cancellationToken);
         
         return ApiResponse<bool>.SuccessResponse(true,
             messageHelper.DeletedEntity(ResourceNames.Entities,EntityKeys.CancellationPolicy),HttpStatusCode.OK);

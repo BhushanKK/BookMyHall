@@ -19,7 +19,7 @@ public sealed class GetServicesQueryHandler(IServiceRepository serviceRepository
          var pagination = request.paginationRequest;
 
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Service>(
-            CacheKeys.Service,
+            CacheKeys.Services,
             pagination.PageNumber,
             pagination.PageSize,
             pagination.SearchText,

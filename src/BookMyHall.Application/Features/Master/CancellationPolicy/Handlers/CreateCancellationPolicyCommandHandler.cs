@@ -50,7 +50,7 @@ public sealed class CreateCancellationPolicyCommandHandler(
             return ApiResponse<CancellationPolicyDto>.FailureResponse(
                 messageHelper.AlreadyExistsEntity(ResourceNames.Entities, EntityKeys.CancellationPolicy), HttpStatusCode.Conflict);
         }
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.CancellationPolicy}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.CancellationPoliciesPaged}:", cancellationToken);
         return ApiResponse<CancellationPolicyDto>.SuccessResponse(
             mapper.Map<CancellationPolicyDto>(policy),
             messageHelper.AddedEntity(ResourceNames.Entities, EntityKeys.CancellationPolicy), HttpStatusCode.Created);

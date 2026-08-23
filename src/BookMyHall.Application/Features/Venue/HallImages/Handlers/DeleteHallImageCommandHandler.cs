@@ -42,7 +42,7 @@ public sealed class DeleteHallImageCommandHandler(
 
         await hallImageRepository.UpdateAsync(hallImage,cancellationToken);
         await cacheService.RemoveAsync($"{CacheKeys.HallImage}:{request.HallImageId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallImage}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallImagesPaged}:", cancellationToken);
         return ApiResponse<bool>.SuccessResponse
         (
             true,

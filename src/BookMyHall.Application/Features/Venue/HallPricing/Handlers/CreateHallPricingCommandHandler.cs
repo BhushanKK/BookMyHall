@@ -48,7 +48,7 @@ public sealed class CreateHallPricingCommandHandler(
             );
         }
         
-       await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallPricing}:", cancellationToken);
+       await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallPricingsPaged}:", cancellationToken);
 
         return ApiResponse<HallPricingDto>.SuccessResponse
         (

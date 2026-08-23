@@ -46,7 +46,7 @@ public sealed class UpdatePaymentModeCommandHandler(IPaymentModeRepository payme
         await paymentModeRepository.UpdateAsync(paymentMode,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await cacheService.RemoveAsync($"{CacheKeys.PaymentMode}:{request.PaymentModeId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.PaymentMode}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.PaymentModesPaged}:", cancellationToken);
         return ApiResponse<PaymentModeDto>.SuccessResponse(
             mapper.Map<PaymentModeDto>(paymentMode),
             messageHelper.UpdatedEntity(ResourceNames.Entities,EntityKeys.PaymentMode),HttpStatusCode.OK);

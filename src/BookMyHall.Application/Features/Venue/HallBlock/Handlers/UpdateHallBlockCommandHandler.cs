@@ -52,7 +52,7 @@ public sealed class UpdateHallBlockCommandHandler(IHallBlockRepository hallBlock
         }
         
         await cacheService.RemoveAsync($"{CacheKeys.HallBlock}:{request.HallBlockId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallBlock}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallBlocksPaged}:", cancellationToken);
 
         return ApiResponse<HallBlockDto>.SuccessResponse(
             mapper.Map<HallBlockDto>(hallBlock),

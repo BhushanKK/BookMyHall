@@ -24,7 +24,7 @@ public sealed class GetEventCategoriesQueryHandler(
         var pagination = request.paginationRequest;
 
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<EventCategory>(
-            CacheKeys.EventCategory,
+            CacheKeys.EventCategories,
             pagination.PageNumber,
             pagination.PageSize,
             pagination.SearchText,

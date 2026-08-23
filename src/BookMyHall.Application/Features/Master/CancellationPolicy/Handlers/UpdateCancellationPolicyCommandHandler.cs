@@ -52,8 +52,8 @@ public sealed class UpdateCancellationPolicyCommandHandler(
         mapper.Map(request, policy);
         await cancellationPolicyRepository.UpdateAsync(policy, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.CancellationPolicy}:{request.CancellationPolicyId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.CancellationPolicy}:", cancellationToken);
+        await cacheService.RemoveAsync($"{CacheKeys.CancellationPolicies}:{request.CancellationPolicyId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.CancellationPoliciesPaged}:", cancellationToken);
         
         return ApiResponse<CancellationPolicyDto>.SuccessResponse(
             mapper.Map<CancellationPolicyDto>(policy),

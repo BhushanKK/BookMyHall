@@ -48,7 +48,7 @@ public sealed class CreateFacilityCommandHandler(
             return ApiResponse<FacilityDto>.FailureResponse(
                 messageHelper.AlreadyExistsEntity(ResourceNames.Entities, EntityKeys.Facility), HttpStatusCode.Conflict);
         }
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.EventCategory}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.EventCategoriesPaged}:", cancellationToken);
 
         return ApiResponse<FacilityDto>.SuccessResponse(
             mapper.Map<FacilityDto>(facility),

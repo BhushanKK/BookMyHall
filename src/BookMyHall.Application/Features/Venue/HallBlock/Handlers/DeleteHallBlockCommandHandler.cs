@@ -28,7 +28,7 @@ public sealed class DeleteHallBlockCommandHandler(IHallBlockRepository hallBlock
         await hallBlockRepository.UpdateAsync(hallBlock,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await cacheService.RemoveAsync($"{CacheKeys.HallBlock}:{request.HallBlockId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallBlock}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallBlocksPaged}:", cancellationToken);
         return ApiResponse<bool>.SuccessResponse(true,
             messageHelper.DeletedEntity(ResourceNames.Entities,
                 EntityKeys.HallBlock),HttpStatusCode.OK);

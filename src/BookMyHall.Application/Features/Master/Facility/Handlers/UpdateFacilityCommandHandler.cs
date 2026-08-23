@@ -51,8 +51,8 @@ public sealed class UpdateFacilityCommandHandler(
         mapper.Map(request, facility);
         await facilityRepository.UpdateAsync(facility, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.Facility}:{request.FacilityId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Facility}:", cancellationToken);
+        await cacheService.RemoveAsync($"{CacheKeys.Facilities}:{request.FacilityId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.FacilitiesPaged}:", cancellationToken);
         return ApiResponse<FacilityDto>.SuccessResponse(
             mapper.Map<FacilityDto>(facility),
             messageHelper.UpdatedEntity(ResourceNames.Entities, EntityKeys.Facility), HttpStatusCode.OK);

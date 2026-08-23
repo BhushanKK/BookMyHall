@@ -52,8 +52,8 @@ public sealed class UpdateEventCategoryCommandHandler(
         mapper.Map(request, eventCategory);
         await eventCategoryRepository.UpdateAsync(eventCategory, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.EventCategory}:{request.EventCategoryId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.EventCategory}:", cancellationToken);
+        await cacheService.RemoveAsync($"{CacheKeys.EventCategories}:{request.EventCategoryId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.EventCategoriesPaged}:", cancellationToken);
         return ApiResponse<EventCategoryDto>.SuccessResponse(
             mapper.Map<EventCategoryDto>(eventCategory),
             messageHelper.UpdatedEntity(ResourceNames.Entities, EntityKeys.EventCategory), HttpStatusCode.OK);

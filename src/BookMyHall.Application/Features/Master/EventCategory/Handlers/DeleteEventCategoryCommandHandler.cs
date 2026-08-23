@@ -30,8 +30,8 @@ public sealed class DeleteEventCategoryCommandHandler(
         eventCategory.IsActive = false;
         await eventCategoryRepository.UpdateAsync(eventCategory, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.EventCategory}:{request.EventCategoryId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.EventCategory}:", cancellationToken);
+        await cacheService.RemoveAsync($"{CacheKeys.EventCategories}:{request.EventCategoryId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.EventCategoriesPaged}:", cancellationToken);
 
         return ApiResponse<bool>.SuccessResponse(true,
             messageHelper.DeletedEntity(ResourceNames.Entities, EntityKeys.EventCategory), HttpStatusCode.OK);

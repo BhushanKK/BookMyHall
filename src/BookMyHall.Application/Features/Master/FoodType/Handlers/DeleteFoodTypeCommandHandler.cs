@@ -30,7 +30,7 @@ public sealed class DeleteFoodTypeCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
         
         await cacheService.RemoveAsync($"{CacheKeys.Foodtype}:{request.FoodTypeId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.RolesPaged}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.FoodtypePaged}:", cancellationToken);
         
         return ApiResponse<bool>.SuccessResponse(true,
             messageHelper.DeletedEntity(ResourceNames.Entities, EntityKeys.FoodType), HttpStatusCode.OK);

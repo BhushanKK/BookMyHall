@@ -44,7 +44,7 @@ public sealed class CreateEventCategoryCommandHandler(
             return ApiResponse<EventCategoryDto>.FailureResponse(
                 messageHelper.AlreadyExistsEntity(ResourceNames.Entities,EntityKeys.EventCategory),HttpStatusCode.Conflict);
         }
-         await cacheService.RemoveByPrefixAsync($"{CacheKeys.EventCategory}:",cancellationToken);
+         await cacheService.RemoveByPrefixAsync($"{CacheKeys.EventCategoriesPaged}:",cancellationToken);
 
         return ApiResponse<EventCategoryDto>.SuccessResponse(
             mapper.Map<EventCategoryDto>(eventCategory),

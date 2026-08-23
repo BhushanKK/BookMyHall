@@ -19,7 +19,7 @@ public sealed class GetHallCategoriesQueryHandler(IHallCategoryRepository hallCa
         var pagination = request.paginationRequest;
 
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<HallCategory>(
-            CacheKeys.HallCategory,
+            CacheKeys.HallCategories,
             pagination.PageNumber,
             pagination.PageSize,
             pagination.SearchText,

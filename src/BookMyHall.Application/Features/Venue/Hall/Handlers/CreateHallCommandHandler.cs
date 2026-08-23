@@ -43,7 +43,7 @@ public sealed class CreateHallCommandHandler(IHallRepository hallRepository,
                 HttpStatusCode.Conflict
             );
         }
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Hall}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallsPaged}:", cancellationToken);
         return ApiResponse<HallDto>.SuccessResponse
         (
             mapper.Map<HallDto>(hall),

@@ -25,7 +25,7 @@ public sealed class GetCancellationPoliciesQueryHandler(
         var pagination = request.paginationRequest;
 
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<CancellationPolicy>(
-            CacheKeys.CancellationPolicy,
+            CacheKeys.CancellationPolicies,
             pagination.PageNumber,
             pagination.PageSize,
             pagination.SearchText,

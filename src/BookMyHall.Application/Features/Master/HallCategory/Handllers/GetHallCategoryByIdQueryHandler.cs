@@ -21,7 +21,7 @@ public sealed class GetHallCategoryByIdQueryHandler(
 {
     public async Task<ApiResponse<HallCategory>> Handle(GetHallCategoryByIdQuery request, CancellationToken cancellationToken)
     {
-        var cacheKey = $"{CacheKeys.HallCategory}:{request.HallCategoryId}";
+        var cacheKey = $"{CacheKeys.HallCategories}:{request.HallCategoryId}";
         var cachedHallCategory = await cacheService.GetAsync<HallCategory>(cacheKey, cancellationToken);
 
         if (cachedHallCategory is not null)

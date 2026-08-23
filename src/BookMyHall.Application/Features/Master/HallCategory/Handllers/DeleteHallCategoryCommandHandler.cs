@@ -30,8 +30,8 @@ public sealed class DeleteHallCategoryCommandHandler(
         category.IsActive = false;
         await hallCategoryRepository.UpdateAsync(category, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.HallCategory}:{request.HallCategoryId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallCategory}:", cancellationToken);
+        await cacheService.RemoveAsync($"{CacheKeys.HallCategories}:{request.HallCategoryId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallCategoriesPaged}:", cancellationToken);
        
         return ApiResponse<bool>.SuccessResponse(true,
             messageHelper.DeletedEntity(ResourceNames.Entities, EntityKeys.HallCategory), HttpStatusCode.OK);

@@ -43,7 +43,7 @@ public sealed class CreatePaymentModeCommandHandler(IPaymentModeRepository payme
                 messageHelper.AlreadyExistsEntity(ResourceNames.Entities,EntityKeys.PaymentMode),HttpStatusCode.Conflict);
         }
         
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallCategory}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.PaymentModesPaged}:", cancellationToken);
 
         return ApiResponse<PaymentModeDto>.SuccessResponse(
             mapper.Map<PaymentModeDto>(paymentMode),

@@ -78,7 +78,7 @@ public sealed class CreateHallImageCommandHandler(
             await hallImageRepository.AddAsync(hallImage, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
             
-            await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallImage}:", cancellationToken);
+            await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallImagesPaged}:", cancellationToken);
             // 9. Return success
             return ApiResponse<Guid>.SuccessResponse
             (

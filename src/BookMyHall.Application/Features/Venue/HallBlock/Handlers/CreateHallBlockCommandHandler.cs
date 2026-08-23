@@ -41,7 +41,7 @@ public sealed class CreateHallBlockCommandHandler(
             return ApiResponse<HallBlockDto>.FailureResponse(messageHelper.AlreadyExistsEntity(
                     ResourceNames.Entities,EntityKeys.HallBlock),HttpStatusCode.Conflict);
         }
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Hall}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallsPaged}:", cancellationToken);
         return ApiResponse<HallBlockDto>.SuccessResponse(
             mapper.Map<HallBlockDto>(hallBlock),
             messageHelper.AddedEntity(ResourceNames.Entities,

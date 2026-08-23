@@ -42,7 +42,7 @@ public sealed class CreateServiceCommandHandler(IServiceRepository serviceReposi
                 messageHelper.AlreadyExistsEntity(ResourceNames.Entities,EntityKeys.Service),HttpStatusCode.Conflict);
         }
 
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallCategory}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.ServicesPaged}:", cancellationToken);
         
         return ApiResponse<ServiceDto>.SuccessResponse(
             mapper.Map<ServiceDto>(service),

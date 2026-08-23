@@ -85,7 +85,7 @@ public sealed class CreateUserCommandHandler(
                 HttpStatusCode.Conflict
             );
         }
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Users}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.UsersPaged}:", cancellationToken);
         return ApiResponse<UserDto>.SuccessResponse
         (
             mapper.Map<UserDto>(user),

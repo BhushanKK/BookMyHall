@@ -39,7 +39,7 @@ public sealed class DeleteHallPricingCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
         
         await cacheService.RemoveAsync($"{CacheKeys.HallPricing}:{request.HallPricingId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallPricing}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallPricingsPaged}:", cancellationToken);
 
         return ApiResponse<bool>.SuccessResponse(true,messageHelper.DeletedEntity(
                 ResourceNames.Entities,EntityKeys.HallPricing),HttpStatusCode.OK);

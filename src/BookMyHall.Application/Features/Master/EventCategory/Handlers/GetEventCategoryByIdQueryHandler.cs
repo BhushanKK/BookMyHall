@@ -21,7 +21,7 @@ public sealed class GetEventCategoryByIdQueryHandler(
 {
     public async Task<ApiResponse<EventCategory>> Handle(GetEventCategoryByIdQuery request, CancellationToken cancellationToken)
     {
-        var cacheKey = $"{CacheKeys.EventCategory}:{request.EventCategoryId}";
+        var cacheKey = $"{CacheKeys.EventCategories}:{request.EventCategoryId}";
         var cachedEventCategory = await cacheService.GetAsync<EventCategory>(cacheKey, cancellationToken);
 
         if (cachedEventCategory is not null)

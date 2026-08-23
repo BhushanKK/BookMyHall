@@ -26,8 +26,8 @@ public sealed class DeleteServiceCommandHandler(IServiceRepository serviceReposi
         service.IsActive = false;
         await serviceRepository.UpdateAsync(service, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.Service}:{request.ServiceId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Service}:", cancellationToken);
+        await cacheService.RemoveAsync($"{CacheKeys.Services}:{request.ServiceId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.ServicesPaged}:", cancellationToken);
         return ApiResponse<bool>.SuccessResponse(true,
             messageHelper.DeletedEntity(ResourceNames.Entities,EntityKeys.Service),HttpStatusCode.OK);
     }

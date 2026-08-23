@@ -30,7 +30,7 @@ public sealed class DeletePaymentModeCommandHandler(IPaymentModeRepository payme
         await paymentModeRepository.UpdateAsync(paymentMode, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await cacheService.RemoveAsync($"{CacheKeys.PaymentMode}:{request.PaymentModeId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.PaymentMode}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.PaymentModesPaged}:", cancellationToken);
         return ApiResponse<bool>.SuccessResponse(true,
             messageHelper.DeletedEntity(ResourceNames.Entities, EntityKeys.PaymentMode), HttpStatusCode.OK);
     }

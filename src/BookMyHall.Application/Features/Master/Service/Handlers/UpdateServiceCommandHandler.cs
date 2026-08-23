@@ -44,8 +44,8 @@ public sealed class UpdateServiceCommandHandler(IServiceRepository serviceReposi
         mapper.Map(request, service);
         await serviceRepository.UpdateAsync(service,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.Service}:{request.ServiceId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Service}:", cancellationToken);
+        await cacheService.RemoveAsync($"{CacheKeys.Services}:{request.ServiceId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.ServicesPaged}:", cancellationToken);
         return ApiResponse<ServiceDto>.SuccessResponse(
             mapper.Map<ServiceDto>(service),
             messageHelper.UpdatedEntity(ResourceNames.Entities,EntityKeys.Service),HttpStatusCode.OK);

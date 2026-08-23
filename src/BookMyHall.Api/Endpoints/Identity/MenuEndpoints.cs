@@ -10,7 +10,7 @@ public static class MenuEndpoints
     {
         var group = app.MapGroup("/api/menus")
             .WithTags("Menu")
-            .RequireAuthorization();
+            .RequireAuthorization(policy => policy.RequireRole("Admin"));
 
         group.MapPost("/", async(
             CreateMenuCommand command,

@@ -48,7 +48,7 @@ public sealed class CreateHallCategoryCommandHandler(
             return ApiResponse<HallCategoryDto>.FailureResponse(
                 messageHelper.AlreadyExistsEntity(ResourceNames.Entities, EntityKeys.HallCategory), HttpStatusCode.Conflict);
         }
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallCategory}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallCategoriesPaged}:", cancellationToken);
         return ApiResponse<HallCategoryDto>.SuccessResponse(
             mapper.Map<HallCategoryDto>(category),
             messageHelper.AddedEntity(ResourceNames.Entities, EntityKeys.HallCategory), HttpStatusCode.Created);

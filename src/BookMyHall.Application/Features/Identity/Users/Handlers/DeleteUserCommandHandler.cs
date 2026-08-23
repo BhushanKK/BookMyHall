@@ -34,7 +34,7 @@ public sealed class DeleteUserCommandHandler(
         await userRepository.UpdateAsync(user, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await cacheService.RemoveAsync( $"{CacheKeys.Users}:{request.UserId}",cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Users}:",cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.UsersPaged}:",cancellationToken);
         return ApiResponse<bool>.SuccessResponse
         (
             true,

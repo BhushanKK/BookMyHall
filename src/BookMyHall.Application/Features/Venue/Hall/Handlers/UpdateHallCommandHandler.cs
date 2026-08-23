@@ -58,7 +58,7 @@ public sealed class UpdateHallCommandHandler(IHallRepository hallRepository,
             );
         }
         await cacheService.RemoveAsync($"{CacheKeys.Hall}:{request.HallId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Hall}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallsPaged}:", cancellationToken);
         return ApiResponse<HallDto>.SuccessResponse
         (
             mapper.Map<HallDto>(hall),

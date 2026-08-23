@@ -21,7 +21,7 @@ public sealed class GetCancellationPolicyByIdQueryHandler(
 {
     public async Task<ApiResponse<CancellationPolicy>> Handle(GetCancellationPolicyByIdQuery request, CancellationToken cancellationToken)
     {
-        var cacheKey = $"{CacheKeys.CancellationPolicy}:{request.CancellationPolicyId}";
+        var cacheKey = $"{CacheKeys.CancellationPolicies}:{request.CancellationPolicyId}";
         var cachedCancellationPolicy = await cacheService.GetAsync<CancellationPolicy>(cacheKey, cancellationToken);
 
         if (cachedCancellationPolicy is not null)

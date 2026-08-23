@@ -21,7 +21,7 @@ public sealed class GetFacilityByIdQueryHandler(
 {
     public async Task<ApiResponse<Facility>> Handle(GetFacilityByIdQuery request, CancellationToken cancellationToken)
     {
-        var cacheKey = $"{CacheKeys.Facility}:{request.FacilityId}";
+        var cacheKey = $"{CacheKeys.Facilities}:{request.FacilityId}";
         var cachedFacility = await cacheService.GetAsync<Facility>(cacheKey, cancellationToken);
 
         if (cachedFacility is not null)

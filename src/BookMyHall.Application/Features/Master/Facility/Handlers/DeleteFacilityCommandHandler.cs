@@ -31,8 +31,8 @@ public sealed class DeleteFacilityCommandHandler(
         facility.IsActive = false;
         await facilityRepository.UpdateAsync(facility, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.Facility}:{request.FacilityId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Facility}:", cancellationToken);
+        await cacheService.RemoveAsync($"{CacheKeys.Facilities}:{request.FacilityId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.FacilitiesPaged}:", cancellationToken);
 
         return ApiResponse<bool>.SuccessResponse(true,
             messageHelper.DeletedEntity(ResourceNames.Entities, EntityKeys.Facility), HttpStatusCode.OK);

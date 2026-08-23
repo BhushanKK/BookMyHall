@@ -83,7 +83,7 @@ public sealed class UpdateUserCommandHandler(
 
         var userDto = mapper.Map<UserDto>(user);
         await cacheService.RemoveAsync($"{CacheKeys.Users}:{request.UserId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Users}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.UsersPaged}:", cancellationToken);
         return ApiResponse<UserDto>.SuccessResponse
         (
             userDto,
