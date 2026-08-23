@@ -56,7 +56,7 @@ public sealed class LoginCommandHandler(
         {
             user.ProfileImageUrl = await storageService.GetPreSignedUrlAsync(
                 user.ProfileImageUrl,
-                TimeSpan.FromDays(7),
+                TimeSpan.FromDays(6).Add(TimeSpan.FromHours(23)),
                 cancellationToken);
         }
         if (!passwordHasher.VerifyPassword(user.PasswordHash, request.Password))
