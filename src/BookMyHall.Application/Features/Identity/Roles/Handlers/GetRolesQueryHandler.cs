@@ -24,7 +24,7 @@ public sealed class GetRolesQueryHandler(
         var pagination = request.paginationRequest;
 
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Role>(
-            CacheKeys.Roles,
+            CacheKeys.RolesPaged,
             pagination.PageNumber,
             pagination.PageSize,
             pagination.SearchText,
