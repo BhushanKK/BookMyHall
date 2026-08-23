@@ -7,7 +7,6 @@ using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Application.Common.Interfaces.Storage;
 using BookMyHall.Application.Abstractions.Caching;
-using BookMyHall.Domain.Entities.Identity;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
@@ -47,7 +46,8 @@ public sealed class GetUserByIdQueryHandler(
         {
             userDto.ProfileImageUrl = await storageService.GetPreSignedUrlAsync
             (
-                user.ProfileImageUrl,TimeSpan.FromMinutes(15),
+                user.ProfileImageUrl,TimeSpan.FromDays(6)
+                .Add(TimeSpan.FromHours(23)),
                 cancellationToken
             );
         }
