@@ -18,42 +18,32 @@ public sealed class GetMenuQueryHandler(
     : IRequestHandler<GetMenuQuery, ApiResponse<IReadOnlyList<Menu>>>
 {
     public async Task<ApiResponse<IReadOnlyList<Menu>>> Handle(
-        GetMenuQuery request,
-        CancellationToken cancellationToken)
+        GetMenuQuery request, CancellationToken cancellationToken)
     {
         var cacheKey = CacheKeys.Menus;
 
-        var cachedMenus =
-            await cacheService.GetAsync<IReadOnlyList<Menu>>(
-                cacheKey,
-                cancellationToken);
+        var cachedMenus = await cacheService.GetAsync<IReadOnlyList<Menu>>(cacheKey,cancellationToken);
 
         if (cachedMenus is not null)
         {
-            return ApiResponse<IReadOnlyList<Menu>>.SuccessResponse(
+            return ApiResponse<IReadOnlyList<Menu>>.SuccessResponse
+            (
                 cachedMenus,
-                messageHelper.RetrievedEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.Menu),
-                HttpStatusCode.OK);
+                messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Menu),
+                HttpStatusCode.OK
+            );
         }
 
-        var menus = await menuRepository.GetAllAsync(
-            cancellationToken);
-
+        var menus = await menuRepository.GetAllAsync(cancellationToken);
         var response = mapper.Map<IReadOnlyList<Menu>>(menus);
 
-        await cacheService.SetAsync(
-            cacheKey,
+        await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
+        
+        return ApiResponse<IReadOnlyList<Menu>>.SuccessResponse
+        (
             response,
-            TimeSpan.FromMinutes(30),
-            cancellationToken);
-
-        return ApiResponse<IReadOnlyList<Menu>>.SuccessResponse(
-            response,
-            messageHelper.RetrievedEntity(
-                ResourceNames.Entities,
-                EntityKeys.Menu),
-            HttpStatusCode.OK);
+            messageHelper.RetrievedEntity(ResourceNames.Entities,EntityKeys.Menu),
+            HttpStatusCode.OK
+        );
     }
 }

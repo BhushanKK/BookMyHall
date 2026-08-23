@@ -21,18 +21,14 @@ public sealed class CreateMenuCommandHandler(
     IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<CreateMenuCommand, ApiResponse<MenuDto>>
 {
-    public async Task<ApiResponse<MenuDto>> Handle(
-        CreateMenuCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<MenuDto>> Handle(CreateMenuCommand request, CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request,cancellationToken);
 
         if (!validationResult.IsValid)
         {
             var message = string.Join("|",validationResult.Errors.Select(x => x.ErrorMessage));
-            return ApiResponse<MenuDto>.FailureResponse(
-                message,
-                HttpStatusCode.BadRequest);
+            return ApiResponse<MenuDto>.FailureResponse(message, HttpStatusCode.BadRequest);
         }
 
         var menu = mapper.Map<Menu>(request);
@@ -50,7 +46,7 @@ public sealed class CreateMenuCommandHandler(
                 HttpStatusCode.Conflict
             );
         }
-        await cacheService.RemoveByPrefixAsync(CacheKeys.MenuPaged,cancellationToken);
+        await cacheService.RemoveByPrefixAsync(CacheKeys.Menus,cancellationToken);
         
         return ApiResponse<MenuDto>.SuccessResponse
         (
