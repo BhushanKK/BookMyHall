@@ -46,8 +46,7 @@ public sealed class GetUserByIdQueryHandler(
         {
             userDto.ProfileImageUrl = await storageService.GetPreSignedUrlAsync
             (
-                user.ProfileImageUrl,TimeSpan.FromDays(6)
-                .Add(TimeSpan.FromHours(23)),
+                user.ProfileImageUrl,TimeSpan.FromDays(5),
                 cancellationToken
             );
         }
