@@ -51,7 +51,7 @@ public sealed class CreateCountryCommandHandler(
             );
         }
 
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Country}:", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.CountriesPaged}:", cancellationToken);
 
         return ApiResponse<CountryDto>.SuccessResponse
         (

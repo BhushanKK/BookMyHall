@@ -65,7 +65,8 @@ public sealed class UpdateCountryCommandHandler(
 
         await countryRepository.UpdateAsync(country, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.Country}:", cancellationToken);
+        await cacheService.RemoveAsync($"{CacheKeys.Country}:{request.CountryId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.CountriesPaged}:", cancellationToken);
 
         return ApiResponse<CountryDto>.SuccessResponse
         (
