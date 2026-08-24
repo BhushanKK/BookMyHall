@@ -1,21 +1,14 @@
 using AutoMapper;
-using BookMyHall.Application.Features.Master;
 using BookMyHall.Domain.Masters;
 
-namespace BookMyHall.Application.Common.Mapping;
+namespace BookMyHall.Application.Features.Master;
 
-public sealed class StateMappingProfile : Profile
+public sealed class StateProfile : Profile
 {
-      public StateMappingProfile()
+    public StateProfile()
     {
+        CreateMap<CreateStateCommand, State>();
+        CreateMap<UpdateStateCommand, State>();
         CreateMap<State, StateDto>();
-
-        CreateMap<CreateStateCommand, State>()
-            .ForMember(dest => dest.StateId,opt => opt.Ignore())
-            .ForMember(dest => dest.IsActive,opt => opt.Ignore());
-
-        CreateMap<UpdateStateCommand, State>()
-            .ForMember(dest => dest.StateId,opt => opt.Ignore())
-            .ForMember(dest => dest.IsActive,opt => opt.Ignore());
     }
 }

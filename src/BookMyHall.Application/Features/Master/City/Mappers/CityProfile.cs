@@ -8,9 +8,7 @@ public sealed class CityProfile : Profile
     public CityProfile()
     {
         CreateMap<CreateCityCommand, City>();
-
         CreateMap<UpdateCityCommand, City>();
-
         CreateMap<City, CityDto>();
     }
 }
