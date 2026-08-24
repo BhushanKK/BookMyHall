@@ -8,6 +8,7 @@ public sealed class MenuRolePermissionMappingProfile : Profile
 {
     public MenuRolePermissionMappingProfile()
     {
+        CreateMap<MenuRolePermissionRequest, MenuRolePermission>();
         CreateMap<MenuRolePermission, MenuRolePermissionDto>().ReverseMap();
     }
 }
