@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
-using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Persistence.Context;
 
@@ -11,72 +10,62 @@ public sealed class MenuRolePermissionRepository(
     BookMyHallDbContext dbContext)
     : IMenuRolePermissionRepository
 {
-    public async Task AddAsync(
-        MenuRolePermission entity,
-        CancellationToken cancellationToken)
-    {
-        await dbContext.MenuRolePermissions.AddAsync(
-            entity,
-            cancellationToken);
-    }
-
-    public Task UpdateAsync(
-        MenuRolePermission entity,
-        CancellationToken cancellationToken)
-    {
-        dbContext.MenuRolePermissions.Update(entity);
-
-        return Task.CompletedTask;
-    }
-
-    public async Task<MenuRolePermission?> GetByIdAsync(
-        Guid menuRolePermissionId,
-        CancellationToken cancellationToken)
-    {
-        return await dbContext.MenuRolePermissions
-            .FirstOrDefaultAsync(
-                x => x.MenuRolePermissionId == menuRolePermissionId,
-                cancellationToken);
-    }
-
-    public async Task<MenuRolePermission?> GetByMenuAndRoleAsync(
-        Guid menuId,
+    public async Task<IReadOnlyList<MenuRolePermission>> GetByRoleIdAsync(
         Guid roleId,
         CancellationToken cancellationToken)
     {
         return await dbContext.MenuRolePermissions
-            .FirstOrDefaultAsync(
-                x =>
-                    x.MenuId == menuId &&
-                    x.RoleId == roleId,
-                cancellationToken);
+            .AsNoTracking()
+            .Where(x => x.RoleId == roleId)
+            .ToListAsync(cancellationToken);
     }
 
-    public Task DeleteAsync(MenuRolePermission entity, CancellationToken cancellationToken)
-    {
-        dbContext.MenuRolePermissions.Remove(entity);
-        return Task.CompletedTask;
-    }
-
-    public async Task<(
-        IReadOnlyList<MenuRolePermission> Items,
-        int TotalCount)> GetAllAsync(
-        PaginationRequest paginationRequest,
+    public async Task UpsertRangeAsync(
+        IReadOnlyList<MenuRolePermission> entities,
         CancellationToken cancellationToken)
     {
-        var query = dbContext.MenuRolePermissions.AsNoTracking();
+        if (entities.Count == 0)
+        {
+            return;
+        }
 
-        var totalCount = await query.CountAsync(cancellationToken);
+        var roleId = entities[0].RoleId;
 
-        var items = await query
-            .OrderBy(x => x.MenuId)
-            .ThenBy(x => x.RoleId)
-            .Skip(
-                (paginationRequest.PageNumber - 1) *
-                paginationRequest.PageSize)
-            .Take(paginationRequest.PageSize)
-            .ToListAsync(cancellationToken);
+        var menuIds = entities
+            .Select(x => x.MenuId)
+            .Distinct()
+            .ToList();
 
-        return (items, totalCount);
+        var existingPermissions =
+            await dbContext.MenuRolePermissions
+                .Where(x =>
+                    x.RoleId == roleId &&
+                    menuIds.Contains(x.MenuId))
+                .ToListAsync(cancellationToken);
+
+        var existingLookup =
+            existingPermissions.ToDictionary(
+                x => x.MenuId);
+
+        foreach (var entity in entities)
+        {
+            if (existingLookup.TryGetValue(
+                    entity.MenuId,
+                    out var existing))
+            {
+                existing.CanView = entity.CanView;
+                existing.CanCreate = entity.CanCreate;
+                existing.CanUpdate = entity.CanUpdate;
+                existing.CanDelete = entity.CanDelete;
+                existing.CanPrint = entity.CanPrint;
+                existing.CanExport = entity.CanExport;
+            }
+            else
+            {
+                await dbContext.MenuRolePermissions.AddAsync(
+                    entity,
+                    cancellationToken);
+            }
+        }
     }
 }

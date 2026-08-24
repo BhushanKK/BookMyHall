@@ -75,6 +75,7 @@ public static class MenuEndpoints
             var response = await mediator.Send(new GetByIdMenuQuery(menuId), cancellationToken);
             return Results.Json(response, statusCode: response.StatusCode);
         })
+        .RequireAuthorization(policy => policy.RequireRole("Admin"))
         .WithName("GetByIdMenu")
         .WithSummary("Get Menu By Id")
         .WithDescription("Returns a menu by its identifier.")
@@ -88,29 +89,16 @@ public static class MenuEndpoints
             CancellationToken cancellationToken) =>
         {
             var response = await mediator.Send(new GetMenuQuery(),cancellationToken);
-            return Results.Json(response, statusCode: response.StatusCode);
+            return Results.Json(
+                response,
+                statusCode: response.StatusCode);
         })
         .WithName("GetMenus")
         .WithSummary("Get Accessible Menus")
-        .WithDescription("Returns the active menus available to the currently authenticated user based on role permissions.")
-        .Produces<ApiResponse<IReadOnlyList<MenuDto>>>(StatusCodes.Status200OK)
+        .WithDescription(
+            "Returns the active menus available to the currently authenticated user based on role permissions.")
+        .Produces<ApiResponse<IReadOnlyList<MenuDto>>>(
+            StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
-
-        group.MapGet("/role/{roleId:guid}", async (
-            Guid roleId,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
-        {
-            var response = await mediator.Send(new GetMenusByRoleIdQuery(roleId), cancellationToken);
-            return Results.Json(response, statusCode: response.StatusCode);
-        })
-        .RequireAuthorization(policy => policy.RequireRole("Admin"))
-        .WithName("GetMenusByRoleId")
-        .WithSummary("Get Menus By Role")
-        .WithDescription("Returns all active menus assigned to the specified role.")
-        .Produces<ApiResponse<IReadOnlyList<MenuDto>>>(StatusCodes.Status200OK)
-        .Produces(StatusCodes.Status401Unauthorized)
-        .Produces(StatusCodes.Status403Forbidden)
-        .Produces(StatusCodes.Status404NotFound);
     }
 }
