@@ -36,4 +36,17 @@ public sealed class MenuRepository(BookMyHallDbContext context)
         context.Menus.Remove(menu);
         return Task.CompletedTask;
     }
+
+    public async Task<IReadOnlyList<Menu>> GetByRoleIdAsync(Guid roleId, CancellationToken cancellationToken)
+    {
+        return await context.Menus
+            .AsNoTracking()
+            .Where
+            (
+                x => x.IsActive &&
+                x.MenuRolePermissions.Any(mp => mp.RoleId == roleId))
+                .OrderBy(x => x.DisplayOrder
+            )
+        .ToListAsync(cancellationToken);
+    }
 }

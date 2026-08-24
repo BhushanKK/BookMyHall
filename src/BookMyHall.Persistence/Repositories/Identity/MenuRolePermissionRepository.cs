@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Entities.Identity;
@@ -51,12 +52,9 @@ public sealed class MenuRolePermissionRepository(
                 cancellationToken);
     }
 
-    public Task DeleteAsync(
-        MenuRolePermission entity,
-        CancellationToken cancellationToken)
+    public Task DeleteAsync(MenuRolePermission entity, CancellationToken cancellationToken)
     {
         dbContext.MenuRolePermissions.Remove(entity);
-
         return Task.CompletedTask;
     }
 
@@ -66,11 +64,9 @@ public sealed class MenuRolePermissionRepository(
         PaginationRequest paginationRequest,
         CancellationToken cancellationToken)
     {
-        var query = dbContext.MenuRolePermissions
-            .AsNoTracking();
+        var query = dbContext.MenuRolePermissions.AsNoTracking();
 
-        var totalCount = await query.CountAsync(
-            cancellationToken);
+        var totalCount = await query.CountAsync(cancellationToken);
 
         var items = await query
             .OrderBy(x => x.MenuId)

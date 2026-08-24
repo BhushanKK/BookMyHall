@@ -27,4 +27,5 @@ public sealed class Menu : BaseEntity
     public Menu? ParentMenu { get; set; }
 
     public ICollection<Menu> ChildMenus { get; set; } = [];
+    public ICollection<MenuRolePermission> MenuRolePermissions { get; set; } = [];
 }
