@@ -7,7 +7,7 @@ public static class CacheKeys
     public const string States = "states";
     public const string StatesPaged = "states:page:";
     public const string Districts = "districts";
-     public const string DistrictsPaged = "districts:page:";
+    public const string DistrictsPaged = "districts:page:";
     public const string Cities = "cities";
     public const string CitiesPaged = "cities:page:";
     public const string Areas = "areas";
@@ -46,8 +46,10 @@ public static class CacheKeys
     public const string RolePermissionPaged = "rolepermissions:page:";
     public const string Permissions = "permissions";
     public const string PermissionPaged = "permissions:page:";
-     public const string Menus = "menus";
+    public const string Menus = "menus";
     public const string MenuPaged = "menu:page:";
+    public const string MenuRolePermissionPaged="menuRolePermissionPaged";
+    public const string MenuRolePermission ="menuRolePermission";
     public const string Devices = "devices";
     public const string DevicePaged = "device:page:";
 }

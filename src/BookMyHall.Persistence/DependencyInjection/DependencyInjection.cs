@@ -11,6 +11,7 @@ using BookMyHall.Persistence.Repositories.Audit;
 using BookMyHall.Infrastructure.Authentication;
 using BookMyHall.Persistence.Repositories.Venue;
 using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
+using BookMyHall.Infrastructure.Persistence.Repositories;
 
 namespace BookMyHall.Persistence;
 
@@ -54,6 +55,7 @@ public static class DependencyInjection
         services.AddScoped<IPermissionRepository,PermissionRepository>();
         services.AddScoped< IRolePermissionRepository, RolePermissionRepository>();
         services.AddScoped<IMenuRepository, MenuRepository>();
+        services.AddScoped<IMenuRolePermissionRepository, MenuRolePermissionRepository>();
 
         return services;
     }
