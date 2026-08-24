@@ -49,9 +49,7 @@ public sealed class GetMenuRolePermissionsByRoleIdQueryHandler(
             mapper.Map<IReadOnlyList<MenuRolePermissionDto>>(
                 permissions);
 
-        return ApiResponse<
-            IReadOnlyList<MenuRolePermissionDto>
-        >.SuccessResponse(
+        return ApiResponse<IReadOnlyList<MenuRolePermissionDto>>.SuccessResponse(
             response,
             messageHelper.RetrievedEntity(
                 ResourceNames.Entities,

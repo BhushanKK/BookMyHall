@@ -40,8 +40,7 @@ public static class MenuRolePermissionEndpoints
                 ApiResponse<IReadOnlyList<MenuRolePermissionDto>>>(
                 StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status403Forbidden)
-            .Produces(StatusCodes.Status404NotFound);
+            .Produces(StatusCodes.Status403Forbidden);
 
         group.MapPost(
             "/upsert",
