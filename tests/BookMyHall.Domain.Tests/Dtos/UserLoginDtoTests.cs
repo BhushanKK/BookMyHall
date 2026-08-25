@@ -1,4 +1,5 @@
-using BookMyHall.Application.Features.Identity.Authentication;
+using BookMyHall.Domain.Dtos;
+
 using FluentAssertions;
 
 namespace BookMyHall.Application.Tests.Features.Identity.Authentication;
@@ -29,6 +30,9 @@ public sealed class UserLoginDtoTests
         // Arrange
         var userId = Guid.NewGuid();
 
+        var adminRoleId = Guid.NewGuid();
+        var userRoleId = Guid.NewGuid();
+
         var dto = new UserLoginDto
         {
             UserId = userId,
@@ -39,8 +43,16 @@ public sealed class UserLoginDtoTests
             TokenVersion = 2,
             Roles =
             [
-                "Admin",
-                "User"
+                new JwtRole
+                {
+                    RoleId = adminRoleId,
+                    RoleName = "Admin"
+                },
+                new JwtRole
+                {
+                    RoleId = userRoleId,
+                    RoleName = "User"
+                }
             ]
         };
 
@@ -54,7 +66,12 @@ public sealed class UserLoginDtoTests
 
         dto.Roles.Should().NotBeNull();
         dto.Roles.Should().HaveCount(2);
-        dto.Roles.Should().ContainInOrder("Admin", "User");
+
+        dto.Roles[0].RoleId.Should().Be(adminRoleId);
+        dto.Roles[0].RoleName.Should().Be("Admin");
+
+        dto.Roles[1].RoleId.Should().Be(userRoleId);
+        dto.Roles[1].RoleName.Should().Be("User");
     }
 
     [Fact]

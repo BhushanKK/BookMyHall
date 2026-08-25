@@ -1,5 +1,5 @@
-using BookMyHall.Application.Features.Identity.Authentication;
 using BookMyHall.Contracts.Common;
+using BookMyHall.Domain.Dtos;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Domain.Identity;
 

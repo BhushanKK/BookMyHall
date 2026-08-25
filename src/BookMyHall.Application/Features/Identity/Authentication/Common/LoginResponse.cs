@@ -1,3 +1,5 @@
+using BookMyHall.Domain.Dtos;
+
 namespace BookMyHall.Application.Features.Identity.Authentication;
 
 public sealed class LoginResponse
@@ -6,7 +8,7 @@ public sealed class LoginResponse
     public string FullName { get; set; } = string.Empty;
     public string MobileNumber { get; set; } = string.Empty;
     public string? EmailAddress { get; set; }
-    public IReadOnlyCollection<string> Roles { get; set; } = [];
+    public IReadOnlyCollection<JwtRole> Roles { get; set; } = [];
     public string AccessToken { get; set; } = string.Empty;
     public string RefreshToken { get; set; } = string.Empty;
     public DateTimeOffset ExpiresAt { get; set; }

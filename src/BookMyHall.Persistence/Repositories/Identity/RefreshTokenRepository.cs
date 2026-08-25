@@ -1,8 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-
 using BookMyHall.Persistence.Context;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
-using BookMyHall.Application.Features.Identity.Authentication;
+using BookMyHall.Domain.Dtos;
 
 namespace BookMyHall.Persistence.Repositories;
 
@@ -40,8 +39,12 @@ public sealed class RefreshTokenRepository(BookMyHallDbContext context)
                 IsActive = x.User.IsActive,
 
                 Roles = x.User.UserRoles
-                    .Select(ur => ur.Role.RoleName)
-                    .ToList()
+                .Select(ur => new JwtRole
+                {
+                    RoleId = ur.Role.RoleId,
+                    RoleName = ur.Role.RoleName
+                })
+                .ToList()
             })
             .FirstOrDefaultAsync(cancellationToken);
     }

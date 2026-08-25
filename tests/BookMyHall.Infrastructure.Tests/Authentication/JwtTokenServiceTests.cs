@@ -3,6 +3,7 @@ using System.Security.Claims;
 using FluentAssertions;
 using BookMyHall.Application.Abstractions.Authentication;
 using BookMyHall.Infrastructure.Authentication;
+using BookMyHall.Domain.Dtos;
 
 namespace BookMyHall.Infrastructure.Tests.Authentication;
 
@@ -34,11 +35,19 @@ public sealed class JwtTokenServiceTests
             MobileNumber = "9876543210",
             Roles =
             [
-                "Admin",
-                "HallOwner"
-            ]
-        };
-    }
+                new JwtRole
+            {
+                RoleId = Guid.NewGuid(),
+                RoleName = "Admin"
+            },
+            new JwtRole
+            {
+                RoleId = Guid.NewGuid(),
+                RoleName = "HallOwner"
+            }
+        ]
+    };
+}
 
     [Fact]
     public void GenerateToken_Should_Return_Valid_JwtToken()

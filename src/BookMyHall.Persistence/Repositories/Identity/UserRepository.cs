@@ -3,8 +3,8 @@ using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Persistence.Context;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
-using BookMyHall.Application.Features.Identity.Authentication;
 using BookMyHall.Domain.Identity;
+using BookMyHall.Domain.Dtos;
 
 namespace BookMyHall.Persistence.Repositories;
 
@@ -36,7 +36,13 @@ public sealed class UserRepository(BookMyHallDbContext context)
                 PasswordHash = x.PasswordHash,
                 TokenVersion = x.TokenVersion,
                 ProfileImageUrl = x.ProfileImageUrl,
-                Roles = x.UserRoles.Select(ur => ur.Role.RoleName).ToList()
+                Roles = x.UserRoles
+                .Select(ur => new JwtRole
+                {
+                    RoleId = ur.Role.RoleId,
+                    RoleName = ur.Role.RoleName
+                })
+                .ToList()
             })
         .FirstOrDefaultAsync(cancellationToken);
     }
