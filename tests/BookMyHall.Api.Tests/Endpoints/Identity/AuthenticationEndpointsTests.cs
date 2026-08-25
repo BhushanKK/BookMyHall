@@ -32,13 +32,14 @@ public sealed class AuthenticationEndpointsTests(BookMyHallWebApplicationFactory
     {
         // Arrange
         var client = _factory.CreateClient();
+
         var request = new
         {
             refreshToken = "invalid-refresh-token"
         };
 
         // Act
-        var response = await client.PostAsJsonAsync("/api/authentication/logout",request);
+        var response = await client.PostAsJsonAsync("/api/authentication/logout", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
