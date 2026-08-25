@@ -75,12 +75,12 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options)
 
         foreach (var role in user.Roles)
         {
-            claims.Add(new Claim(ClaimTypes.Role, role));
+            claims.Add(new Claim(ClaimTypes.Role, role.RoleName));
+            claims.Add(new Claim("roleId", role.RoleId.ToString()));
         }
 
         return claims;
     }
     public string GenerateRefreshToken()    
         => Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-    
 }

@@ -1,4 +1,4 @@
-namespace BookMyHall.Application.Features.Identity.Authentication;
+namespace BookMyHall.Domain.Dtos;
 
 public sealed class UserLoginDto
 {
@@ -9,5 +9,5 @@ public sealed class UserLoginDto
     public string PasswordHash { get; init; } = string.Empty;
     public int TokenVersion { get; init; }
     public string? ProfileImageUrl {get;set;}
-    public List<string> Roles { get; init; } = [];
+    public List<JwtRole> Roles { get; init; } = [];
 }

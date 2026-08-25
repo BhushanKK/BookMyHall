@@ -1,4 +1,4 @@
-using BookMyHall.Application.Features.Identity.Authentication;
+using BookMyHall.Domain.Dtos;
 
 namespace BookMyHall.Application.Abstractions.Persistence.Repositories;
 

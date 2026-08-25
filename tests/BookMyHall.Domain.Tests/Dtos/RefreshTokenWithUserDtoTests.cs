@@ -1,4 +1,5 @@
-using BookMyHall.Application.Features.Identity.Authentication;
+using BookMyHall.Domain.Dtos;
+
 using FluentAssertions;
 
 namespace BookMyHall.Application.Tests.Features.Identity.Authentication;
@@ -39,10 +40,21 @@ public sealed class RefreshTokenWithUserDtoTests
         var expiresAt = DateTimeOffset.UtcNow.AddDays(7);
         var revokedAt = DateTimeOffset.UtcNow;
 
-        var roles = new List<string>
+        var adminRoleId = Guid.NewGuid();
+        var userRoleId = Guid.NewGuid();
+
+        var roles = new List<JwtRole>
         {
-            "Admin",
-            "User"
+            new JwtRole
+            {
+                RoleId = adminRoleId,
+                RoleName = "Admin"
+            },
+            new JwtRole
+            {
+                RoleId = userRoleId,
+                RoleName = "User"
+            }
         };
 
         // Act
@@ -79,28 +91,58 @@ public sealed class RefreshTokenWithUserDtoTests
 
         dto.Roles.Should().NotBeNull();
         dto.Roles.Should().HaveCount(2);
-        dto.Roles.Should().ContainInOrder("Admin", "User");
+
+        dto.Roles[0].RoleId.Should().Be(adminRoleId);
+        dto.Roles[0].RoleName.Should().Be("Admin");
+
+        dto.Roles[1].RoleId.Should().Be(userRoleId);
+        dto.Roles[1].RoleName.Should().Be("User");
     }
 
     [Fact]
     public void Should_Allow_Multiple_Roles()
     {
         // Arrange
+        var adminRoleId = Guid.NewGuid();
+        var managerRoleId = Guid.NewGuid();
+        var userRoleId = Guid.NewGuid();
+
         var dto = new RefreshTokenWithUserDto
         {
             Roles =
             [
-                "Admin",
-                "Manager",
-                "User"
+                new JwtRole
+                {
+                    RoleId = adminRoleId,
+                    RoleName = "Admin"
+                },
+                new JwtRole
+                {
+                    RoleId = managerRoleId,
+                    RoleName = "Manager"
+                },
+                new JwtRole
+                {
+                    RoleId = userRoleId,
+                    RoleName = "User"
+                }
             ]
         };
 
         // Assert
         dto.Roles.Should().HaveCount(3);
-        dto.Roles.Should().Contain("Admin");
-        dto.Roles.Should().Contain("Manager");
-        dto.Roles.Should().Contain("User");
+
+        dto.Roles.Should().Contain(x =>
+            x.RoleId == adminRoleId &&
+            x.RoleName == "Admin");
+
+        dto.Roles.Should().Contain(x =>
+            x.RoleId == managerRoleId &&
+            x.RoleName == "Manager");
+
+        dto.Roles.Should().Contain(x =>
+            x.RoleId == userRoleId &&
+            x.RoleName == "User");
     }
 
     [Fact]
