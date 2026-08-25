@@ -61,7 +61,7 @@ public static class AuthenticationEndpoints
             var response = await mediator.Send(command, cancellationToken);
             return Results.Json(response, statusCode: response.StatusCode);
         })
-        .RequireAuthorization()
+        .AllowAnonymous()
         .WithName("Logout")
         .WithSummary("Logout User")
         .WithDescription("Revokes the refresh token and logs the current user out.")
