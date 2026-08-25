@@ -25,7 +25,7 @@ public sealed class GetFoodTypesQueryHandler(
         var pagination = request.paginationRequest;
 
           var cacheKey = CacheKeyBuilder.BuildPaginatedKey<FoodType>(
-            CacheKeys.Foodtype,
+            CacheKeys.FoodtypePaged,
             pagination.PageNumber,
             pagination.PageSize,
             pagination.SearchText,
