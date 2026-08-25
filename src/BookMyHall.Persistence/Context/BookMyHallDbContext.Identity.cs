@@ -21,4 +21,5 @@ public partial class BookMyHallDbContext
     public DbSet<UserPreference> UserPreferences => Set<UserPreference>();
     public DbSet<Menu> Menus => Set<Menu>();
     public DbSet<MenuRolePermission> MenuRolePermissions => Set<MenuRolePermission>();
+    public DbSet<MenuPermission> MenuPermissions => Set<MenuPermission>();
 }

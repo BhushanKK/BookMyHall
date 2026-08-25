@@ -9,6 +9,7 @@ public static class EntityKeys
   public const string Menu = nameof(Menu);
   public const string MenuRolePermission =nameof(MenuRolePermission);
   public const string MenuId = nameof(MenuId);
+  public const string MenuPermission = nameof(MenuPermission);
 
   public const string User = nameof(User);
   public const string UserId = nameof(UserId);
