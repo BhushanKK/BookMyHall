@@ -19,7 +19,7 @@ public sealed class GetPaymentModesQueryHandler(IPaymentModeRepository paymentMo
         var pagination = request.paginationRequest;
 
          var cacheKey = CacheKeyBuilder.BuildPaginatedKey<PaymentMode>(
-            CacheKeys.PaymentMode,
+            CacheKeys.PaymentModesPaged,
             pagination.PageNumber,
             pagination.PageSize,
             pagination.SearchText,

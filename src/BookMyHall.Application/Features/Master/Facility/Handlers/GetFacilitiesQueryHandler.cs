@@ -24,7 +24,7 @@ public sealed class GetFacilitiesQueryHandler(
         var pagination = request.paginationRequest;
 
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Facility>(
-            CacheKeys.Facilities,
+            CacheKeys.FacilitiesPaged,
             pagination.PageNumber,
             pagination.PageSize,
             pagination.SearchText,
