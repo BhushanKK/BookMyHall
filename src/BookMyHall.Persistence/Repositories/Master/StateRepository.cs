@@ -20,6 +20,7 @@ public sealed class StateRepository(BookMyHallDbContext context) : IStateReposit
 
     public async Task<State?> GetByIdAsync(Guid stateId, CancellationToken cancellationToken = default)
         => await context.States
+        .Where(x=>x.IsDeleted==false)
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 x => x.StateId == stateId,
@@ -42,6 +43,7 @@ public sealed class StateRepository(BookMyHallDbContext context) : IStateReposit
     public async Task<PaginatedResult<State>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default)
     {
         IQueryable<State> query = context.States
+        .Where(x=>x.IsDeleted==false)
             .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))

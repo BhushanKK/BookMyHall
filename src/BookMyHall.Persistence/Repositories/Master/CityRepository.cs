@@ -19,7 +19,7 @@ public sealed class CityRepository(BookMyHallDbContext context)
     }
 
     public async Task<City?> GetByIdAsync(Guid cityId,CancellationToken cancellationToken = default)
-        => await context.Cities
+        => await context.Cities.Where(x=>x.IsDeleted==false)
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 x => x.CityId == cityId,
@@ -34,7 +34,7 @@ public sealed class CityRepository(BookMyHallDbContext context)
 
     public async Task<PaginatedResult<City>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
-        IQueryable<City> query = context.Cities.AsNoTracking();
+        IQueryable<City> query = context.Cities .Where(x=>x.IsDeleted==false).AsNoTracking();
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();

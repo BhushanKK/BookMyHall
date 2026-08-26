@@ -32,7 +32,7 @@ public sealed class DeleteHallCommandHandler(IHallRepository hallRepository,
             return ApiResponse<bool>.FailureResponse(messageHelper.NotFound(EntityKeys.Hall),HttpStatusCode.NotFound);
         }
 
-        hall.IsActive = false;
+        hall.IsDeleted = true;
         await hallRepository.UpdateAsync(hall,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await cacheService.RemoveAsync($"{CacheKeys.Hall}:{request.HallId}", cancellationToken);

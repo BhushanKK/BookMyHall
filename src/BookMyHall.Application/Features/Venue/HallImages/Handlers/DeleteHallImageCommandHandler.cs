@@ -37,7 +37,7 @@ public sealed class DeleteHallImageCommandHandler(
             );
         }
 
-        hallImage.IsActive = false;
+        hallImage.IsDeleted = true;
         hallImage.IsCoverImage = false;
 
         await hallImageRepository.UpdateAsync(hallImage,cancellationToken);

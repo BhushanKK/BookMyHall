@@ -19,7 +19,7 @@ public sealed class CountryRepository(BookMyHallDbContext context)
     }
 
     public async Task<Country?> GetByIdAsync(Guid countryId,CancellationToken cancellationToken = default)
-        => await context.Countries
+        => await context.Countries.Where(x=>x.IsDeleted==false)
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 x => x.CountryId == countryId,
@@ -37,7 +37,7 @@ public sealed class CountryRepository(BookMyHallDbContext context)
         CancellationToken cancellationToken = default)
     {
         IQueryable<Country> query =
-            context.Countries.AsNoTracking();
+            context.Countries.Where(x=>x.IsDeleted==false).AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {

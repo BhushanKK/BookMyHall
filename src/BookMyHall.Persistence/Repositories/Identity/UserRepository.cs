@@ -20,7 +20,9 @@ public sealed class UserRepository(BookMyHallDbContext context)
         return Task.CompletedTask;
     }
     public async Task<User?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
-        => await context.Users.FirstOrDefaultAsync(x => x.UserId == userId, cancellationToken);
+        => await context.Users
+        .Where(x=>x.IsDeleted==false)
+        .FirstOrDefaultAsync(x => x.UserId == userId, cancellationToken);
 
     public async Task<UserLoginDto?> GetForLoginAsync(string mobileNumber, CancellationToken cancellationToken = default)
     {
@@ -75,7 +77,9 @@ public sealed class UserRepository(BookMyHallDbContext context)
         CancellationToken cancellationToken = default)
     {
         IQueryable<User> query =
-            context.Users.AsNoTracking();
+            context.Users
+            .Where(x=>x.IsDeleted==false)
+            .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {

@@ -26,7 +26,7 @@ public sealed class DeletePaymentModeCommandHandler(IPaymentModeRepository payme
                 HttpStatusCode.NotFound);
         }
 
-        paymentMode.IsActive = false;
+        paymentMode.IsDeleted = true;
         await paymentModeRepository.UpdateAsync(paymentMode, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await cacheService.RemoveAsync($"{CacheKeys.PaymentMode}:{request.PaymentModeId}", cancellationToken);

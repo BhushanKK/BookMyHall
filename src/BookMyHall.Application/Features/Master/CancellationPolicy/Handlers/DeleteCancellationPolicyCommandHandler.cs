@@ -24,7 +24,7 @@ public sealed class DeleteCancellationPolicyCommandHandler(
             return ApiResponse<bool>.FailureResponse(messageHelper.NotFound(EntityKeys.CancellationPolicy),HttpStatusCode.NotFound);
         }
 
-        policy.IsActive = false;
+        policy.IsDeleted = true;
         await cancellationPolicyRepository.UpdateAsync(policy, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await cacheService.RemoveAsync( $"{CacheKeys.CancellationPolicies}:{request.CancellationPolicyId}",cancellationToken);

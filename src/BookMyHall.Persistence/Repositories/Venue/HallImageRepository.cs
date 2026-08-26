@@ -13,6 +13,7 @@ public sealed class HallImageRepository(BookMyHallDbContext context)
     public async Task<HallImage?> GetByIdAsync(Guid hallImageId, CancellationToken cancellationToken = default)
     {
         return await context.HallImages
+        .Where(x=>x.IsDeleted==false)
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 x => x.HallImageId == hallImageId,
@@ -24,6 +25,7 @@ public sealed class HallImageRepository(BookMyHallDbContext context)
     CancellationToken cancellationToken = default)
     {
         IQueryable<HallImage> query = context.HallImages
+        .Where(x=>x.IsDeleted==false)
             .AsNoTracking()
             .Where(x =>
                 x.HallId == hallId &&
@@ -63,11 +65,6 @@ public sealed class HallImageRepository(BookMyHallDbContext context)
     public Task UpdateAsync(HallImage hallImage, CancellationToken cancellationToken = default)
     {
         context.HallImages.Update(hallImage);
-        return Task.CompletedTask;
-    }
-    public Task DeleteAsync(HallImage hallImage, CancellationToken cancellationToken = default)
-    {
-        context.HallImages.Remove(hallImage);
         return Task.CompletedTask;
     }
 }

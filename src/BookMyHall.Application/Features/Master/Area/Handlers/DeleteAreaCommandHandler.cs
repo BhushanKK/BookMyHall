@@ -23,7 +23,7 @@ public sealed class DeleteAreaCommandHandler(
             return ApiResponse<bool>.FailureResponse(messageHelper.NotFound(EntityKeys.Area),HttpStatusCode.NotFound);
         }
 
-        area.IsActive = false;
+        area.IsDeleted = true;
         await areaRepository.UpdateAsync(area, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

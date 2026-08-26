@@ -6,4 +6,5 @@ public class Service: BaseEntity
     public string ServiceName { get; set; } = string.Empty;
     public string ServiceIcon { get; set; } = string.Empty;
     public bool IsActive { get; set; }
+    public bool IsDeleted { get; set; }
 }

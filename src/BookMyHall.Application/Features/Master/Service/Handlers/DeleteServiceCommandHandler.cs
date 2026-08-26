@@ -23,7 +23,7 @@ public sealed class DeleteServiceCommandHandler(IServiceRepository serviceReposi
                 messageHelper.NotFound(EntityKeys.Service),
                 HttpStatusCode.NotFound);
         }
-        service.IsActive = false;
+        service.IsDeleted = true;
         await serviceRepository.UpdateAsync(service, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await cacheService.RemoveAsync($"{CacheKeys.Services}:{request.ServiceId}", cancellationToken);

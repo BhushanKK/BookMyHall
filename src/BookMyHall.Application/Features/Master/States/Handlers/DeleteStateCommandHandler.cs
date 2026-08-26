@@ -24,7 +24,7 @@ public sealed class DeleteStateCommandHandler(
             return ApiResponse<bool>.FailureResponse(messageHelper.NotFound(EntityKeys.State),HttpStatusCode.NotFound);
         }
 
-        state.IsActive = false;
+        state.IsDeleted = true;
         await stateRepository.UpdateAsync(state, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

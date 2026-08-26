@@ -28,7 +28,7 @@ public sealed class DeleteFacilityCommandHandler(
                 HttpStatusCode.NotFound);
         }
 
-        facility.IsActive = false;
+        facility.IsDeleted = true;
         await facilityRepository.UpdateAsync(facility, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await cacheService.RemoveAsync($"{CacheKeys.Facilities}:{request.FacilityId}", cancellationToken);

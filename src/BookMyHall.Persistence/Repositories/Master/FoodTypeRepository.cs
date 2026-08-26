@@ -19,6 +19,7 @@ public sealed class FoodTypeRepository(BookMyHallDbContext context): IFoodTypeRe
 
     public async Task<FoodType?> GetByIdAsync(Guid foodTypeId,CancellationToken cancellationToken = default)
         => await context.FoodTypes
+        .Where(x=>x.IsDeleted==false)
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 x => x.FoodTypeId == foodTypeId,
@@ -34,6 +35,7 @@ public sealed class FoodTypeRepository(BookMyHallDbContext context): IFoodTypeRe
     public async Task<PaginatedResult<FoodType>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
         IQueryable<FoodType> query = context.FoodTypes
+        .Where(x=>x.IsDeleted==false)
             .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))

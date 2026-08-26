@@ -30,7 +30,7 @@ public sealed class DeleteUserCommandHandler(
         }
 
         user.Deactivate();
-
+        user.IsDeleted=true;
         await userRepository.UpdateAsync(user, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await cacheService.RemoveAsync( $"{CacheKeys.Users}:{request.UserId}",cancellationToken);

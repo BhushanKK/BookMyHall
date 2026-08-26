@@ -10,4 +10,5 @@ public class HallBlock : BaseEntity
     public TimeSpan? EndTime { get; set; }
     public string? Reason { get; set; } = string.Empty;
     public bool IsActive { get; set; }
+    public bool IsDeleted { get; set; }
 }

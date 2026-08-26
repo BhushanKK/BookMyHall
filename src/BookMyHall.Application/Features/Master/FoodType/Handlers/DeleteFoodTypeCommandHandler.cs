@@ -25,7 +25,7 @@ public sealed class DeleteFoodTypeCommandHandler(
                 HttpStatusCode.NotFound);
         }
 
-        foodType.IsActive = false;
+        foodType.IsDeleted = true;
         await foodTypeRepository.UpdateAsync(foodType, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         

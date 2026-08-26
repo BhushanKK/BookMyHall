@@ -19,6 +19,7 @@ public sealed class ServiceRepository(BookMyHallDbContext context): IServiceRepo
 
     public async Task<Service?> GetByIdAsync(Guid serviceId,CancellationToken cancellationToken = default)
         => await context.Services
+        .Where(x=>x.IsDeleted==false)
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 x => x.ServiceId == serviceId,
@@ -34,6 +35,7 @@ public sealed class ServiceRepository(BookMyHallDbContext context): IServiceRepo
     public async Task<PaginatedResult<Service>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
         IQueryable<Service> query = context.Services
+        .Where(x=>x.IsDeleted==false)
             .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))

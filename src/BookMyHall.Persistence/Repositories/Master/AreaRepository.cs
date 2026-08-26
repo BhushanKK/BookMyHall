@@ -25,7 +25,7 @@ public sealed class AreaRepository(BookMyHallDbContext context)
     public async Task<Area?> GetByIdAsync(
         Guid areaId,
         CancellationToken cancellationToken = default)
-        => await context.Areas
+        => await context.Areas.Where(x=>x.IsDeleted==false)
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 x => x.AreaId == areaId,
@@ -44,7 +44,7 @@ public sealed class AreaRepository(BookMyHallDbContext context)
         PaginationRequest request,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<Area> query = context.Areas.AsNoTracking();
+        IQueryable<Area> query = context.Areas.Where(x=>x.IsDeleted==false).AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {

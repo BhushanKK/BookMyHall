@@ -7,5 +7,6 @@ public class Area : BaseEntity
     public string AreaName { get; set; } = string.Empty;
     public string Pincode { get; set; } = string.Empty;
     public Guid CityId { get; set; }
-    public bool IsActive { get; set; } 
+    public bool IsActive { get; set; }
+    public bool IsDeleted { get; set; } 
 }

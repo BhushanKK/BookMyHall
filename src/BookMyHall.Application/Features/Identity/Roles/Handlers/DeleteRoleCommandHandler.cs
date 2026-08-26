@@ -32,7 +32,7 @@ public sealed class DeleteRoleCommandHandler(
         }
 
         role.Deactivate();
-
+        role.IsDeleted=true;
         await roleRepository.UpdateAsync(role, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

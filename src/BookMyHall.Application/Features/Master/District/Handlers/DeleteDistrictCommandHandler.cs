@@ -25,7 +25,7 @@ public sealed class DeleteDistrictCommandHandler(
                 HttpStatusCode.NotFound);
         }
 
-        district.IsActive = false;
+        district.IsDeleted = true;
         await districtRepository.UpdateAsync(district, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return ApiResponse<bool>.SuccessResponse(true,
