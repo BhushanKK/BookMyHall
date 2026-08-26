@@ -27,7 +27,7 @@ public sealed class DeleteAmenityCommandHandler(
                 HttpStatusCode.NotFound);
         }
 
-        amenity.IsActive = false;
+        amenity.IsDeleted = true;
         await amenityRepository.UpdateAsync(amenity, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
