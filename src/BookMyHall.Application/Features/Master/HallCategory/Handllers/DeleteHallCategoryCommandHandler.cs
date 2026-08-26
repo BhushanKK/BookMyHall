@@ -23,17 +23,24 @@ public sealed class DeleteHallCategoryCommandHandler(
 
         if (category is null)
         {
-            return ApiResponse<bool>.FailureResponse(
-                messageHelper.NotFoundEntity(ResourceNames.Entities, EntityKeys.HallCategory), HttpStatusCode.NotFound);
+            return ApiResponse<bool>.FailureResponse
+            (
+                messageHelper.NotFoundEntity(ResourceNames.Entities, EntityKeys.HallCategory), 
+                HttpStatusCode.NotFound
+            );
         }
 
-        category.IsActive = false;
+        category.IsDeleted = true;
         await hallCategoryRepository.UpdateAsync(category, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await cacheService.RemoveAsync($"{CacheKeys.HallCategories}:{request.HallCategoryId}", cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallCategoriesPaged}:", cancellationToken);
        
-        return ApiResponse<bool>.SuccessResponse(true,
-            messageHelper.DeletedEntity(ResourceNames.Entities, EntityKeys.HallCategory), HttpStatusCode.OK);
+        return ApiResponse<bool>.SuccessResponse
+        (
+            true,
+            messageHelper.DeletedEntity(ResourceNames.Entities, EntityKeys.HallCategory), 
+            HttpStatusCode.OK
+        );
     }
 }

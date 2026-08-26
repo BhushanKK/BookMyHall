@@ -11,12 +11,15 @@ public sealed class HallCategoryRepository(BookMyHallDbContext context): IHallCa
     public async Task<HallCategory?> GetByIdAsync(Guid hallCategoryId,CancellationToken cancellationToken = default)
     {
         return await context.HallCategories
+            .Where(x=>x.IsDeleted==false)
             .FirstOrDefaultAsync(x => x.HallCategoryId == hallCategoryId,cancellationToken);
     }
 
     public async Task<PaginatedResult<HallCategory>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
-        var query = context.HallCategories.AsNoTracking();
+        var query = context.HallCategories
+        .Where(x=>x.IsDeleted == false)
+        .AsNoTracking();
 
         var totalCount = await query.CountAsync(
             cancellationToken);
@@ -41,11 +44,6 @@ public sealed class HallCategoryRepository(BookMyHallDbContext context): IHallCa
     public Task UpdateAsync(HallCategory hallCategory, CancellationToken cancellationToken = default)
     {
         context.HallCategories.Update(hallCategory);
-        return Task.CompletedTask;
-    }
-    public Task DeleteAsync(HallCategory hallCategory, CancellationToken cancellationToken = default)
-    {
-        context.HallCategories.Remove(hallCategory);
         return Task.CompletedTask;
     }
 }
