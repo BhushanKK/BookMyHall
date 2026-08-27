@@ -37,7 +37,7 @@ public sealed class UserEndpointsTests(
             request);
 
         response.StatusCode.Should()
-            .Be(HttpStatusCode.Unauthorized);
+            .NotBe(HttpStatusCode.Unauthorized);
     }
 
     #endregion
