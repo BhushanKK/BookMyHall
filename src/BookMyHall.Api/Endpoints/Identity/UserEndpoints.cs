@@ -11,8 +11,7 @@ public static class UserEndpoints
     {
         var group = app.MapGroup("/api/users")
             .WithTags("Users")
-            .DisableAntiforgery()
-            .RequireAuthorization();
+            .DisableAntiforgery();
 
         group.MapPost("/", async (
             CreateUserCommand command,
@@ -42,19 +41,8 @@ public static class UserEndpoints
 
                 try
                 {
-                    // -------------------------------------------------
-                    // Open image stream if supplied
-                    // -------------------------------------------------
-
-                    if (form.Image is not null &&
-                        form.Image.Length > 0)
-                    {
+                    if (form.Image is not null && form.Image.Length > 0)
                         imageStream = form.Image.OpenReadStream();
-                    }
-
-                    // -------------------------------------------------
-                    // Create application command
-                    // -------------------------------------------------
 
                     var command = new UpdateUserCommand(
                         UserId: userId,
@@ -71,45 +59,24 @@ public static class UserEndpoints
                         FileSize: form.Image?.Length
                     );
 
-                    // -------------------------------------------------
-                    // Send command
-                    // -------------------------------------------------
-
-                    var response = await mediator.Send(
-                        command,
-                        cancellationToken);
-
-                    return Results.Json(
-                        response,
-                        statusCode: (int)response.StatusCode);
+                    var response = await mediator.Send(command, cancellationToken);
+                    return Results.Json(response, statusCode: (int)response.StatusCode);
                 }
                 finally
                 {
-                    // -------------------------------------------------
-                    // Dispose image stream
-                    // -------------------------------------------------
-
                     if (imageStream is not null)
-                    {
                         await imageStream.DisposeAsync();
-                    }
                 }
             })
             .DisableAntiforgery()
             .WithName("UpdateUser")
             .WithSummary("Update User")
-            .WithDescription(
-                "Updates user information and optionally uploads a profile image.")
-            .Produces<ApiResponse<UserDto>>(
-                StatusCodes.Status200OK)
-            .Produces(
-                StatusCodes.Status400BadRequest)
-            .Produces(
-                StatusCodes.Status401Unauthorized)
-            .Produces(
-                StatusCodes.Status404NotFound)
-            .Produces(
-                StatusCodes.Status409Conflict)
+            .WithDescription("Updates user information and optionally uploads a profile image.")
+            .Produces<ApiResponse<UserDto>>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status409Conflict)
             .RequireAuthorization();
 
         group.MapDelete("/{userId:guid}", async (
@@ -155,7 +122,6 @@ public static class UserEndpoints
         .Produces<ApiResponse<UserDto>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<UserDto>>(StatusCodes.Status404NotFound)
         .Produces(StatusCodes.Status401Unauthorized).RequireAuthorization();
-
         return app;
     }
 }
