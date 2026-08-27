@@ -15,26 +15,25 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
        => await context.Roles.FirstOrDefaultAsync(x => x.RoleId == roleId,
         cancellationToken);
 
+    public async Task<Guid?> GetRoleIdByRoleName(string roleName, CancellationToken cancellationToken)
+    => await context.Roles
+        .Where(x => x.RoleName == roleName)
+        .Select(x => (Guid?)x.RoleId)
+        .FirstOrDefaultAsync(cancellationToken);
+    
     public async Task<PaginatedResult<Role>> GetAllAsync(
     PaginationRequest paginationRequest,
     CancellationToken cancellationToken = default)
     {
         var query = context.Roles.AsNoTracking();
 
-        if (!string.IsNullOrWhiteSpace(
-            paginationRequest.SearchText))
+        if (!string.IsNullOrWhiteSpace(paginationRequest.SearchText))
         {
-            var searchText =
-                paginationRequest.SearchText.Trim();
-
-            query = query.Where(x =>
-                EF.Functions.ILike(
-                    x.RoleName,
-                    $"%{searchText}%"));
+            var searchText = paginationRequest.SearchText.Trim();
+            query = query.Where(x => EF.Functions.ILike(x.RoleName, $"%{searchText}%"));
         }
 
-        var totalCount =
-            await query.CountAsync(cancellationToken);
+        var totalCount = await query.CountAsync(cancellationToken);
 
         query = paginationRequest.SortDescending
             ? query.OrderByDescending(x => x.RoleName)
