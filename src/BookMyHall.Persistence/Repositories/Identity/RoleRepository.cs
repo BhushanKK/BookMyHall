@@ -17,12 +17,6 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
        .FirstOrDefaultAsync(x => x.RoleId == roleId,
         cancellationToken);
 
-    public async Task<Guid?> GetRoleIdByRoleName(string roleName, CancellationToken cancellationToken)
-    => await context.Roles
-        .Where(x => x.RoleName == roleName)
-        .Select(x => (Guid?)x.RoleId)
-        .FirstOrDefaultAsync(cancellationToken);
-    
     public async Task<PaginatedResult<Role>> GetAllAsync(
     PaginationRequest paginationRequest,
     CancellationToken cancellationToken = default)
@@ -67,4 +61,17 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
         context.Roles.Update(role);
         return Task.CompletedTask;
     }
+
+    public Task DeleteAsync(Role role, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<Guid?> GetRoleIdByRoleName(
+    string roleName,
+    CancellationToken cancellationToken)
+    => await context.Roles
+        .Where(x => x.RoleName == roleName)
+        .Select(x => x.RoleId)
+        .FirstOrDefaultAsync(cancellationToken);
 }
