@@ -30,9 +30,6 @@ public sealed class CreateUserValidator
         RuleFor(x => x.Password)
             .Required(localizer, EntityKeys.Password);
 
-
-        RuleFor(x => x.RoleId)
-            .Required(localizer, EntityKeys.Role);
     }
 }
 
