@@ -22,7 +22,7 @@ public sealed class DeleteCityCommandHandler(
             return ApiResponse<bool>.FailureResponse(messageHelper.NotFound(EntityKeys.City),HttpStatusCode.NotFound);
         }
 
-        city.IsActive = false;
+        city.IsDeleted = true;
         await cityRepository.UpdateAsync(city, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return ApiResponse<bool>.SuccessResponse(true, messageHelper.DeletedEntity(ResourceNames.Entities,EntityKeys.City),HttpStatusCode.OK);

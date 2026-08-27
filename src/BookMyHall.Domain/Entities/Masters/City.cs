@@ -6,4 +6,5 @@ public class City: BaseEntity
     public Guid DistrictId { get; set; }
     public string CityName { get; set; } = string.Empty;
     public bool IsActive { get; set; } 
+    public bool IsDeleted { get; set; }
 }

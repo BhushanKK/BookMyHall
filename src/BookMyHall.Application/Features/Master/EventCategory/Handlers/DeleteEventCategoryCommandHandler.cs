@@ -27,7 +27,7 @@ public sealed class DeleteEventCategoryCommandHandler(
                 HttpStatusCode.NotFound);
         }
 
-        eventCategory.IsActive = false;
+        eventCategory.IsDeleted = true;
         await eventCategoryRepository.UpdateAsync(eventCategory, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await cacheService.RemoveAsync($"{CacheKeys.EventCategories}:{request.EventCategoryId}", cancellationToken);

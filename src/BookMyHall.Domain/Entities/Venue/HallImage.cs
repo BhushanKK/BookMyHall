@@ -11,6 +11,7 @@ public class HallImage : BaseEntity
     public int DisplayOrder { get; set; }
     public bool IsCoverImage { get; set; }
     public bool IsActive { get; set; }
+    public bool IsDeleted { get; set; }
 
     // Navigation property
     public Hall Hall { get; private set; } = null!;

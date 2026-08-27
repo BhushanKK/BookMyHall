@@ -235,7 +235,9 @@
 
  
    <!--End Country ===================================================== -->
- 
+ <data name="StateId" xml:space="preserve">
+    <value>राज्य का नाम</value>
+  </data>
   <data name="State" xml:space="preserve">
     <value>राज्य का नाम</value>
   </data>

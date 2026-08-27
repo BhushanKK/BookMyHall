@@ -19,6 +19,7 @@ public sealed class PaymentModeRepository(BookMyHallDbContext context): IPayment
 
     public async Task<PaymentMode?> GetByIdAsync(Guid paymentModeId,CancellationToken cancellationToken = default)
         => await context.PaymentModes
+        .Where(x=>x.IsDeleted==false)
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 x => x.PaymentModeId == paymentModeId,
@@ -34,6 +35,7 @@ public sealed class PaymentModeRepository(BookMyHallDbContext context): IPayment
     public async Task<PaginatedResult<PaymentMode>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
         IQueryable<PaymentMode> query = context.PaymentModes
+        .Where(x=>x.IsDeleted==false)
             .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))

@@ -7,4 +7,5 @@ public class State : BaseEntity
     public string StateName { get; set; } = string.Empty;
     public string StateCode { get; set; } = string.Empty;
     public bool IsActive { get; set; } 
+    public bool IsDeleted { get; set; }
 }

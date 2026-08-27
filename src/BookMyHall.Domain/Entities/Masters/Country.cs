@@ -10,4 +10,5 @@ public class Country :BaseEntity
     public string? PhoneCode { get; set; }
     public string? CurrencyCode { get; set; }
     public bool IsActive { get; set; } 
+    public bool IsDeleted { get; set; }
 }

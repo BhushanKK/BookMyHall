@@ -34,7 +34,7 @@ public sealed class DeleteHallPricingCommandHandler(
             return ApiResponse<bool>.FailureResponse(messageHelper.NotFound(EntityKeys.HallPricing),HttpStatusCode.NotFound);
         }
 
-        hallPricing.IsActive = false;
+        hallPricing.IsDeleted = true;
         await hallPricingRepository.UpdateAsync(hallPricing,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         

@@ -16,4 +16,5 @@ public class HallPricing : BaseEntity
     public decimal? SecurityDeposit { get; set; }
     public decimal? ExtraGuestCharge { get; set; }
     public bool IsActive { get; set; } = true;
+    public bool IsDeleted { get; set; }
 }

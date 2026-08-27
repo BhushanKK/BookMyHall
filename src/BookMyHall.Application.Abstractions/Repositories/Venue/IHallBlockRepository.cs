@@ -12,5 +12,4 @@ public interface IHallBlockRepository
     Task AddAsync(HallBlock hallBlock,CancellationToken cancellationToken = default);
 
     Task UpdateAsync(HallBlock hallBlock,CancellationToken cancellationToken = default);
-    Task DeleteAsync(HallBlock hallBlock,CancellationToken cancellationToken = default);
 }

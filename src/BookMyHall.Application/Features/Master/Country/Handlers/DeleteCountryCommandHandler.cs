@@ -31,12 +31,9 @@ public sealed class DeleteCountryCommandHandler(
             );
         }
 
-        country.IsActive = false;
-
+        country.IsDeleted = true;
         await countryRepository.UpdateAsync(country, cancellationToken);
-
         await unitOfWork.SaveChangesAsync(cancellationToken);
-
         await cacheService.RemoveAsync($"{CacheKeys.Country}:{request.CountryId}", cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.CountriesPaged}:", cancellationToken);
 

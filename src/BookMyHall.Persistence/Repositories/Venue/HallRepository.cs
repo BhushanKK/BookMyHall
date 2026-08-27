@@ -17,13 +17,10 @@ public sealed class HallRepository(BookMyHallDbContext context) : IHallRepositor
         return Task.CompletedTask;
     }
 
-    public Task DeleteAsync(Hall hall,CancellationToken cancellationToken = default)
-    {
-        context.Halls.Remove(hall);
-        return Task.CompletedTask;
-    }
     public async Task<Hall?> GetByIdAsync(Guid hallId,CancellationToken cancellationToken = default)
-        => await context.Halls.AsNoTracking().FirstOrDefaultAsync(x => x.HallId == hallId,cancellationToken);
+        => await context.Halls
+        .Where(x=>x.IsDeleted==false)
+        .AsNoTracking().FirstOrDefaultAsync(x => x.HallId == hallId,cancellationToken);
     public async Task<Hall?> GetByHallNameAndAreaAsync(
     string hallName,
     Guid areaId,
@@ -40,7 +37,9 @@ public sealed class HallRepository(BookMyHallDbContext context) : IHallRepositor
         PaginationRequest request,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<Hall> query = context.Halls.AsNoTracking();
+        IQueryable<Hall> query = context.Halls
+        .Where(x=>x.IsDeleted==false)
+        .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {

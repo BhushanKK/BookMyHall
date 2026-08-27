@@ -19,6 +19,7 @@ public sealed class CancellationPolicyRepository(BookMyHallDbContext context): I
 
     public async Task<CancellationPolicy?> GetByIdAsync(Guid cancellationPolicyId,CancellationToken cancellationToken = default)
         => await context.CancellationPolicies
+            .Where(x=>x.IsDeleted==false)
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 x => x.CancellationPolicyId == cancellationPolicyId,cancellationToken);
@@ -32,6 +33,7 @@ public sealed class CancellationPolicyRepository(BookMyHallDbContext context): I
     public async Task<PaginatedResult<CancellationPolicy>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
         IQueryable<CancellationPolicy> query = context.CancellationPolicies
+            .Where(x=>x.IsDeleted==false)
             .AsNoTracking();
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {

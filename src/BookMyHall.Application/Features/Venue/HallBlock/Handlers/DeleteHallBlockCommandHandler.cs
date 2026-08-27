@@ -24,7 +24,7 @@ public sealed class DeleteHallBlockCommandHandler(IHallBlockRepository hallBlock
                 ResourceNames.Entities,EntityKeys.HallBlock),HttpStatusCode.NotFound);
         }
 
-        hallBlock.IsActive = false;
+        hallBlock.IsDeleted = true;
         await hallBlockRepository.UpdateAsync(hallBlock,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await cacheService.RemoveAsync($"{CacheKeys.HallBlock}:{request.HallBlockId}", cancellationToken);

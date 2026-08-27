@@ -19,6 +19,7 @@ public class User : BaseEntity
     public bool IsMobileVerified { get; set; }
     public bool IsEmailVerified { get; set; }
     public bool IsActive { get; set; } = true;
+    public bool IsDeleted { get; set; }
 
     /// <summary>
     /// Increment whenever the password changes or all sessions are revoked.

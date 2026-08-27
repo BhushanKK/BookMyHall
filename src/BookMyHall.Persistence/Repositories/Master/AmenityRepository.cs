@@ -26,6 +26,7 @@ public sealed class AmenityRepository(BookMyHallDbContext context)
         Guid amenityId,
         CancellationToken cancellationToken = default)
         => await context.Amenitys
+        .Where(x=>x.IsDeleted==false)
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 x => x.AmenityId == amenityId,
@@ -44,7 +45,8 @@ public sealed class AmenityRepository(BookMyHallDbContext context)
         PaginationRequest request,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<Amenity> query = context.Amenitys.AsNoTracking();
+        IQueryable<Amenity> query = context.Amenitys
+        .Where(x=>x.IsDeleted==false).AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
