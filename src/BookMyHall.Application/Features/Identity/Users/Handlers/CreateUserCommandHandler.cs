@@ -42,7 +42,8 @@ public sealed class CreateUserCommandHandler(
             );
         }
 
-        var role = await roleRepository.GetByIdAsync(request.RoleId, cancellationToken);
+        Guid roleId = await roleRepository.GetRoleIdByRoleName("Customer",cancellationToken);
+        var role = await roleRepository.GetByIdAsync(roleId, cancellationToken);
 
         if (role is null)
         {

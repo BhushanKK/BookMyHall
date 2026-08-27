@@ -9,6 +9,5 @@ public sealed record CreateUserCommand(
     string? LastName,
     string MobileNumber,
     string? EmailAddress,
-    string Password,
-    Guid RoleId)
+    string Password)
     : IRequest<ApiResponse<UserDto>>;

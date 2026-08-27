@@ -71,7 +71,7 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
         return Task.CompletedTask;
     }
 
-    public async Task<Guid?> GetRoleIdByRoleName(
+    public async Task<Guid> GetRoleIdByRoleName(
     string roleName,
     CancellationToken cancellationToken)
     => await context.Roles
