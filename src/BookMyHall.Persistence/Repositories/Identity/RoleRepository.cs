@@ -12,26 +12,29 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
     public async Task<Role?> GetByIdAsync(
         Guid roleId,
         CancellationToken cancellationToken = default)
-       => await context.Roles
-       .Where(x=>x.IsDeleted==false)
-       .FirstOrDefaultAsync(x => x.RoleId == roleId,
+       => await context.Roles.FirstOrDefaultAsync(x => x.RoleId == roleId,
         cancellationToken);
 
     public async Task<PaginatedResult<Role>> GetAllAsync(
     PaginationRequest paginationRequest,
     CancellationToken cancellationToken = default)
     {
-        var query = context.Roles
-        .Where(x=>x.IsDeleted==false)
-        .AsNoTracking();
+        var query = context.Roles.AsNoTracking();
 
-        if (!string.IsNullOrWhiteSpace(paginationRequest.SearchText))
+        if (!string.IsNullOrWhiteSpace(
+            paginationRequest.SearchText))
         {
-            var searchText = paginationRequest.SearchText.Trim();
-            query = query.Where(x => EF.Functions.ILike(x.RoleName, $"%{searchText}%"));
+            var searchText =
+                paginationRequest.SearchText.Trim();
+
+            query = query.Where(x =>
+                EF.Functions.ILike(
+                    x.RoleName,
+                    $"%{searchText}%"));
         }
 
-        var totalCount = await query.CountAsync(cancellationToken);
+        var totalCount =
+            await query.CountAsync(cancellationToken);
 
         query = paginationRequest.SortDescending
             ? query.OrderByDescending(x => x.RoleName)
@@ -64,7 +67,8 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
 
     public Task DeleteAsync(Role role, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        context.Roles.Remove(role);
+        return Task.CompletedTask;
     }
 
     public async Task<Guid?> GetRoleIdByRoleName(
