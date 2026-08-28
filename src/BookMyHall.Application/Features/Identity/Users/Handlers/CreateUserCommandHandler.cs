@@ -2,7 +2,6 @@ using MediatR;
 using System.Net;
 using AutoMapper;
 using FluentValidation;
-using BookMyHall.Application.Abstractions.Security;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Persistence.Exceptions;
