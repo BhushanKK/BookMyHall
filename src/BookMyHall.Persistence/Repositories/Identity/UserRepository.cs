@@ -71,7 +71,6 @@ public sealed class UserRepository(BookMyHallDbContext context)
                 cancellationToken);
     }
 
-
     public async Task<PaginatedResult<User>> GetAllAsync(
         PaginationRequest request,
         CancellationToken cancellationToken = default)

@@ -17,12 +17,12 @@ public sealed class UpdateUserCommandHandler(
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    IValidator<UpdateUserCommand> validator,
+    IValidator<ProfileUpdateUserCommand> validator,
     IMessageHelper messageHelper,
     IR2StorageService r2StorageService,ICacheService cacheService)
-    : IRequestHandler<UpdateUserCommand, ApiResponse<UserDto>>
+    : IRequestHandler<ProfileUpdateUserCommand, ApiResponse<UserDto>>
 {
-    public async Task<ApiResponse<UserDto>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
+    public async Task<ApiResponse<UserDto>> Handle(ProfileUpdateUserCommand request, CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
 

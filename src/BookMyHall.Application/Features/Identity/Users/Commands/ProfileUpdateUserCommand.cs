@@ -4,7 +4,7 @@ using BookMyHall.Domain.Enums;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
-public sealed record UpdateUserCommand(
+public sealed record ProfileUpdateUserCommand(
     Guid UserId,
     string FirstName,
     string? MiddleName,

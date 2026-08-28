@@ -14,7 +14,7 @@ public static class UserEndpoints
             .DisableAntiforgery();
 
         group.MapPost("/", async (
-            CreateUserCommand command,
+            SignupUserCommand command,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
@@ -44,7 +44,7 @@ public static class UserEndpoints
                     if (form.Image is not null && form.Image.Length > 0)
                         imageStream = form.Image.OpenReadStream();
 
-                    var command = new UpdateUserCommand(
+                    var command = new ProfileUpdateUserCommand(
                         UserId: userId,
                         FirstName: form.FirstName,
                         MiddleName: form.MiddleName,

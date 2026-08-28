@@ -8,7 +8,7 @@ using BookMyHall.Shared.Localization;
 namespace BookMyHall.Application.Validations;
 
 public sealed class CreateUserValidator
-    : AbstractValidator<CreateUserCommand>
+    : AbstractValidator<SignupUserCommand>
 {
     public CreateUserValidator(
         ILocalizationService localizer)
@@ -34,7 +34,7 @@ public sealed class CreateUserValidator
 }
 
 public sealed class UpdateUserCommandValidator
-    : AbstractValidator<UpdateUserCommand>
+    : AbstractValidator<ProfileUpdateUserCommand>
 {
     public UpdateUserCommandValidator(
         ILocalizationService localizer)

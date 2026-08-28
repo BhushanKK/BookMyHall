@@ -10,7 +10,7 @@ public sealed class IdentityMappingProfile : Profile
 {
     public IdentityMappingProfile()
     {
-        CreateMap<CreateUserCommand, User>()
+        CreateMap<SignupUserCommand, User>()
             .ForMember(destination => destination.PasswordHash,
                 option => option.Ignore())
             .ForMember(destination => destination.UserRoles,
@@ -22,11 +22,11 @@ public sealed class IdentityMappingProfile : Profile
             .Select(x => x.Role.RoleName)
             .ToList()));
         
-        CreateMap<UpdateUserCommand, User>()
+        CreateMap<ProfileUpdateUserCommand, User>()
             .ForMember(destination => destination.PasswordHash, option => option.Ignore())
             .ForMember(destination => destination.UserRoles, option => option.Ignore());
 
-        CreateMap<CreateUserCommand, User>()
+        CreateMap<SignupUserCommand, User>()
             .ForMember(d => d.PasswordHash, o => o.Ignore())
             .ForMember(d => d.UserRoles, o => o.Ignore());
         
