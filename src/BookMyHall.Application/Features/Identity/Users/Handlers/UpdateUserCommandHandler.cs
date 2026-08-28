@@ -1,94 +1,152 @@
 using System.Net;
+
 using AutoMapper;
-using FluentValidation;
+
 using MediatR;
+
+using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
-using BookMyHall.Application.Common.Interfaces.Storage;
 using BookMyHall.Contracts.Common;
-using BookMyHall.Persistence.Exceptions;
+using BookMyHall.Domain.Entities.Identity;
+using BookMyHall.Domain.Identity;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
-using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
 public sealed class UpdateUserCommandHandler(
-    IUserRepository userRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<ProfileUpdateUserCommand> validator,
-    IMessageHelper messageHelper,
-    IR2StorageService r2StorageService,ICacheService cacheService)
-    : IRequestHandler<ProfileUpdateUserCommand, ApiResponse<UserDto>>
+IUserRepository userRepository,
+IRoleRepository roleRepository,
+IUnitOfWork unitOfWork,
+IMapper mapper,
+IMessageHelper messageHelper,
+ICacheService cacheService)
+: IRequestHandler<UpdateUserCommand, ApiResponse<UserDto>>
 {
-    public async Task<ApiResponse<UserDto>> Handle(ProfileUpdateUserCommand request, CancellationToken cancellationToken)
+    public async Task<ApiResponse<UserDto>> Handle(
+    UpdateUserCommand request,
+    CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-        if (!validationResult.IsValid)
-            return ApiResponse<UserDto>.FailureResponse
-            (
-                string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage)),
-                HttpStatusCode.BadRequest
-            );
-
-        var user = await userRepository.GetByIdAsync(request.UserId, cancellationToken);
+        var user = await userRepository.GetByIdAsync(
+        request.UserId,
+        cancellationToken);
 
         if (user is null)
-            return ApiResponse<UserDto>.FailureResponse
-            (
-                messageHelper.NotFoundEntity(ResourceNames.Entities, EntityKeys.User),
-                HttpStatusCode.NotFound
-            );
-
-        mapper.Map(request, user);
-
-        if (request.DateOfBirth.HasValue)
-            user.DateOfBirth = request.DateOfBirth.Value.ToUniversalTime();
-
-        if (request.ImageStream is not null &&
-            !string.IsNullOrWhiteSpace(request.FileName) &&
-            !string.IsNullOrWhiteSpace(request.ContentType))
         {
-            var oldObjectKey = user.ProfileImageUrl;
-            var newObjectKey = $"Users/{request.UserId}/Profile";
+            return ApiResponse<UserDto>.FailureResponse(
+                messageHelper.NotFoundEntity(
+                    ResourceNames.Entities,
+                    EntityKeys.User),
+                HttpStatusCode.NotFound);
+        }
 
-            await r2StorageService.UploadAsync(
-                request.ImageStream,
-                newObjectKey,
-                request.ContentType,
+        if (request.Roles is null || request.Roles.Count == 0)
+        {
+            return ApiResponse<UserDto>.FailureResponse(
+                "At least one role is required.",
+                HttpStatusCode.BadRequest);
+        }
+
+        var roleIds = request.Roles
+            .Where(x => x != Guid.Empty)
+            .Distinct()
+            .ToList();
+
+        if (roleIds.Count == 0)
+        {
+            return ApiResponse<UserDto>.FailureResponse(
+                "At least one valid role is required.",
+                HttpStatusCode.BadRequest);
+        }
+
+        var roles = new List<Role>();
+
+        foreach (var roleId in roleIds)
+        {
+            var role = await roleRepository.GetByIdAsync(
+                roleId,
                 cancellationToken);
 
-            if (!string.IsNullOrWhiteSpace(oldObjectKey) &&
-                !string.Equals(oldObjectKey, newObjectKey, StringComparison.OrdinalIgnoreCase))
-                await r2StorageService.DeleteAsync(oldObjectKey, cancellationToken);
+            if (role is null)
+            {
+                return ApiResponse<UserDto>.FailureResponse(
+                    $"Role with ID '{roleId}' was not found.",
+                    HttpStatusCode.BadRequest);
+            }
 
-            user.ProfileImageUrl = newObjectKey;
+            roles.Add(role);
         }
 
-        try
+        if (!string.IsNullOrWhiteSpace(request.EmailAddress))
         {
-            await userRepository.UpdateAsync(user, cancellationToken);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
+            var existingUser =
+                await userRepository.GetByEmailAddressAsync(
+                    request.EmailAddress,
+                    cancellationToken);
+
+            if (existingUser is not null &&
+                existingUser.UserId != request.UserId)
+            {
+                return ApiResponse<UserDto>.FailureResponse(
+                    messageHelper.AlreadyExistsEntity(
+                        ResourceNames.Entities,
+                        EntityKeys.User),
+                    HttpStatusCode.Conflict);
+            }
         }
-        catch (DuplicateRecordException)
+        user.UpdateUserProfile(
+        firstName: request.FirstName,
+        middleName: request.MiddleName,
+        lastName: request.LastName,
+        mobileNumber: request.MobileNumber,
+        dateOfBirth: request.DateOfBirth,
+        gender: request.Gender,
+        emailAddress: request.EmailAddress ?? string.Empty);
+        if (request.IsActive)
         {
-            return ApiResponse<UserDto>.FailureResponse
-            (
-                messageHelper.AlreadyExistsEntity(ResourceNames.Entities, EntityKeys.User),
-                HttpStatusCode.Conflict
-            );
+            user.Activate();
+        }
+        else
+        {
+            user.Deactivate();
         }
 
-        var userDto = mapper.Map<UserDto>(user);
-        await cacheService.RemoveAsync($"{CacheKeys.Users}:{request.UserId}", cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.UsersPaged}:", cancellationToken);
-        return ApiResponse<UserDto>.SuccessResponse
-        (
-            userDto,
-            messageHelper.UpdatedEntity(ResourceNames.Entities, EntityKeys.User),
-            HttpStatusCode.OK
-        );
+        await userRepository.UpdateAsync(
+            user,
+            cancellationToken);
+
+        await userRepository.RemoveUserRolesAsync(
+            user.UserId,
+            cancellationToken);
+
+        var currentDate = DateTimeOffset.UtcNow;
+
+        foreach (var role in roles)
+        {
+            await userRepository.AddUserRoleAsync(
+                new UserRole
+                {
+                    UserId = user.UserId,
+                    RoleId = role.RoleId,
+                    CreatedDate = currentDate,
+                    CreatedBy = user.UpdatedBy
+                },
+                cancellationToken);
+        }
+
+        await unitOfWork.SaveChangesAsync(
+            cancellationToken);
+
+        await cacheService.RemoveByPrefixAsync(
+            $"{CacheKeys.UsersPaged}:",
+            cancellationToken);
+
+        return ApiResponse<UserDto>.SuccessResponse(
+            mapper.Map<UserDto>(user),
+            messageHelper.UpdatedEntity(
+                ResourceNames.Entities,
+                EntityKeys.User),
+            HttpStatusCode.OK);
     }
 }

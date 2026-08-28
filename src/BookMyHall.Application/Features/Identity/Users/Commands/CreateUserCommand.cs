@@ -9,5 +9,5 @@ public sealed record CreateUserCommand(
     string? LastName,
     string MobileNumber,
     string? EmailAddress,
-    List<Guid> roles)
+    List<Guid> Roles)
     : IRequest<ApiResponse<UserDto>>;
