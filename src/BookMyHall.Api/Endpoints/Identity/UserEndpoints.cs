@@ -21,8 +21,24 @@ public static class UserEndpoints
             var response = await mediator.Send(command, cancellationToken);
             return Results.Json(response, statusCode: response.StatusCode);
         })
-        .WithName("CreateUser")
-        .WithSummary("Create User")
+        .WithName("SignUp User/Customer")
+        .WithSummary("SignUp feature for User/customer")
+        .WithDescription("SignUp a new user.")
+        .Produces<ApiResponse<UserDto>>(StatusCodes.Status201Created)
+        .Produces<ApiResponse<UserDto>>(StatusCodes.Status400BadRequest)
+        .Produces<ApiResponse<UserDto>>(StatusCodes.Status409Conflict)
+        .Produces(StatusCodes.Status401Unauthorized);
+
+        group.MapPost("/createuser", async (
+            CreateUserCommand command,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("Create New User")
+        .WithSummary("Create New User")
         .WithDescription("Creates a new user.")
         .Produces<ApiResponse<UserDto>>(StatusCodes.Status201Created)
         .Produces<ApiResponse<UserDto>>(StatusCodes.Status400BadRequest)
