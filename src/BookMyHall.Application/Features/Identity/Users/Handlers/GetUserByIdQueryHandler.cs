@@ -9,7 +9,6 @@ using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Identity.Users;
-
 public sealed class GetUserByIdQueryHandler(
     IUserRepository userRepository,
     IMapper mapper,

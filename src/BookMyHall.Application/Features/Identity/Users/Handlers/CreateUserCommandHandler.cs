@@ -19,9 +19,7 @@ public sealed class CreateUserCommandHandler(
     IUserRepository userRepository,
     IRoleRepository roleRepository,
     IUnitOfWork unitOfWork,
-    IPasswordHasher passwordHasher,
     IMapper mapper,
-    IValidator<CreateUserCommand> validator,
     IMessageHelper messageHelper,
     ICacheService cacheService)
     : IRequestHandler<CreateUserCommand, ApiResponse<UserDto>>
@@ -30,16 +28,16 @@ public sealed class CreateUserCommandHandler(
         CreateUserCommand request,
         CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        // var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
-        if (!validationResult.IsValid)
-        {
-            return ApiResponse<UserDto>.FailureResponse
-            (
-                string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage)),
-                HttpStatusCode.BadRequest
-            );
-        }
+        // if (!validationResult.IsValid)
+        // {
+        //     return ApiResponse<UserDto>.FailureResponse
+        //     (
+        //         string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage)),
+        //         HttpStatusCode.BadRequest
+        //     );
+        // }
 
         if (request.roles is null || !request.roles.Any())
         {
