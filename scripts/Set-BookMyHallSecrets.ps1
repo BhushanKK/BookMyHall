@@ -257,3 +257,59 @@ Write-Host ""
 Write-Host "IMPORTANT:" -ForegroundColor Yellow
 Write-Host "Restart the BookMyHall API/service after changing secrets."
 Write-Host ""
+
+# --------------------------------------------------
+# RabbitMQ Username
+# --------------------------------------------------
+
+Write-Host "-----------------------------------------" -ForegroundColor DarkGray
+Write-Host " RabbitMQ Configuration" -ForegroundColor Cyan
+Write-Host "-----------------------------------------" -ForegroundColor DarkGray
+
+$rabbitMqUserName = Read-Host `
+    "Enter RabbitMQ Username"
+
+Set-MachineSecret `
+    "RabbitMq__UserName" `
+    $rabbitMqUserName
+
+Write-Host ""
+
+# --------------------------------------------------
+# RabbitMQ Password
+# --------------------------------------------------
+
+$rabbitMqPassword = Read-Host `
+    "Enter RabbitMQ Password" `
+    -AsSecureString
+
+$rabbitMqSecretPtr = [IntPtr]::Zero
+
+try {
+
+    $rabbitMqSecretPtr =
+        [Runtime.InteropServices.Marshal]::SecureStringToBSTR(
+            $rabbitMqPassword
+        )
+
+    $rabbitMqPasswordPlainText =
+        [Runtime.InteropServices.Marshal]::PtrToStringBSTR(
+            $rabbitMqSecretPtr
+        )
+
+    Set-MachineSecret `
+        "RabbitMq__Password" `
+        $rabbitMqPasswordPlainText
+}
+finally {
+
+    if ($rabbitMqSecretPtr -ne [IntPtr]::Zero) {
+        [Runtime.InteropServices.Marshal]::ZeroFreeBSTR(
+            $rabbitMqSecretPtr
+        )
+    }
+
+    $rabbitMqPasswordPlainText = $null
+}
+
+Write-Host ""

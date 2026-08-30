@@ -3,6 +3,7 @@ using BookMyHall.Api.Extensions;
 using BookMyHall.Api.Middleware;
 using BookMyHall.Application;
 using BookMyHall.Infrastructure;
+using BookMyHall.Infrastructure.Messaging;
 using BookMyHall.Persistence;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
@@ -126,7 +127,13 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 // ============================================================
 // Authentication / Authorization
 // ============================================================
+using (var scope = app.Services.CreateScope())
+{
+    var topology = scope.ServiceProvider
+        .GetRequiredService<RabbitMqTopology>();
 
+    await topology.ConfigureAsync();
+}
 app.UseAuthentication();
 
 app.UseAuthorization();

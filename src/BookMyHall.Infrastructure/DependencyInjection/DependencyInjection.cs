@@ -20,6 +20,9 @@ using Microsoft.Extensions.Options;
 using BookMyHall.Application.Common.Interfaces.Storage;
 using BookMyHall.Infrastructure.Caching;
 using BookMyHall.Application.Abstractions.Caching;
+using BookMyHall.Infrastructure.Messaging;
+using BookMyHall.Application.Abstractions.Messaging;
+using BookMyHall.Infrastructure.Messaging.Consumers;
 
 namespace BookMyHall.Infrastructure;
 
@@ -162,6 +165,12 @@ public static class DependencyInjection
                 options.SecretAccessKey,
                 config);
         });
+
+        services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
+        services.AddScoped<IMessagePublisher,RabbitMqMessagePublisher>();
+        services.AddSingleton<RabbitMqTopology>();
+
+        services.AddHostedService<UserRegistrationConsumer>();
         services.AddScoped<IR2StorageService, CloudflareR2StorageService>();
         services.AddMemoryCache();
         services.AddSingleton<ICacheService, MemoryCacheService>();

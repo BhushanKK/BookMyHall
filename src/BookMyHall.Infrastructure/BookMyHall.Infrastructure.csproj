@@ -4,6 +4,7 @@
     <PackageReference Include="AWSSDK.S3" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="RabbitMQ.Client" />
 
     <ProjectReference Include="..\BookMyHall.Application\BookMyHall.Application.csproj" />
     <ProjectReference Include="..\BookMyHall.Application.Abstractions\BookMyHall.Application.Abstractions.csproj" />
