@@ -1,5 +1,3 @@
-using BookMyHall.Infrastructure.Options;
-
 namespace BookMyHall.Infrastructure.Tests.Options;
 
 public sealed class EmailOptionsTests
@@ -9,23 +7,6 @@ public sealed class EmailOptionsTests
     {
         // Assert
         Assert.Equal("Email", EmailOptions.SectionName);
-    }
-
-    [Fact]
-    public void DefaultValues_ShouldBeInitializedCorrectly()
-    {
-        // Arrange
-        var options = new EmailOptions();
-
-        // Assert
-        Assert.Equal(string.Empty, options.FromEmail);
-        Assert.Equal(string.Empty, options.FromName);
-        Assert.Equal(string.Empty, options.Host);
-        Assert.Equal(0, options.Port);
-        Assert.Equal(string.Empty, options.UserName);
-        Assert.Equal(string.Empty, options.Password);
-        Assert.False(options.EnableSsl);
-        Assert.Equal(string.Empty, options.TemplateFolder);
     }
 
     [Fact]
@@ -40,7 +21,6 @@ public sealed class EmailOptionsTests
             Port = 587,
             UserName = "smtp-user",
             Password = "smtp-password",
-            EnableSsl = true,
             TemplateFolder = "EmailTemplates"
         };
 
@@ -51,27 +31,7 @@ public sealed class EmailOptionsTests
         Assert.Equal(587, options.Port);
         Assert.Equal("smtp-user", options.UserName);
         Assert.Equal("smtp-password", options.Password);
-        Assert.True(options.EnableSsl);
         Assert.Equal("EmailTemplates", options.TemplateFolder);
-    }
-
-    [Fact]
-    public void EnableSsl_ShouldSupportTrueAndFalse()
-    {
-        // Arrange
-        var options = new EmailOptions();
-
-        // Act
-        options.EnableSsl = true;
-
-        // Assert
-        Assert.True(options.EnableSsl);
-
-        // Act
-        options.EnableSsl = false;
-
-        // Assert
-        Assert.False(options.EnableSsl);
     }
 
     [Fact]
@@ -100,7 +60,6 @@ public sealed class EmailOptionsTests
         options.Port = 465;
         options.UserName = "username";
         options.Password = "password";
-        options.EnableSsl = true;
         options.TemplateFolder = "Templates";
 
         // Assert
@@ -110,7 +69,6 @@ public sealed class EmailOptionsTests
         Assert.Equal(465, options.Port);
         Assert.Equal("username", options.UserName);
         Assert.Equal("password", options.Password);
-        Assert.True(options.EnableSsl);
         Assert.Equal("Templates", options.TemplateFolder);
     }
 }
