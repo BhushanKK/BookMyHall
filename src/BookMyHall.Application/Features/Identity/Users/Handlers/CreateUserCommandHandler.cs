@@ -168,9 +168,7 @@ public sealed class CreateUserCommandHandler(
                 verificationToken,
                 expiryMinutes);
 
-        await messagePublisher.PublishAsync(
-            registrationMessage,
-            cancellationToken);
+        await messagePublisher.PublishAsync(registrationMessage, cancellationToken);
 
         // ------------------------------------------------------------
         // 7. Clear user cache

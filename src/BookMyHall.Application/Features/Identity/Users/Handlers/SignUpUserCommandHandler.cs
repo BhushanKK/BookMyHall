@@ -1,24 +1,18 @@
 using System.Net;
-
 using AutoMapper;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Options;
-
 using BookMyHall.Application.Abstractions.Authentication;
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Abstractions.Messaging;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
-
 using BookMyHall.Contracts.Common;
 using BookMyHall.Contracts.Messaging;
-
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Domain.Identity;
-
 using BookMyHall.Persistence.Exceptions;
-
 using BookMyHall.Shared.Constants;
 using BookMyHall.Shared.Options;
 using BookMyHall.Application.Abstractions.Persistence.Identity;
@@ -158,7 +152,7 @@ public sealed class SignUpUserCommandHandler(
         );
 
         await messagePublisher.PublishAsync(registrationMessage, cancellationToken);
-
+    
         // ------------------------------------------------------------
         // 7. Clear cache
         // ------------------------------------------------------------
