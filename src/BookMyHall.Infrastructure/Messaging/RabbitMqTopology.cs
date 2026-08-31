@@ -7,7 +7,6 @@ namespace BookMyHall.Infrastructure.Messaging;
 public sealed class RabbitMqTopology(IOptions<RabbitMqOptions> options)
 {
     private readonly RabbitMqOptions _options = options.Value;
-
     public async Task ConfigureAsync(CancellationToken cancellationToken = default)
     {
         var factory = new ConnectionFactory
@@ -63,6 +62,23 @@ public sealed class RabbitMqTopology(IOptions<RabbitMqOptions> options)
             queue: RabbitMqKeys.PasswordChangedQueueName,
             exchange: _options.ExchangeName,
             routingKey: RabbitMqKeys.PasswordChangedRoutingKey,
+            cancellationToken: cancellationToken
+        );
+
+        await channel.QueueDeclareAsync
+        (
+            queue: RabbitMqKeys.PasswordResetQueueName,
+            durable: true,
+            exclusive: false,
+            autoDelete: false,
+            cancellationToken: cancellationToken
+        );
+
+        await channel.QueueBindAsync
+        (
+            queue: RabbitMqKeys.PasswordResetQueueName,
+            exchange: _options.ExchangeName,
+            routingKey: RabbitMqKeys.PasswordResetRoutingKey,
             cancellationToken: cancellationToken
         );
     }
