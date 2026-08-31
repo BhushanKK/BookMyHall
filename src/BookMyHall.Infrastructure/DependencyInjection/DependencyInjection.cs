@@ -172,6 +172,7 @@ public static class DependencyInjection
         services.AddSingleton<RabbitMqTopology>();
 
         services.AddHostedService<UserRegistrationConsumer>();
+        services.AddHostedService<PasswordChangedConsumer>();
         services.AddScoped<IR2StorageService, CloudflareR2StorageService>();
         services.AddMemoryCache();
         services.AddSingleton<ICacheService, MemoryCacheService>();
