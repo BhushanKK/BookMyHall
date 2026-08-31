@@ -23,8 +23,8 @@ public sealed class PasswordChangedConsumer(
     ILogger<PasswordChangedConsumer> logger)
     : BackgroundService
 {
-    private const string QueueName = "identity.password.changed";
-    private const string RoutingKey = "identity.password.changed";
+    private const string QueueName = RabbitMqKeys.PasswordChangedQueueName;
+    private const string RoutingKey = RabbitMqKeys.PasswordChangedRoutingKey;
     private const string LogoContentId = "bookmyhall-logo";
 
     private readonly RabbitMqOptions _rabbitMqOptions = rabbitMqOptions.Value;

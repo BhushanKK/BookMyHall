@@ -1,3 +1,4 @@
+using BookMyHall.Infrastructure.Configuration;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 
@@ -20,29 +21,49 @@ public sealed class RabbitMqTopology(IOptions<RabbitMqOptions> options)
 
         await using var connection = await factory.CreateConnectionAsync(cancellationToken);
 
-        await using var channel =await connection.CreateChannelAsync(cancellationToken: cancellationToken);
+        await using var channel = await connection.CreateChannelAsync(cancellationToken: cancellationToken);
 
-        // Exchange
-        await channel.ExchangeDeclareAsync(
+        await channel.ExchangeDeclareAsync
+        (
             exchange: _options.ExchangeName,
             type: ExchangeType.Topic,
             durable: true,
             autoDelete: false,
-            cancellationToken: cancellationToken);
+            cancellationToken: cancellationToken
+        );
 
-        // Queue
-        await channel.QueueDeclareAsync(
-            queue: "identity.user.registered",
+        await channel.QueueDeclareAsync
+        (
+            queue: RabbitMqKeys.UserRegistrationQueueName,
             durable: true,
             exclusive: false,
             autoDelete: false,
-            cancellationToken: cancellationToken);
+            cancellationToken: cancellationToken
+        );
 
-        // Binding
-        await channel.QueueBindAsync(
-            queue: "identity.user.registered",
+        await channel.QueueBindAsync
+        (
+            queue: RabbitMqKeys.UserRegistrationQueueName,
             exchange: _options.ExchangeName,
-            routingKey: "identity.user.registered",
-            cancellationToken: cancellationToken);
+            routingKey: RabbitMqKeys.UserRegistrationRoutingKey,
+            cancellationToken: cancellationToken
+        );
+
+        await channel.QueueDeclareAsync
+        (
+            queue: RabbitMqKeys.PasswordChangedQueueName,
+            durable: true,
+            exclusive: false,
+            autoDelete: false,
+            cancellationToken: cancellationToken
+        );
+
+        await channel.QueueBindAsync
+        (
+            queue: RabbitMqKeys.PasswordChangedQueueName,
+            exchange: _options.ExchangeName,
+            routingKey: RabbitMqKeys.PasswordChangedRoutingKey,
+            cancellationToken: cancellationToken
+        );
     }
 }

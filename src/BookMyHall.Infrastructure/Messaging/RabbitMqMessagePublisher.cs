@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using BookMyHall.Application.Abstractions.Messaging;
 using BookMyHall.Contracts.Messaging;
+using BookMyHall.Infrastructure.Configuration;
 
 namespace BookMyHall.Infrastructure.Messaging;
 
@@ -62,8 +63,11 @@ public sealed class RabbitMqMessagePublisher(IOptions<RabbitMqOptions> options)
     {
         return typeof(T) switch
         {
-            var type when type ==typeof(UserRegisteredMessage)
-                => "identity.user.registered",
+            var type when type == typeof(UserRegisteredMessage)
+                => RabbitMqKeys.userRegistrationRoutingKey,
+
+            var type when type == typeof(PasswordChangedMessage)
+                => RabbitMqKeys.passwordChangedRoutingKey,
 
             _ => throw new InvalidOperationException
             (
