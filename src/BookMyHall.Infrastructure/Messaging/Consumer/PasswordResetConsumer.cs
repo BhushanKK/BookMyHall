@@ -27,16 +27,11 @@ public sealed class PasswordResetConsumer(
     private readonly FrontendOptions _frontendOptions = frontendOptions.Value;
     private readonly EmailOptions _emailOptions = emailOptions.Value;
     private readonly IHostEnvironment _hostEnvironment = hostEnvironment;
-
     private const string LogoContentId = "bookmyhall-logo";
-
     private IConnection? _connection;
     private IChannel? _channel;
 
-    protected override async Task ExecuteAsync
-    (
-        CancellationToken stoppingToken
-    )
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try
         {
