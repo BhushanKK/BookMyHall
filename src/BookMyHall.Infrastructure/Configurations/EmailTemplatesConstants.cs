@@ -4,4 +4,5 @@ public static class EmailTemplateConstants
 {
     public const string Welcome = "Welcome";
     public const string VerifyEmail="VerifyEmail";
+    public const string PasswordChanged="PasswordChanged";
 }
