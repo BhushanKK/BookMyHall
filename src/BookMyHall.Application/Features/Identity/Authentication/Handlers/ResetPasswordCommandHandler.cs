@@ -25,77 +25,70 @@ public sealed class ResetPasswordCommandHandler(
         ResetPasswordCommand request,
         CancellationToken cancellationToken)
     {
-        var user = await userRepository.GetByEmailAddressAsync
-        (
-            request.Email,
-            cancellationToken
-        );
+        // 1. Find user by UserId from reset URL
+        var user = await userRepository.GetByIdAsync(
+            request.UserId,
+            cancellationToken);
 
         if (user is null)
         {
-            return ApiResponse<ResetPasswordResponse>.FailureResponse
-            (
+            return ApiResponse<ResetPasswordResponse>.FailureResponse(
                 "Invalid or expired password reset link.",
-                HttpStatusCode.BadRequest
-            );
+                HttpStatusCode.BadRequest);
         }
 
+        // 2. Hash the token received from the reset URL
         var tokenHash = tokenHasher.Hash(request.Token);
 
-        var resetToken = await passwordResetTokenRepository.GetActiveTokenAsync
-        (
+        // 3. Find active reset token
+        var resetToken = await passwordResetTokenRepository.GetActiveTokenAsync(
             user.UserId,
             tokenHash,
-            cancellationToken
-        );
+            cancellationToken);
 
         if (resetToken is null)
         {
-            return ApiResponse<ResetPasswordResponse>.FailureResponse
-            (
+            return ApiResponse<ResetPasswordResponse>.FailureResponse(
                 "Invalid or expired password reset link.",
-                HttpStatusCode.BadRequest
-            );
+                HttpStatusCode.BadRequest);
         }
 
-        var passwordHash = passwordHasher.HashPassword(request.NewPassword);
+        // 4. Hash the new password
+        var passwordHash = passwordHasher.HashPassword(
+            request.NewPassword);
 
+        // 5. Update password
         user.UpdatePassword(passwordHash);
 
-        await userRepository.UpdateAsync
-        (
+        await userRepository.UpdateAsync(
             user,
-            cancellationToken
-        );
+            cancellationToken);
 
-        await passwordResetTokenRepository.DeleteByUserIdAsync
-        (
+        // 6. Delete reset token so it cannot be reused
+        await passwordResetTokenRepository.DeleteByUserIdAsync(
             user.UserId,
-            cancellationToken
-        );
+            cancellationToken);
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        // 7. Commit transaction
+        await unitOfWork.SaveChangesAsync(
+            cancellationToken);
 
-        var passwordResetSuccessMessage = new PasswordResetSuccessMessage
-        (
+        // 8. Publish password reset success message
+        var passwordResetSuccessMessage = new PasswordResetSuccessMessage(
             user.UserId,
             user.FullName,
-            user.EmailAddress
-        );
+            user.EmailAddress);
 
-        await messagePublisher.PublishAsync
-        (
+        await messagePublisher.PublishAsync(
             passwordResetSuccessMessage,
-            cancellationToken
-        );
+            cancellationToken);
 
-        return ApiResponse<ResetPasswordResponse>.SuccessResponse
-        (
+        // 9. Return success
+        return ApiResponse<ResetPasswordResponse>.SuccessResponse(
             new ResetPasswordResponse
             {
                 Message = "Password has been reset successfully."
             },
-            "Password has been reset successfully."
-        );
+            "Password has been reset successfully.");
     }
 }

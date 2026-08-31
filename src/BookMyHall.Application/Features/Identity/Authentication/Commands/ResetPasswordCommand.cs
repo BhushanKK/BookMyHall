@@ -5,7 +5,7 @@ using BookMyHall.Application.Features.Identity.Authentication;
 namespace BookMyHall.Application.Features.Authentication.Commands.ResetPassword;
 
 public sealed record ResetPasswordCommand(
-    string Email,
+    Guid UserId,
     string Token,
     string NewPassword,
     string ConfirmPassword)

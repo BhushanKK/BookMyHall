@@ -8,10 +8,6 @@ public sealed class ResetPasswordCommandValidator : AbstractValidator<ResetPassw
 {
     public ResetPasswordCommandValidator(ILocalizationService localizer)
     {
-        RuleFor(x => x.Email)
-            .Required(localizer, "Email")
-            .EmailLocalized(localizer);
-
         RuleFor(x => x.Token)
             .Required(localizer, "ResetToken");
 
