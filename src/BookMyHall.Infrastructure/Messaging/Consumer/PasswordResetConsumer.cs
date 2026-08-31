@@ -256,8 +256,7 @@ public sealed class PasswordResetConsumer(
                     ["ResetPasswordLink"] = resetPasswordUrl,
                     ["ExpiryMinutes"] = "30",
                     ["WebsiteUrl"] = baseUrl,
-                    ["CurrentYear"] =
-                        DateTime.UtcNow.Year.ToString()
+                    ["CurrentYear"] = DateTime.UtcNow.Year.ToString()
                 };
 
             // ---------------------------------------------------------

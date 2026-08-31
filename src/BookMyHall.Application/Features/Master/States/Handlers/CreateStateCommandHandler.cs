@@ -9,6 +9,7 @@ using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
+using BookMyHall.Application.Abstractions.Caching;
 namespace BookMyHall.Application.Features.Master;
 
 public sealed class CreateStateCommandHandler(
@@ -16,7 +17,7 @@ public sealed class CreateStateCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<CreateStateCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<CreateStateCommand, ApiResponse<StateDto>>
 {
     public async Task<ApiResponse<StateDto>> Handle(CreateStateCommand request,CancellationToken cancellationToken)
@@ -40,7 +41,7 @@ public sealed class CreateStateCommandHandler(
             return ApiResponse<StateDto>.FailureResponse(
                 messageHelper.AlreadyExistsEntity(ResourceNames.Entities,EntityKeys.State),HttpStatusCode.Conflict);
         }
-
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.StatesPaged}:", cancellationToken);
         return ApiResponse<StateDto>.SuccessResponse
         (
             mapper.Map<StateDto>(state),

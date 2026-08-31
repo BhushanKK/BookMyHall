@@ -7,28 +7,30 @@ using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
 public sealed class DeleteStateCommandHandler(
     IStateRepository stateRepository,
     IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<DeleteStateCommand, ApiResponse<bool>>
 {
-    public async Task<ApiResponse<bool>> Handle(DeleteStateCommand request,CancellationToken cancellationToken)
+    public async Task<ApiResponse<bool>> Handle(DeleteStateCommand request, CancellationToken cancellationToken)
     {
-        var state = await stateRepository.GetByIdAsync(request.StateId,cancellationToken);
+        var state = await stateRepository.GetByIdAsync(request.StateId, cancellationToken);
         if (state is null)
         {
-            return ApiResponse<bool>.FailureResponse(messageHelper.NotFound(EntityKeys.State),HttpStatusCode.NotFound);
+            return ApiResponse<bool>.FailureResponse(messageHelper.NotFound(EntityKeys.State), HttpStatusCode.NotFound);
         }
 
         state.IsDeleted = true;
         await stateRepository.UpdateAsync(state, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-
+        await cacheService.RemoveAsync($"{CacheKeys.States}:{request.StateId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.StatesPaged}:", cancellationToken);
         return ApiResponse<bool>.SuccessResponse(true,
-            messageHelper.DeletedEntity(ResourceNames.Entities,EntityKeys.State),HttpStatusCode.OK);
+            messageHelper.DeletedEntity(ResourceNames.Entities, EntityKeys.State), HttpStatusCode.OK);
     }
 }

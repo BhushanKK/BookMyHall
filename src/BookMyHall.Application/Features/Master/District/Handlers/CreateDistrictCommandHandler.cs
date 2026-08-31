@@ -9,6 +9,7 @@ using BookMyHall.Domain.Masters;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
@@ -17,7 +18,7 @@ public sealed class CreateDistrictCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<CreateDistrictCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<CreateDistrictCommand, ApiResponse<DistrictDto>>
 {
     public async Task<ApiResponse<DistrictDto>> Handle(CreateDistrictCommand request,CancellationToken cancellationToken)
@@ -44,7 +45,7 @@ public sealed class CreateDistrictCommandHandler(
             return ApiResponse<DistrictDto>.FailureResponse(
                 messageHelper.AlreadyExistsEntity(ResourceNames.Entities,EntityKeys.District),HttpStatusCode.Conflict);
         }
-
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.CitiesPaged}:", cancellationToken);
         return ApiResponse<DistrictDto>.SuccessResponse(
             mapper.Map<DistrictDto>(district),
             messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.District),HttpStatusCode.Created);

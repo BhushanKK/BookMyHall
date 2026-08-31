@@ -9,6 +9,7 @@ using BookMyHall.Domain.Masters;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
@@ -17,7 +18,7 @@ public sealed class CreateCityCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<CreateCityCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<CreateCityCommand, ApiResponse<CityDto>>
 {
     public async Task<ApiResponse<CityDto>> Handle(CreateCityCommand request,CancellationToken cancellationToken)
@@ -42,7 +43,7 @@ public sealed class CreateCityCommandHandler(
             return ApiResponse<CityDto>.FailureResponse(
                 messageHelper.AlreadyExistsEntity(ResourceNames.Entities,EntityKeys.City),HttpStatusCode.Conflict);
         }
-
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.CitiesPaged}:", cancellationToken);
         return ApiResponse<CityDto>.SuccessResponse(
             mapper.Map<CityDto>(city),
             messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.City),HttpStatusCode.Created);

@@ -7,6 +7,7 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
@@ -15,7 +16,7 @@ public sealed class UpdateDistrictCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IValidator<UpdateDistrictCommand> validator,
-    IMessageHelper messageHelper)
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<UpdateDistrictCommand, ApiResponse<DistrictDto>>
 {
     public async Task<ApiResponse<DistrictDto>> Handle(UpdateDistrictCommand request,CancellationToken cancellationToken)
@@ -48,6 +49,8 @@ public sealed class UpdateDistrictCommandHandler(
         mapper.Map(request, district);
         await districtRepository.UpdateAsync(district,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+        await cacheService.RemoveAsync($"{CacheKeys.Districts}:{request.DistrictId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.DistrictsPaged}:", cancellationToken);
         return ApiResponse<DistrictDto>.SuccessResponse(
             mapper.Map<DistrictDto>(district),
             messageHelper.UpdatedEntity(ResourceNames.Entities,EntityKeys.District), HttpStatusCode.OK);

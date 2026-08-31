@@ -2,10 +2,14 @@ namespace BookMyHall.Application.Abstractions.Caching;
 
 public static class CacheKeys
 {
+    public const string Amenity="amenity";
+    public const string AmenitiesPaged="amenities:page";
     public const string Country = "country";
     public const string CountriesPaged = "countries:page:";
     public const string States = "states";
     public const string StatesPaged = "states:page:";
+    public const string StateByCode="state:code";
+    public const string StateByName = "state:name";
     public const string Districts = "districts";
     public const string DistrictsPaged = "districts:page:";
     public const string Cities = "cities";
