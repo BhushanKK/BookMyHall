@@ -174,6 +174,7 @@ public static class DependencyInjection
         services.AddHostedService<UserRegistrationConsumer>();
         services.AddHostedService<PasswordChangedConsumer>();
         services.AddHostedService<PasswordChangedConsumer>();
+        services.AddHostedService<PasswordResetSuccessConsumer>();
         services.AddScoped<IR2StorageService, CloudflareR2StorageService>();
         services.AddMemoryCache();
         services.AddSingleton<ICacheService, MemoryCacheService>();

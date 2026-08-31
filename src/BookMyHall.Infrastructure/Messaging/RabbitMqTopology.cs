@@ -81,5 +81,22 @@ public sealed class RabbitMqTopology(IOptions<RabbitMqOptions> options)
             routingKey: RabbitMqKeys.PasswordResetRoutingKey,
             cancellationToken: cancellationToken
         );
+
+        await channel.QueueDeclareAsync
+        (
+            queue: RabbitMqKeys.PasswordResetSuccessQueueName,
+            durable: true,
+            exclusive: false,
+            autoDelete: false,
+            cancellationToken: cancellationToken
+        );
+
+        await channel.QueueBindAsync
+        (
+            queue: RabbitMqKeys.PasswordResetSuccessQueueName,
+            exchange: _options.ExchangeName,
+            routingKey: RabbitMqKeys.PasswordResetSuccessRoutingKey,
+            cancellationToken: cancellationToken
+        );
     }
 }

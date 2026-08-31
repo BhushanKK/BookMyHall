@@ -72,6 +72,9 @@ public sealed class RabbitMqMessagePublisher(IOptions<RabbitMqOptions> options)
             var type when type == typeof(PasswordResetRequestedMessage)
                 => RabbitMqKeys.PasswordResetRoutingKey,
 
+            var type when type == typeof(PasswordResetSuccessMessage)
+                => RabbitMqKeys.PasswordResetSuccessRoutingKey,
+
             _ => throw new InvalidOperationException
             (
                 $"No RabbitMQ routing key configured for message type '{typeof(T).Name}'."
