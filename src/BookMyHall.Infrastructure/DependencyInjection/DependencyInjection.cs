@@ -3,50 +3,43 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Amazon.S3;
 using BookMyHall.Application.Abstractions.Authentication;
+using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Abstractions.Email;
+using BookMyHall.Application.Abstractions.Messaging;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Application.Abstractions.Security;
+using BookMyHall.Application.Common.Interfaces.Storage;
 using BookMyHall.Infrastructure.Authentication;
+using BookMyHall.Infrastructure.Caching;
 using BookMyHall.Infrastructure.Email;
+using BookMyHall.Infrastructure.Messaging;
+using BookMyHall.Infrastructure.Messaging.Consumers;
 using BookMyHall.Infrastructure.Options;
 using BookMyHall.Infrastructure.Security;
-using BookMyHall.Shared.Constants;
 using BookMyHall.Infrastructure.Storage.CloudflareR2;
-
-using Amazon.S3;
-using Microsoft.Extensions.Options;
-using BookMyHall.Application.Common.Interfaces.Storage;
-using BookMyHall.Infrastructure.Caching;
-using BookMyHall.Application.Abstractions.Caching;
-using BookMyHall.Infrastructure.Messaging;
-using BookMyHall.Application.Abstractions.Messaging;
-using BookMyHall.Infrastructure.Messaging.Consumers;
+using BookMyHall.Shared.Constants;
 using BookMyHall.Shared.Options;
 
 namespace BookMyHall.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        // Register MediatR handlers from Infrastructure assembly
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
         });
 
-        // Password Hasher
         services.AddScoped<IPasswordHasher, PasswordHasher>();
 
-        // Token Services
         services.AddScoped<ITokenGenerator, TokenGenerator>();
         services.AddScoped<ITokenHasher, Sha256TokenHasher>();
 
-        // JWT Options
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
 
         var jwtOptions = configuration
@@ -56,10 +49,8 @@ public static class DependencyInjection
 
         ValidateJwtOptions(jwtOptions);
 
-        // JWT Service
         services.AddScoped<IJwtTokenService, JwtTokenService>();
 
-        // Authentication
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
@@ -69,13 +60,9 @@ public static class DependencyInjection
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-
                     ValidIssuer = jwtOptions.Issuer,
                     ValidAudience = jwtOptions.Audience,
-
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
-
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
                     ClockSkew = TimeSpan.Zero
                 };
 
@@ -91,19 +78,15 @@ public static class DependencyInjection
                             var tokenVersionClaim = context.Principal?
                                 .FindFirst(CustomClaimTypes.TokenVersion)?.Value;
 
-                            if (!Guid.TryParse(userIdClaim, out var userId) ||
-                                !int.TryParse(tokenVersionClaim, out var tokenVersion))
+                            if (!Guid.TryParse(userIdClaim, out var userId) || !int.TryParse(tokenVersionClaim, out var tokenVersion))
                             {
                                 context.Fail("Invalid token.");
                                 return;
                             }
 
-                            var userRepository = context.HttpContext.RequestServices
-                                .GetRequiredService<IUserRepository>();
+                            var userRepository = context.HttpContext.RequestServices.GetRequiredService<IUserRepository>();
 
-                            var user = await userRepository.GetByIdAsync(
-                                userId,
-                                context.HttpContext.RequestAborted);
+                            var user = await userRepository.GetByIdAsync(userId, context.HttpContext.RequestAborted);
 
                             if (user is null)
                             {
@@ -131,28 +114,23 @@ public static class DependencyInjection
                 };
             });
 
-        // Authorization
         services.AddAuthorization();
 
-        // Current User
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, CurrentUser>();
         services.AddScoped<IClientInfoService, ClientInfoService>();
 
-        // Email Configuration
         services.Configure<EmailOptions>(configuration.GetSection(EmailOptions.SectionName));
         services.Configure<FrontendOptions>(configuration.GetSection(FrontendOptions.SectionName));
 
         services.AddScoped<IEmailSender, SmtpEmailSender>();
         services.AddScoped<IEmailTemplateService, EmailTemplateService>();
-        
+
         services.Configure<CloudflareR2Options>(configuration.GetSection(CloudflareR2Options.SectionName));
 
         services.AddSingleton<IAmazonS3>(sp =>
         {
-            var options = sp
-                .GetRequiredService<IOptions<CloudflareR2Options>>()
-                .Value;
+            var options = sp.GetRequiredService<IOptions<CloudflareR2Options>>().Value;
 
             var config = new AmazonS3Config
             {
@@ -161,23 +139,26 @@ public static class DependencyInjection
                 AuthenticationRegion = options.Region
             };
 
-            return new AmazonS3Client(
-                options.AccessKeyId,
-                options.SecretAccessKey,
-                config);
+            return new AmazonS3Client(options.AccessKeyId, options.SecretAccessKey, config);
         });
 
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
-        services.AddScoped<IMessagePublisher,RabbitMqMessagePublisher>();
+
+        services.AddScoped<IMessagePublisher, RabbitMqMessagePublisher>();
+
         services.AddSingleton<RabbitMqTopology>();
 
         services.AddHostedService<UserRegistrationConsumer>();
         services.AddHostedService<PasswordChangedConsumer>();
-        services.AddHostedService<PasswordChangedConsumer>();
+        services.AddHostedService<PasswordResetConsumer>();
         services.AddHostedService<PasswordResetSuccessConsumer>();
+
         services.AddScoped<IR2StorageService, CloudflareR2StorageService>();
+
         services.AddMemoryCache();
+
         services.AddSingleton<ICacheService, MemoryCacheService>();
+
         return services;
     }
 
@@ -193,15 +174,12 @@ public static class DependencyInjection
             throw new InvalidOperationException("Jwt:SecretKey is missing.");
 
         if (options.SecretKey.Length < 32)
-            throw new InvalidOperationException(
-                "Jwt:SecretKey must be at least 32 characters long.");
+            throw new InvalidOperationException("Jwt:SecretKey must be at least 32 characters long.");
 
         if (options.AccessTokenExpiryMinutes <= 0)
-            throw new InvalidOperationException(
-                "Jwt:AccessTokenExpiryMinutes must be greater than zero.");
+            throw new InvalidOperationException("Jwt:AccessTokenExpiryMinutes must be greater than zero.");
 
         if (options.RefreshTokenExpiryDays <= 0)
-            throw new InvalidOperationException(
-                "Jwt:RefreshTokenExpiryDays must be greater than zero.");
+            throw new InvalidOperationException("Jwt:RefreshTokenExpiryDays must be greater than zero.");
     }
 }

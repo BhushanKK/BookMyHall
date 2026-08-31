@@ -26,7 +26,6 @@ public sealed class RabbitMqMessagePublisher(IOptions<RabbitMqOptions> options)
         };
 
         await using var connection = await factory.CreateConnectionAsync(cancellationToken);
-
         await using var channel = await connection.CreateChannelAsync(cancellationToken: cancellationToken);
 
         await channel.ExchangeDeclareAsync
@@ -39,7 +38,6 @@ public sealed class RabbitMqMessagePublisher(IOptions<RabbitMqOptions> options)
         );
 
         var routingKey = GetRoutingKey<T>();
-
         var body = JsonSerializer.SerializeToUtf8Bytes(message);
 
         var properties = new BasicProperties

@@ -1,12 +1,14 @@
+using System.Net;
 using MediatR;
 using BookMyHall.Application.Abstractions.Authentication;
+using BookMyHall.Application.Abstractions.Messaging;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Identity;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Application.Abstractions.Security;
-using BookMyHall.Contracts.Common;
 using BookMyHall.Application.Features.Identity.Authentication;
-using BookMyHall.Application.Features.Authentication.Events;
+using BookMyHall.Contracts.Common;
+using BookMyHall.Contracts.Messaging;
 
 namespace BookMyHall.Application.Features.Authentication.Commands.ResetPassword;
 
@@ -16,27 +18,30 @@ public sealed class ResetPasswordCommandHandler(
     ITokenHasher tokenHasher,
     IPasswordHasher passwordHasher,
     IUnitOfWork unitOfWork,
-    IMediator mediator)
+    IMessagePublisher messagePublisher)
     : IRequestHandler<ResetPasswordCommand, ApiResponse<ResetPasswordResponse>>
 {
-    public async Task<ApiResponse<ResetPasswordResponse>> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
+    public async Task<ApiResponse<ResetPasswordResponse>> Handle(
+        ResetPasswordCommand request,
+        CancellationToken cancellationToken)
     {
-        // Find user
-        var user = await userRepository.GetByEmailAddressAsync(request.Email, cancellationToken);
+        var user = await userRepository.GetByEmailAddressAsync
+        (
+            request.Email,
+            cancellationToken
+        );
 
         if (user is null)
         {
             return ApiResponse<ResetPasswordResponse>.FailureResponse
             (
                 "Invalid or expired password reset link.",
-                System.Net.HttpStatusCode.BadRequest
+                HttpStatusCode.BadRequest
             );
         }
 
-        // Hash incoming token
         var tokenHash = tokenHasher.Hash(request.Token);
 
-        // Verify token
         var resetToken = await passwordResetTokenRepository.GetActiveTokenAsync
         (
             user.UserId,
@@ -49,28 +54,48 @@ public sealed class ResetPasswordCommandHandler(
             return ApiResponse<ResetPasswordResponse>.FailureResponse
             (
                 "Invalid or expired password reset link.",
-                System.Net.HttpStatusCode.BadRequest
+                HttpStatusCode.BadRequest
             );
         }
 
-        // Hash password
         var passwordHash = passwordHasher.HashPassword(request.NewPassword);
 
-        // Update password
         user.UpdatePassword(passwordHash);
-        await userRepository.UpdateAsync(user, cancellationToken);
 
-        // Remove all password reset tokens for this user
-        await passwordResetTokenRepository.DeleteByUserIdAsync(user.UserId, cancellationToken);
+        await userRepository.UpdateAsync
+        (
+            user,
+            cancellationToken
+        );
+
+        await passwordResetTokenRepository.DeleteByUserIdAsync
+        (
+            user.UserId,
+            cancellationToken
+        );
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        
-        await mediator.Publish(
-        new PasswordResetCompletedEvent(
-        user.UserId,
-        user.FullName,
-        user.EmailAddress),
-        cancellationToken);
-        
-        return ApiResponse<ResetPasswordResponse>.SuccessResponse(new ResetPasswordResponse { Message = "Password has been reset successfully." }, "Password has been reset successfully.");
+
+        var passwordResetSuccessMessage = new PasswordResetSuccessMessage
+        (
+            user.UserId,
+            user.FullName,
+            user.EmailAddress
+        );
+
+        await messagePublisher.PublishAsync
+        (
+            passwordResetSuccessMessage,
+            cancellationToken
+        );
+
+        return ApiResponse<ResetPasswordResponse>.SuccessResponse
+        (
+            new ResetPasswordResponse
+            {
+                Message = "Password has been reset successfully."
+            },
+            "Password has been reset successfully."
+        );
     }
 }

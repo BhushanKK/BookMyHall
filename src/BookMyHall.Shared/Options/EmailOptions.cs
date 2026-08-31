@@ -12,5 +12,6 @@ public sealed class EmailOptions
     public bool EnableSsl { get; set; } = true;
     public string TemplateFolder { get; set; } = "Email/Templates";
     public int VerificationExpiryMinutes { get; set; } = 30;
+    public int PasswordResetExpiryMinutes { get; set; } = 30;
     public string LogoPath { get; set; } = "www/images/logo.png";
 }

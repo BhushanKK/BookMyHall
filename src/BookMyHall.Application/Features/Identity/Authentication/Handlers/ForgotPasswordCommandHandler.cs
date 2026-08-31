@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.Extensions.Options;
 using BookMyHall.Application.Abstractions.Authentication;
 using BookMyHall.Application.Abstractions.Messaging;
 using BookMyHall.Application.Abstractions.Persistence;
@@ -8,6 +9,7 @@ using BookMyHall.Application.Features.Authentication.Commands.ForgotPassword;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Contracts.Messaging;
 using BookMyHall.Domain.Entities.Identity;
+using BookMyHall.Shared.Options;
 
 namespace BookMyHall.Application.Features.Identity.Authentication.Handlers;
 
@@ -17,10 +19,11 @@ public sealed class ForgotPasswordCommandHandler(
     ITokenGenerator tokenGenerator,
     ITokenHasher tokenHasher,
     IUnitOfWork unitOfWork,
-    IMessagePublisher messagePublisher)
+    IMessagePublisher messagePublisher,
+    IOptions<EmailOptions> emailOptions)
     : IRequestHandler<ForgotPasswordCommand, ApiResponse<ForgotPasswordResponse>>
 {
-    private const int PasswordResetTokenExpiryInMinutes = 30;
+    private readonly EmailOptions _emailOptions = emailOptions.Value;
 
     public async Task<ApiResponse<ForgotPasswordResponse>> Handle(
         ForgotPasswordCommand request,
@@ -53,7 +56,7 @@ public sealed class ForgotPasswordCommandHandler(
         (
             userId: user.UserId,
             tokenHash: tokenHash,
-            expiresAt: DateTimeOffset.UtcNow.AddMinutes(PasswordResetTokenExpiryInMinutes)
+            expiresAt: DateTimeOffset.UtcNow.AddMinutes(_emailOptions.PasswordResetExpiryMinutes)
         );
 
         await passwordResetTokenRepository.AddAsync
