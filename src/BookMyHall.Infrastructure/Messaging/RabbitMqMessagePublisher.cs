@@ -64,10 +64,10 @@ public sealed class RabbitMqMessagePublisher(IOptions<RabbitMqOptions> options)
         return typeof(T) switch
         {
             var type when type == typeof(UserRegisteredMessage)
-                => RabbitMqKeys.userRegistrationRoutingKey,
+                => RabbitMqKeys.UserRegistrationRoutingKey,
 
             var type when type == typeof(PasswordChangedMessage)
-                => RabbitMqKeys.passwordChangedRoutingKey,
+                => RabbitMqKeys.PasswordChangedRoutingKey,
 
             _ => throw new InvalidOperationException
             (
