@@ -1,3 +1,5 @@
+using BookMyHall.Shared.Options;
+
 namespace BookMyHall.Infrastructure.Tests.Options;
 
 public sealed class EmailOptionsTests

@@ -1,23 +1,21 @@
 using System.Net;
 using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Options;
 using BookMyHall.Application.Abstractions.Authentication;
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Abstractions.Messaging;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Identity;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
-
 using BookMyHall.Contracts.Common;
 using BookMyHall.Contracts.Messaging;
-
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Domain.Identity;
-
 using BookMyHall.Persistence.Exceptions;
-
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Shared.Options;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
@@ -31,11 +29,10 @@ public sealed class CreateUserCommandHandler(
     ITokenHasher tokenHasher,
     IMessageHelper messageHelper,
     ICacheService cacheService,
-    IMessagePublisher messagePublisher)
+    IMessagePublisher messagePublisher,
+    IOptions<EmailOptions> emailVerificationOptions)
     : IRequestHandler<CreateUserCommand, ApiResponse<UserDto>>
 {
-    private const int EmailVerificationExpiryInMinutes = 30;
-
     public async Task<ApiResponse<UserDto>> Handle(
         CreateUserCommand request,
         CancellationToken cancellationToken)
@@ -86,7 +83,20 @@ public sealed class CreateUserCommandHandler(
         }
 
         // ------------------------------------------------------------
-        // 3. Create user
+        // 3. Read email verification configuration
+        // ------------------------------------------------------------
+
+        int expiryMinutes = emailVerificationOptions.Value.VerificationExpiryMinutes;
+
+        if (expiryMinutes <= 0)
+        {
+            return ApiResponse<UserDto>.FailureResponse(
+                "Email verification expiry configuration is invalid.",
+                HttpStatusCode.InternalServerError);
+        }
+
+        // ------------------------------------------------------------
+        // 4. Create user
         // ------------------------------------------------------------
 
         var currentDate = DateTimeOffset.UtcNow;
@@ -121,7 +131,7 @@ public sealed class CreateUserCommandHandler(
         }
 
         // ------------------------------------------------------------
-        // 4. Generate email verification token
+        // 5. Generate email verification token
         // ------------------------------------------------------------
 
         var verificationToken =
@@ -130,12 +140,14 @@ public sealed class CreateUserCommandHandler(
         var tokenHash =
             tokenHasher.Hash(verificationToken);
 
+        var expiresAt =
+            DateTimeOffset.UtcNow.AddMinutes(expiryMinutes);
+
         var verificationTokenEntity =
             EmailVerificationToken.Create(
                 user.UserId,
                 tokenHash,
-                DateTimeOffset.UtcNow.AddMinutes(
-                    EmailVerificationExpiryInMinutes));
+                expiresAt);
 
         await emailVerificationTokenRepository.AddAsync(
             verificationTokenEntity,
@@ -145,19 +157,23 @@ public sealed class CreateUserCommandHandler(
             cancellationToken);
 
         // ------------------------------------------------------------
-        // 5. Publish RabbitMQ message
+        // 6. Publish RabbitMQ registration event
         // ------------------------------------------------------------
 
-        await messagePublisher.PublishAsync(
+        var registrationMessage =
             new UserRegisteredMessage(
                 user.UserId,
                 user.FullName,
                 user.EmailAddress,
-                verificationToken),
+                verificationToken,
+                expiryMinutes);
+
+        await messagePublisher.PublishAsync(
+            registrationMessage,
             cancellationToken);
 
         // ------------------------------------------------------------
-        // 6. Clear user cache
+        // 7. Clear user cache
         // ------------------------------------------------------------
 
         await cacheService.RemoveByPrefixAsync(
@@ -165,7 +181,7 @@ public sealed class CreateUserCommandHandler(
             cancellationToken);
 
         // ------------------------------------------------------------
-        // 7. Return response
+        // 8. Return response
         // ------------------------------------------------------------
 
         return ApiResponse<UserDto>.SuccessResponse(

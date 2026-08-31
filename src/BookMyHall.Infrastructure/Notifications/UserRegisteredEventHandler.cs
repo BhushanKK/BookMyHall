@@ -154,7 +154,7 @@ public sealed class CreateUserCommandHandler(
                 user.UserId,
                 user.FullName,
                 user.EmailAddress,
-                verificationToken),
+                verificationToken,30),
             cancellationToken);
 
         // ------------------------------------------------------------

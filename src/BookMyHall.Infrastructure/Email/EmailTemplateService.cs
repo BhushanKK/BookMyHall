@@ -1,4 +1,6 @@
 using BookMyHall.Application.Abstractions.Email;
+using BookMyHall.Shared.Options;
+
 using Microsoft.Extensions.Options;
 
 namespace BookMyHall.Infrastructure.Email;

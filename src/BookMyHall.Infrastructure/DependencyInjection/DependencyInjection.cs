@@ -23,6 +23,7 @@ using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Infrastructure.Messaging;
 using BookMyHall.Application.Abstractions.Messaging;
 using BookMyHall.Infrastructure.Messaging.Consumers;
+using BookMyHall.Shared.Options;
 
 namespace BookMyHall.Infrastructure;
 

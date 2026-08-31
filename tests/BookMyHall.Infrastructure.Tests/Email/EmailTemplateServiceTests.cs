@@ -1,5 +1,6 @@
 using BookMyHall.Infrastructure.Email;
-using BookMyHall.Infrastructure.Options;
+using BookMyHall.Shared.Options;
+
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Moq;

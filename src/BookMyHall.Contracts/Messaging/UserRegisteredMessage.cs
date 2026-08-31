@@ -4,4 +4,5 @@ public sealed record UserRegisteredMessage(
     Guid UserId,
     string FullName,
     string EmailAddress,
-    string VerificationToken);
+    string VerificationToken,
+    int ExpiryMinutes);
