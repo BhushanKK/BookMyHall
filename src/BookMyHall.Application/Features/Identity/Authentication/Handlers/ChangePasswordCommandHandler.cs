@@ -186,7 +186,7 @@ public sealed class ChangePasswordCommandHandler(
             user.UserId,
             user.FullName,
             user.EmailAddress);
-
+ 
         await messagePublisher.PublishAsync(
             passwordChangedMessage,
             cancellationToken);

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using BookMyHall.Application.Abstractions.Messaging;
@@ -7,14 +8,22 @@ using BookMyHall.Infrastructure.Configuration;
 
 namespace BookMyHall.Infrastructure.Messaging;
 
-public sealed class RabbitMqMessagePublisher(IOptions<RabbitMqOptions> options)
+public sealed class RabbitMqMessagePublisher(
+    IOptions<RabbitMqOptions> options,
+    ILogger<RabbitMqMessagePublisher> logger)
     : IMessagePublisher
 {
     private readonly RabbitMqOptions _options = options.Value;
 
-    public async Task PublishAsync<T>(T message, CancellationToken cancellationToken = default)
+    public async Task PublishAsync<T>(
+        T message,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(message);
+
+        logger.LogInformation(
+            "RabbitMQ publish started. MessageType: {MessageType}",
+            typeof(T).Name);
 
         var factory = new ConnectionFactory
         {
@@ -25,20 +34,40 @@ public sealed class RabbitMqMessagePublisher(IOptions<RabbitMqOptions> options)
             VirtualHost = _options.VirtualHost
         };
 
-        await using var connection = await factory.CreateConnectionAsync(cancellationToken);
-        await using var channel = await connection.CreateChannelAsync(cancellationToken: cancellationToken);
+        logger.LogInformation(
+            "Creating RabbitMQ connection to {Host}:{Port}",
+            _options.HostName,
+            _options.Port);
 
-        await channel.ExchangeDeclareAsync
-        (
+        await using var connection =
+            await factory.CreateConnectionAsync(
+                cancellationToken);
+
+        logger.LogInformation(
+            "RabbitMQ publisher connection created.");
+
+        await using var channel =
+            await connection.CreateChannelAsync(
+                cancellationToken: cancellationToken);
+
+        logger.LogInformation(
+            "RabbitMQ publisher channel created.");
+
+        await channel.ExchangeDeclareAsync(
             exchange: _options.ExchangeName,
             type: ExchangeType.Topic,
             durable: true,
             autoDelete: false,
-            cancellationToken: cancellationToken
-        );
+            cancellationToken: cancellationToken);
+
+        logger.LogInformation(
+            "RabbitMQ exchange declared: {ExchangeName}",
+            _options.ExchangeName);
 
         var routingKey = GetRoutingKey<T>();
-        var body = JsonSerializer.SerializeToUtf8Bytes(message);
+
+        var body =
+            JsonSerializer.SerializeToUtf8Bytes(message);
 
         var properties = new BasicProperties
         {
@@ -46,15 +75,23 @@ public sealed class RabbitMqMessagePublisher(IOptions<RabbitMqOptions> options)
             ContentType = "application/json"
         };
 
-        await channel.BasicPublishAsync
-        (
+        logger.LogInformation(
+            "Publishing RabbitMQ message. Exchange: {Exchange}, RoutingKey: {RoutingKey}",
+            _options.ExchangeName,
+            routingKey);
+
+        await channel.BasicPublishAsync(
             exchange: _options.ExchangeName,
             routingKey: routingKey,
             mandatory: false,
             basicProperties: properties,
             body: body,
-            cancellationToken: cancellationToken
-        );
+            cancellationToken: cancellationToken);
+
+        logger.LogInformation(
+            "RabbitMQ message published successfully. MessageType: {MessageType}, RoutingKey: {RoutingKey}",
+            typeof(T).Name,
+            routingKey);
     }
 
     private static string GetRoutingKey<T>()
@@ -78,11 +115,9 @@ public sealed class RabbitMqMessagePublisher(IOptions<RabbitMqOptions> options)
 
             var type when type == typeof(EmailVerificationRequestedMessage)
                 => RabbitMqKeys.EmailVerificationRoutingKey,
-                
-            _ => throw new InvalidOperationException
-            (
-                $"No RabbitMQ routing key configured for message type '{typeof(T).Name}'."
-            )
+
+            _ => throw new InvalidOperationException(
+                $"No RabbitMQ routing key configured for message type '{typeof(T).Name}'.")
         };
     }
 }

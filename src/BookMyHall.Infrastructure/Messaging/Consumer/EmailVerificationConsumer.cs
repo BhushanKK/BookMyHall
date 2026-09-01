@@ -131,6 +131,11 @@ public sealed class EmailVerificationConsumer(
         BasicDeliverEventArgs eventArgs,
         CancellationToken stoppingToken)
     {
+         logger.LogInformation(
+        "EmailVerificationConsumer received RabbitMQ message. " +
+        "DeliveryTag: {DeliveryTag}, RoutingKey: {RoutingKey}",
+        eventArgs.DeliveryTag,
+        eventArgs.RoutingKey);
         if (_channel is null)
         {
             logger.LogError(

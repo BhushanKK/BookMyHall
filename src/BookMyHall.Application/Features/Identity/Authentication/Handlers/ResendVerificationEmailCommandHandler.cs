@@ -11,6 +11,8 @@ using BookMyHall.Contracts.Messaging;
 
 using BookMyHall.Domain.Entities.Identity;
 
+using Microsoft.Extensions.Logging;
+
 namespace BookMyHall.Application.Features.Authentication.Commands.ResendVerificationEmail;
 
 public sealed class ResendVerificationEmailCommandHandler(
@@ -19,7 +21,8 @@ public sealed class ResendVerificationEmailCommandHandler(
     ITokenGenerator tokenGenerator,
     ITokenHasher tokenHasher,
     IUnitOfWork unitOfWork,
-    IMessagePublisher messagePublisher)
+    IMessagePublisher messagePublisher,
+    ILogger<ResendVerificationEmailCommandHandler> logger)
     : IRequestHandler<
         ResendVerificationEmailCommand,
         ApiResponse<ResendVerificationEmailResponse>>
@@ -111,19 +114,27 @@ public sealed class ResendVerificationEmailCommandHandler(
         // ------------------------------------------------------------
 
         var message = new EmailVerificationRequestedMessage(
-            user.UserId,
-            user.FullName,
-            user.EmailAddress,
-            verificationToken,
-            EmailVerificationTokenExpiryInMinutes);
+                user.UserId,
+                user.FullName,
+                user.EmailAddress,
+                verificationToken,
+                EmailVerificationTokenExpiryInMinutes);
 
         // ------------------------------------------------------------
         // 11. Publish to RabbitMQ
         // ------------------------------------------------------------
 
+        logger.LogInformation(
+            "Publishing verification email message. UserId: {UserId}",
+            user.UserId);
+
         await messagePublisher.PublishAsync(
             message,
             cancellationToken);
+
+        logger.LogInformation(
+            "Verification email message published successfully. UserId: {UserId}",
+            user.UserId);
 
         // ------------------------------------------------------------
         // 12. Return generic response
