@@ -10,4 +10,5 @@ public sealed class UserLoginDto
     public int TokenVersion { get; init; }
     public string? ProfileImageUrl {get;set;}
     public List<JwtRole> Roles { get; init; } = [];
+    public bool IsEmailVerified { get; set; }
 }

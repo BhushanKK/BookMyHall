@@ -17,7 +17,7 @@ public class User : BaseEntity
     public DateTimeOffset? DateOfBirth { get; set; }
     public Gender? Gender { get; set; }
     public bool IsMobileVerified { get; set; }
-    public bool IsEmailVerified { get; set; }
+    public bool IsEmailVerified { get; set; } = false;
     public bool IsActive { get; set; } = true;
     public bool IsDeleted { get; set; }
 

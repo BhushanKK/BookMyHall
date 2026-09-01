@@ -13,4 +13,5 @@ public sealed class LoginResponse
     public string RefreshToken { get; set; } = string.Empty;
     public DateTimeOffset ExpiresAt { get; set; }
     public string? ProfileImageUrl {get;set;}
+    public bool IsEmailVerified { get; set; }
 }

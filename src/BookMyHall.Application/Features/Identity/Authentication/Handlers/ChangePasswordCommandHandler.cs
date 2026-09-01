@@ -26,96 +26,119 @@ public sealed class ChangePasswordCommandHandler(
     ICacheService cacheService)
     : IRequestHandler<ChangePasswordCommand, ApiResponse<bool>>
 {
-    public async Task<ApiResponse<bool>> Handle
-    (
+    public async Task<ApiResponse<bool>> Handle(
         ChangePasswordCommand request,
-        CancellationToken cancellationToken
-    )
+        CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync
-        (
+        // ------------------------------------------------------------
+        // 1. Validate request
+        // ------------------------------------------------------------
+
+        var validationResult = await validator.ValidateAsync(
             request,
-            cancellationToken
-        );
+            cancellationToken);
 
         if (!validationResult.IsValid)
         {
-            return ApiResponse<bool>.FailureResponse
-            (
-                string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage)),
-                HttpStatusCode.BadRequest
-            );
+            return ApiResponse<bool>.FailureResponse(
+                string.Join(
+                    " | ",
+                    validationResult.Errors.Select(x => x.ErrorMessage)),
+                HttpStatusCode.BadRequest);
         }
+
+        // ------------------------------------------------------------
+        // 2. Get current user
+        // ------------------------------------------------------------
 
         if (!currentUser.UserId.HasValue)
         {
-            return ApiResponse<bool>.FailureResponse
-            (
+            return ApiResponse<bool>.FailureResponse(
                 messageHelper.Unauthorized(),
-                HttpStatusCode.Unauthorized
-            );
+                HttpStatusCode.Unauthorized);
         }
 
         var userId = currentUser.UserId.Value;
 
-        var user = await userRepository.GetByIdAsync
-        (
+        // ------------------------------------------------------------
+        // 3. Get user from database
+        // ------------------------------------------------------------
+
+        var user = await userRepository.GetByIdAsync(
             userId,
-            cancellationToken
-        );
+            cancellationToken);
 
         if (user is null)
         {
-            return ApiResponse<bool>.FailureResponse
-            (
-                messageHelper.NotFoundEntity(ResourceNames.Entities, EntityKeys.User),
-                HttpStatusCode.NotFound
-            );
+            return ApiResponse<bool>.FailureResponse(
+                messageHelper.NotFoundEntity(
+                    ResourceNames.Entities,
+                    EntityKeys.User),
+                HttpStatusCode.NotFound);
         }
+
+        // ------------------------------------------------------------
+        // 4. Check active status
+        // ------------------------------------------------------------
 
         if (!user.IsActive)
         {
-            return ApiResponse<bool>.FailureResponse
-            (
+            return ApiResponse<bool>.FailureResponse(
                 messageHelper.UserInactive(),
-                HttpStatusCode.Forbidden
-            );
+                HttpStatusCode.Forbidden);
         }
 
-        var currentPasswordValid = passwordHasher.VerifyPassword
-        (
+        // ------------------------------------------------------------
+        // 5. Email verification is required
+        // ------------------------------------------------------------
+
+        if (!user.IsEmailVerified)
+        {
+            return ApiResponse<bool>.FailureResponse(
+                "Please verify your email address before changing your password.",
+                HttpStatusCode.Forbidden);
+        }
+
+        // ------------------------------------------------------------
+        // 6. Validate current password
+        // ------------------------------------------------------------
+
+        var currentPasswordValid = passwordHasher.VerifyPassword(
             user.PasswordHash!,
-            request.CurrentPassword
-        );
+            request.CurrentPassword);
 
         if (!currentPasswordValid)
         {
-            return ApiResponse<bool>.FailureResponse
-            (
+            return ApiResponse<bool>.FailureResponse(
                 messageHelper.PasswordMismatch(),
-                HttpStatusCode.BadRequest
-            );
+                HttpStatusCode.BadRequest);
         }
 
-        var samePassword = passwordHasher.VerifyPassword
-        (
+        // ------------------------------------------------------------
+        // 7. Prevent using the same password
+        // ------------------------------------------------------------
+
+        var samePassword = passwordHasher.VerifyPassword(
             user.PasswordHash!,
-            request.NewPassword
-        );
+            request.NewPassword);
 
         if (samePassword)
         {
-            return ApiResponse<bool>.FailureResponse
-            (
+            return ApiResponse<bool>.FailureResponse(
                 messageHelper.PasswordAlreadyUsed(),
-                HttpStatusCode.BadRequest
-            );
+                HttpStatusCode.BadRequest);
         }
 
-        var newPasswordHash = passwordHasher.HashPassword
-        (
-            request.NewPassword
-        );
+        // ------------------------------------------------------------
+        // 8. Hash new password
+        // ------------------------------------------------------------
+
+        var newPasswordHash = passwordHasher.HashPassword(
+            request.NewPassword);
+
+        // ------------------------------------------------------------
+        // 9. Update password
+        // ------------------------------------------------------------
 
         user.UpdatePassword(newPasswordHash);
 
@@ -124,53 +147,65 @@ public sealed class ChangePasswordCommandHandler(
         user.UpdatedBy = userId;
         user.UpdatedDate = now;
 
-        await refreshTokenRepository.RevokeAllByUserIdAsync
-        (
-            userId,
-            cancellationToken
-        );
+        // ------------------------------------------------------------
+        // 10. Revoke existing refresh tokens
+        // ------------------------------------------------------------
 
-        await userSessionRepository.EndAllSessionsAsync
-        (
+        await refreshTokenRepository.RevokeAllByUserIdAsync(
             userId,
-            cancellationToken
-        );
+            cancellationToken);
 
-        await userRepository.UpdateAsync
-        (
+        // ------------------------------------------------------------
+        // 11. End existing sessions
+        // ------------------------------------------------------------
+
+        await userSessionRepository.EndAllSessionsAsync(
+            userId,
+            cancellationToken);
+
+        // ------------------------------------------------------------
+        // 12. Update user
+        // ------------------------------------------------------------
+
+        await userRepository.UpdateAsync(
             user,
-            cancellationToken
-        );
+            cancellationToken);
 
-        await unitOfWork.SaveChangesAsync
-        (
-            cancellationToken
-        );
+        // ------------------------------------------------------------
+        // 13. Save database changes
+        // ------------------------------------------------------------
 
-        var passwordChangedMessage = new PasswordChangedMessage
-        (
+        await unitOfWork.SaveChangesAsync(
+            cancellationToken);
+
+        // ------------------------------------------------------------
+        // 14. Publish Password Changed event/message
+        // ------------------------------------------------------------
+
+        var passwordChangedMessage = new PasswordChangedMessage(
             user.UserId,
             user.FullName,
-            user.EmailAddress
-        );
+            user.EmailAddress);
 
-        await messagePublisher.PublishAsync
-        (
+        await messagePublisher.PublishAsync(
             passwordChangedMessage,
-            cancellationToken
-        );
+            cancellationToken);
 
-        await cacheService.RemoveByPrefixAsync
-        (
+        // ------------------------------------------------------------
+        // 15. Clear user cache
+        // ------------------------------------------------------------
+
+        await cacheService.RemoveByPrefixAsync(
             $"{CacheKeys.UsersPaged}:",
-            cancellationToken
-        );
+            cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse
-        (
+        // ------------------------------------------------------------
+        // 16. Return success
+        // ------------------------------------------------------------
+
+        return ApiResponse<bool>.SuccessResponse(
             true,
             messageHelper.PasswordChangedSuccessfully(),
-            HttpStatusCode.OK
-        );
+            HttpStatusCode.OK);
     }
 }
