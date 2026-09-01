@@ -1,4 +1,5 @@
 using FluentAssertions;
+
 using BookMyHall.Domain.Entities.Identity;
 
 namespace BookMyHall.Domain.Tests.Entities.Identity;
@@ -140,7 +141,7 @@ public sealed class UserTests
         var user = new User();
 
         // Assert
-        user.ProfileImageUrl=string.Empty;
+        user.ProfileImageUrl = string.Empty;
     }
 
     [Fact]
@@ -190,19 +191,39 @@ public sealed class UserTests
 
         // Assert
         user.UserId.Should().Be(Guid.Empty);
+
         user.FirstName.Should().BeEmpty();
         user.MiddleName.Should().BeNull();
         user.LastName.Should().BeNull();
+
         user.MobileNumber.Should().BeEmpty();
         user.EmailAddress.Should().BeEmpty();
-        user.PasswordHash.Should().BeEmpty();
+        user.PasswordHash.Should().BeNull();
 
         // Profile image is optional.
-        user.ProfileImageUrl=string.Empty;
+        user.ProfileImageUrl.Should().BeNull();
+
+        user.DateOfBirth.Should().BeNull();
+        user.Gender.Should().BeNull();
 
         user.IsMobileVerified.Should().BeFalse();
         user.IsEmailVerified.Should().BeFalse();
         user.IsActive.Should().BeTrue();
+        user.IsDeleted.Should().BeFalse();
+
+        user.TokenVersion.Should().Be(1);
+
+        user.LastLoginAt.Should().BeNull();
+        user.PasswordChangedAt.Should().BeNull();
+
+        user.UserRoles.Should().NotBeNull();
+        user.UserRoles.Should().BeEmpty();
+
+        user.PasswordResetTokens.Should().NotBeNull();
+        user.PasswordResetTokens.Should().BeEmpty();
+
+        user.EmailVerificationTokens.Should().NotBeNull();
+        user.EmailVerificationTokens.Should().BeEmpty();
     }
 
     [Fact]
