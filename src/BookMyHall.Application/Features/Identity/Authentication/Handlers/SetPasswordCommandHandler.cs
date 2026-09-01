@@ -1,23 +1,27 @@
 using System.Net;
 using FluentValidation;
 using MediatR;
+using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
+using BookMyHall.Application.Abstractions.Security;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Features.Identity.Authentication;
-using BookMyHall.Application.Abstractions.Security;
 
 namespace BookMyHall.Application.Features.Authentication.Commands.SetPassword;
 
 public sealed class SetPasswordCommandHandler(
     IUserRepository userRepository,
-    IPasswordHasher passwordHasher,
     IUnitOfWork unitOfWork,
+    IPasswordHasher passwordHasher,
     IValidator<SetPasswordCommand> validator,
-    IMessageHelper messageHelper)
-    : IRequestHandler<SetPasswordCommand, ApiResponse<SetPasswordResponse>>
+    IMessageHelper messageHelper,
+    ICacheService cacheService)
+    : IRequestHandler<
+        SetPasswordCommand,
+        ApiResponse<SetPasswordResponse>>
 {
     public async Task<ApiResponse<SetPasswordResponse>> Handle(
         SetPasswordCommand request,
@@ -27,80 +31,110 @@ public sealed class SetPasswordCommandHandler(
         // 1. Validate request
         // ------------------------------------------------------------
 
-        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+        var validationResult =
+            await validator.ValidateAsync(
+                request,
+                cancellationToken);
 
         if (!validationResult.IsValid)
         {
-            var message = string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage));
-
-            return ApiResponse<SetPasswordResponse>.FailureResponse
-            (
-                message,
-                HttpStatusCode.BadRequest
-            );
+            return ApiResponse<SetPasswordResponse>.FailureResponse(
+                string.Join(
+                    " | ",
+                    validationResult.Errors.Select(x => x.ErrorMessage)),
+                HttpStatusCode.BadRequest);
         }
 
         // ------------------------------------------------------------
         // 2. Get user
         // ------------------------------------------------------------
 
-        var user = await userRepository.GetByIdAsync(request.UserId, cancellationToken);
+        var user =
+            await userRepository.GetByIdAsync(
+                request.UserId,
+                cancellationToken);
 
         if (user is null)
         {
-            return ApiResponse<SetPasswordResponse>.FailureResponse
-            (
-                messageHelper.NotFoundEntity(ResourceNames.Entities, EntityKeys.User),
-                HttpStatusCode.NotFound
-            );
+            return ApiResponse<SetPasswordResponse>.FailureResponse(
+                messageHelper.NotFoundEntity(
+                    ResourceNames.Entities,
+                    EntityKeys.User),
+                HttpStatusCode.NotFound);
         }
 
         // ------------------------------------------------------------
-        // 3. Email must be verified first
+        // 3. User must have verified email
         // ------------------------------------------------------------
 
         if (!user.IsEmailVerified)
         {
-            return ApiResponse<SetPasswordResponse>.FailureResponse
-            (
+            return ApiResponse<SetPasswordResponse>.FailureResponse(
                 "Please verify your email address before setting your password.",
-                HttpStatusCode.BadRequest
-            );
+                HttpStatusCode.BadRequest);
         }
 
         // ------------------------------------------------------------
-        // 4. Make sure password has not already been configured
+        // 4. User must be active
+        // ------------------------------------------------------------
+
+        if (!user.IsActive)
+        {
+            return ApiResponse<SetPasswordResponse>.FailureResponse(
+                messageHelper.UserInactive(),
+                HttpStatusCode.Forbidden);
+        }
+
+        // ------------------------------------------------------------
+        // 5. Password must not already be configured
         // ------------------------------------------------------------
 
         if (!string.IsNullOrWhiteSpace(user.PasswordHash))
         {
-            return ApiResponse<SetPasswordResponse>.FailureResponse
-            (
+            return ApiResponse<SetPasswordResponse>.FailureResponse(
                 "Password has already been configured.",
-                HttpStatusCode.BadRequest
-            );
+                HttpStatusCode.BadRequest);
         }
 
         // ------------------------------------------------------------
-        // 5. Hash password
+        // 6. Hash password
         // ------------------------------------------------------------
 
-        var passwordHash = passwordHasher.HashPassword(request.NewPassword);
+        var passwordHash =
+            passwordHasher.HashPassword(
+                request.NewPassword);
 
         // ------------------------------------------------------------
-        // 6. Update password
+        // 7. Update password
         // ------------------------------------------------------------
 
         user.UpdatePassword(passwordHash);
 
+        var now = DateTimeOffset.UtcNow;
+
+        user.UpdatedBy = user.UserId;
+        user.UpdatedDate = now;
+
         // ------------------------------------------------------------
-        // 7. Save changes
+        // 8. Save user
         // ------------------------------------------------------------
+
+        await userRepository.UpdateAsync(
+            user,
+            cancellationToken);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         // ------------------------------------------------------------
-        // 8. Return response
+        // 10. Clear user cache
+        // ------------------------------------------------------------
+
+        await cacheService.RemoveByPrefixAsync(
+            $"{CacheKeys.UsersPaged}:",
+            cancellationToken);
+
+        // ------------------------------------------------------------
+        // 11. Response
         // ------------------------------------------------------------
 
         var response = new SetPasswordResponse

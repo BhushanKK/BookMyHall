@@ -10,4 +10,6 @@ public static class RabbitMqKeys
     public const string PasswordResetRoutingKey = "identity.password.reset.requested";
     public const string PasswordResetSuccessQueueName = "identity.password.reset.success";
     public const string PasswordResetSuccessRoutingKey = "identity.password.reset.success";
+    public const string EmailVerifiedQueueName = "identity.user.email-verified";
+    public const string EmailVerifiedRoutingKey = "identity.user.email-verified";
 }

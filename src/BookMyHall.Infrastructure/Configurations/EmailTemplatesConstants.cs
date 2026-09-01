@@ -7,4 +7,5 @@ public static class EmailTemplateConstants
     public const string PasswordChanged = "PasswordChanged";
     public const string PasswordReset = "PasswordReset";
     public const string PasswordResetSuccess = "PasswordResetSuccess";
+    public const string EmailVerified = "EmailVerified";
 }

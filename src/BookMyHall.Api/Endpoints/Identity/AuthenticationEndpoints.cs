@@ -155,6 +155,13 @@ public static class AuthenticationEndpoints
             var command = mapper.Map<SetPasswordCommand>(request);
             var response = await sender.Send(command, cancellationToken);
             return Results.Json(response, statusCode: response.StatusCode);
-        });
+        })
+        .AllowAnonymous()
+        .WithName("SetPassword")
+        .WithSummary("Set Password")
+        .WithDescription("Sets the initial password for a user after email verification.")
+        .Produces<ApiResponse<SetPasswordResponse>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<SetPasswordResponse>>(StatusCodes.Status400BadRequest)
+        .Produces<ApiResponse<SetPasswordResponse>>(StatusCodes.Status404NotFound);
     }
 }

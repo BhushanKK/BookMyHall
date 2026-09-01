@@ -32,7 +32,6 @@ public sealed class UserRegistrationConsumer(
     private readonly IHostEnvironment _hostEnvironment = hostEnvironment;
     private IConnection? _connection;
     private IChannel? _channel;
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try

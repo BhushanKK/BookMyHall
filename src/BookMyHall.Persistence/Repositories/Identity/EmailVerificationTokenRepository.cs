@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Persistence.Context;
 using BookMyHall.Application.Abstractions.Persistence.Identity;
@@ -8,13 +9,13 @@ namespace BookMyHall.Persistence.Repositories.Identity;
 public sealed class EmailVerificationTokenRepository(BookMyHallDbContext dbContext)
     : IEmailVerificationTokenRepository
 {
-    public async Task AddAsync(EmailVerificationToken emailVerificationToken,CancellationToken cancellationToken = default)
+    public async Task AddAsync(EmailVerificationToken emailVerificationToken, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(emailVerificationToken);
-        await dbContext.EmailVerificationTokens.AddAsync(emailVerificationToken,cancellationToken);
+        await dbContext.EmailVerificationTokens.AddAsync(emailVerificationToken, cancellationToken);
     }
 
-    public async Task<EmailVerificationToken?> GetActiveTokenAsync(Guid userId,string tokenHash,CancellationToken cancellationToken = default)
+    public async Task<EmailVerificationToken?> GetActiveTokenAsync(Guid userId, string tokenHash, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(tokenHash);
 
@@ -47,7 +48,7 @@ public sealed class EmailVerificationTokenRepository(BookMyHallDbContext dbConte
         return Task.CompletedTask;
     }
 
-    public async Task DeleteByUserIdAsync(Guid userId,CancellationToken cancellationToken = default)
+    public async Task DeleteByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var tokens = await dbContext.EmailVerificationTokens
             .Where(x => x.UserId == userId)
@@ -69,4 +70,14 @@ public sealed class EmailVerificationTokenRepository(BookMyHallDbContext dbConte
         if (expiredTokens.Count > 0)
             dbContext.EmailVerificationTokens.RemoveRange(expiredTokens);
     }
+
+    public async Task<EmailVerificationToken?> GetVerifiedTokenAsync(Guid userId, string tokenHash,
+        CancellationToken cancellationToken = default)
+        => await dbContext.EmailVerificationTokens
+        .FirstOrDefaultAsync(x =>
+                    x.UserId == userId &&
+                    x.TokenHash == tokenHash &&
+                    x.VerifiedAt != null &&
+                    x.ExpiresAt > DateTimeOffset.UtcNow,
+                cancellationToken);
 }
