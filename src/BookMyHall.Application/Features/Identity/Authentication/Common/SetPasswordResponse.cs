@@ -1,9 +1,8 @@
 namespace BookMyHall.Application.Features.Identity.Authentication;
 
-public sealed class VerifyEmailResponse
+public sealed class SetPasswordResponse
 {
     public string Message { get; set; } = string.Empty;
     public Guid UserId { get; set; }
-    public bool IsEmailVerified { get; set; }
-    public bool PasswordSetupRequired { get; set; }
+    public bool PasswordSet { get; set; }
 }

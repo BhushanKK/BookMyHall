@@ -84,7 +84,7 @@ public sealed class ChangePasswordCommandHandler(
 
         var currentPasswordValid = passwordHasher.VerifyPassword
         (
-            user.PasswordHash,
+            user.PasswordHash!,
             request.CurrentPassword
         );
 
@@ -99,7 +99,7 @@ public sealed class ChangePasswordCommandHandler(
 
         var samePassword = passwordHasher.VerifyPassword
         (
-            user.PasswordHash,
+            user.PasswordHash!,
             request.NewPassword
         );
 

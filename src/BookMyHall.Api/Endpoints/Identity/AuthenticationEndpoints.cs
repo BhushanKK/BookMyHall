@@ -7,6 +7,7 @@ using BookMyHall.Application.Features.Authentication.Commands.ForgotPassword;
 using BookMyHall.Application.Features.Authentication.Commands.ResetPassword;
 using BookMyHall.Application.Features.Authentication.Commands.VerifyEmail;
 using BookMyHall.Application.Features.Authentication.Commands.ResendVerificationEmail;
+using BookMyHall.Application.Features.Authentication.Commands.SetPassword;
 
 namespace BookMyHall.Api.Endpoints.Identity;
 
@@ -144,5 +145,16 @@ public static class AuthenticationEndpoints
         .WithDescription("Resends an email verification link if the email address is registered and not yet verified.")
         .Produces<ApiResponse<ResendVerificationEmailResponse>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<ResendVerificationEmailResponse>>(StatusCodes.Status400BadRequest);
+
+        group.MapPost("/set-password", async (
+            SetPasswordRequest request,
+            IMapper mapper,
+            ISender sender,
+            CancellationToken cancellationToken) =>
+        {
+            var command = mapper.Map<SetPasswordCommand>(request);
+            var response = await sender.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        });
     }
 }

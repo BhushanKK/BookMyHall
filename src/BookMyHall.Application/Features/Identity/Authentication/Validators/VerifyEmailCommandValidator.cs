@@ -5,17 +5,10 @@ using BookMyHall.Shared.Localization;
 
 namespace BookMyHall.Application.Features.Authentication.Commands.VerifyEmail;
 
-public sealed class VerifyEmailCommandValidator
-    : AbstractValidator<VerifyEmailCommand>
+public sealed class VerifyEmailCommandValidator : AbstractValidator<VerifyEmailCommand>
 {
-    public VerifyEmailCommandValidator(
-        ILocalizationService localizer)
+    public VerifyEmailCommandValidator(ILocalizationService localizer)
     {
-        RuleFor(x => x.Email)
-            .Required(localizer, EntityKeys.EmailAddress)
-            .EmailLocalized(localizer);
-
-        RuleFor(x => x.Token)
-            .Required(localizer, EntityKeys.Token);
+        RuleFor(x => x.Token).Required(localizer, EntityKeys.Token);
     }
 }

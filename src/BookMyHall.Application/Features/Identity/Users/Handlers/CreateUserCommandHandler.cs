@@ -102,6 +102,7 @@ public sealed class CreateUserCommandHandler(
         var currentDate = DateTimeOffset.UtcNow;
 
         var user = mapper.Map<User>(request);
+        user.IsEmailVerified = false;
 
         user.UserRoles = roles
             .Select(role => new UserRole

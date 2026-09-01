@@ -13,7 +13,6 @@ public static class EntityKeys
 
   public const string User = nameof(User);
   public const string UserId = nameof(UserId);
-
   public const string Permission = nameof(Permission);
   public const string PermissionId = nameof(PermissionId);
   public const string PermissionName = "PermissionName";

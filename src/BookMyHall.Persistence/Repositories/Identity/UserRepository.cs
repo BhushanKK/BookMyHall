@@ -35,7 +35,7 @@ public sealed class UserRepository(BookMyHallDbContext context)
                 MobileNumber = x.MobileNumber,
                 EmailAddress = x.EmailAddress,
                 FullName = x.FullName,
-                PasswordHash = x.PasswordHash,
+                PasswordHash = x.PasswordHash!,
                 TokenVersion = x.TokenVersion,
                 ProfileImageUrl = x.ProfileImageUrl,
                 Roles = x.UserRoles

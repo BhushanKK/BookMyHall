@@ -12,7 +12,7 @@ public class User : BaseEntity
     public string? LastName { get; set; }
     public string MobileNumber { get; set; } = string.Empty;
     public string EmailAddress { get; set; } = string.Empty;
-    public string PasswordHash { get; set; } = string.Empty;
+    public string? PasswordHash { get; set; }
     public string? ProfileImageUrl { get; set; }
     public DateTimeOffset? DateOfBirth { get; set; }
     public Gender? Gender { get; set; }
@@ -39,46 +39,49 @@ public class User : BaseEntity
     public ICollection<UserRole> UserRoles { get; set; } = [];
     public ICollection<PasswordResetToken> PasswordResetTokens { get; private set; } = [];
     public ICollection<EmailVerificationToken> EmailVerificationTokens { get; private set; } = [];
-public void UpdateUserProfile(
-    string firstName,
-    string? middleName,
-    string? lastName,
-    string mobileNumber,
-    DateTimeOffset? dateOfBirth,
-    Gender? gender,
-    string emailAddress
-    )
-{
-    FirstName = firstName;
-    MiddleName = middleName;
-    LastName = lastName;
-    MobileNumber = mobileNumber;
-    DateOfBirth = dateOfBirth;
-    Gender = gender;
-    EmailAddress = emailAddress;
-   
-}
 
-public void UpdateProfilePicture(string? profileImageUrl)
-{
-    ProfileImageUrl = profileImageUrl;
-}
-    public string FullName =>
-        string.Join(
-            " ",
-            new[]
-            {
-                FirstName,
-                MiddleName,
-                LastName
-            }.Where(x => !string.IsNullOrWhiteSpace(x)));
+    public void UpdateUserProfile(
+        string firstName,
+        string? middleName,
+        string? lastName,
+        string mobileNumber,
+        DateTimeOffset? dateOfBirth,
+        Gender? gender,
+        string emailAddress)
+    {
+        FirstName = firstName;
+        MiddleName = middleName;
+        LastName = lastName;
+        MobileNumber = mobileNumber;
+        DateOfBirth = dateOfBirth;
+        Gender = gender;
+        EmailAddress = emailAddress;
+    }
+
+    public void UpdateProfilePicture(string? profileImageUrl) 
+        => ProfileImageUrl = profileImageUrl;
+
+    public string FullName => string.Join
+    (
+        " ",
+        new[]
+        {
+            FirstName,
+            MiddleName,
+            LastName
+        }.Where(x => !string.IsNullOrWhiteSpace(x))
+    );
 
     public void VerifyMobile() => IsMobileVerified = true;
+
     public void VerifyEmail() => IsEmailVerified = true;
     public void Activate() => IsActive = true;
     public void Deactivate() => IsActive = false;
     public void UpdatePassword(string passwordHash)
     {
+        if (string.IsNullOrWhiteSpace(passwordHash))
+            throw new ArgumentException("Password hash cannot be empty.", nameof(passwordHash));
+
         PasswordHash = passwordHash;
         PasswordChangedAt = DateTimeOffset.UtcNow;
         InvalidateTokens();
