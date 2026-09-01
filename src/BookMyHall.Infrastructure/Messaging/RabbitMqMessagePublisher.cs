@@ -75,6 +75,9 @@ public sealed class RabbitMqMessagePublisher(IOptions<RabbitMqOptions> options)
 
             var type when type == typeof(EmailVerifiedMessage)
                 => RabbitMqKeys.EmailVerifiedRoutingKey,
+
+            var type when type == typeof(EmailVerificationRequestedMessage)
+                => RabbitMqKeys.EmailVerificationRoutingKey,
                 
             _ => throw new InvalidOperationException
             (

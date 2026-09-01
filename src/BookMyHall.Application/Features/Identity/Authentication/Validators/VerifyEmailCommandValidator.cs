@@ -9,6 +9,7 @@ public sealed class VerifyEmailCommandValidator : AbstractValidator<VerifyEmailC
 {
     public VerifyEmailCommandValidator(ILocalizationService localizer)
     {
+        RuleFor(x => x.UserId).NotEmpty().WithMessage("User ID is required.");
         RuleFor(x => x.Token).Required(localizer, EntityKeys.Token);
     }
 }
