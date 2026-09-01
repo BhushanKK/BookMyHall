@@ -34,7 +34,6 @@ public sealed class UserRepository(BookMyHallDbContext context)
         Guid userId,
         CancellationToken cancellationToken = default)
         => await context.Users
-            .AsNoTracking()
             .FirstOrDefaultAsync(
                 x => !x.IsDeleted &&
                      x.UserId == userId,
