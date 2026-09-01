@@ -40,14 +40,15 @@ public sealed class UserRepository(BookMyHallDbContext context)
                 cancellationToken);
 
     public async Task<UserLoginDto?> GetForLoginAsync(
-        string mobileNumber,
-        CancellationToken cancellationToken = default)
+    string mobileNumber,
+    CancellationToken cancellationToken = default)
     {
         return await context.Users
             .AsNoTracking()
             .Where(x =>
                 x.MobileNumber == mobileNumber &&
-                x.IsActive)
+                x.IsActive &&
+                !x.IsDeleted)
             .Select(x => new UserLoginDto
             {
                 UserId = x.UserId,
@@ -57,6 +58,7 @@ public sealed class UserRepository(BookMyHallDbContext context)
                 PasswordHash = x.PasswordHash!,
                 TokenVersion = x.TokenVersion,
                 ProfileImageUrl = x.ProfileImageUrl,
+                IsEmailVerified = x.IsEmailVerified,
 
                 Roles = x.UserRoles
                     .Select(ur => new JwtRole
