@@ -84,7 +84,7 @@ public static class UserEndpoints
         .Produces(StatusCodes.Status409Conflict)
         .RequireAuthorization();
 
-        group.MapPut("/{userId:guid}",async ( Guid userId,UpdateUserRequest request,
+        group.MapPut("/{userId:guid}",async ( Guid userId,[FromBody] UpdateUserRequest request,
                 IMediator mediator,CancellationToken cancellationToken) =>
             {
                 var command = new UpdateUserCommand(
