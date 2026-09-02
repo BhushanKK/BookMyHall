@@ -41,6 +41,8 @@
   <data name="Permission" xml:space="preserve">
     <value>Permission</value>
   </data>
+  <data name="MenuRolePermission" xml:space="preserve">
+    <value>Menu Role Permission</value>
 
   <data name="UserRole" xml:space="preserve">
     <value>User Role</value>
