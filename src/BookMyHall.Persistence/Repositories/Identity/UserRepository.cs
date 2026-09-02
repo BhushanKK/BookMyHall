@@ -184,7 +184,7 @@ public sealed class UserRepository(BookMyHallDbContext context)
             .Select(x => new UserLoginDto
             {
                 UserId = x.UserId,
-                MobileNumber = x.MobileNumber!,
+                MobileNumber = x.MobileNumber,
                 EmailAddress = x.EmailAddress,
                 FullName = x.FullName,
                 PasswordHash = x.PasswordHash!,

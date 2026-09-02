@@ -12,27 +12,22 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options)
     : IJwtTokenService
 {
     private const string TokenVersionClaim = "token_version";
-
     private static readonly JwtSecurityTokenHandler TokenHandler = new();
-
-    private readonly JwtOptions _options = options.Value
-        ?? throw new ArgumentNullException(nameof(options));
+    private readonly JwtOptions _options = options.Value ?? throw new ArgumentNullException(nameof(options));
 
     public JwtTokenResult GenerateToken(JwtUser user)
     {
         ArgumentNullException.ThrowIfNull(user);
-
         var claims = BuildClaims(user);
-
-        var expiresAt = DateTimeOffset.UtcNow.AddMinutes(
-            _options.AccessTokenExpiryMinutes);
-
-        var token = new JwtSecurityToken(
+        var expiresAt = DateTimeOffset.UtcNow.AddMinutes(_options.AccessTokenExpiryMinutes);
+        var token = new JwtSecurityToken
+        (
             issuer: _options.Issuer,
             audience: _options.Audience,
             claims: claims,
             expires: expiresAt.UtcDateTime,
-            signingCredentials: CreateSigningCredentials());
+            signingCredentials: CreateSigningCredentials()
+        );
 
         return new JwtTokenResult
         {
@@ -58,29 +53,35 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options)
             new(JwtRegisteredClaimNames.Email, user.EmailAddress ?? string.Empty),
 
             // Issued At (Unix Timestamp)
-            new(
-                JwtRegisteredClaimNames.Iat,
+            new(JwtRegisteredClaimNames.Iat,
                 DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(),
                 ClaimValueTypes.Integer64),
 
             // Application Claims
             new(ClaimTypes.NameIdentifier, user.UserId.ToString()),
             new(ClaimTypes.Name, user.FullName),
-            new(ClaimTypes.MobilePhone, user.MobileNumber!),
             new(ClaimTypes.Email, user.EmailAddress ?? string.Empty),
 
             // Used to invalidate existing JWTs
-            new(TokenVersionClaim, user.TokenVersion.ToString())
+            new(TokenVersionClaim,user.TokenVersion.ToString())
         };
+
+        // Mobile number is optional.
+        // Google users may not have a mobile number.
+        if (!string.IsNullOrWhiteSpace(user.MobileNumber))
+            claims.Add(new Claim(ClaimTypes.MobilePhone, user.MobileNumber));
 
         foreach (var role in user.Roles)
         {
-            claims.Add(new Claim(ClaimTypes.Role, role.RoleName));
+            if (!string.IsNullOrWhiteSpace(role.RoleName))
+                claims.Add(new Claim(ClaimTypes.Role, role.RoleName));
+
             claims.Add(new Claim("roleId", role.RoleId.ToString()));
         }
 
         return claims;
     }
-    public string GenerateRefreshToken()    
+
+    public string GenerateRefreshToken()
         => Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
 }
