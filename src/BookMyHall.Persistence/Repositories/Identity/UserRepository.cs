@@ -23,20 +23,18 @@ public sealed class UserRepository(BookMyHallDbContext context)
     public async Task<User?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
         => await context.Users.FirstOrDefaultAsync(x => !x.IsDeleted && x.UserId == userId, cancellationToken);
 
-    public async Task<UserLoginDto?> GetForLoginAsync(
-    string mobileNumber,
-    CancellationToken cancellationToken = default)
+    public async Task<UserLoginDto?> GetForLoginAsync(string mobileNumber, CancellationToken cancellationToken = default)
     {
         return await context.Users
             .AsNoTracking()
             .Where(x =>
-                x.MobileNumber == mobileNumber &&
+                x.MobileNumber == mobileNumber.Trim() &&
                 x.IsActive &&
                 !x.IsDeleted)
             .Select(x => new UserLoginDto
             {
                 UserId = x.UserId,
-                MobileNumber = x.MobileNumber!,
+                MobileNumber = x.MobileNumber,
                 EmailAddress = x.EmailAddress,
                 FullName = x.FullName,
                 PasswordHash = x.PasswordHash!,
@@ -76,61 +74,54 @@ public sealed class UserRepository(BookMyHallDbContext context)
                 cancellationToken);
     }
 
-    public async Task<PaginatedResult<User>> GetAllAsync(
-        PaginationRequest request,
-        CancellationToken cancellationToken = default)
+    public async Task<PaginatedResult<UserDto>> GetAllAsync(
+    PaginationRequest request,
+    CancellationToken cancellationToken = default)
     {
-        IQueryable<User> query = context.Users
+        var query = context.Users
             .AsNoTracking()
             .Where(x => !x.IsDeleted);
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
-            var search = request.SearchText.Trim();
+            var searchPattern = $"%{request.SearchText.Trim()}%";
 
             query = query.Where(x =>
-                EF.Functions.ILike(
-                    x.FirstName,
-                    $"%{search}%")
-
-                || (
-                    x.MiddleName != null &&
-                    EF.Functions.ILike(
-                        x.MiddleName,
-                        $"%{search}%")
-                )
-
-                || (
-                    x.LastName != null &&
-                    EF.Functions.ILike(
-                        x.LastName,
-                        $"%{search}%")
-                )
-
-                || EF.Functions.ILike(
-                    x.MobileNumber!,
-                    $"%{search}%")
-
-                || (
-                    x.EmailAddress != null &&
-                    EF.Functions.ILike(
-                        x.EmailAddress,
-                        $"%{search}%")
-                ));
+                EF.Functions.ILike(x.FirstName, searchPattern) ||
+                (x.MiddleName != null &&
+                EF.Functions.ILike(x.MiddleName, searchPattern)) ||
+                (x.LastName != null &&
+                EF.Functions.ILike(x.LastName, searchPattern)) ||
+                (x.MobileNumber != null &&
+                EF.Functions.ILike(x.MobileNumber, searchPattern)) ||
+                (x.EmailAddress != null &&
+                EF.Functions.ILike(x.EmailAddress, searchPattern)));
         }
 
-        var totalCount = await query.CountAsync(
-            cancellationToken);
+        var totalCount = await query.CountAsync(cancellationToken);
 
         var items = await query
             .OrderBy(x => x.FirstName)
-            .Skip(
-                (request.PageNumber - 1) *
-                request.PageSize)
+            .ThenBy(x => x.LastName)
+            .ThenBy(x => x.UserId)
+            .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
+            .Select(x => new UserDto
+            {
+                UserId = x.UserId,
+                FirstName = x.FirstName,
+                MiddleName = x.MiddleName,
+                LastName = x.LastName,
+                MobileNumber = x.MobileNumber!,
+                ProfileImageUrl = x.ProfileImageUrl,
+                DateOfBirth = x.DateOfBirth,
+                Gender = x.Gender,
+                EmailAddress = x.EmailAddress,
+                IsActive = x.IsActive
+            })
             .ToListAsync(cancellationToken);
 
-        return new PaginatedResult<User>
+        return new PaginatedResult<UserDto>
         {
             Items = items,
             TotalCount = totalCount,
@@ -145,14 +136,13 @@ public sealed class UserRepository(BookMyHallDbContext context)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(emailAddress);
 
-        var normalizedEmail =
-            emailAddress.Trim().ToLowerInvariant();
+        var normalizedEmail = emailAddress.Trim().ToLowerInvariant();
 
         return await context.Users
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 x =>
-                    x.IsActive &&
+                    x.IsActive &&  !x.IsDeleted && 
                     x.EmailAddress == normalizedEmail,
                 cancellationToken);
     }

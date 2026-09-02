@@ -10,6 +10,7 @@ using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Caching;
+using BookMyHall.Domain.Dtos;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 

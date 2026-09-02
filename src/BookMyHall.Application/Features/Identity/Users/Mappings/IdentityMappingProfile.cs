@@ -1,6 +1,7 @@
 using AutoMapper;
 using BookMyHall.Application.Features.Identity.Authentication;
 using BookMyHall.Application.Features.Identity.Users;
+using BookMyHall.Domain.Dtos;
 using BookMyHall.Domain.Entities.Identity;
 
 namespace BookMyHall.Application.Mapping;

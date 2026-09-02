@@ -18,6 +18,7 @@ using BookMyHall.Shared.Options;
 using BookMyHall.Application.Abstractions.Persistence.Identity;
 using BookMyHall.Application.Abstractions.Security;
 using BookMyHall.Shared.Common;
+using BookMyHall.Domain.Dtos;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 

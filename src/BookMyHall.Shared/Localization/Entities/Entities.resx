@@ -108,7 +108,7 @@
   </data>
 
    <data name="TimeFormat" xml:space="preserve">
-   <value>TimeFormat</value>Language Code
+   <value>TimeFormat</value>
   </data>
    <data name="LanguageCode" xml:space="preserve">
    <value>LanguageCode</value>

@@ -2,8 +2,7 @@ using System.Text.Json.Serialization;
 
 using BookMyHall.Domain.Enums;
 
-namespace BookMyHall.Application.Features.Identity.Users;
-
+namespace BookMyHall.Domain.Dtos;
 public sealed class UserDto
 {
     public Guid UserId { get; set; }
