@@ -1,9 +1,6 @@
 using System.Net;
-
 using AutoMapper;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
@@ -16,21 +13,25 @@ using BookMyHall.Shared.Constants;
 namespace BookMyHall.Application.Features.Identity.Users;
 
 public sealed class UpdateUserCommandHandler(
-IUserRepository userRepository,
-IRoleRepository roleRepository,
-IUnitOfWork unitOfWork,
-IMapper mapper,
-IMessageHelper messageHelper,
-ICacheService cacheService)
-: IRequestHandler<UpdateUserCommand, ApiResponse<UserDto>>
+    IUserRepository userRepository,
+    IRoleRepository roleRepository,
+    IUnitOfWork unitOfWork,
+    IMapper mapper,
+    IMessageHelper messageHelper,
+    ICacheService cacheService)
+    : IRequestHandler<UpdateUserCommand, ApiResponse<UserDto>>
 {
     public async Task<ApiResponse<UserDto>> Handle(
-    UpdateUserCommand request,
-    CancellationToken cancellationToken)
+        UpdateUserCommand request,
+        CancellationToken cancellationToken)
     {
+        // -------------------------------------------------------
+        // Get User
+        // -------------------------------------------------------
+
         var user = await userRepository.GetByIdAsync(
-        request.UserId,
-        cancellationToken);
+            request.UserId,
+            cancellationToken);
 
         if (user is null)
         {
@@ -41,6 +42,10 @@ ICacheService cacheService)
                 HttpStatusCode.NotFound);
         }
 
+        // -------------------------------------------------------
+        // Validate Roles
+        // -------------------------------------------------------
+
         if (request.Roles is null || request.Roles.Count == 0)
         {
             return ApiResponse<UserDto>.FailureResponse(
@@ -49,7 +54,7 @@ ICacheService cacheService)
         }
 
         var roleIds = request.Roles
-            .Where(x => x != Guid.Empty)
+            .Where(roleId => roleId != Guid.Empty)
             .Distinct()
             .ToList();
 
@@ -78,6 +83,10 @@ ICacheService cacheService)
             roles.Add(role);
         }
 
+        // -------------------------------------------------------
+        // Check Duplicate Email
+        // -------------------------------------------------------
+
         if (!string.IsNullOrWhiteSpace(request.EmailAddress))
         {
             var existingUser =
@@ -95,14 +104,22 @@ ICacheService cacheService)
                     HttpStatusCode.Conflict);
             }
         }
+
+        // -------------------------------------------------------
+        // Update User Profile
+        // -------------------------------------------------------
+
         user.UpdateUserProfile(
-        firstName: request.FirstName,
-        middleName: request.MiddleName,
-        lastName: request.LastName,
-        mobileNumber: request.MobileNumber,
-        dateOfBirth: request.DateOfBirth,
-        gender: request.Gender,
-        emailAddress: request.EmailAddress ?? string.Empty);
+            firstName: request.FirstName,
+            middleName: request.MiddleName,
+            lastName: request.LastName,
+            mobileNumber: request.MobileNumber,
+            emailAddress: request.EmailAddress ?? string.Empty);
+
+        // -------------------------------------------------------
+        // Update Active Status
+        // -------------------------------------------------------
+
         if (request.IsActive)
         {
             user.Activate();
@@ -116,31 +133,52 @@ ICacheService cacheService)
             user,
             cancellationToken);
 
+        // -------------------------------------------------------
+        // Update User Roles
+        // -------------------------------------------------------
+
         await userRepository.RemoveUserRolesAsync(
             user.UserId,
             cancellationToken);
 
         var currentDate = DateTimeOffset.UtcNow;
 
-        foreach (var role in roles)
+        var userRoles = roles.Select(role => new UserRole
+        {
+            UserId = user.UserId,
+            RoleId = role.RoleId,
+            CreatedDate = currentDate,
+            CreatedBy = user.UpdatedBy
+        }).ToList();
+
+        foreach (var userRole in userRoles)
         {
             await userRepository.AddUserRoleAsync(
-                new UserRole
-                {
-                    UserId = user.UserId,
-                    RoleId = role.RoleId,
-                    CreatedDate = currentDate,
-                    CreatedBy = user.UpdatedBy
-                },
+                userRole,
                 cancellationToken);
         }
+
+        // Keep entity response in sync
+        user.UserRoles = userRoles;
+
+        // -------------------------------------------------------
+        // Save Changes
+        // -------------------------------------------------------
 
         await unitOfWork.SaveChangesAsync(
             cancellationToken);
 
+        // -------------------------------------------------------
+        // Clear Cache
+        // -------------------------------------------------------
+
         await cacheService.RemoveByPrefixAsync(
             $"{CacheKeys.UsersPaged}:",
             cancellationToken);
+
+        // -------------------------------------------------------
+        // Response
+        // -------------------------------------------------------
 
         return ApiResponse<UserDto>.SuccessResponse(
             mapper.Map<UserDto>(user),

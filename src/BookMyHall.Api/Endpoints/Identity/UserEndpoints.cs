@@ -13,10 +13,8 @@ public static class UserEndpoints
             .WithTags("Users")
             .DisableAntiforgery();
 
-        group.MapPost("/", async (
-            SignupUserCommand command,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
+        group.MapPost("/", async (SignupUserCommand command,IMediator mediator,
+                                  CancellationToken cancellationToken) =>
         {
             var response = await mediator.Send(command, cancellationToken);
             return Results.Json(response, statusCode: response.StatusCode);
@@ -29,9 +27,7 @@ public static class UserEndpoints
         .Produces<ApiResponse<UserDto>>(StatusCodes.Status409Conflict)
         .Produces(StatusCodes.Status401Unauthorized);
 
-        group.MapPost("/createuser", async (
-            CreateUserCommand command,
-            IMediator mediator,
+        group.MapPost("/createuser", async(CreateUserCommand command,IMediator mediator,
             CancellationToken cancellationToken) =>
         {
             var response = await mediator.Send(command, cancellationToken);
@@ -45,59 +41,76 @@ public static class UserEndpoints
         .Produces<ApiResponse<UserDto>>(StatusCodes.Status409Conflict)
         .Produces(StatusCodes.Status401Unauthorized);
 
-            group.MapPut(
-            "/{userId:guid}",
-            async (
-                Guid userId,
-                [FromForm] UpdateUserForm form,
-                IMediator mediator,
-                CancellationToken cancellationToken) =>
+        group.MapPut("/{userId:guid}/profile",async (Guid userId,[FromForm] UpdateUserForm form,
+            IMediator mediator,CancellationToken cancellationToken) =>
+        {
+            Stream? imageStream = null;
+            try
             {
-                Stream? imageStream = null;
+                if (form.Image is not null && form.Image.Length > 0)
+                    imageStream = form.Image.OpenReadStream();
 
-                try
-                {
-                    if (form.Image is not null && form.Image.Length > 0)
-                        imageStream = form.Image.OpenReadStream();
+                var command = new ProfileUpdateUserCommand(
+                    UserId: userId,
+                    FirstName: form.FirstName,
+                    MiddleName: form.MiddleName,
+                    LastName: form.LastName,
+                    MobileNumber: form.MobileNumber,
+                    DateOfBirth: form.DateOfBirth,
+                    Gender: form.Gender,
+                    EmailAddress: form.EmailAddress,
+                    ImageStream: imageStream,
+                    FileName: form.Image?.FileName,
+                    ContentType: form.Image?.ContentType,
+                    FileSize: form.Image?.Length
+                );
+                var response = await mediator.Send(command, cancellationToken);
+                return Results.Json(response, statusCode: (int)response.StatusCode);
+            }
+            finally
+            {
+                if (imageStream is not null)await imageStream.DisposeAsync();
+            }
+        })
+        .DisableAntiforgery()
+        .WithName("UpdateUserProfile")
+        .WithSummary("Update UserProfile")
+        .WithDescription("Updates user information and optionally uploads a profile image.")
+        .Produces<ApiResponse<UserDto>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status409Conflict)
+        .RequireAuthorization();
 
-                    var command = new ProfileUpdateUserCommand(
-                        UserId: userId,
-                        FirstName: form.FirstName,
-                        MiddleName: form.MiddleName,
-                        LastName: form.LastName,
-                        MobileNumber: form.MobileNumber,
-                        DateOfBirth: form.DateOfBirth,
-                        Gender: form.Gender,
-                        EmailAddress: form.EmailAddress,
-                        ImageStream: imageStream,
-                        FileName: form.Image?.FileName,
-                        ContentType: form.Image?.ContentType,
-                        FileSize: form.Image?.Length
-                    );
+        group.MapPut("/{userId:guid}",async ( Guid userId,UpdateUserRequest request,
+                IMediator mediator,CancellationToken cancellationToken) =>
+            {
+                var command = new UpdateUserCommand(
+                    UserId: userId,
+                    FirstName: request.FirstName,
+                    MiddleName: request.MiddleName,
+                    LastName: request.LastName,
+                    MobileNumber: request.MobileNumber,
+                    EmailAddress: request.EmailAddress,
+                    Roles: request.Roles,
+                    IsActive: request.IsActive
+                );
 
-                    var response = await mediator.Send(command, cancellationToken);
-                    return Results.Json(response, statusCode: (int)response.StatusCode);
-                }
-                finally
-                {
-                    if (imageStream is not null)
-                        await imageStream.DisposeAsync();
-                }
+                var response = await mediator.Send(command,cancellationToken);
+                return Results.Json(response,statusCode: response.StatusCode);
             })
-            .DisableAntiforgery()
             .WithName("UpdateUser")
             .WithSummary("Update User")
-            .WithDescription("Updates user information and optionally uploads a profile image.")
+            .WithDescription("Updates user information, roles and active status.")
             .Produces<ApiResponse<UserDto>>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
+            .Produces<ApiResponse<UserDto>>(StatusCodes.Status400BadRequest)
+            .Produces<ApiResponse<UserDto>>(StatusCodes.Status404NotFound)
+            .Produces<ApiResponse<UserDto>>(StatusCodes.Status409Conflict)
             .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status404NotFound)
-            .Produces(StatusCodes.Status409Conflict)
             .RequireAuthorization();
 
-        group.MapDelete("/{userId:guid}", async (
-            Guid userId,
-            IMediator mediator,
+        group.MapDelete("/{userId:guid}", async (Guid userId,IMediator mediator,
             CancellationToken cancellationToken) =>
         {
             var response = await mediator.Send(new DeleteUserCommand(userId), cancellationToken);
@@ -152,4 +165,21 @@ public sealed class UpdateUserForm
     public Gender? Gender { get; set; }
     public string EmailAddress { get; set; } = string.Empty;
     public IFormFile? Image { get; set; }
+}
+
+public sealed class UpdateUserRequest
+{
+    public string FirstName { get; set; } = string.Empty;
+
+    public string? MiddleName { get; set; }
+
+    public string? LastName { get; set; }
+
+    public string MobileNumber { get; set; } = string.Empty;
+
+    public string? EmailAddress { get; set; }
+
+    public List<Guid> Roles { get; set; } = [];
+
+    public bool IsActive { get; set; } = true;
 }

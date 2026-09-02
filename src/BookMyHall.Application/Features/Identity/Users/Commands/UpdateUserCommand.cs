@@ -1,6 +1,5 @@
 using MediatR;
 using BookMyHall.Contracts.Common;
-using BookMyHall.Domain.Enums;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
@@ -11,8 +10,6 @@ string? MiddleName,
 string? LastName,
 string MobileNumber,
 string? EmailAddress,
-DateTimeOffset? DateOfBirth,
-Gender? Gender,
-bool IsActive,
-List<Guid> Roles)
+List<Guid> Roles,
+bool IsActive=true)
 : IRequest<ApiResponse<UserDto>>;

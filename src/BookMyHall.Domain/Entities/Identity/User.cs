@@ -45,16 +45,12 @@ public class User : BaseEntity
         string? middleName,
         string? lastName,
         string mobileNumber,
-        DateTimeOffset? dateOfBirth,
-        Gender? gender,
         string emailAddress)
     {
         FirstName = firstName;
         MiddleName = middleName;
         LastName = lastName;
         MobileNumber = mobileNumber;
-        DateOfBirth = dateOfBirth;
-        Gender = gender;
         EmailAddress = emailAddress;
     }
 
