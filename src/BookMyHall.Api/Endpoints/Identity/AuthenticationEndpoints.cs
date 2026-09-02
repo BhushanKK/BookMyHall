@@ -7,7 +7,8 @@ using BookMyHall.Application.Features.Authentication.Commands.ForgotPassword;
 using BookMyHall.Application.Features.Authentication.Commands.ResetPassword;
 using BookMyHall.Application.Features.Authentication.Commands.VerifyEmail;
 using BookMyHall.Application.Features.Authentication.Commands.ResendVerificationEmail;
-using BookMyHall.Application.Features.Authentication.Commands.SetPassword;
+using BookMyHall.Contracts.Authentication;
+using BookMyHall.Application.Features.Authentication;
 
 namespace BookMyHall.Api.Endpoints.Identity;
 
@@ -146,22 +147,26 @@ public static class AuthenticationEndpoints
         .Produces<ApiResponse<ResendVerificationEmailResponse>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<ResendVerificationEmailResponse>>(StatusCodes.Status400BadRequest);
 
-        group.MapPost("/set-password", async (
-            SetPasswordRequest request,
-            IMapper mapper,
-            ISender sender,
+        group.MapPost("/google-login", async (
+            GoogleLoginRequest request, ISender sender,
             CancellationToken cancellationToken) =>
         {
-            var command = mapper.Map<SetPasswordCommand>(request);
+            var command = new GoogleLoginCommand(
+                request.Credential,
+                request.DeviceIdentifier,
+                request.DeviceName,
+                request.PushNotificationToken,
+                request.AppVersion);
+
             var response = await sender.Send(command, cancellationToken);
             return Results.Json(response, statusCode: response.StatusCode);
         })
         .AllowAnonymous()
-        .WithName("SetPassword")
-        .WithSummary("Set Password")
-        .WithDescription("Sets the initial password for a user after email verification.")
-        .Produces<ApiResponse<SetPasswordResponse>>(StatusCodes.Status200OK)
-        .Produces<ApiResponse<SetPasswordResponse>>(StatusCodes.Status400BadRequest)
-        .Produces<ApiResponse<SetPasswordResponse>>(StatusCodes.Status404NotFound);
+        .WithName("GoogleLogin")
+        .WithSummary("Google Login")
+        .WithDescription("Authenticates a user using Google and returns an access token and refresh token.")
+        .Produces<ApiResponse<LoginResponse>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<LoginResponse>>(StatusCodes.Status400BadRequest)
+        .Produces<ApiResponse<LoginResponse>>(StatusCodes.Status401Unauthorized);
     }
 }

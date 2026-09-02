@@ -23,6 +23,7 @@ using BookMyHall.Infrastructure.Security;
 using BookMyHall.Infrastructure.Storage.CloudflareR2;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Shared.Options;
+using BookMyHall.Shared.Configuration;
 
 namespace BookMyHall.Infrastructure;
 
@@ -41,6 +42,7 @@ public static class DependencyInjection
         services.AddScoped<ITokenHasher, Sha256TokenHasher>();
 
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.Configure<GoogleOptions>(configuration.GetSection(GoogleOptions.SectionName));
 
         var jwtOptions = configuration
             .GetSection(JwtOptions.SectionName)

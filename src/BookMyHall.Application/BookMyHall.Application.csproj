@@ -9,6 +9,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="Google.Apis.Auth" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="AutoMapper" />
     <PackageReference Include="FluentValidation" />

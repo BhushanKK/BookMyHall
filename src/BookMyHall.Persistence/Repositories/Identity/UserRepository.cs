@@ -1,43 +1,27 @@
 using Microsoft.EntityFrameworkCore;
-
-using BookMyHall.Application.Abstractions.Persistence.Repositories;
-
 using BookMyHall.Contracts.Common;
-
 using BookMyHall.Domain.Dtos;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Domain.Identity;
-
 using BookMyHall.Persistence.Context;
+using BookMyHall.Application.Abstractions.Persistence.Repositories;
 
 namespace BookMyHall.Persistence.Repositories;
 
 public sealed class UserRepository(BookMyHallDbContext context)
     : IUserRepository
 {
-    public async Task AddAsync(
-        User user,
-        CancellationToken cancellationToken = default)
-        => await context.Users.AddAsync(
-            user,
-            cancellationToken);
+    public async Task AddAsync(User user, CancellationToken cancellationToken = default)
+        => await context.Users.AddAsync(user, cancellationToken);
 
-    public Task UpdateAsync(
-        User user,
-        CancellationToken cancellationToken = default)
+    public Task UpdateAsync(User user, CancellationToken cancellationToken = default)
     {
         context.Users.Update(user);
         return Task.CompletedTask;
     }
 
-    public async Task<User?> GetByIdAsync(
-        Guid userId,
-        CancellationToken cancellationToken = default)
-        => await context.Users
-            .FirstOrDefaultAsync(
-                x => !x.IsDeleted &&
-                     x.UserId == userId,
-                cancellationToken);
+    public async Task<User?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        => await context.Users.FirstOrDefaultAsync(x => !x.IsDeleted && x.UserId == userId, cancellationToken);
 
     public async Task<UserLoginDto?> GetForLoginAsync(
     string mobileNumber,
@@ -186,4 +170,36 @@ public sealed class UserRepository(BookMyHallDbContext context)
         => await context.UserRoles.AddAsync(
             userRole,
             cancellationToken);
+
+    public async Task<UserLoginDto?> GetForGoogleLoginAsync(string emailAddress, CancellationToken cancellationToken = default)
+    {
+        var normalizedEmail = emailAddress.Trim().ToLowerInvariant();
+
+        return await context.Users
+            .AsNoTracking()
+            .Where(x =>
+                x.EmailAddress == normalizedEmail &&
+                x.IsActive &&
+                !x.IsDeleted)
+            .Select(x => new UserLoginDto
+            {
+                UserId = x.UserId,
+                MobileNumber = x.MobileNumber,
+                EmailAddress = x.EmailAddress,
+                FullName = x.FullName,
+                PasswordHash = x.PasswordHash!,
+                TokenVersion = x.TokenVersion,
+                ProfileImageUrl = x.ProfileImageUrl,
+                IsEmailVerified = x.IsEmailVerified,
+
+                Roles = x.UserRoles
+                    .Select(ur => new JwtRole
+                    {
+                        RoleId = ur.Role.RoleId,
+                        RoleName = ur.Role.RoleName
+                    })
+                    .ToList()
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 }
