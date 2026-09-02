@@ -12,6 +12,7 @@ using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Domain.Identity;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Domain.Dtos;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 

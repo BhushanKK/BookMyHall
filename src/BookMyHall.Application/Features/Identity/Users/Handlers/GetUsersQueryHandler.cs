@@ -8,6 +8,7 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Application.Common.Interfaces.Storage;
+using BookMyHall.Domain.Dtos;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 

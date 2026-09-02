@@ -3,6 +3,7 @@ using BookMyHall.Application.Features.Identity.Users;
 using BookMyHall.Contracts.Common;
 using Microsoft.AspNetCore.Mvc;
 using BookMyHall.Domain.Enums;
+using BookMyHall.Domain.Dtos;
 namespace BookMyHall.Api.Endpoints.Identity;
 
 public static class UserEndpoints

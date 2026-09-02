@@ -1,8 +1,13 @@
 using System.Net;
+
 using AutoMapper;
+
 using FluentValidation;
+
 using MediatR;
+
 using Microsoft.Extensions.Options;
+
 using BookMyHall.Application.Abstractions.Authentication;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
@@ -48,25 +53,42 @@ public sealed class LoginCommandHandler(
         }
 
         var user = await userRepository.GetForLoginAsync(request.MobileNumber, cancellationToken);
-        
+
         if (user is null)
-            return ApiResponse<LoginResponse>.FailureResponse(messageHelper.InvalidCredentials(), HttpStatusCode.Unauthorized);
-        
-        if (!string.IsNullOrWhiteSpace(user.ProfileImageUrl))
         {
-            user.ProfileImageUrl = await storageService.GetPreSignedUrlAsync(
-                user.ProfileImageUrl,
-                TimeSpan.FromDays(6).Add(TimeSpan.FromHours(23)),
-                cancellationToken);
+            return ApiResponse<LoginResponse>.FailureResponse
+            (
+                messageHelper.InvalidCredentials(),
+                HttpStatusCode.Unauthorized
+            );
         }
+
         if (!passwordHasher.VerifyPassword(user.PasswordHash, request.Password))
         {
             await RecordFailedLoginAsync(user.UserId, cancellationToken);
-            return ApiResponse<LoginResponse>.FailureResponse(messageHelper.InvalidCredentials(), HttpStatusCode.Unauthorized);
+
+            return ApiResponse<LoginResponse>.FailureResponse
+            (
+                messageHelper.InvalidCredentials(),
+                HttpStatusCode.Unauthorized
+            );
+        }
+
+        // Generate profile image URL only after password verification.
+        if (!string.IsNullOrWhiteSpace(user.ProfileImageUrl))
+        {
+            user.ProfileImageUrl = await storageService.GetPreSignedUrlAsync
+            (
+                user.ProfileImageUrl,
+                TimeSpan.FromDays(6).Add(TimeSpan.FromHours(23)),
+                cancellationToken
+            );
         }
 
         var now = DateTimeOffset.UtcNow;
+
         await userRepository.RecordLoginAsync(user.UserId, now, cancellationToken);
+
         var jwtResult = jwtTokenService.GenerateToken(new JwtUser
         {
             UserId = user.UserId,
@@ -89,7 +111,8 @@ public sealed class LoginCommandHandler(
         };
 
         await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
-        var device = await GetOrCreateDeviceAsync(user.UserId,request, now, cancellationToken);
+        
+        var device = await GetOrCreateDeviceAsync(user.UserId, request, now, cancellationToken);
 
         var userSession = new UserSession
         {
@@ -134,7 +157,7 @@ public sealed class LoginCommandHandler(
         response.AccessToken = jwtResult.AccessToken;
         response.RefreshToken = refreshTokenValue;
         response.ExpiresAt = jwtResult.ExpiresAt;
-        return ApiResponse<LoginResponse>.SuccessResponse(response, messageHelper.LoginSuccessful(),HttpStatusCode.OK);
+        return ApiResponse<LoginResponse>.SuccessResponse(response, messageHelper.LoginSuccessful(), HttpStatusCode.OK);
     }
 
     private async Task RecordFailedLoginAsync(Guid userId, CancellationToken cancellationToken)
@@ -161,7 +184,7 @@ public sealed class LoginCommandHandler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
-    private async Task<Device> GetOrCreateDeviceAsync( Guid userId, LoginCommand request,
+    private async Task<Device> GetOrCreateDeviceAsync(Guid userId, LoginCommand request,
         DateTimeOffset now, CancellationToken cancellationToken)
     {
         var device = await deviceRepository.GetByDeviceIdentifierAsync(userId, request.DeviceIdentifier, cancellationToken);

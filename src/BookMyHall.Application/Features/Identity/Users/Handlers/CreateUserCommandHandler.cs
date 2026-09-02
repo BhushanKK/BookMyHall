@@ -16,6 +16,7 @@ using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Shared.Options;
+using BookMyHall.Domain.Dtos;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
