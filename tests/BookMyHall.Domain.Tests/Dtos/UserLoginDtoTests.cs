@@ -1,5 +1,4 @@
 using BookMyHall.Domain.Dtos;
-
 using FluentAssertions;
 
 namespace BookMyHall.Application.Tests.Features.Identity.Authentication;
@@ -14,10 +13,10 @@ public sealed class UserLoginDtoTests
 
         // Assert
         dto.UserId.Should().Be(Guid.Empty);
-        dto.MobileNumber.Should().Be(string.Empty);
-        dto.EmailAddress.Should().Be(string.Empty);
-        dto.FullName.Should().Be(string.Empty);
-        dto.PasswordHash.Should().Be(string.Empty);
+        dto.MobileNumber.Should().BeNullOrEmpty();
+        dto.EmailAddress.Should().BeNullOrEmpty();
+        dto.FullName.Should().BeNullOrEmpty();
+        dto.PasswordHash.Should().BeNullOrEmpty();
         dto.TokenVersion.Should().Be(0);
 
         dto.Roles.Should().NotBeNull();

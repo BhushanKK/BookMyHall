@@ -2,6 +2,7 @@ using System.Net;
 using AutoMapper;
 using Google.Apis.Auth;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using BookMyHall.Application.Abstractions.Authentication;
@@ -41,287 +42,373 @@ public sealed class GoogleLoginCommandHandler(
     IUserLoginHistoryRepository userLoginHistoryRepository,
     IClientInfoService clientInfoService,
     IDeviceRepository deviceRepository,
-    IR2StorageService storageService)
-    : IRequestHandler<
-        GoogleLoginCommand,
-        ApiResponse<LoginResponse>>
+    IR2StorageService storageService,
+    ILogger<GoogleLoginCommandHandler> logger)
+    : IRequestHandler<GoogleLoginCommand, ApiResponse<LoginResponse>>
 {
     public async Task<ApiResponse<LoginResponse>> Handle(
         GoogleLoginCommand request,
         CancellationToken cancellationToken)
     {
-        // ============================================================
-        // 1. Validate request
-        // ============================================================
-
-        if (string.IsNullOrWhiteSpace(request.Credential))
-        {
-            return ApiResponse<LoginResponse>.FailureResponse(
-                "Google credential is required.",
-                HttpStatusCode.BadRequest);
-        }
-
-        if (string.IsNullOrWhiteSpace(request.DeviceIdentifier))
-        {
-            return ApiResponse<LoginResponse>.FailureResponse(
-                "Device identifier is required.",
-                HttpStatusCode.BadRequest);
-        }
-
-        // ============================================================
-        // 2. Validate Google configuration
-        // ============================================================
-
-        var clientId = googleOptions.Value.ClientId;
-
-        if (string.IsNullOrWhiteSpace(clientId))
-        {
-            return ApiResponse<LoginResponse>.FailureResponse(
-                "Google authentication is not configured.",
-                HttpStatusCode.InternalServerError);
-        }
-
-        // ============================================================
-        // 3. Validate Google ID Token
-        // ============================================================
-
-        GoogleJsonWebSignature.Payload payload;
-
         try
         {
-            payload = await GoogleJsonWebSignature.ValidateAsync(
-                request.Credential,
-                new GoogleJsonWebSignature.ValidationSettings
-                {
-                    Audience = [clientId]
-                });
-        }
-        catch (InvalidJwtException)
-        {
-            return ApiResponse<LoginResponse>.FailureResponse(
-                "Invalid Google authentication.",
-                HttpStatusCode.Unauthorized);
-        }
-        catch (Exception)
-        {
-            return ApiResponse<LoginResponse>.FailureResponse(
-                "Unable to validate Google authentication.",
-                HttpStatusCode.Unauthorized);
-        }
+            // ============================================================
+            // 1. Validate request
+            // ============================================================
 
-        // ============================================================
-        // 4. Validate Google email
-        // ============================================================
+            if (string.IsNullOrWhiteSpace(request.Credential))
+            {
+                return ApiResponse<LoginResponse>.FailureResponse(
+                    "Google credential is required.",
+                    HttpStatusCode.BadRequest);
+            }
 
-        if (string.IsNullOrWhiteSpace(payload.Email))
-        {
-            return ApiResponse<LoginResponse>.FailureResponse(
-                "Google account email is not available.",
-                HttpStatusCode.Unauthorized);
-        }
+            if (string.IsNullOrWhiteSpace(request.DeviceIdentifier))
+            {
+                return ApiResponse<LoginResponse>.FailureResponse(
+                    "Device identifier is required.",
+                    HttpStatusCode.BadRequest);
+            }
 
-        if (!payload.EmailVerified)
-        {
-            return ApiResponse<LoginResponse>.FailureResponse(
-                "Google email address is not verified.",
-                HttpStatusCode.Unauthorized);
-        }
+            // ============================================================
+            // 2. Validate Google configuration
+            // ============================================================
 
-        var emailAddress = payload.Email
-            .Trim()
-            .ToLowerInvariant();
+            var clientId = googleOptions.Value.ClientId;
 
-        // ============================================================
-        // 5. Find existing BookMyHall user
-        // ============================================================
+            if (string.IsNullOrWhiteSpace(clientId))
+            {
+                logger.LogError(
+                    "Google authentication is not configured. Google ClientId is missing.");
 
-        var user = await userRepository.GetForGoogleLoginAsync(
-            emailAddress,
-            cancellationToken);
+                return ApiResponse<LoginResponse>.FailureResponse(
+                    "Google authentication is not configured.",
+                    HttpStatusCode.InternalServerError);
+            }
 
-        // ============================================================
-        // 6. Create Google user if user does not exist
-        // ============================================================
+            // ============================================================
+            // 3. Validate Google ID token
+            // ============================================================
 
-        if (user is null)
-        {
-            user = await CreateGoogleUserAsync(
-                payload,
-                emailAddress,
-                cancellationToken);
+            GoogleJsonWebSignature.Payload payload;
+
+            try
+            {
+                payload = await GoogleJsonWebSignature.ValidateAsync(
+                    request.Credential,
+                    new GoogleJsonWebSignature.ValidationSettings
+                    {
+                        Audience = [clientId]
+                    });
+            }
+            catch (InvalidJwtException ex)
+            {
+                logger.LogWarning(
+                    ex,
+                    "Invalid Google authentication token.");
+
+                return ApiResponse<LoginResponse>.FailureResponse(
+                    "Invalid Google authentication.",
+                    HttpStatusCode.Unauthorized);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Error while validating Google authentication token.");
+
+                return ApiResponse<LoginResponse>.FailureResponse(
+                    "Unable to validate Google authentication.",
+                    HttpStatusCode.Unauthorized);
+            }
+
+            // ============================================================
+            // 4. Validate Google email
+            // ============================================================
+
+            if (string.IsNullOrWhiteSpace(payload.Email))
+            {
+                return ApiResponse<LoginResponse>.FailureResponse(
+                    "Google account email is not available.",
+                    HttpStatusCode.Unauthorized);
+            }
+
+            if (!payload.EmailVerified)
+            {
+                return ApiResponse<LoginResponse>.FailureResponse(
+                    "Google email address is not verified.",
+                    HttpStatusCode.Unauthorized);
+            }
+
+            var emailAddress =
+                payload.Email.Trim().ToLowerInvariant();
+
+            logger.LogInformation(
+                "Google login requested for {EmailAddress}.",
+                emailAddress);
+
+            // ============================================================
+            // 5. Find existing BookMyHall user
+            // ============================================================
+
+            var user =
+                await userRepository.GetForGoogleLoginAsync(
+                    emailAddress,
+                    cancellationToken);
+
+            // ============================================================
+            // 6. Create Google user if user does not exist
+            // ============================================================
 
             if (user is null)
             {
-                return ApiResponse<LoginResponse>.FailureResponse(
-                    "Unable to create Google user.",
-                    HttpStatusCode.InternalServerError);
-            }
-        }
+                logger.LogInformation(
+                    "Google user does not exist. Creating user for {EmailAddress}.",
+                    emailAddress);
 
-        // ============================================================
-        // 7. Get profile image URL
-        // ============================================================
-
-        if (!string.IsNullOrWhiteSpace(user.ProfileImageUrl))
-        {
-            user.ProfileImageUrl =
-                await storageService.GetPreSignedUrlAsync(
-                    user.ProfileImageUrl,
-                    TimeSpan.FromDays(6).Add(
-                        TimeSpan.FromHours(23)),
+                user = await CreateGoogleUserAsync(
+                    payload,
+                    emailAddress,
                     cancellationToken);
-        }
 
-        // ============================================================
-        // 8. Record successful login
-        // ============================================================
+                if (user is null)
+                {
+                    logger.LogError(
+                        "Google user could not be created or retrieved for {EmailAddress}.",
+                        emailAddress);
 
-        var now = DateTimeOffset.UtcNow;
+                    return ApiResponse<LoginResponse>.FailureResponse(
+                        "Unable to create Google user.",
+                        HttpStatusCode.InternalServerError);
+                }
 
-        await userRepository.RecordLoginAsync(
-            user.UserId,
-            now,
-            cancellationToken);
-
-        // ============================================================
-        // 9. Generate BookMyHall JWT
-        // ============================================================
-
-        var jwtResult = jwtTokenService.GenerateToken(
-            new JwtUser
+                logger.LogInformation(
+                    "Google user created successfully. UserId: {UserId}",
+                    user.UserId);
+            }
+            else
             {
+                logger.LogInformation(
+                    "Existing BookMyHall user found. UserId: {UserId}",
+                    user.UserId);
+            }
+
+            // ============================================================
+            // 7. Get profile image URL
+            // ============================================================
+
+            if (!string.IsNullOrWhiteSpace(user.ProfileImageUrl))
+            {
+                user.ProfileImageUrl =
+                    await storageService.GetPreSignedUrlAsync(
+                        user.ProfileImageUrl,
+                        TimeSpan.FromDays(6).Add(
+                            TimeSpan.FromHours(23)),
+                        cancellationToken);
+            }
+
+            logger.LogInformation(
+                "Google login profile processing completed for UserId: {UserId}.",
+                user.UserId);
+
+            // ============================================================
+            // 8. Record successful login
+            // ============================================================
+
+            var now = DateTimeOffset.UtcNow;
+
+            await userRepository.RecordLoginAsync(
+                user.UserId,
+                now,
+                cancellationToken);
+
+            logger.LogInformation(
+                "RecordLoginAsync completed for UserId: {UserId}.",
+                user.UserId);
+
+            // ============================================================
+            // 9. Generate BookMyHall JWT
+            // ============================================================
+
+            var jwtResult =
+                jwtTokenService.GenerateToken(
+                    new JwtUser
+                    {
+                        UserId = user.UserId,
+                        FullName = user.FullName,
+                        MobileNumber = user.MobileNumber,
+                        EmailAddress = user.EmailAddress,
+                        TokenVersion = user.TokenVersion,
+                        Roles = user.Roles
+                    });
+
+            logger.LogInformation(
+                "JWT generated successfully for UserId: {UserId}.",
+                user.UserId);
+
+            // ============================================================
+            // 10. Generate refresh token
+            // ============================================================
+
+            var refreshTokenValue =
+                jwtTokenService.GenerateRefreshToken();
+
+            var refreshToken = new RefreshToken
+            {
+                RefreshTokenId = Guid.NewGuid(),
                 UserId = user.UserId,
-                FullName = user.FullName,
-                MobileNumber = user.MobileNumber,
-                EmailAddress = user.EmailAddress,
-                TokenVersion = user.TokenVersion,
-                Roles = user.Roles
-            });
+                Token = refreshTokenValue,
+                ExpiresAt =
+                    now.AddDays(
+                        jwtOptions.Value.RefreshTokenExpiryDays),
+                CreatedBy = user.UserId
+            };
 
-        // ============================================================
-        // 10. Generate refresh token
-        // ============================================================
+            await refreshTokenRepository.AddAsync(
+                refreshToken,
+                cancellationToken);
 
-        var refreshTokenValue =
-            jwtTokenService.GenerateRefreshToken();
+            logger.LogInformation(
+                "Refresh token added for UserId: {UserId}.",
+                user.UserId);
 
-        var refreshToken = new RefreshToken
+            // ============================================================
+            // 11. Get or create device
+            // ============================================================
+
+            var device =
+                await GetOrCreateDeviceAsync(
+                    user.UserId,
+                    request,
+                    now,
+                    cancellationToken);
+
+            logger.LogInformation(
+                "Device processing completed. DeviceId: {DeviceId}, UserId: {UserId}.",
+                device.DeviceId,
+                user.UserId);
+
+            // ============================================================
+            // 12. Create user session
+            // ============================================================
+
+            var userSession = new UserSession
+            {
+                UserSessionId = Guid.NewGuid(),
+                UserId = user.UserId,
+                RefreshTokenId = refreshToken.RefreshTokenId,
+                DeviceId = device.DeviceId,
+                SessionStart = now,
+                LastActivity = now,
+                IsActive = true,
+                CreatedBy = user.UserId
+            };
+
+            await userSessionRepository.AddAsync(
+                userSession,
+                cancellationToken);
+
+            logger.LogInformation(
+                "User session added. SessionId: {SessionId}, UserId: {UserId}.",
+                userSession.UserSessionId,
+                user.UserId);
+
+            // ============================================================
+            // 13. Save authentication data
+            // ============================================================
+
+            await unitOfWork.SaveChangesAsync(
+                cancellationToken);
+
+            logger.LogInformation(
+                "Authentication data saved successfully for UserId: {UserId}.",
+                user.UserId);
+
+            // ============================================================
+            // 14. Record login history
+            // ============================================================
+
+            var loginHistory = new UserLoginHistory
+            {
+                UserLoginHistoryId = Guid.NewGuid(),
+                UserId = user.UserId,
+                SessionId = userSession.UserSessionId,
+                LoginDate = now,
+                LoginStatus = LoginStatuses.Success,
+                LoginMethod = LoginMethods.Google,
+                IpAddress =
+                    clientInfoService.IpAddress
+                    ?? "Unknown",
+                UserAgent =
+                    clientInfoService.UserAgent
+                    ?? "Unknown",
+                Browser =
+                    clientInfoService.Browser
+                    ?? "Unknown",
+                OperatingSystem =
+                    clientInfoService.OperatingSystem
+                    ?? "Unknown",
+                DeviceType =
+                    clientInfoService.DeviceType
+                    ?? "Unknown",
+                LoginSource =
+                    clientInfoService.LoginSource
+                    ?? "Unknown",
+                IsMfaUsed = false
+            };
+
+            await userLoginHistoryRepository.AddAsync(
+                loginHistory,
+                cancellationToken);
+
+            logger.LogInformation(
+                "Login history added for UserId: {UserId}.",
+                user.UserId);
+
+            await unitOfWork.SaveChangesAsync(
+                cancellationToken);
+
+            logger.LogInformation(
+                "Login history saved successfully for UserId: {UserId}.",
+                user.UserId);
+
+            // ============================================================
+            // 15. Build response
+            // ============================================================
+
+            var response =
+                mapper.Map<LoginResponse>(user);
+
+            response.AccessToken =
+                jwtResult.AccessToken;
+
+            response.RefreshToken =
+                refreshTokenValue;
+
+            response.ExpiresAt =
+                jwtResult.ExpiresAt;
+
+            // ============================================================
+            // 16. Return successful response
+            // ============================================================
+
+            logger.LogInformation(
+                "Google login completed successfully for UserId: {UserId}.",
+                user.UserId);
+
+            return ApiResponse<LoginResponse>.SuccessResponse(
+                response,
+                messageHelper.LoginSuccessful(),
+                HttpStatusCode.OK);
+        }
+        catch (Exception ex)
         {
-            RefreshTokenId = Guid.NewGuid(),
-            UserId = user.UserId,
-            Token = refreshTokenValue,
-            ExpiresAt = now.AddDays(
-                jwtOptions.Value.RefreshTokenExpiryDays),
-            CreatedBy = user.UserId
-        };
+            logger.LogError(
+                ex,
+                "Google login failed unexpectedly.");
 
-        await refreshTokenRepository.AddAsync(
-            refreshToken,
-            cancellationToken);
-
-        // ============================================================
-        // 11. Get or create device
-        // ============================================================
-
-        var device = await GetOrCreateDeviceAsync(
-            user.UserId,
-            request,
-            now,
-            cancellationToken);
-
-        // ============================================================
-        // 12. Create user session
-        // ============================================================
-
-        var userSession = new UserSession
-        {
-            UserSessionId = Guid.NewGuid(),
-            UserId = user.UserId,
-            RefreshTokenId = refreshToken.RefreshTokenId,
-            DeviceId = device.DeviceId,
-            SessionStart = now,
-            LastActivity = now,
-            IsActive = true,
-            CreatedBy = user.UserId
-        };
-
-        await userSessionRepository.AddAsync(
-            userSession,
-            cancellationToken);
-
-        // ============================================================
-        // 13. Save authentication data
-        // ============================================================
-
-        await unitOfWork.SaveChangesAsync(
-            cancellationToken);
-
-        // ============================================================
-        // 14. Record login history
-        // ============================================================
-
-        var loginHistory = new UserLoginHistory
-        {
-            UserLoginHistoryId = Guid.NewGuid(),
-
-            UserId = user.UserId,
-
-            SessionId = userSession.UserSessionId,
-
-            LoginDate = now,
-
-            LoginStatus = LoginStatuses.Success,
-
-            LoginMethod = LoginMethods.Google,
-
-            IpAddress =
-                clientInfoService.IpAddress ?? "Unknown",
-
-            UserAgent =
-                clientInfoService.UserAgent ?? "Unknown",
-
-            Browser =
-                clientInfoService.Browser ?? "Unknown",
-
-            OperatingSystem =
-                clientInfoService.OperatingSystem ?? "Unknown",
-
-            DeviceType =
-                clientInfoService.DeviceType ?? "Unknown",
-
-            LoginSource =
-                clientInfoService.LoginSource ?? "Unknown",
-
-            IsMfaUsed = false
-        };
-
-        await userLoginHistoryRepository.AddAsync(
-            loginHistory,
-            cancellationToken);
-
-        await unitOfWork.SaveChangesAsync(
-            cancellationToken);
-
-        // ============================================================
-        // 15. Build response
-        // ============================================================
-
-        var response =
-            mapper.Map<LoginResponse>(user);
-
-        response.AccessToken =
-            jwtResult.AccessToken;
-
-        response.RefreshToken =
-            refreshTokenValue;
-
-        response.ExpiresAt =
-            jwtResult.ExpiresAt;
-
-        return ApiResponse<LoginResponse>.SuccessResponse(
-            response,
-            messageHelper.LoginSuccessful(),
-            HttpStatusCode.OK);
+            throw;
+        }
     }
 
     // ================================================================
@@ -349,11 +436,14 @@ public sealed class GoogleLoginCommandHandler(
 
         if (customerRole is null)
         {
+            logger.LogError(
+                "Customer role was not found while creating Google user.");
+
             return null;
         }
 
         // ============================================================
-        // 2. Create User
+        // 2. Create Google user
         // ============================================================
 
         var currentDate =
@@ -377,35 +467,31 @@ public sealed class GoogleLoginCommandHandler(
             EmailAddress =
                 emailAddress,
 
-            // Google does not provide
+            // Google authentication does not provide
             // a BookMyHall mobile number.
-            MobileNumber =
-                string.Empty,
+            //
+            // IMPORTANT:
+            // MobileNumber is nullable in the database
+            // and has a UNIQUE constraint.
+            // NULL is therefore required here.
+            MobileNumber = null,
 
-            // Google authenticated users
-            // don't need a local password.
-            PasswordHash =
-                null,
+            // Google authentication does not require
+            // a local BookMyHall password.
+            PasswordHash = null,
 
-            // Google has already verified
-            // the email address.
-            IsEmailVerified =
-                true,
+            // Google has verified the email address.
+            IsEmailVerified = true,
 
-            IsMobileVerified =
-                false,
+            IsMobileVerified = false,
 
-            IsActive =
-                true,
+            IsActive = true,
 
-            IsDeleted =
-                false,
+            IsDeleted = false,
 
-            TokenVersion =
-                1,
+            TokenVersion = 1,
 
-            CreatedDate =
-                currentDate,
+            CreatedDate = currentDate,
 
             UserRoles =
             [
@@ -423,6 +509,10 @@ public sealed class GoogleLoginCommandHandler(
             ]
         };
 
+        // ============================================================
+        // 3. Save Google user
+        // ============================================================
+
         try
         {
             await userRepository.AddAsync(
@@ -431,20 +521,53 @@ public sealed class GoogleLoginCommandHandler(
 
             await unitOfWork.SaveChangesAsync(
                 cancellationToken);
+
+            logger.LogInformation(
+                "Google user and Customer role saved. UserId: {UserId}, Email: {EmailAddress}.",
+                userId,
+                emailAddress);
         }
-        catch (DuplicateRecordException)
+        catch (DuplicateRecordException ex)
         {
+            logger.LogWarning(
+                ex,
+                "Duplicate Google user detected for {EmailAddress}. " +
+                "The user may have been created concurrently.",
+                emailAddress);
+
             // Another request may have created
             // the same user concurrently.
         }
+        catch (Exception ex)
+        {
+            logger.LogError(
+                ex,
+                "Failed to create Google user. UserId: {UserId}, Email: {EmailAddress}.",
+                userId,
+                emailAddress);
+
+            throw;
+        }
 
         // ============================================================
-        // 3. Reload user with roles
+        // 4. Reload user with roles
         // ============================================================
 
-        return await userRepository.GetForGoogleLoginAsync(
-            emailAddress,
-            cancellationToken);
+        var createdUser =
+            await userRepository.GetForGoogleLoginAsync(
+                emailAddress,
+                cancellationToken);
+
+        if (createdUser is null)
+        {
+            logger.LogError(
+                "Google user was saved but could not be retrieved. Email: {EmailAddress}.",
+                emailAddress);
+
+            return null;
+        }
+
+        return createdUser;
     }
 
     // ================================================================
@@ -522,6 +645,11 @@ public sealed class GoogleLoginCommandHandler(
                 device,
                 cancellationToken);
 
+            logger.LogInformation(
+                "New device added. DeviceId: {DeviceId}, UserId: {UserId}.",
+                device.DeviceId,
+                userId);
+
             return device;
         }
 
@@ -563,6 +691,11 @@ public sealed class GoogleLoginCommandHandler(
         await deviceRepository.UpdateAsync(
             device,
             cancellationToken);
+
+        logger.LogInformation(
+            "Existing device updated. DeviceId: {DeviceId}, UserId: {UserId}.",
+            device.DeviceId,
+            userId);
 
         return device;
     }

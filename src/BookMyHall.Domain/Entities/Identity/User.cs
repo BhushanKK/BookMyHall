@@ -10,7 +10,7 @@ public class User : BaseEntity
     public string FirstName { get; set; } = string.Empty;
     public string? MiddleName { get; set; }
     public string? LastName { get; set; }
-    public string MobileNumber { get; set; } = string.Empty;
+    public string? MobileNumber { get; set; }
     public string EmailAddress { get; set; } = string.Empty;
     public string? PasswordHash { get; set; }
     public string? ProfileImageUrl { get; set; }
