@@ -66,7 +66,7 @@ public sealed class JwtTokenService(IOptions<JwtOptions> options)
             // Application Claims
             new(ClaimTypes.NameIdentifier, user.UserId.ToString()),
             new(ClaimTypes.Name, user.FullName),
-            new(ClaimTypes.MobilePhone, user.MobileNumber),
+            new(ClaimTypes.MobilePhone, user.MobileNumber!),
             new(ClaimTypes.Email, user.EmailAddress ?? string.Empty),
 
             // Used to invalidate existing JWTs

@@ -196,7 +196,7 @@ public sealed class UserTests
         user.MiddleName.Should().BeNull();
         user.LastName.Should().BeNull();
 
-        user.MobileNumber.Should().BeEmpty();
+        user.MobileNumber.Should().BeNull();
         user.EmailAddress.Should().BeEmpty();
         user.PasswordHash.Should().BeNull();
 
