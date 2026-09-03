@@ -1,14 +1,19 @@
+
+
+
 using System.Net;
+
 using AutoMapper;
 using MediatR;
+
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
+using BookMyHall.Domain.Dtos;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Domain.Identity;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
-using BookMyHall.Domain.Dtos;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
@@ -17,8 +22,7 @@ public sealed class UpdateUserCommandHandler(
     IRoleRepository roleRepository,
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    IMessageHelper messageHelper
-    )
+    IMessageHelper messageHelper)
     : IRequestHandler<UpdateUserCommand, ApiResponse<UserDto>>
 {
     public async Task<ApiResponse<UserDto>> Handle(
@@ -46,19 +50,12 @@ public sealed class UpdateUserCommandHandler(
         // Validate Roles
         // -------------------------------------------------------
 
-        if (request.Roles is null || request.Roles.Count == 0)
-        {
-            return ApiResponse<UserDto>.FailureResponse(
-                "At least one role is required.",
-                HttpStatusCode.BadRequest);
-        }
-
-        var roleIds = request.Roles
+        var roleIds = request.Roles?
             .Where(roleId => roleId != Guid.Empty)
             .Distinct()
             .ToList();
 
-        if (roleIds.Count == 0)
+        if (roleIds is null || roleIds.Count == 0)
         {
             return ApiResponse<UserDto>.FailureResponse(
                 "At least one valid role is required.",
@@ -95,7 +92,7 @@ public sealed class UpdateUserCommandHandler(
                     cancellationToken);
 
             if (existingUser is not null &&
-                existingUser.UserId != request.UserId)
+                existingUser.UserId != user.UserId)
             {
                 return ApiResponse<UserDto>.FailureResponse(
                     messageHelper.AlreadyExistsEntity(
@@ -106,7 +103,7 @@ public sealed class UpdateUserCommandHandler(
         }
 
         // -------------------------------------------------------
-        // Update User Profile
+        // Update User
         // -------------------------------------------------------
 
         user.UpdateUserProfile(
@@ -129,10 +126,6 @@ public sealed class UpdateUserCommandHandler(
             user.Deactivate();
         }
 
-        await userRepository.UpdateAsync(
-            user,
-            cancellationToken);
-
         // -------------------------------------------------------
         // Update User Roles
         // -------------------------------------------------------
@@ -143,13 +136,16 @@ public sealed class UpdateUserCommandHandler(
 
         var currentDate = DateTimeOffset.UtcNow;
 
-        var userRoles = roles.Select(role => new UserRole
-        {
-            UserId = user.UserId,
-            RoleId = role.RoleId,
-            CreatedDate = currentDate,
-            CreatedBy = user.UpdatedBy
-        }).ToList();
+        var userRoles = roles
+            .Select(role => new UserRole
+            {
+                UserId = user.UserId,
+                RoleId = role.RoleId,
+                Role = role,
+                CreatedDate = currentDate,
+                CreatedBy = user.UpdatedBy
+            })
+            .ToList();
 
         foreach (var userRole in userRoles)
         {
@@ -158,7 +154,7 @@ public sealed class UpdateUserCommandHandler(
                 cancellationToken);
         }
 
-        // Keep entity response in sync
+        // Keep response navigation in sync.
         user.UserRoles = userRoles;
 
         // -------------------------------------------------------
@@ -169,22 +165,17 @@ public sealed class UpdateUserCommandHandler(
             cancellationToken);
 
         // -------------------------------------------------------
-        // Clear Cache
-        // -------------------------------------------------------
-
-        // await cacheService.RemoveByPrefixAsync(
-        //     $"{CacheKeys.UsersPaged}:",
-        //     cancellationToken);
-
-        // -------------------------------------------------------
         // Response
         // -------------------------------------------------------
 
+        var userDto = mapper.Map<UserDto>(user);
+
         return ApiResponse<UserDto>.SuccessResponse(
-            mapper.Map<UserDto>(user),
+            userDto,
             messageHelper.UpdatedEntity(
                 ResourceNames.Entities,
                 EntityKeys.User),
             HttpStatusCode.OK);
     }
 }
+

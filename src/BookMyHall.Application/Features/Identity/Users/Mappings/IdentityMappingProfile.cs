@@ -38,13 +38,11 @@ public sealed class IdentityMappingProfile : Profile
         // User -> UserDto
         // ------------------------------------------------------------
 
-        CreateMap<User, UserDto>()
-            .ForMember(
-                destination => destination.Roles,
-                option => option.MapFrom(
-                    source => source.UserRoles
-                        .Select(x => x.Role.RoleName)
-                        .ToList()));
+        CreateMap<User, UserDto>() 
+        .ForMember( destination => destination.Roles, 
+        option => option.MapFrom( source => source.UserRoles 
+        .Select(userRole => new Role { RoleId = userRole.RoleId, 
+        RoleName = userRole.Role.RoleName }) .ToList()));
 
         // ------------------------------------------------------------
         // Profile Update
