@@ -20,9 +20,26 @@ public sealed class UserRepository(BookMyHallDbContext context)
         return Task.CompletedTask;
     }
 
-    public async Task<User?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
-        => await context.Users.FirstOrDefaultAsync(x => !x.IsDeleted && x.UserId == userId, cancellationToken);
-
+    // public async Task<User?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    //     => await context.Users.FirstOrDefaultAsync(x => !x.IsDeleted && x.UserId == userId, cancellationToken);
+public async Task<User?> GetByIdAsync(
+    Guid userId,
+    CancellationToken cancellationToken = default)
+{
+    return await context.Users
+        .Include(
+            x => x.UserRoles
+        )
+        .ThenInclude(
+            x => x.Role
+        )
+        .FirstOrDefaultAsync(
+            x =>
+                !x.IsDeleted &&
+                x.UserId == userId,
+            cancellationToken
+        );
+}
     public async Task<UserLoginDto?> GetForLoginAsync(string mobileNumber, CancellationToken cancellationToken = default)
     {
         return await context.Users
@@ -117,7 +134,15 @@ public sealed class UserRepository(BookMyHallDbContext context)
                 DateOfBirth = x.DateOfBirth,
                 Gender = x.Gender,
                 EmailAddress = x.EmailAddress,
-                IsActive = x.IsActive
+                IsActive = x.IsActive,
+                Roles = x.UserRoles
+        .Select(userRole => new Role
+        {
+            RoleId = userRole.RoleId,
+
+            RoleName =userRole.Role.RoleName
+        })
+        .ToList()
             })
             .ToListAsync(cancellationToken);
 

@@ -1,7 +1,6 @@
-using System.Text.Json.Serialization;
 
 using BookMyHall.Domain.Enums;
-
+using BookMyHall.Domain.Entities.Identity;
 namespace BookMyHall.Domain.Dtos;
 public sealed class UserDto
 {
@@ -25,6 +24,5 @@ public sealed class UserDto
     public Gender? Gender { get; set; }
     public string? EmailAddress { get; set; }
     public bool IsActive { get; set; }
-    [JsonIgnore]
-    public IReadOnlyList<string> Roles { get; set; } = [];
+    public IReadOnlyList<Role> Roles { get; set; } = [];
 }

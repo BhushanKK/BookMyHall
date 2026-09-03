@@ -1,7 +1,6 @@
 using System.Net;
 using AutoMapper;
 using MediatR;
-using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -18,8 +17,8 @@ public sealed class UpdateUserCommandHandler(
     IRoleRepository roleRepository,
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    IMessageHelper messageHelper,
-    ICacheService cacheService)
+    IMessageHelper messageHelper
+    )
     : IRequestHandler<UpdateUserCommand, ApiResponse<UserDto>>
 {
     public async Task<ApiResponse<UserDto>> Handle(
@@ -173,9 +172,9 @@ public sealed class UpdateUserCommandHandler(
         // Clear Cache
         // -------------------------------------------------------
 
-        await cacheService.RemoveByPrefixAsync(
-            $"{CacheKeys.UsersPaged}:",
-            cancellationToken);
+        // await cacheService.RemoveByPrefixAsync(
+        //     $"{CacheKeys.UsersPaged}:",
+        //     cancellationToken);
 
         // -------------------------------------------------------
         // Response
