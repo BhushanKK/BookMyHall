@@ -4,6 +4,7 @@
 using System.Net;
 
 using AutoMapper;
+
 using MediatR;
 
 using BookMyHall.Application.Abstractions.Persistence;
@@ -137,25 +138,21 @@ public sealed class UpdateUserCommandHandler(
         var currentDate = DateTimeOffset.UtcNow;
 
         var userRoles = roles
-            .Select(role => new UserRole
-            {
-                UserId = user.UserId,
-                RoleId = role.RoleId,
-                Role = role,
-                CreatedDate = currentDate,
-                CreatedBy = user.UpdatedBy
-            })
-            .ToList();
+       .Select(role => new UserRole
+       {
+           UserId = user.UserId,
+           RoleId = role.RoleId,
+           Role = role,
+           CreatedDate = currentDate,
+           CreatedBy = user.UpdatedBy
+       })
+       .ToList();
 
         foreach (var userRole in userRoles)
         {
-            await userRepository.AddUserRoleAsync(
-                userRole,
-                cancellationToken);
+            await userRepository.AddUserRoleAsync(userRole, cancellationToken);
         }
 
-        // Keep response navigation in sync.
-        user.UserRoles = userRoles;
 
         // -------------------------------------------------------
         // Save Changes
