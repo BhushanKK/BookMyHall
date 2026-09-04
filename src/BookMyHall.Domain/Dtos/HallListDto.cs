@@ -1,3 +1,5 @@
+using BookMyHall.Domain.Enums;
+
 namespace BookMyHall.Domain.Dtos;
 public sealed class HallListDto
 {
@@ -19,4 +21,7 @@ public sealed class HallListDto
     public int? MaximumCapacity { get; set; }
     public bool IsActive { get; set; }
     public string? CoverImageUrl { get; set; }
+    public string? MobileNumber { get; set; }
+    public string ApprovalStatus { get; set; } = HallApprovalStatus.Pending.ToString();
+    public string VerificationStatus { get; set; } = HallVerificationStatus.Pending.ToString();
 }

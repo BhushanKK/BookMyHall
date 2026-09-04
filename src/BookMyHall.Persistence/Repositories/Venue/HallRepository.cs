@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Venue;
 using BookMyHall.Persistence.Context;
@@ -33,7 +32,8 @@ public sealed class HallRepository(BookMyHallDbContext context) : IHallRepositor
             x =>
                 x.HallName == hallName &&
                 x.AreaId == areaId,
-            cancellationToken); public async Task<PaginatedResult<HallListDto>> GetAllAsync(
+            cancellationToken);
+    public async Task<PaginatedResult<HallListDto>> GetAllAsync(
     PaginationRequest request,
     CancellationToken cancellationToken = default)
     {
@@ -49,7 +49,10 @@ public sealed class HallRepository(BookMyHallDbContext context) : IHallRepositor
                 (hall, owner) => new
                 {
                     hall,
-                    owner
+                    owner,
+                    HallVerificationStatus= hall.VerificationStatus,
+                    HallApprovalStatus= hall.ApprovalStatus,
+                    MobileNumber= hall!.MobileNumber!
                 })
 
             // Hall Category

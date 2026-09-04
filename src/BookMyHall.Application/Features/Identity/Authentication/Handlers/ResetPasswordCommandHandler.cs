@@ -77,7 +77,7 @@ public sealed class ResetPasswordCommandHandler(
         var passwordResetSuccessMessage = new PasswordResetSuccessMessage(
             user.UserId,
             user.FullName,
-            user.EmailAddress);
+            user.EmailAddress!);
 
         await messagePublisher.PublishAsync(
             passwordResetSuccessMessage,

@@ -71,7 +71,7 @@ public sealed class ForgotPasswordCommandHandler(
         (
             user.UserId,
             user.FullName,
-            user.EmailAddress,
+            user.EmailAddress!,
             resetToken
         );
 
