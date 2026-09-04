@@ -7,7 +7,7 @@ using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Common.Interfaces.Storage;
-using BookMyHall.Domain.Dtos;
+using BookMyHall.Domain.Venue;
 
 namespace BookMyHall.Application.Features.Venue;
 
@@ -18,15 +18,15 @@ public sealed class GetHallQueryHandler(
     IR2StorageService storageService)
     : IRequestHandler<
         GetHallQuery,
-        ApiResponse<PaginatedResult<HallListDto>>>
+        ApiResponse<PaginatedResult<HallListView>>>
 {
-    public async Task<ApiResponse<PaginatedResult<HallListDto>>> Handle(
+    public async Task<ApiResponse<PaginatedResult<HallListView>>> Handle(
         GetHallQuery request,
         CancellationToken cancellationToken)
     {
         var pagination = request.paginationRequest;
 
-        var cacheKey = CacheKeyBuilder.BuildPaginatedKey<HallListDto>(
+        var cacheKey = CacheKeyBuilder.BuildPaginatedKey<HallListView>(
             CacheKeys.Hall,
             pagination.PageNumber,
             pagination.PageSize,
@@ -37,14 +37,14 @@ public sealed class GetHallQueryHandler(
         // Check cache first
         var cachedResponse =
             await cacheService.GetAsync<
-                PaginatedResult<HallListDto>>(
+                PaginatedResult<HallListView>>(
                     cacheKey,
                     cancellationToken);
 
         if (cachedResponse is not null)
         {
             return ApiResponse<
-                PaginatedResult<HallListDto>>.SuccessResponse(
+                PaginatedResult<HallListView>>.SuccessResponse(
                     cachedResponse,
                     messageHelper.RetrievedEntity(
                         ResourceNames.Entities,
@@ -73,7 +73,7 @@ public sealed class GetHallQueryHandler(
             }
         }
 
-        var response = new PaginatedResult<HallListDto>
+        var response = new PaginatedResult<HallListView>
         {
             Items = items,
             TotalCount = result.TotalCount,
@@ -89,7 +89,7 @@ public sealed class GetHallQueryHandler(
             cancellationToken);
 
         return ApiResponse<
-            PaginatedResult<HallListDto>>.SuccessResponse(
+            PaginatedResult<HallListView>>.SuccessResponse(
             response,
             messageHelper.RetrievedEntity(
                 ResourceNames.Entities,

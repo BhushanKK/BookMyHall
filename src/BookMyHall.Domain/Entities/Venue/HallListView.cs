@@ -1,6 +1,7 @@
-namespace BookMyHall.Domain.Dtos;
 
-public sealed class HallListDto
+namespace BookMyHall.Domain.Venue;
+
+public class HallListView
 {
     public Guid HallId { get; set; }
     public string HallName { get; set; } = string.Empty;
@@ -21,9 +22,9 @@ public sealed class HallListDto
     public bool IsActive { get; set; }
     public string? CoverImageUrl { get; set; }
     public string? MobileNumber { get; set; }
-    public string ApprovalStatus { get; set; } = string.Empty;
-    public string VerificationStatus { get; set; } = string.Empty;
+    public string? EmailAddress { get; set; }
     public string? CheckInTime { get; set; }
     public string? CheckOutTime { get; set; }
-    public string? EmailAddress { get; set; }
+    public string ApprovalStatus { get; set; } = string.Empty;
+    public string VerificationStatus { get; set; } = string.Empty;
 }
