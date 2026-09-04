@@ -28,13 +28,7 @@ public class HallDto
     public TimeSpan? CheckInTime { get; init; }
     public TimeSpan? CheckOutTime { get; init; }
     public string? GoogleMapLocationUrl { get; init; }
-
-    [JsonIgnore]
     public HallApprovalStatus ApprovalStatus { get; set; }
-
-    [JsonIgnore]
     public HallVerificationStatus VerificationStatus { get; set; }
-
-    [JsonIgnore]
     public bool IsActive { get; set; }
 }
