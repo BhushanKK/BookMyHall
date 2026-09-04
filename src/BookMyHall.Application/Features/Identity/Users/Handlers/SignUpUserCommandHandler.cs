@@ -147,7 +147,7 @@ public sealed class SignUpUserCommandHandler(
         (
             UserId: user.UserId,
             FullName: user.FullName,
-            EmailAddress: user.EmailAddress,
+            EmailAddress: user.EmailAddress!,
             VerificationToken: verificationToken,
             ExpiryMinutes: verificationExpiryMinutes
         );

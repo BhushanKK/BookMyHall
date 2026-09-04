@@ -166,7 +166,7 @@ public sealed class CreateUserCommandHandler(
             new UserRegisteredMessage(
                 user.UserId,
                 user.FullName,
-                user.EmailAddress,
+                user.EmailAddress!,
                 verificationToken,
                 expiryMinutes);
 

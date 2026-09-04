@@ -197,7 +197,7 @@ public sealed class UserTests
         user.LastName.Should().BeNull();
 
         user.MobileNumber.Should().BeNull();
-        user.EmailAddress.Should().BeEmpty();
+        user.EmailAddress.Should().BeNullOrEmpty();
         user.PasswordHash.Should().BeNull();
 
         // Profile image is optional.
@@ -241,8 +241,7 @@ public sealed class UserTests
             MobileNumber = "9876543210",
             EmailAddress = "john@example.com",
             PasswordHash = "hashedPassword",
-            ProfileImageUrl =
-                "https://images.bookmyhall.com/users/profile.jpg",
+            ProfileImageUrl = "https://images.bookmyhall.com/users/profile.jpg",
             IsMobileVerified = true,
             IsEmailVerified = true,
             IsActive = false
