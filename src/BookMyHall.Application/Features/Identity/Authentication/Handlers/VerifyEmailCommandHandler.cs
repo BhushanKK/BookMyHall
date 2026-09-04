@@ -146,7 +146,7 @@ public sealed class VerifyEmailCommandHandler(
             new EmailVerifiedMessage(
                 user.UserId,
                 user.FullName,
-                user.EmailAddress);
+                user.EmailAddress!);
 
         await messagePublisher.PublishAsync(
             emailVerifiedMessage,

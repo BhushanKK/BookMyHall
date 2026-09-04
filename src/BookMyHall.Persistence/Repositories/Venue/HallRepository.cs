@@ -33,73 +33,194 @@ public sealed class HallRepository(BookMyHallDbContext context) : IHallRepositor
             x =>
                 x.HallName == hallName &&
                 x.AreaId == areaId,
-            cancellationToken);
-    public async Task<PaginatedResult<HallListDto>> GetAllAsync(
-        PaginationRequest request,
-        CancellationToken cancellationToken = default)
+            cancellationToken); public async Task<PaginatedResult<HallListDto>> GetAllAsync(
+    PaginationRequest request,
+    CancellationToken cancellationToken = default)
     {
-        var query = from hall in context.Halls.AsNoTracking()
+        var query = context.Halls
+            .AsNoTracking()
+            .Where(hall => !hall.IsDeleted)
 
-            join owner in context.Users.AsNoTracking()
-                on hall.HallOwnerId equals owner.UserId
+            // Hall Owner
+            .LeftJoin(
+                context.Users.AsNoTracking(),
+                hall => hall.HallOwnerId,
+                owner => owner.UserId,
+                (hall, owner) => new
+                {
+                    hall,
+                    owner
+                })
 
-            join category in context.HallCategories.AsNoTracking()
-                on hall.HallCategoryId equals category.HallCategoryId
+            // Hall Category
+            .LeftJoin(
+                context.HallCategories.AsNoTracking(),
+                x => x.hall.HallCategoryId,
+                category => category.HallCategoryId,
+                (x, category) => new
+                {
+                    x.hall,
+                    x.owner,
+                    category
+                })
 
-            join policy in context.CancellationPolicies.AsNoTracking()
-                on hall.CancellationPolicyId equals policy.CancellationPolicyId
-                into policyGroup
+            // Cancellation Policy
+            .LeftJoin(
+                context.CancellationPolicies.AsNoTracking(),
+                x => x.hall.CancellationPolicyId,
+                policy => policy.CancellationPolicyId,
+                (x, policy) => new
+                {
+                    x.hall,
+                    x.owner,
+                    x.category,
+                    policy
+                })
 
-            from policy in policyGroup.DefaultIfEmpty()
+            // Area
+            .LeftJoin(
+                context.Areas.AsNoTracking(),
+                x => x.hall.AreaId,
+                area => area.AreaId,
+                (x, area) => new
+                {
+                    x.hall,
+                    x.owner,
+                    x.category,
+                    x.policy,
+                    area
+                })
 
-            join area in context.Areas.AsNoTracking()
-                on hall.AreaId equals area.AreaId
+            // City
+            .LeftJoin(
+                context.Cities.AsNoTracking(),
+                x => x.area!.CityId,
+                city => city.CityId,
+                (x, city) => new
+                {
+                    x.hall,
+                    x.owner,
+                    x.category,
+                    x.policy,
+                    x.area,
+                    city
+                })
 
-            join city in context.Cities.AsNoTracking()
-                on area.CityId equals city.CityId
+            // District
+            .LeftJoin(
+                context.Districts.AsNoTracking(),
+                x => x.city!.DistrictId,
+                district => district.DistrictId,
+                (x, district) => new
+                {
+                    x.hall,
+                    x.owner,
+                    x.category,
+                    x.policy,
+                    x.area,
+                    x.city,
+                    district
+                })
 
-            join district in context.Districts.AsNoTracking()
-                on city.DistrictId equals district.DistrictId
+            // State
+            .LeftJoin(
+                context.States.AsNoTracking(),
+                x => x.district!.StateId,
+                state => state.StateId,
+                (x, state) => new
+                {
+                    x.hall,
+                    x.owner,
+                    x.category,
+                    x.policy,
+                    x.area,
+                    x.city,
+                    x.district,
+                    state
+                })
 
-            join state in context.States.AsNoTracking()
-                on district.StateId equals state.StateId
+            // Country
+            .LeftJoin(
+                context.Countries.AsNoTracking(),
+                x => x.state!.CountryId,
+                country => country.CountryId,
+                (x, country) => new
+                {
+                    x.hall,
+                    x.owner,
+                    x.category,
+                    x.policy,
+                    x.area,
+                    x.city,
+                    x.district,
+                    x.state,
+                    country
+                })
 
-            join country in context.Countries.AsNoTracking()
-                on state.CountryId equals country.CountryId
+            // Cover Image
+            .LeftJoin(
+                context.HallImages
+                    .AsNoTracking()
+                    .Where(image =>
+                        !image.IsDeleted &&
+                        image.IsActive &&
+                        image.IsCoverImage),
+                x => x.hall.HallId,
+                image => image.HallId,
+                (x, image) => new HallListDto
+                {
+                    HallId = x.hall.HallId,
 
-            where !hall.IsDeleted
+                    HallName = x.hall.HallName,
+                    Description = x.hall.Description,
 
-            select new HallListDto
-            {
-                HallId = hall.HallId,
+                    HallOwnerName = x.owner != null
+                        ? x.owner.FullName
+                        : string.Empty,
 
-                HallName = hall.HallName,
-                Description = hall.Description,
+                    HallCategoryName = x.category != null
+                        ? x.category.HallCategoryName
+                        : string.Empty,
 
-                HallOwnerName = owner.FullName,
-                HallCategoryName = category.HallCategoryName,
-
-                CancellationPolicyName =
-                    policy != null
-                        ? policy.PolicyName
+                    CancellationPolicyName = x.policy != null
+                        ? x.policy.PolicyName
                         : null,
 
-                AreaName = area.AreaName,
-                CityName = city.CityName,
-                DistrictName = district.DistrictName,
-                StateName = state.StateName,
-                CountryName = country.CountryName,
+                    AreaName = x.area != null
+                        ? x.area.AreaName
+                        : string.Empty,
 
-                AddressLine1 = hall.AddressLine1,
-                AddressLine2 = hall.AddressLine2,
-                Pincode = hall.Pincode,
+                    CityName = x.city != null
+                        ? x.city.CityName
+                        : null,
 
-                MinimumCapacity = hall.MinimumCapacity,
-                MaximumCapacity = hall.MaximumCapacity,
+                    DistrictName = x.district != null
+                        ? x.district.DistrictName
+                        : null,
 
-                IsActive = hall.IsActive
-            };
+                    StateName = x.state != null
+                        ? x.state.StateName
+                        : null,
 
+                    CountryName = x.country != null
+                        ? x.country.CountryName
+                        : null,
+
+                    AddressLine1 = x.hall.AddressLine1,
+                    AddressLine2 = x.hall.AddressLine2,
+                    Pincode = x.hall.Pincode,
+
+                    MinimumCapacity = x.hall.MinimumCapacity,
+                    MaximumCapacity = x.hall.MaximumCapacity,
+
+                    IsActive = x.hall.IsActive,
+
+                    CoverImageUrl = image != null
+                        ? image.ImageUrl
+                        : null
+                });
+
+        // Search
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();
@@ -145,12 +266,16 @@ public sealed class HallRepository(BookMyHallDbContext context) : IHallRepositor
             );
         }
 
+        // Total records
         var totalCount = await query.CountAsync(
             cancellationToken);
 
+        // Pagination
         var items = await query
             .OrderBy(x => x.HallName)
-            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Skip(
+                (request.PageNumber - 1) *
+                request.PageSize)
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);
 

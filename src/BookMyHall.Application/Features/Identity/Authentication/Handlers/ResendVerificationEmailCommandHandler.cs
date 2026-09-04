@@ -116,7 +116,7 @@ public sealed class ResendVerificationEmailCommandHandler(
         var message = new EmailVerificationRequestedMessage(
                 user.UserId,
                 user.FullName,
-                user.EmailAddress,
+                user.EmailAddress!,
                 verificationToken,
                 EmailVerificationTokenExpiryInMinutes);
 

@@ -34,7 +34,7 @@ public sealed class RefreshTokenRepository(BookMyHallDbContext context)
                 UserId = x.User.UserId,
                 FullName = x.User.FullName,
                 MobileNumber = x.User.MobileNumber!,
-                EmailAddress = x.User.EmailAddress,
+                EmailAddress = x.User.EmailAddress!,
                 TokenVersion = x.User.TokenVersion,
                 IsActive = x.User.IsActive,
 

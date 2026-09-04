@@ -185,7 +185,7 @@ public sealed class ChangePasswordCommandHandler(
         var passwordChangedMessage = new PasswordChangedMessage(
             user.UserId,
             user.FullName,
-            user.EmailAddress);
+            user.EmailAddress!);
  
         await messagePublisher.PublishAsync(
             passwordChangedMessage,
