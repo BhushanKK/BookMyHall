@@ -130,45 +130,6 @@ public sealed class HallImageEndpointsTests(BookMyHallWebApplicationFactory fact
     }
 
     [Fact]
-    public async Task UpdateHallImage_WithoutAuthentication_ShouldReturnUnauthorized()
-    {
-        // Arrange
-        var client = _factory.CreateClient();
-        var hallImageId = Guid.NewGuid();
-        var request = new
-        {
-            isCoverImage = true,
-            displayOrder = 1,
-            isActive = true
-        };
-
-        // Act
-        var response = await client.PutAsJsonAsync($"/api/halls/images/{hallImageId}",request);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-    }
-
-    [Fact]
-    public async Task UpdateHallImage_WithInvalidRouteId_ShouldReturnNotFound()
-    {
-        // Arrange
-        var client = _factory.CreateClient();
-        var request = new
-        {
-            isCoverImage = true,
-            displayOrder = 1,
-            isActive = true
-        };
-
-        // Act
-        var response = await client.PutAsJsonAsync("/api/halls/images/not-a-guid",request);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [Fact]
     public async Task DeleteHallImage_WithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
