@@ -1,3 +1,4 @@
+using BookMyHall.Domain.Dtos;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Domain.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -22,4 +23,5 @@ public partial class BookMyHallDbContext
     public DbSet<Menu> Menus => Set<Menu>();
     public DbSet<MenuRolePermission> MenuRolePermissions => Set<MenuRolePermission>();
     public DbSet<MenuPermission> MenuPermissions => Set<MenuPermission>();
+    public DbSet<HallOwnerDto> HallOwners => Set<HallOwnerDto>();
 }

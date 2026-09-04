@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Dtos;
 using BookMyHall.Domain.Entities.Identity;
@@ -22,24 +23,24 @@ public sealed class UserRepository(BookMyHallDbContext context)
 
     // public async Task<User?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
     //     => await context.Users.FirstOrDefaultAsync(x => !x.IsDeleted && x.UserId == userId, cancellationToken);
-public async Task<User?> GetByIdAsync(
-    Guid userId,
-    CancellationToken cancellationToken = default)
-{
-    return await context.Users
-        .Include(
-            x => x.UserRoles
-        )
-        .ThenInclude(
-            x => x.Role
-        )
-        .FirstOrDefaultAsync(
-            x =>
-                !x.IsDeleted &&
-                x.UserId == userId,
-            cancellationToken
-        );
-}
+    public async Task<User?> GetByIdAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.Users
+            .Include(
+                x => x.UserRoles
+            )
+            .ThenInclude(
+                x => x.Role
+            )
+            .FirstOrDefaultAsync(
+                x =>
+                    !x.IsDeleted &&
+                    x.UserId == userId,
+                cancellationToken
+            );
+    }
     public async Task<UserLoginDto?> GetForLoginAsync(string mobileNumber, CancellationToken cancellationToken = default)
     {
         return await context.Users
@@ -140,7 +141,7 @@ public async Task<User?> GetByIdAsync(
         {
             RoleId = userRole.RoleId,
 
-            RoleName =userRole.Role.RoleName
+            RoleName = userRole.Role.RoleName
         })
         .ToList()
             })
@@ -167,18 +168,18 @@ public async Task<User?> GetByIdAsync(
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 x =>
-                    x.IsActive &&  !x.IsDeleted && 
+                    x.IsActive && !x.IsDeleted &&
                     x.EmailAddress == normalizedEmail,
                 cancellationToken);
     }
 
-    public async Task RemoveUserRolesAsync(Guid userId,CancellationToken cancellationToken = default)
-{
-    var userRoles = await context.UserRoles
-        .Where(x => x.UserId == userId)
-        .ToListAsync(cancellationToken);
-    context.UserRoles.RemoveRange(userRoles);
-}
+    public async Task RemoveUserRolesAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var userRoles = await context.UserRoles
+            .Where(x => x.UserId == userId)
+            .ToListAsync(cancellationToken);
+        context.UserRoles.RemoveRange(userRoles);
+    }
 
     public async Task AddUserRoleAsync(
         UserRole userRole,
@@ -217,5 +218,17 @@ public async Task<User?> GetByIdAsync(
                     .ToList()
             })
             .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<HallOwnerDto>> GetHallOwnersAsync(
+        string? searchText = null, CancellationToken cancellationToken = default)
+    {
+        var query = context.Set<HallOwnerDto>().AsNoTracking();
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            var searchPattern = $"%{searchText.Trim()}%";
+            query = query.Where(x => EF.Functions.ILike(x.FullName, searchPattern));
+        }
+        return await query.OrderBy(x => x.FullName).Take(20).ToListAsync(cancellationToken);
     }
 }

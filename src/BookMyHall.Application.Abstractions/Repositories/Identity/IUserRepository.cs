@@ -17,4 +17,8 @@ public interface IUserRepository
     Task RemoveUserRolesAsync(Guid userId, CancellationToken cancellationToken);
     Task AddUserRoleAsync(UserRole userRole, CancellationToken cancellationToken);
     Task<UserLoginDto?> GetForGoogleLoginAsync(string emailAddress, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<HallOwnerDto>> GetHallOwnersAsync(
+    string? searchText = null,
+    CancellationToken cancellationToken = default);
 }

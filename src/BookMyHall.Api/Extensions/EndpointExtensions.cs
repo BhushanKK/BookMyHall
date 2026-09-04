@@ -1,3 +1,4 @@
+using BookMyHall.Api.Endpoints;
 using BookMyHall.Api.Endpoints.Identity;
 using BookMyHall.Api.Endpoints.Master;
 using BookMyHall.Api.Endpoints.Menu;
@@ -39,7 +40,7 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapMenuEndpoints();
         endpoints.MapMenuRolePermissionEndpoints();
         endpoints.MapMenuPermissionEndpoints();
-
+        endpoints.MapHallOwnerEndpoints();
         return endpoints;
     }
 }

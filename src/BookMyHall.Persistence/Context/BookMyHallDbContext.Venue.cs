@@ -8,6 +8,5 @@ public partial class BookMyHallDbContext
      public DbSet<Hall> Halls => Set<Hall>();
     public DbSet<HallImage> HallImages => Set<HallImage>();
     public DbSet<HallPricing> HallPricings => Set<HallPricing>();
-    public DbSet<HallBlock> HallBlocks => Set<HallBlock>();
-    
+    public DbSet<HallBlock> HallBlocks => Set<HallBlock>();    
 }
