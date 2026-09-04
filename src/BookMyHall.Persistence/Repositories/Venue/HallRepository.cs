@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Venue;
 using BookMyHall.Persistence.Context;
@@ -202,4 +203,10 @@ public sealed class HallRepository(BookMyHallDbContext context) : IHallRepositor
             PageSize = request.PageSize
         };
     }
+
+    public async Task<HallListView?> GetHallDetailsByIdAsync(
+        Guid hallId, CancellationToken cancellationToken = default)
+        => await context.HallListViews
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x => x.HallId == hallId, cancellationToken);
 }

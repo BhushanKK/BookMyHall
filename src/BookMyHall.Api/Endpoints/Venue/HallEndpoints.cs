@@ -119,5 +119,18 @@ public static class HallEndpoints
         .Produces<ApiResponse<Hall>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status404NotFound);
+
+        group.MapGet("/HallDetails-ById/{hallId:guid}", async (Guid hallId, IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(new GetHallDetailsByIdQuery(hallId), cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("GetHallDetailsById")
+        .WithSummary("Get Hall Details By Id")
+        .WithDescription("Returns details of a hall by its identifier.")
+        .Produces<ApiResponse<HallListView>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
     }
 }
