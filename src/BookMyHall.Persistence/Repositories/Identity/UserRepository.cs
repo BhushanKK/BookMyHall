@@ -172,12 +172,13 @@ public async Task<User?> GetByIdAsync(
                 cancellationToken);
     }
 
-    public async Task RemoveUserRolesAsync(
-        Guid userId,
-        CancellationToken cancellationToken = default)
-        => await context.UserRoles
-            .Where(x => x.UserId == userId)
-            .ExecuteDeleteAsync(cancellationToken);
+    public async Task RemoveUserRolesAsync(Guid userId,CancellationToken cancellationToken = default)
+{
+    var userRoles = await context.UserRoles
+        .Where(x => x.UserId == userId)
+        .ToListAsync(cancellationToken);
+    context.UserRoles.RemoveRange(userRoles);
+}
 
     public async Task AddUserRoleAsync(
         UserRole userRole,
