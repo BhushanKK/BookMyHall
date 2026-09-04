@@ -14,4 +14,6 @@ public static class RabbitMqKeys
     public const string EmailVerifiedRoutingKey = "identity.user.email-verified";
     public const string EmailVerificationQueueName = "identity.email.verification";
     public const string EmailVerificationRoutingKey = "identity.email.verification.requested";
+    public const string HallImageUploadedQueueName = "bookmyhall.hall-image.uploaded";
+    public const string HallImageUploadedRoutingKey = "hall.image.uploaded";
 }

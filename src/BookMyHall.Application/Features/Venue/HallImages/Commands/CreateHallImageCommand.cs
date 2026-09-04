@@ -11,5 +11,5 @@ public sealed record CreateHallImageCommand(
     string ContentType,
     long FileSize,
     int DisplayOrder,
-    bool IsCoverImage)
+    bool IsCoverImage=false)
     : IRequest<ApiResponse<Guid>>;

@@ -14,7 +14,6 @@ public sealed class HallImageRepository(BookMyHallDbContext context)
     {
         return await context.HallImages
         .Where(x=>x.IsDeleted==false)
-            .AsNoTracking()
             .FirstOrDefaultAsync(
                 x => x.HallImageId == hallImageId,
                 cancellationToken);

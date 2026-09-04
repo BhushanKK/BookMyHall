@@ -78,8 +78,7 @@ public static class HallImageEndpoints
         .WithName("GetHallImagesByHallId")
         .WithSummary("Get Hall Images")
         .WithDescription("Returns paginated active images belonging to a hall.")
-        .Produces<ApiResponse<PaginatedResult<HallImageDto>>>(
-            StatusCodes.Status200OK)
+        .Produces<ApiResponse<PaginatedResult<HallImageDto>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status404NotFound);
 
@@ -101,28 +100,68 @@ public static class HallImageEndpoints
         .Produces(StatusCodes.Status404NotFound);
 
         group.MapPut("/images/{hallImageId:guid}",
-            async (
-                Guid hallImageId,
-                UpdateHallImageCommand request,
-                IMediator mediator,
-                CancellationToken cancellationToken) =>
+        async (
+            Guid hallImageId,
+            bool isCoverImage,
+            int displayOrder,
+            bool isActive,
+            IFormFile? image,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
+        {
+            Stream? imageStream = null;
+
+            try
             {
+                string? fileName = null;
+                string? contentType = null;
+                long? fileSize = null;
+
+                if (image is not null && image.Length > 0)
+                {
+                    imageStream = image.OpenReadStream();
+
+                    fileName = image.FileName;
+                    contentType = image.ContentType;
+                    fileSize = image.Length;
+                }
+
                 var command = new UpdateHallImageCommand(
                     hallImageId,
-                    request.IsCoverImage,
-                    request.DisplayOrder,
-                    request.IsActive);
+                    isCoverImage,
+                    displayOrder,
+                    isActive,
+                    imageStream,
+                    fileName,
+                    contentType,
+                    fileSize);
 
-                var response = await mediator.Send(command, cancellationToken);
-                return Results.Json(response, statusCode: response.StatusCode);
-            })
+                var response = await mediator.Send(
+                    command,
+                    cancellationToken);
+
+                return Results.Json(
+                    response,
+                    statusCode: response.StatusCode);
+            }
+            finally
+            {
+                if (imageStream is not null)
+                {
+                    await imageStream.DisposeAsync();
+                }
+            }
+        })
         .WithName("UpdateHallImage")
         .WithSummary("Update Hall Image")
-        .WithDescription("Updates hall image metadata such as cover image, display order and active status.")
-        .Produces(StatusCodes.Status200OK)
+        .WithDescription(
+            "Updates hall image metadata and optionally replaces the original image and thumbnail.")
+        .Accepts<IFormFile>("multipart/form-data")
+        .Produces<ApiResponse<HallImageDto>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status400BadRequest)
         .Produces(StatusCodes.Status401Unauthorized)
-        .Produces(StatusCodes.Status404NotFound);
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status500InternalServerError);
 
         group.MapDelete("/images/{hallImageId:guid}",
             async (
@@ -157,8 +196,7 @@ public static class HallImageEndpoints
             })
         .WithName("GetHallImageContent")
         .WithSummary("Get Hall Image Content")
-        .WithDescription(
-            "Returns the hall image from private Cloudflare R2 storage.")
+        .WithDescription("Returns the hall image from private Cloudflare R2 storage.")
         .Produces(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status404NotFound);

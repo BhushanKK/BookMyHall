@@ -156,9 +156,10 @@ public static class DependencyInjection
         services.AddHostedService<PasswordResetSuccessConsumer>();
         services.AddHostedService<EmailVerificationConsumer>();
         services.AddHostedService<EmailVerifiedConsumer>();
-
+        services.AddHostedService<HallImageThumbnailConsumer>();
         services.AddScoped<IR2StorageService, CloudflareR2StorageService>();
-
+        services.AddScoped<IImageProcessingService, ImageProcessingService>();
+        
         services.AddMemoryCache();
 
         services.AddSingleton<ICacheService, MemoryCacheService>();

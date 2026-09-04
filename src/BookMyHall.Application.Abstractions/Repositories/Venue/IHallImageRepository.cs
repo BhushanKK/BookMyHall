@@ -10,4 +10,5 @@ public interface IHallImageRepository
     Task<HallImage?> GetCoverImageAsync(Guid hallId, CancellationToken cancellationToken = default);
     Task AddAsync(HallImage hallImage, CancellationToken cancellationToken = default);
     Task UpdateAsync(HallImage hallImage, CancellationToken cancellationToken = default);
+    
 }

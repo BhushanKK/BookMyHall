@@ -55,4 +55,5 @@ public class HallImage : BaseEntity
     public void SetCoverImage(bool isCoverImage) => IsCoverImage = isCoverImage;
     public void SetActive(bool isActive) => IsActive = isActive;
     public void UpdateDisplayOrder(int displayOrder) => DisplayOrder = displayOrder;
+    public void SetThumbnailUrl(string thumbnailUrl) => ThumbnailUrl = thumbnailUrl;
 }

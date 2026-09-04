@@ -8,5 +8,9 @@ public sealed record UpdateHallImageCommand(
     Guid HallImageId,
     bool IsCoverImage,
     int DisplayOrder,
-    bool IsActive)
+    bool IsActive,
+    Stream? ImageStream,
+    string? FileName,
+    string? ContentType,
+    long? FileSize)
     : IRequest<ApiResponse<HallImageDto>>;

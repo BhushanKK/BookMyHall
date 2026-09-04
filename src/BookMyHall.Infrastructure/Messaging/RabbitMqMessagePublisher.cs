@@ -116,6 +116,9 @@ public sealed class RabbitMqMessagePublisher(
             var type when type == typeof(EmailVerificationRequestedMessage)
                 => RabbitMqKeys.EmailVerificationRoutingKey,
 
+             var type when type == typeof(HallImageUploadedMessage)
+                => RabbitMqKeys.HallImageUploadedRoutingKey,
+
             _ => throw new InvalidOperationException(
                 $"No RabbitMQ routing key configured for message type '{typeof(T).Name}'.")
         };

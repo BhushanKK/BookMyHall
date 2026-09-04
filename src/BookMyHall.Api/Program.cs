@@ -20,7 +20,7 @@ builder.AddSerilogLogging();
 builder.Services.AddOpenApi();
 
 builder.Services
-    .AddApplication()
+    .AddApplication(builder.Configuration)
     .AddInfrastructure(builder.Configuration)
     .AddPersistence(builder.Configuration);
 

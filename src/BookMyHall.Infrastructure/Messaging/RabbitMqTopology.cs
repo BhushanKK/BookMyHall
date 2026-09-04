@@ -132,5 +132,22 @@ public sealed class RabbitMqTopology(IOptions<RabbitMqOptions> options)
             routingKey: RabbitMqKeys.EmailVerificationRoutingKey,
             cancellationToken: cancellationToken
         );
+
+        await channel.QueueDeclareAsync
+        (
+            queue: RabbitMqKeys.HallImageUploadedQueueName,
+            durable: true,
+            exclusive: false,
+            autoDelete: false,
+            cancellationToken: cancellationToken
+        );
+
+        await channel.QueueBindAsync
+        (
+            queue: RabbitMqKeys.HallImageUploadedQueueName,
+            exchange: _options.ExchangeName,
+            routingKey: RabbitMqKeys.HallImageUploadedRoutingKey,
+            cancellationToken: cancellationToken
+        );
     }
 }
