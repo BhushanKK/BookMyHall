@@ -18,4 +18,5 @@ public sealed class HallListDto
     public int? MinimumCapacity { get; init; }
     public int? MaximumCapacity { get; init; }
     public bool IsActive { get; init; }
+    public string? CoverPageUrl { get; init; }
 }

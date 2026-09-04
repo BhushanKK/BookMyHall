@@ -11,7 +11,7 @@ public class User : BaseEntity
     public string? MiddleName { get; set; }
     public string? LastName { get; set; }
     public string? MobileNumber { get; set; }
-    public string EmailAddress { get; set; } = string.Empty;
+    public string? EmailAddress { get; set; }
     public string? PasswordHash { get; set; }
     public string? ProfileImageUrl { get; set; }
     public DateTimeOffset? DateOfBirth { get; set; }
