@@ -19,5 +19,5 @@ public interface IRefreshTokenRepository
     /// Revokes a specific refresh token.
     /// Used during logout or refresh token rotation.
     /// </summary>
-    Task RevokeAsync(Guid refreshTokenId, Guid revokedBy, CancellationToken cancellationToken = default);
+    Task<bool> TryRevokeAsync(Guid refreshTokenId, Guid revokedBy, CancellationToken cancellationToken = default);
 }

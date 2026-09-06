@@ -1,6 +1,8 @@
 using System.Net;
+
 using FluentValidation;
 using MediatR;
+
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -20,58 +22,100 @@ public sealed class LogoutCommandHandler(
         LogoutCommand request,
         CancellationToken cancellationToken)
     {
-        // Validate request
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
         {
-            return ApiResponse<bool>.FailureResponse
-            (
-                string.Join(" | ",
+            return ApiResponse<bool>.FailureResponse(
+                string.Join(
+                    " | ",
                     validationResult.Errors.Select(x => x.ErrorMessage)),
-                HttpStatusCode.BadRequest
-            );
+                HttpStatusCode.BadRequest);
         }
 
-        // Load refresh token
-        var refreshToken = await refreshTokenRepository.GetByTokenAsync(
-            request.RefreshToken,
-            cancellationToken);
+        // ---------------------------------------------------------
+        // Load Refresh Token
+        // ---------------------------------------------------------
 
-        if (refreshToken is null || refreshToken.IsRevoked)
+        var refreshToken =
+            await refreshTokenRepository.GetByTokenAsync(
+                request.RefreshToken,
+                cancellationToken);
+
+        if (refreshToken is null)
         {
-            return ApiResponse<bool>.FailureResponse
-            (
+            return ApiResponse<bool>.FailureResponse(
                 messageHelper.InvalidRefreshToken(),
-                HttpStatusCode.Unauthorized
-            );
+                HttpStatusCode.Unauthorized);
         }
 
-        // Revoke refresh token
-        refreshToken.IsRevoked = true;
-        refreshToken.RevokedAt = DateTimeOffset.UtcNow;
-        refreshToken.RevokedBy = refreshToken.UserId;
-        await refreshTokenRepository.RevokeAsync(refreshToken.RefreshTokenId, refreshToken.UserId, cancellationToken);
+        // ---------------------------------------------------------
+        // Check Refresh Token Status
+        // ---------------------------------------------------------
 
-        // End active session
-        var session = await userSessionRepository.GetByRefreshTokenIdAsync(refreshToken.RefreshTokenId, cancellationToken);
+        if (refreshToken.IsRevoked)
+        {
+            return ApiResponse<bool>.FailureResponse(
+                messageHelper.InvalidRefreshToken(),
+                HttpStatusCode.Unauthorized);
+        }
+
+        // ---------------------------------------------------------
+        // Revoke Refresh Token
+        // ---------------------------------------------------------
+        // TryRevokeAsync performs the revoke operation atomically.
+        // Only the request that successfully changes the token
+        // from active -> revoked will receive true.
+
+        var tokenRevoked =
+            await refreshTokenRepository.TryRevokeAsync(
+                refreshToken.RefreshTokenId,
+                refreshToken.UserId,
+                cancellationToken);
+
+        if (!tokenRevoked)
+        {
+            return ApiResponse<bool>.FailureResponse(
+                messageHelper.InvalidRefreshToken(),
+                HttpStatusCode.Unauthorized);
+        }
+
+        // ---------------------------------------------------------
+        // End Active User Session
+        // ---------------------------------------------------------
+
+        var session =
+            await userSessionRepository.GetByRefreshTokenIdAsync(
+                refreshToken.RefreshTokenId,
+                cancellationToken);
 
         if (session is not null && session.IsActive)
         {
+            var now = DateTimeOffset.UtcNow;
+
             session.IsActive = false;
-            session.SessionEnd = DateTimeOffset.UtcNow;
-            session.LastActivity = DateTimeOffset.UtcNow;
-            await userSessionRepository.UpdateAsync(session, cancellationToken);
+            session.SessionEnd = now;
+            session.LastActivity = now;
+
+            await userSessionRepository.UpdateAsync(
+                session,
+                cancellationToken);
         }
 
-        // Commit
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        // ---------------------------------------------------------
+        // Persist Changes
+        // ---------------------------------------------------------
 
-        return ApiResponse<bool>.SuccessResponse
-        (
+        await unitOfWork.SaveChangesAsync(
+            cancellationToken);
+
+        // ---------------------------------------------------------
+        // Response
+        // ---------------------------------------------------------
+
+        return ApiResponse<bool>.SuccessResponse(
             true,
             messageHelper.LogoutSuccessful(),
-            HttpStatusCode.OK
-        );
+            HttpStatusCode.OK);
     }
 }

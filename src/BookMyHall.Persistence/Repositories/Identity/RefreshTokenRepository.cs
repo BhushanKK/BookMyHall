@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 using BookMyHall.Persistence.Context;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Domain.Dtos;
@@ -10,7 +11,7 @@ public sealed class RefreshTokenRepository(BookMyHallDbContext context)
 {
     public async Task AddAsync(RefreshToken refreshToken, CancellationToken cancellationToken = default)
         => await context.RefreshTokens.AddAsync(refreshToken, cancellationToken);
-    
+
     public Task UpdateAsync(RefreshToken refreshToken, CancellationToken cancellationToken = default)
     {
         context.RefreshTokens.Update(refreshToken);
@@ -71,18 +72,29 @@ public sealed class RefreshTokenRepository(BookMyHallDbContext context)
             token.RevokedBy = userId;
         }
     }
-    public async Task RevokeAsync(
-        Guid refreshTokenId,
-        Guid revokedBy,
-        CancellationToken cancellationToken = default)
+    public async Task<bool> TryRevokeAsync(
+    Guid refreshTokenId,
+    Guid revokedBy,
+    CancellationToken cancellationToken = default)
     {
-        await context.RefreshTokens
-        .Where(x => x.RefreshTokenId == refreshTokenId)
-        .ExecuteUpdateAsync(
-            setters => setters
-                .SetProperty(x => x.IsRevoked, true)
-                .SetProperty(x => x.RevokedAt, DateTimeOffset.UtcNow)
-                .SetProperty(x => x.RevokedBy, revokedBy),
-            cancellationToken);
+        var affectedRows = await context.RefreshTokens
+            .Where(x =>
+                x.RefreshTokenId == refreshTokenId &&
+                !x.IsRevoked &&
+                x.ExpiresAt > DateTimeOffset.UtcNow)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(
+                        x => x.IsRevoked,
+                        true)
+                    .SetProperty(
+                        x => x.RevokedAt,
+                        DateTimeOffset.UtcNow)
+                    .SetProperty(
+                        x => x.RevokedBy,
+                        revokedBy),
+                cancellationToken);
+
+        return affectedRows == 1;
     }
 }
