@@ -1,15 +1,10 @@
 using System.Net;
-
-using AutoMapper;
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
 using BookMyHall.Application.Common.Interfaces.Storage;
-
 using BookMyHall.Contracts.Common;
 using BookMyHall.Contracts.Venue;
-
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 

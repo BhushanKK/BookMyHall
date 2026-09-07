@@ -1,17 +1,11 @@
 using System.Net;
-
-using AutoMapper;
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
 using BookMyHall.Application.Common.Interfaces.Storage;
-
 using BookMyHall.Contracts.Common;
 using BookMyHall.Contracts.Venue;
-
 using BookMyHall.Domain.Venue;
-
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 
@@ -19,7 +13,6 @@ namespace BookMyHall.Application.Features.Venue;
 
 public sealed class GetHallImageByIdQueryHandler(
     IHallImageRepository hallImageRepository,
-    IMapper mapper,
     IMessageHelper messageHelper,
     ICacheService cacheService,
     IR2StorageService r2StorageService)
