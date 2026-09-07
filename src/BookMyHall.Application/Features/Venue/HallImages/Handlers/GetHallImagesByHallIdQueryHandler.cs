@@ -7,7 +7,6 @@ using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
 using BookMyHall.Application.Common.Interfaces.Storage;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Contracts.Venue;
-using BookMyHall.Domain.Venue;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 
@@ -25,34 +24,62 @@ public sealed class GetHallImagesByHallIdQueryHandler(
         GetHallImagesByHallIdQuery,
         ApiResponse<PaginatedResult<HallImageDto>>>
 {
+    // =========================================================
+    // Configuration
+    // =========================================================
+
     private static readonly TimeSpan PreSignedUrlExpiration =
         TimeSpan.FromMinutes(30);
 
     private static readonly TimeSpan CacheExpiration =
         TimeSpan.FromMinutes(25);
 
-    public async Task<ApiResponse<PaginatedResult<HallImageDto>>> Handle(
-        GetHallImagesByHallIdQuery request,
-        CancellationToken cancellationToken)
+
+    // =========================================================
+    // Handle
+    // =========================================================
+
+    public async Task<
+        ApiResponse<PaginatedResult<HallImageDto>>> Handle(
+            GetHallImagesByHallIdQuery request,
+            CancellationToken cancellationToken)
     {
-        // ---------------------------------------------------------
-        // 1. Build cache key
-        // ---------------------------------------------------------
+        // -----------------------------------------------------
+        // 1. Pagination
+        // -----------------------------------------------------
 
         var pagination = request.Pagination;
 
+
+        // -----------------------------------------------------
+        // 2. Build Hall-specific cache key
+        // -----------------------------------------------------
+        //
+        // IMPORTANT:
+        // HallId MUST be part of the cache key.
+        //
+        // Otherwise:
+        //
+        // Hall A -> cache key X
+        // Hall B -> cache key X
+        //
+        // Hall B can receive Hall A's cached images.
+        //
+        // -----------------------------------------------------
+
         var cacheKey =
-            CacheKeyBuilder.BuildPaginatedKey<HallImage>(
-                CacheKeys.HallImagesPaged,
+            HallImageCacheKeyBuilder.BuildPaginatedKey(
+                request.HallId,
                 pagination.PageNumber,
                 pagination.PageSize,
                 pagination.SearchText,
                 pagination.SortBy,
                 pagination.SortDescending);
 
-        // ---------------------------------------------------------
-        // 2. Check cache
-        // ---------------------------------------------------------
+
+        // -----------------------------------------------------
+        // 3. Check cache
+        // -----------------------------------------------------
 
         var cachedResult =
             await cacheService.GetAsync<
@@ -62,7 +89,8 @@ public sealed class GetHallImagesByHallIdQueryHandler(
 
         if (cachedResult is not null)
         {
-            return ApiResponse<PaginatedResult<HallImageDto>>.SuccessResponse(
+            return ApiResponse<
+                PaginatedResult<HallImageDto>>.SuccessResponse(
                 cachedResult,
                 messageHelper.RetrievedEntity(
                     ResourceNames.Entities,
@@ -70,15 +98,21 @@ public sealed class GetHallImagesByHallIdQueryHandler(
                 HttpStatusCode.OK);
         }
 
-        // ---------------------------------------------------------
-        // 3. Get images from database
-        // ---------------------------------------------------------
+
+        // -----------------------------------------------------
+        // 4. Get images from database
+        // -----------------------------------------------------
 
         var result =
             await hallImageRepository.GetByHallIdAsync(
                 request.HallId,
-                request.Pagination,
+                pagination,
                 cancellationToken);
+
+
+        // -----------------------------------------------------
+        // 5. Handle no images
+        // -----------------------------------------------------
 
         if (result.Items is null ||
             result.Items.Count == 0)
@@ -91,19 +125,23 @@ public sealed class GetHallImagesByHallIdQueryHandler(
                 HttpStatusCode.NotFound);
         }
 
-        // ---------------------------------------------------------
-        // 4. Map entities → DTOs
-        // ---------------------------------------------------------
+
+        // -----------------------------------------------------
+        // 6. Map entities -> DTOs
+        // -----------------------------------------------------
 
         var mappedItems =
             mapper.Map<IReadOnlyList<HallImageDto>>(
                 result.Items);
 
-        // ---------------------------------------------------------
-        // 5. Generate pre-signed URLs
-        // ---------------------------------------------------------
 
-        for (var index = 0; index < result.Items.Count; index++)
+        // -----------------------------------------------------
+        // 7. Generate pre-signed URLs
+        // -----------------------------------------------------
+
+        for (var index = 0;
+             index < result.Items.Count;
+             index++)
         {
             var hallImage =
                 result.Items[index];
@@ -111,9 +149,10 @@ public sealed class GetHallImagesByHallIdQueryHandler(
             var dto =
                 mappedItems[index];
 
-            // -----------------------------------------------------
+
+            // -------------------------------------------------
             // Original image
-            // -----------------------------------------------------
+            // -------------------------------------------------
 
             if (!string.IsNullOrWhiteSpace(
                     hallImage.ImageUrl))
@@ -130,9 +169,10 @@ public sealed class GetHallImagesByHallIdQueryHandler(
                 }
             }
 
-            // -----------------------------------------------------
+
+            // -------------------------------------------------
             // Thumbnail image
-            // -----------------------------------------------------
+            // -------------------------------------------------
 
             if (!string.IsNullOrWhiteSpace(
                     hallImage.ThumbnailUrl))
@@ -152,29 +192,35 @@ public sealed class GetHallImagesByHallIdQueryHandler(
             {
                 // Thumbnail may still be processing
                 // asynchronously through RabbitMQ.
+
                 dto.ThumbnailUrl = null;
             }
         }
 
-        // ---------------------------------------------------------
-        // 6. Create paginated response
-        // ---------------------------------------------------------
+
+        // -----------------------------------------------------
+        // 8. Create paginated response
+        // -----------------------------------------------------
 
         var mappedResult =
             new PaginatedResult<HallImageDto>
             {
                 Items = mappedItems,
 
-                TotalCount = result.TotalCount,
+                TotalCount =
+                    result.TotalCount,
 
-                PageNumber = result.PageNumber,
+                PageNumber =
+                    result.PageNumber,
 
-                PageSize = result.PageSize
+                PageSize =
+                    result.PageSize
             };
 
-        // ---------------------------------------------------------
-        // 7. Cache response
-        // ---------------------------------------------------------
+
+        // -----------------------------------------------------
+        // 9. Store result in cache
+        // -----------------------------------------------------
 
         await cacheService.SetAsync(
             cacheKey,
@@ -182,9 +228,10 @@ public sealed class GetHallImagesByHallIdQueryHandler(
             CacheExpiration,
             cancellationToken);
 
-        // ---------------------------------------------------------
-        // 8. Return response
-        // ---------------------------------------------------------
+
+        // -----------------------------------------------------
+        // 10. Return response
+        // -----------------------------------------------------
 
         return ApiResponse<
             PaginatedResult<HallImageDto>>.SuccessResponse(
