@@ -16,8 +16,7 @@ public sealed class GetHallImageByIdQueryHandler(
     IMessageHelper messageHelper,
     ICacheService cacheService,
     IR2StorageService r2StorageService)
-    : IRequestHandler<
-        GetHallImageByIdQuery,
+    : IRequestHandler<GetHallImageByIdQuery,
         ApiResponse<HallImageDto>>
 {
     private static readonly TimeSpan CacheExpiration =

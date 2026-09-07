@@ -1,8 +1,6 @@
 using System.Net;
-
 using AutoMapper;
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -25,7 +23,7 @@ public sealed class GetHallPricingByIdQueryHandler(
         CancellationToken cancellationToken)
     {
         // =========================================================
-        // CACHE KEY
+        // BUILD CACHE KEY
         // =========================================================
 
         var cacheKey =
@@ -34,7 +32,7 @@ public sealed class GetHallPricingByIdQueryHandler(
                     request.HallPricingId);
 
         // =========================================================
-        // CACHE
+        // CHECK CACHE
         // =========================================================
 
         var cachedHallPricing =
@@ -54,7 +52,7 @@ public sealed class GetHallPricingByIdQueryHandler(
         }
 
         // =========================================================
-        // DATABASE
+        // GET FROM DATABASE
         // =========================================================
 
         var hallPricing =
@@ -73,7 +71,7 @@ public sealed class GetHallPricingByIdQueryHandler(
         }
 
         // =========================================================
-        // MAP
+        // MAP ENTITY -> DTO
         // =========================================================
 
         var response =
@@ -81,7 +79,7 @@ public sealed class GetHallPricingByIdQueryHandler(
                 hallPricing);
 
         // =========================================================
-        // CACHE
+        // STORE IN CACHE
         // =========================================================
 
         await cacheService.SetAsync(
@@ -91,7 +89,7 @@ public sealed class GetHallPricingByIdQueryHandler(
             cancellationToken);
 
         // =========================================================
-        // RETURN
+        // RETURN SUCCESS
         // =========================================================
 
         return ApiResponse<HallPricingDto>

@@ -35,12 +35,15 @@ public sealed class HallPricingRepository(BookMyHallDbContext context)
 
     public async Task<PaginatedResult<HallPricing>> GetAllAsync(
         PaginationRequest request,
+        Guid? hallId,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<HallPricing> query =
-            context.HallPricings
+        IQueryable<HallPricing> query = context.HallPricings
             .Where(x=>x.IsDeleted==false)
             .AsNoTracking();
+       
+        if (hallId.HasValue)
+            query = query.Where(x => x.HallId == hallId.Value);
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {

@@ -50,7 +50,7 @@ public sealed class DeleteHallPricingCommandHandler(
         }
 
         // =========================================================
-        // GET ENTITY
+        // GET EXISTING ENTITY
         // =========================================================
 
         var hallPricing =
@@ -69,7 +69,10 @@ public sealed class DeleteHallPricingCommandHandler(
         }
 
         // =========================================================
-        // CAPTURE CACHE VALUES BEFORE SOFT DELETE
+        // CAPTURE CACHE VALUES
+        //
+        // Required before soft delete because the entity may no
+        // longer be available after the update.
         // =========================================================
 
         var hallId =
@@ -92,8 +95,12 @@ public sealed class DeleteHallPricingCommandHandler(
             cancellationToken);
 
         // =========================================================
-        // INVALIDATE BY ID
+        // CACHE INVALIDATION
         // =========================================================
+
+        // ---------------------------------------------------------
+        // 1. Remove cache by HallPricingId
+        // ---------------------------------------------------------
 
         await cacheService.RemoveAsync(
             HallPricingCacheKeyBuilder
@@ -101,9 +108,9 @@ public sealed class DeleteHallPricingCommandHandler(
                     request.HallPricingId),
             cancellationToken);
 
-        // =========================================================
-        // INVALIDATE BY HALL + EVENT CATEGORY
-        // =========================================================
+        // ---------------------------------------------------------
+        // 2. Remove Hall + EventCategory cache
+        // ---------------------------------------------------------
 
         await cacheService.RemoveAsync(
             HallPricingCacheKeyBuilder
@@ -112,9 +119,18 @@ public sealed class DeleteHallPricingCommandHandler(
                     eventCategoryId),
             cancellationToken);
 
-        // =========================================================
-        // INVALIDATE ALL PAGINATION CACHE
-        // =========================================================
+        // ---------------------------------------------------------
+        // 3. Remove ALL paginated caches
+        //
+        // This is important because pagination now supports:
+        //
+        // - All halls
+        // - HallId filter
+        // - Different pages
+        // - Different page sizes
+        // - Different searches
+        // - Different sorting
+        // ---------------------------------------------------------
 
         await cacheService.RemoveByPrefixAsync(
             HallPricingCacheKeyBuilder
@@ -122,7 +138,7 @@ public sealed class DeleteHallPricingCommandHandler(
             cancellationToken);
 
         // =========================================================
-        // RETURN
+        // RETURN SUCCESS
         // =========================================================
 
         return ApiResponse<bool>

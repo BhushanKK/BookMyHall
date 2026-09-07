@@ -6,22 +6,33 @@ public static class HallPricingCacheKeyBuilder
     // GET BY ID
     // =========================================================
 
-    public static string BuildByIdKey(Guid hallPricingId)
-        => $"{CacheKeys.HallPricing}:{hallPricingId}";
-    
+    public static string BuildByIdKey(
+        Guid hallPricingId)
+    {
+        return
+            $"{CacheKeys.HallPricing}:{hallPricingId}";
+    }
 
     // =========================================================
     // GET BY HALL + EVENT CATEGORY
     // =========================================================
 
-    public static string BuildByHallAndEventCategoryKey(Guid hallId, Guid eventCategoryId)
-        => $"{CacheKeys.HallPricing}: hall:{hallId}: event-category:{eventCategoryId}";
+    public static string BuildByHallAndEventCategoryKey(
+        Guid hallId,
+        Guid eventCategoryId)
+    {
+        return
+            $"{CacheKeys.HallPricing}:" +
+            $"hall:{hallId}:" +
+            $"event-category:{eventCategoryId}";
+    }
 
     // =========================================================
     // PAGINATED LIST
     // =========================================================
 
     public static string BuildPaginatedKey(
+        Guid? hallId,
         int pageNumber,
         int pageSize,
         string? searchText,
@@ -30,6 +41,7 @@ public static class HallPricingCacheKeyBuilder
     {
         return
             $"{CacheKeys.HallPricingsPaged}:" +
+            $"hall:{Normalize(hallId)}:" +
             $"page:{pageNumber}:" +
             $"size:{pageSize}:" +
             $"search:{Normalize(searchText)}:" +
@@ -38,20 +50,33 @@ public static class HallPricingCacheKeyBuilder
     }
 
     // =========================================================
-    // ALL PAGINATED CACHE KEYS
+    // PAGINATED CACHE PREFIX
     // =========================================================
 
     public static string BuildPaginatedPrefix()
-        => $"{CacheKeys.HallPricingsPaged}:";
+    {
+        return $"{CacheKeys.HallPricingsPaged}:";
+    }
 
     // =========================================================
-    // NORMALIZE CACHE KEY VALUES
+    // GUID NORMALIZATION
+    // =========================================================
+
+    private static string Normalize(Guid? value)
+    {
+        return value?.ToString() ?? "none";
+    }
+
+    // =========================================================
+    // STRING NORMALIZATION
     // =========================================================
 
     private static string Normalize(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
+        {
             return "none";
+        }
 
         return value
             .Trim()

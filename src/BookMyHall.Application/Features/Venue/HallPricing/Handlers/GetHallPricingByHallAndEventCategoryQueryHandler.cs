@@ -25,7 +25,7 @@ public sealed class GetHallPricingByHallAndEventCategoryQueryHandler(
         CancellationToken cancellationToken)
     {
         // =========================================================
-        // CACHE KEY
+        // BUILD CACHE KEY
         // =========================================================
 
         var cacheKey =
@@ -35,7 +35,7 @@ public sealed class GetHallPricingByHallAndEventCategoryQueryHandler(
                     request.EventCategoryId);
 
         // =========================================================
-        // CACHE
+        // CHECK CACHE
         // =========================================================
 
         var cachedHallPricing =
@@ -55,7 +55,7 @@ public sealed class GetHallPricingByHallAndEventCategoryQueryHandler(
         }
 
         // =========================================================
-        // DATABASE
+        // GET FROM DATABASE
         // =========================================================
 
         var hallPricing =
@@ -76,7 +76,7 @@ public sealed class GetHallPricingByHallAndEventCategoryQueryHandler(
         }
 
         // =========================================================
-        // MAP
+        // MAP ENTITY -> DTO
         // =========================================================
 
         var response =
@@ -84,7 +84,7 @@ public sealed class GetHallPricingByHallAndEventCategoryQueryHandler(
                 hallPricing);
 
         // =========================================================
-        // CACHE
+        // STORE IN CACHE
         // =========================================================
 
         await cacheService.SetAsync(
@@ -94,7 +94,7 @@ public sealed class GetHallPricingByHallAndEventCategoryQueryHandler(
             cancellationToken);
 
         // =========================================================
-        // RETURN
+        // RETURN SUCCESS
         // =========================================================
 
         return ApiResponse<HallPricingDto>

@@ -53,7 +53,7 @@ public sealed class UpdateHallPricingCommandHandler(
         }
 
         // =========================================================
-        // GET EXISTING ENTITY
+        // GET EXISTING HALL PRICING
         // =========================================================
 
         var hallPricing =
@@ -72,9 +72,10 @@ public sealed class UpdateHallPricingCommandHandler(
         }
 
         // =========================================================
-        // CAPTURE OLD CACHE VALUES
+        // CAPTURE OLD VALUES
         //
-        // Required because HallId/EventCategoryId could change.
+        // These are required because HallId or EventCategoryId
+        // may be changed during the update.
         // =========================================================
 
         var oldHallId =
@@ -115,8 +116,14 @@ public sealed class UpdateHallPricingCommandHandler(
         }
 
         // =========================================================
-        // INVALIDATE BY ID
+        // CACHE INVALIDATION
+        //
+        // Database update was successful at this point.
         // =========================================================
+
+        // ---------------------------------------------------------
+        // 1. Remove cache by HallPricingId
+        // ---------------------------------------------------------
 
         await cacheService.RemoveAsync(
             HallPricingCacheKeyBuilder
@@ -124,9 +131,9 @@ public sealed class UpdateHallPricingCommandHandler(
                     request.HallPricingId),
             cancellationToken);
 
-        // =========================================================
-        // INVALIDATE OLD HALL + EVENT CATEGORY CACHE
-        // =========================================================
+        // ---------------------------------------------------------
+        // 2. Remove OLD Hall + EventCategory cache
+        // ---------------------------------------------------------
 
         await cacheService.RemoveAsync(
             HallPricingCacheKeyBuilder
@@ -135,11 +142,11 @@ public sealed class UpdateHallPricingCommandHandler(
                     oldEventCategoryId),
             cancellationToken);
 
-        // =========================================================
-        // INVALIDATE NEW HALL + EVENT CATEGORY CACHE
+        // ---------------------------------------------------------
+        // 3. Remove NEW Hall + EventCategory cache
         //
-        // Important if HallId/EventCategoryId changed.
-        // =========================================================
+        // Required when HallId or EventCategoryId changes.
+        // ---------------------------------------------------------
 
         await cacheService.RemoveAsync(
             HallPricingCacheKeyBuilder
@@ -148,9 +155,17 @@ public sealed class UpdateHallPricingCommandHandler(
                     hallPricing.EventCategoryId),
             cancellationToken);
 
-        // =========================================================
-        // INVALIDATE ALL PAGINATED CACHE
-        // =========================================================
+        // ---------------------------------------------------------
+        // 4. Remove ALL paginated Hall Pricing caches
+        //
+        // This covers:
+        // - All halls
+        // - Hall-specific filters
+        // - Different pages
+        // - Different page sizes
+        // - Different searches
+        // - Different sorting
+        // ---------------------------------------------------------
 
         await cacheService.RemoveByPrefixAsync(
             HallPricingCacheKeyBuilder
@@ -166,7 +181,7 @@ public sealed class UpdateHallPricingCommandHandler(
                 hallPricing);
 
         // =========================================================
-        // RETURN
+        // RETURN SUCCESS
         // =========================================================
 
         return ApiResponse<HallPricingDto>

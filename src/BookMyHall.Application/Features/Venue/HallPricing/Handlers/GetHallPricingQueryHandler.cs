@@ -1,6 +1,8 @@
 using System.Net;
+
 using AutoMapper;
 using MediatR;
+
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -32,12 +34,20 @@ public sealed class GetHallPricingQueryHandler(
             request.paginationRequest;
 
         // =========================================================
+        // OPTIONAL HALL FILTER
+        // =========================================================
+
+        var hallId =
+            request.HallId;
+
+        // =========================================================
         // CACHE KEY
         // =========================================================
 
         var cacheKey =
             HallPricingCacheKeyBuilder
                 .BuildPaginatedKey(
+                    hallId,
                     pagination.PageNumber,
                     pagination.PageSize,
                     pagination.SearchText,
@@ -73,6 +83,7 @@ public sealed class GetHallPricingQueryHandler(
         var result =
             await hallPricingRepository.GetAllAsync(
                 pagination,
+                hallId,
                 cancellationToken);
 
         // =========================================================

@@ -2,5 +2,7 @@ using MediatR;
 using BookMyHall.Contracts.Common;
 
 namespace BookMyHall.Application.Features.Venue;
-public sealed record GetHallPricingQuery(PaginationRequest paginationRequest)
+public sealed record GetHallPricingQuery(
+    PaginationRequest paginationRequest,
+    Guid? HallId = null)
     : IRequest<ApiResponse<PaginatedResult<HallPricingDto>>>;

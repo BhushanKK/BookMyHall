@@ -19,20 +19,14 @@ public sealed class GetHallImagesByHallIdQueryHandler(
         GetHallImagesByHallIdQuery,
         ApiResponse<PaginatedResult<HallImageDto>>>
 {
-    private static readonly TimeSpan CacheExpiration =
-        TimeSpan.FromMinutes(25);
+    private static readonly TimeSpan CacheExpiration = TimeSpan.FromMinutes(25);
 
-    private static readonly TimeSpan PreSignedUrlExpiration =
-        TimeSpan.FromMinutes(30);
+    private static readonly TimeSpan PreSignedUrlExpiration = TimeSpan.FromMinutes(30);
 
-
-    public async Task<
-        ApiResponse<PaginatedResult<HallImageDto>>> Handle(
-        GetHallImagesByHallIdQuery request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<PaginatedResult<HallImageDto>>> Handle(
+        GetHallImagesByHallIdQuery request, CancellationToken cancellationToken)
     {
-        var pagination =
-            request.Pagination;
+        var pagination = request.Pagination;
 
 
         // =========================================================

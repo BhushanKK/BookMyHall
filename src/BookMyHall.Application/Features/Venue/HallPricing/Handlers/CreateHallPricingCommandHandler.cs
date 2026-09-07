@@ -1,17 +1,15 @@
 using System.Net;
-
 using AutoMapper;
 using FluentValidation;
 using MediatR;
-
+using BookMyHall.Application.Abstractions.Caching;
+using BookMyHall.Application.Abstractions.Persistence;
+using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Venue;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
-using BookMyHall.Application.Abstractions.Persistence;
-using BookMyHall.Application.Abstractions.Persistence.Repositories;
-using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Venue;
 
@@ -84,7 +82,18 @@ public sealed class CreateHallPricingCommandHandler(
         }
 
         // =========================================================
-        // INVALIDATE PAGINATION CACHE
+        // CACHE INVALIDATION
+        //
+        // A new pricing record can affect:
+        //
+        // 1. All-hall paginated results
+        // 2. Hall-specific paginated results
+        // 3. Different pages
+        // 4. Different page sizes
+        // 5. Different searches
+        // 6. Different sorting
+        //
+        // Therefore clear all paginated Hall Pricing caches.
         // =========================================================
 
         await cacheService.RemoveByPrefixAsync(
@@ -101,7 +110,7 @@ public sealed class CreateHallPricingCommandHandler(
                 hallPricing);
 
         // =========================================================
-        // RETURN
+        // RETURN SUCCESS
         // =========================================================
 
         return ApiResponse<HallPricingDto>
