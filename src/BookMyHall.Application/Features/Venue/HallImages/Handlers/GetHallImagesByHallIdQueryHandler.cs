@@ -1,6 +1,7 @@
 using System.Net;
 
 using AutoMapper;
+using MediatR;
 
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
@@ -9,8 +10,6 @@ using BookMyHall.Contracts.Common;
 using BookMyHall.Contracts.Venue;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
-
-using MediatR;
 
 namespace BookMyHall.Application.Features.Venue;
 
@@ -25,7 +24,7 @@ public sealed class GetHallImagesByHallIdQueryHandler(
         ApiResponse<PaginatedResult<HallImageDto>>>
 {
     // =========================================================
-    // Configuration
+    // CONFIGURATION
     // =========================================================
 
     private static readonly TimeSpan PreSignedUrlExpiration =
@@ -36,7 +35,7 @@ public sealed class GetHallImagesByHallIdQueryHandler(
 
 
     // =========================================================
-    // Handle
+    // HANDLE
     // =========================================================
 
     public async Task<
@@ -44,28 +43,27 @@ public sealed class GetHallImagesByHallIdQueryHandler(
             GetHallImagesByHallIdQuery request,
             CancellationToken cancellationToken)
     {
-        // -----------------------------------------------------
-        // 1. Pagination
-        // -----------------------------------------------------
+        // =====================================================
+        // 1. GET PAGINATION
+        // =====================================================
 
         var pagination = request.Pagination;
 
 
-        // -----------------------------------------------------
-        // 2. Build Hall-specific cache key
-        // -----------------------------------------------------
+        // =====================================================
+        // 2. BUILD CACHE KEY
+        // =====================================================
         //
-        // IMPORTANT:
-        // HallId MUST be part of the cache key.
+        // HallImageCacheKeyBuilder MUST generate a key beginning
+        // with:
         //
-        // Otherwise:
+        // hallimages:page:
         //
-        // Hall A -> cache key X
-        // Hall B -> cache key X
+        // Example:
         //
-        // Hall B can receive Hall A's cached images.
+        // hallimages:page:{hallId}:1:10:...
         //
-        // -----------------------------------------------------
+        // =====================================================
 
         var cacheKey =
             HallImageCacheKeyBuilder.BuildPaginatedKey(
@@ -77,9 +75,9 @@ public sealed class GetHallImagesByHallIdQueryHandler(
                 pagination.SortDescending);
 
 
-        // -----------------------------------------------------
-        // 3. Check cache
-        // -----------------------------------------------------
+        // =====================================================
+        // 3. TRY CACHE
+        // =====================================================
 
         var cachedResult =
             await cacheService.GetAsync<
@@ -99,9 +97,9 @@ public sealed class GetHallImagesByHallIdQueryHandler(
         }
 
 
-        // -----------------------------------------------------
-        // 4. Get images from database
-        // -----------------------------------------------------
+        // =====================================================
+        // 4. GET FRESH DATA FROM DATABASE
+        // =====================================================
 
         var result =
             await hallImageRepository.GetByHallIdAsync(
@@ -110,9 +108,9 @@ public sealed class GetHallImagesByHallIdQueryHandler(
                 cancellationToken);
 
 
-        // -----------------------------------------------------
-        // 5. Handle no images
-        // -----------------------------------------------------
+        // =====================================================
+        // 5. CHECK RESULT
+        // =====================================================
 
         if (result.Items is null ||
             result.Items.Count == 0)
@@ -126,18 +124,18 @@ public sealed class GetHallImagesByHallIdQueryHandler(
         }
 
 
-        // -----------------------------------------------------
-        // 6. Map entities -> DTOs
-        // -----------------------------------------------------
+        // =====================================================
+        // 6. MAP ENTITY -> DTO
+        // =====================================================
 
         var mappedItems =
             mapper.Map<IReadOnlyList<HallImageDto>>(
                 result.Items);
 
 
-        // -----------------------------------------------------
-        // 7. Generate pre-signed URLs
-        // -----------------------------------------------------
+        // =====================================================
+        // 7. GENERATE PRE-SIGNED URLS
+        // =====================================================
 
         for (var index = 0;
              index < result.Items.Count;
@@ -150,9 +148,9 @@ public sealed class GetHallImagesByHallIdQueryHandler(
                 mappedItems[index];
 
 
-            // -------------------------------------------------
-            // Original image
-            // -------------------------------------------------
+            // =================================================
+            // ORIGINAL IMAGE
+            // =================================================
 
             if (!string.IsNullOrWhiteSpace(
                     hallImage.ImageUrl))
@@ -163,16 +161,20 @@ public sealed class GetHallImagesByHallIdQueryHandler(
                         PreSignedUrlExpiration,
                         cancellationToken);
 
-                if (!string.IsNullOrWhiteSpace(imageUrl))
-                {
-                    dto.ImageUrl = imageUrl;
-                }
+                dto.ImageUrl =
+                    string.IsNullOrWhiteSpace(imageUrl)
+                        ? null
+                        : imageUrl;
+            }
+            else
+            {
+                dto.ImageUrl = null;
             }
 
 
-            // -------------------------------------------------
-            // Thumbnail image
-            // -------------------------------------------------
+            // =================================================
+            // THUMBNAIL
+            // =================================================
 
             if (!string.IsNullOrWhiteSpace(
                     hallImage.ThumbnailUrl))
@@ -190,17 +192,16 @@ public sealed class GetHallImagesByHallIdQueryHandler(
             }
             else
             {
-                // Thumbnail may still be processing
-                // asynchronously through RabbitMQ.
-
+                // Thumbnail is generated asynchronously by
+                // RabbitMQ.
                 dto.ThumbnailUrl = null;
             }
         }
 
 
-        // -----------------------------------------------------
-        // 8. Create paginated response
-        // -----------------------------------------------------
+        // =====================================================
+        // 8. CREATE PAGINATED RESULT
+        // =====================================================
 
         var mappedResult =
             new PaginatedResult<HallImageDto>
@@ -218,9 +219,9 @@ public sealed class GetHallImagesByHallIdQueryHandler(
             };
 
 
-        // -----------------------------------------------------
-        // 9. Store result in cache
-        // -----------------------------------------------------
+        // =====================================================
+        // 9. CACHE FRESH RESULT
+        // =====================================================
 
         await cacheService.SetAsync(
             cacheKey,
@@ -229,9 +230,9 @@ public sealed class GetHallImagesByHallIdQueryHandler(
             cancellationToken);
 
 
-        // -----------------------------------------------------
-        // 10. Return response
-        // -----------------------------------------------------
+        // =====================================================
+        // 10. RETURN
+        // =====================================================
 
         return ApiResponse<
             PaginatedResult<HallImageDto>>.SuccessResponse(

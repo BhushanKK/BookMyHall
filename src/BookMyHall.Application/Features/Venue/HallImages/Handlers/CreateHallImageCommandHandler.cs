@@ -1,5 +1,4 @@
 using System.Net;
-
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Abstractions.Messaging;
 using BookMyHall.Application.Abstractions.Persistence;
@@ -12,7 +11,6 @@ using BookMyHall.Domain.Venue;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
-
 using FluentValidation;
 using MediatR;
 
@@ -280,7 +278,7 @@ public sealed class CreateHallImageCommandHandler(
         // ---------------------------------------------------------
 
         await cacheService.RemoveByPrefixAsync(
-            $"{CacheKeys.HallImagesPaged}:",
+            CacheKeys.HallImagesPaged,
             cancellationToken);
 
         // ---------------------------------------------------------

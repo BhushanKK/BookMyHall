@@ -449,7 +449,7 @@ public sealed class UpdateHallImageCommandHandler(
         // ---------------------------------------------------------
 
         await cacheService.RemoveByPrefixAsync(
-            $"{CacheKeys.HallImagesPaged}:",
+            CacheKeys.HallImagesPaged,
             cancellationToken);
     }
 
