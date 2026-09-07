@@ -7,7 +7,7 @@ public interface IHallBlockRepository
 {
     Task<HallBlock?> GetByIdAsync(Guid hallBlockId,CancellationToken cancellationToken = default);
 
-    Task<PaginatedResult<HallBlock>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default);
+    Task<PaginatedResult<HallBlock>> GetAllAsync(PaginationRequest request,Guid? hallId ,CancellationToken cancellationToken = default);
 
     Task AddAsync(HallBlock hallBlock,CancellationToken cancellationToken = default);
 

@@ -74,15 +74,17 @@ public static class HallBlockEndpoints
         .Produces(StatusCodes.Status404NotFound);
 
         group.MapGet("/", async (
-            [AsParameters] PaginationRequest request,IMediator mediator,CancellationToken cancellationToken) =>
+            [AsParameters] PaginationRequest request,
+            Guid? hallId,
+            IMediator mediator,
+            CancellationToken cancellationToken) =>
         {
-            var response = await mediator.Send(new GetHallBlocksQuery(request),cancellationToken);
-
-            return Results.Json(response,statusCode: response.StatusCode);
+            var response = await mediator.Send(new GetHallBlocksQuery(request, hallId), cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
         })
         .WithName("GetHallBlocks")
         .WithSummary("Get Hall Blocks")
-        .WithDescription("Returns a paginated list of hall blocks.")
+        .WithDescription("Returns a paginated list of hall blocks, optionally filtered by Hall ID.")
         .Produces<ApiResponse<PaginatedResponse<HallBlockDto>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
     }

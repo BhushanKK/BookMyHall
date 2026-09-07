@@ -15,12 +15,14 @@ public sealed class HallBlockRepository(BookMyHallDbContext context): IHallBlock
             .FirstOrDefaultAsync( x => x.HallBlockId == hallBlockId,cancellationToken);
     }
 
-    public async Task<PaginatedResult<HallBlock>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
+    public async Task<PaginatedResult<HallBlock>> GetAllAsync(PaginationRequest request,Guid? hallId,CancellationToken cancellationToken = default)
     {
         var query = context.HallBlocks
         .Where(x=>x.IsDeleted==false)
             .AsNoTracking()
             .Where(x => x.IsActive);
+        if (hallId.HasValue)
+            query = query.Where(x => x.HallId == hallId.Value);
 
         var totalCount = await query.CountAsync(cancellationToken);
 
