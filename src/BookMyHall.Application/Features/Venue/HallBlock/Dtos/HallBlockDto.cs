@@ -1,10 +1,7 @@
-using System.Text.Json.Serialization;
-
 namespace BookMyHall.Application.Features.Venue;
 
 public class HallBlockDto
 {
-    [JsonIgnore]
     public Guid HallBlockId { get; set; }
 
     public Guid HallId { get; set; }
