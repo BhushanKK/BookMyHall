@@ -6,11 +6,14 @@ using MediatR;
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
 using BookMyHall.Application.Common.Interfaces.Storage;
+
 using BookMyHall.Contracts.Common;
 using BookMyHall.Contracts.Venue;
+
+using BookMyHall.Domain.Venue;
+
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
-using BookMyHall.Domain.Venue;
 
 namespace BookMyHall.Application.Features.Venue;
 
@@ -20,7 +23,9 @@ public sealed class GetHallImageByIdQueryHandler(
     IMessageHelper messageHelper,
     ICacheService cacheService,
     IR2StorageService r2StorageService)
-    : IRequestHandler<GetHallImageByIdQuery, ApiResponse<HallImageDto>>
+    : IRequestHandler<
+        GetHallImageByIdQuery,
+        ApiResponse<HallImageDto>>
 {
     private static readonly TimeSpan CacheExpiration =
         TimeSpan.FromMinutes(25);
@@ -28,52 +33,52 @@ public sealed class GetHallImageByIdQueryHandler(
     private static readonly TimeSpan PreSignedUrlExpiration =
         TimeSpan.FromMinutes(30);
 
+
     public async Task<ApiResponse<HallImageDto>> Handle(
         GetHallImageByIdQuery request,
         CancellationToken cancellationToken)
     {
         // =========================================================
-        // 1. CACHE KEY
+        // 1. BUILD CACHE KEY
         // =========================================================
 
         var cacheKey =
-            $"{CacheKeys.HallImage}:{request.HallImageId}";
+            HallImageCacheKeyBuilder.BuildImageKey(
+                request.HallImageId);
+
 
         // =========================================================
-        // 2. CHECK CACHE
-        // =========================================================
-        //
-        // IMPORTANT:
-        //
-        // We cache the HallImage entity/object-key information.
-        //
-        // We DO NOT cache HallImageDto because the DTO contains
-        // temporary R2 pre-signed URLs.
-        //
+        // 2. GET FROM CACHE
         // =========================================================
 
-        var cachedHallImage =
-            await cacheService.GetAsync<HallImage>(
+        var cachedImage =
+            await cacheService.GetAsync<HallImageCacheItem>(
                 cacheKey,
                 cancellationToken);
 
-        HallImage? hallImage;
 
-        if (cachedHallImage is not null)
+        HallImageCacheItem? cacheItem;
+
+
+        // =========================================================
+        // 3. CACHE HIT
+        // =========================================================
+
+        if (cachedImage is not null)
         {
-            hallImage =
-                cachedHallImage;
+            cacheItem = cachedImage;
         }
         else
         {
             // =====================================================
-            // 3. GET HALL IMAGE FROM DATABASE
+            // 4. CACHE MISS → DATABASE
             // =====================================================
 
-            hallImage =
+            var hallImage =
                 await hallImageRepository.GetByIdAsync(
                     request.HallImageId,
                     cancellationToken);
+
 
             if (hallImage is null)
             {
@@ -84,76 +89,104 @@ public sealed class GetHallImageByIdQueryHandler(
                     HttpStatusCode.NotFound);
             }
 
+
             // =====================================================
-            // 4. CACHE HALL IMAGE DATA
+            // 5. MAP ENTITY → CACHE MODEL
+            // =====================================================
+
+            cacheItem =
+                MapToCacheItem(hallImage);
+
+
+            // =====================================================
+            // 6. STORE CACHE MODEL
             // =====================================================
             //
-            // Only persistent information/object keys are cached.
+            // IMPORTANT:
             //
-            // No pre-signed URLs are stored in cache.
+            // We are NOT caching:
+            //
+            //     HallImageDto
+            //
+            // and we are NOT caching:
+            //
+            //     pre-signed R2 URLs
             //
             // =====================================================
 
             await cacheService.SetAsync(
                 cacheKey,
-                hallImage,
+                cacheItem,
                 CacheExpiration,
                 cancellationToken);
         }
 
+
         // =========================================================
-        // 5. MAP ENTITY → DTO
+        // 7. MAP CACHE MODEL → DTO
         // =========================================================
 
         var response =
-            mapper.Map<HallImageDto>(
-                hallImage);
+            new HallImageDto
+            {
+                HallImageId = cacheItem.HallImageId,
+                HallId = cacheItem.HallId,
+                ImageUrl = null,
+                ThumbnailUrl = null,
+                DisplayOrder = cacheItem.DisplayOrder,
+                IsCoverImage = cacheItem.IsCoverImage,
+                IsActive = cacheItem.IsActive
+            };
+
 
         // =========================================================
-        // 6. VALIDATE ORIGINAL OBJECT KEY
+        // 8. VALIDATE ORIGINAL IMAGE OBJECT KEY
         // =========================================================
 
-        if (string.IsNullOrWhiteSpace(
-                hallImage.ImageUrl))
+        if (string.IsNullOrWhiteSpace(cacheItem.ImageUrl))
         {
             return ApiResponse<HallImageDto>.FailureResponse(
                 "Hall image object key is missing.",
                 HttpStatusCode.InternalServerError);
         }
 
+
         // =========================================================
-        // 7. GENERATE FRESH ORIGINAL IMAGE URL
+        // 9. GENERATE FRESH ORIGINAL IMAGE URL
         // =========================================================
 
         var imageUrl =
             await r2StorageService.GetPreSignedUrlAsync(
-                hallImage.ImageUrl,
+                cacheItem.ImageUrl,
                 PreSignedUrlExpiration,
                 cancellationToken);
 
-        if (string.IsNullOrWhiteSpace(
-                imageUrl))
+
+        if (string.IsNullOrWhiteSpace(imageUrl))
         {
             return ApiResponse<HallImageDto>.FailureResponse(
                 "Unable to generate pre-signed URL for the Hall image.",
                 HttpStatusCode.InternalServerError);
         }
 
+
         response.ImageUrl =
             imageUrl;
 
+
         // =========================================================
-        // 8. GENERATE FRESH THUMBNAIL URL
+        // 10. GENERATE FRESH THUMBNAIL URL
         // =========================================================
 
         if (!string.IsNullOrWhiteSpace(
-                hallImage.ThumbnailUrl))
+                cacheItem.ThumbnailUrl))
         {
             var thumbnailUrl =
                 await r2StorageService.GetPreSignedUrlAsync(
-                    hallImage.ThumbnailUrl,
+                    cacheItem.ThumbnailUrl,
                     PreSignedUrlExpiration,
                     cancellationToken);
+
 
             response.ThumbnailUrl =
                 string.IsNullOrWhiteSpace(
@@ -163,31 +196,19 @@ public sealed class GetHallImageByIdQueryHandler(
         }
         else
         {
-            // Thumbnail may still be generating through RabbitMQ.
+            // Thumbnail may still be generated by RabbitMQ.
             response.ThumbnailUrl = null;
         }
 
-        // =========================================================
-        // 9. DO NOT CACHE RESPONSE
-        // =========================================================
-        //
-        // response contains:
-        //
-        //     response.ImageUrl
-        //     response.ThumbnailUrl
-        //
-        // Both are temporary pre-signed URLs.
-        //
-        // Therefore:
-        //
-        //     DO NOT:
-        //
-        //     cacheService.SetAsync(cacheKey, response, ...)
-        //
-        // =========================================================
 
         // =========================================================
-        // 10. RETURN RESPONSE
+        // 11. RETURN RESPONSE
+        // =========================================================
+        //
+        // DO NOT CACHE response.
+        //
+        // response contains temporary R2 signed URLs.
+        //
         // =========================================================
 
         return ApiResponse<HallImageDto>.SuccessResponse(
@@ -196,5 +217,43 @@ public sealed class GetHallImageByIdQueryHandler(
                 ResourceNames.Entities,
                 EntityKeys.HallImage),
             HttpStatusCode.OK);
+    }
+
+
+    // =============================================================
+    // MAP DOMAIN ENTITY → CACHE MODEL
+    // =============================================================
+
+    private static HallImageCacheItem MapToCacheItem(
+        HallImage hallImage)
+    {
+        return new HallImageCacheItem
+        {
+            HallImageId =
+                hallImage.HallImageId,
+
+            HallId =
+                hallImage.HallId,
+
+            ImageUrl =
+                hallImage.ImageUrl,
+
+            ThumbnailUrl =
+                hallImage.ThumbnailUrl,
+
+            DisplayOrder =
+                hallImage.DisplayOrder,
+
+            IsCoverImage =
+                hallImage.IsCoverImage,
+
+            IsActive =
+                hallImage.IsActive,
+
+            IsDeleted =
+                hallImage.IsDeleted,
+
+            
+        };
     }
 }

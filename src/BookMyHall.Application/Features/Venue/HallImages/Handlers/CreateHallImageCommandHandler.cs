@@ -1,16 +1,22 @@
 using System.Net;
+
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Abstractions.Messaging;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
 using BookMyHall.Application.Common.Interfaces.Storage;
+
 using BookMyHall.Contracts.Common;
 using BookMyHall.Contracts.Messaging;
+
 using BookMyHall.Domain.Venue;
+
 using BookMyHall.Persistence.Exceptions;
+
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+
 using FluentValidation;
 using MediatR;
 
@@ -25,7 +31,9 @@ public sealed class CreateHallImageCommandHandler(
     IMessageHelper messageHelper,
     ICacheService cacheService,
     IMessagePublisher messagePublisher)
-    : IRequestHandler<CreateHallImageCommand, ApiResponse<Guid>>
+    : IRequestHandler<
+        CreateHallImageCommand,
+        ApiResponse<Guid>>
 {
     public async Task<ApiResponse<Guid>> Handle(
         CreateHallImageCommand request,
@@ -53,6 +61,7 @@ public sealed class CreateHallImageCommandHandler(
                 HttpStatusCode.BadRequest);
         }
 
+
         // =========================================================
         // 2. VERIFY HALL EXISTS
         // =========================================================
@@ -71,12 +80,14 @@ public sealed class CreateHallImageCommandHandler(
                 HttpStatusCode.NotFound);
         }
 
+
         // =========================================================
         // 3. GENERATE HALL IMAGE ID
         // =========================================================
 
         var hallImageId =
             Guid.NewGuid();
+
 
         // =========================================================
         // 4. GET FILE EXTENSION
@@ -87,6 +98,7 @@ public sealed class CreateHallImageCommandHandler(
                 request.FileName)
                 .ToLowerInvariant();
 
+
         // =========================================================
         // 5. BUILD R2 OBJECT KEY
         // =========================================================
@@ -94,7 +106,10 @@ public sealed class CreateHallImageCommandHandler(
         var objectKey =
             $"halls/{request.HallId}/{hallImageId}{extension}";
 
-        var originalUploaded = false;
+
+        var originalUploaded =
+            false;
+
 
         try
         {
@@ -102,11 +117,11 @@ public sealed class CreateHallImageCommandHandler(
             // 6. COPY REQUEST STREAM INTO MEMORY
             // =====================================================
             //
-            // The uploaded request stream belongs to the
-            // HTTP request pipeline.
+            // The incoming HTTP request stream belongs to the
+            // ASP.NET request pipeline.
             //
-            // We copy it into byte[] first so that the R2
-            // upload operates on an independent stream.
+            // Copying it to memory gives the R2 upload its own
+            // independent stream.
             //
             // =====================================================
 
@@ -116,12 +131,15 @@ public sealed class CreateHallImageCommandHandler(
             using var inputMemoryStream =
                 new MemoryStream();
 
+
             await requestStream.CopyToAsync(
                 inputMemoryStream,
                 cancellationToken);
 
+
             var imageBytes =
                 inputMemoryStream.ToArray();
+
 
             // =====================================================
             // 7. UPLOAD ORIGINAL IMAGE TO R2
@@ -140,15 +158,18 @@ public sealed class CreateHallImageCommandHandler(
                     cancellationToken);
             }
 
-            originalUploaded = true;
+
+            originalUploaded =
+                true;
+
 
             // =====================================================
             // 8. CREATE HALL IMAGE ENTITY
             // =====================================================
             //
-            // ThumbnailUrl/ObjectKey remains NULL.
+            // ThumbnailUrl is intentionally NULL.
             //
-            // RabbitMQ consumer will create the thumbnail
+            // RabbitMQ will generate the thumbnail
             // asynchronously.
             //
             // =====================================================
@@ -163,19 +184,44 @@ public sealed class CreateHallImageCommandHandler(
                     request.IsCoverImage,
                     null);
 
+
             // =====================================================
-            // 9. SAVE DATABASE RECORD
+            // 9. SAVE HALL IMAGE TO DATABASE
             // =====================================================
 
             await hallImageRepository.AddAsync(
                 hallImage,
                 cancellationToken);
 
+
             await unitOfWork.SaveChangesAsync(
                 cancellationToken);
 
+
             // =====================================================
-            // 10. PUBLISH RABBITMQ EVENT
+            // 10. INVALIDATE CACHE
+            // =====================================================
+            //
+            // IMPORTANT:
+            //
+            // The database has now been successfully updated.
+            //
+            // We must remove stale cached image metadata before
+            // returning the newly-created image.
+            //
+            // =====================================================
+
+            await InvalidateHallImageCachesAsync(
+                request.HallId,
+                cancellationToken);
+
+
+            // =====================================================
+            // 11. PUBLISH RABBITMQ EVENT
+            // =====================================================
+            //
+            // Thumbnail generation happens asynchronously.
+            //
             // =====================================================
 
             var message =
@@ -189,29 +235,11 @@ public sealed class CreateHallImageCommandHandler(
                     ObjectKey:
                         objectKey);
 
+
             await messagePublisher.PublishAsync(
                 message,
                 cancellationToken);
 
-            // =====================================================
-            // 11. INVALIDATE HALL IMAGE CACHES
-            // =====================================================
-            //
-            // IMPORTANT:
-            //
-            // Do NOT leave old Hall Image cache entries after
-            // creating a new image.
-            //
-            // We invalidate:
-            //
-            // 1. Paginated Hall Images
-            // 2. Individual Hall Image
-            // 3. Hall Cover Image
-            //
-            // =====================================================
-
-            await InvalidateHallImageCachesAsync(
-                cancellationToken);
 
             // =====================================================
             // 12. RETURN SUCCESS
@@ -236,6 +264,7 @@ public sealed class CreateHallImageCommandHandler(
                 objectKey,
                 originalUploaded);
 
+
             return ApiResponse<Guid>.FailureResponse(
                 messageHelper.AlreadyExistsEntity(
                     ResourceNames.Entities,
@@ -257,58 +286,53 @@ public sealed class CreateHallImageCommandHandler(
         }
     }
 
+
     // =============================================================
     // INVALIDATE HALL IMAGE CACHES
     // =============================================================
 
     private async Task InvalidateHallImageCachesAsync(
+        Guid hallId,
         CancellationToken cancellationToken)
     {
-        // ---------------------------------------------------------
-        // 1. PAGINATED HALL IMAGE CACHE
-        // ---------------------------------------------------------
+        // =========================================================
+        // 1. INVALIDATE PAGINATED HALL IMAGE CACHE
+        // =========================================================
         //
-        // Example:
+        // We invalidate ONLY this hall's paginated cache.
         //
-        // HallImagesPaged:hallId:page:pageSize:sort
+        // Example cache keys:
         //
-        // We clear the entire Hall Image paginated cache because
-        // creating an image changes the result set.
+        // hallimages:page:{hallId}:page:1:size:10:search:none:sort:none:desc:true
         //
-        // ---------------------------------------------------------
+        // hallimages:page:{hallId}:page:2:size:10:search:none:sort:none:desc:true
+        //
+        // etc.
+        //
+        // =========================================================
 
         await cacheService.RemoveByPrefixAsync(
-            CacheKeys.HallImagesPaged,
+            HallImageCacheKeyBuilder.BuildHallPaginatedPrefix(
+                hallId),
             cancellationToken);
 
-        // ---------------------------------------------------------
-        // 2. SINGLE HALL IMAGE CACHE
-        // ---------------------------------------------------------
-        //
-        // Example:
-        //
-        // HallImage:{hallImageId}
-        //
-        // ---------------------------------------------------------
 
-        await cacheService.RemoveByPrefixAsync(
-            $"{CacheKeys.HallImage}:",
-            cancellationToken);
+        // =========================================================
+        // 2. INVALIDATE HALL COVER IMAGE CACHE
+        // =========================================================
+        //
+        // A newly-created image may be the new cover image.
+        //
+        // Therefore the existing cover cache must be removed.
+        //
+        // =========================================================
 
-        // ---------------------------------------------------------
-        // 3. HALL COVER IMAGE CACHE
-        // ---------------------------------------------------------
-        //
-        // Example:
-        //
-        // HallCoverImage:{hallId}
-        //
-        // ---------------------------------------------------------
-
-        await cacheService.RemoveByPrefixAsync(
-            $"{CacheKeys.HallCoverImage}:",
+        await cacheService.RemoveAsync(
+            HallImageCacheKeyBuilder.BuildCoverImageKey(
+                hallId),
             cancellationToken);
     }
+
 
     // =============================================================
     // R2 CLEANUP
@@ -320,10 +344,19 @@ public sealed class CreateHallImageCommandHandler(
     {
         try
         {
+            // =====================================================
+            // Nothing was uploaded to R2.
+            // =====================================================
+
             if (!originalUploaded)
             {
                 return;
             }
+
+
+            // =====================================================
+            // DELETE UPLOADED OBJECT
+            // =====================================================
 
             await r2StorageService.DeleteAsync(
                 objectKey,
@@ -331,13 +364,13 @@ public sealed class CreateHallImageCommandHandler(
         }
         catch
         {
-            // -----------------------------------------------------
+            // =====================================================
             // IMPORTANT:
             //
             // Never hide the original exception because R2 cleanup
             // itself failed.
             //
-            // -----------------------------------------------------
+            // =====================================================
         }
     }
 }

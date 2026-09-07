@@ -1,12 +1,16 @@
+using System.Net;
+
 using MediatR;
+
 using BookMyHall.Application.Abstractions.Caching;
-using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
-using BookMyHall.Contracts.Common;
-using BookMyHall.Shared.Common;
-using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Persistence;
 
-using System.Net;
+using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
+
+using BookMyHall.Contracts.Common;
+
+using BookMyHall.Shared.Common;
+using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Venue;
 
@@ -15,7 +19,9 @@ public sealed class DeleteHallImageCommandHandler(
     IMessageHelper messageHelper,
     ICacheService cacheService,
     IUnitOfWork unitOfWork)
-    : IRequestHandler<DeleteHallImageCommand, ApiResponse<bool>>
+    : IRequestHandler<
+        DeleteHallImageCommand,
+        ApiResponse<bool>>
 {
     public async Task<ApiResponse<bool>> Handle(
         DeleteHallImageCommand request,
@@ -46,6 +52,12 @@ public sealed class DeleteHallImageCommandHandler(
         // =========================================================
         // 3. CHECK IMAGE IS ACTIVE
         // =========================================================
+        //
+        // Existing behavior is preserved.
+        //
+        // An inactive image cannot be deleted again.
+        //
+        // =========================================================
 
         if (!hallImage.IsActive)
         {
@@ -60,26 +72,33 @@ public sealed class DeleteHallImageCommandHandler(
         // 4. KEEP HALL ID
         // =========================================================
         //
-        // We need HallId for invalidating the cover-image cache.
+        // We need HallId because:
+        //
+        // 1. Paginated cache is hall-specific.
+        // 2. Cover-image cache is hall-specific.
         //
         // =========================================================
 
-        var hallId = hallImage.HallId;
+        var hallId =
+            hallImage.HallId;
 
         // =========================================================
         // 5. SOFT DELETE IMAGE
         // =========================================================
         //
-        // We do not physically delete the database record.
+        // We do not physically remove the database record.
         //
         // The image is marked as deleted.
         //
-        // A deleted image cannot remain the cover image.
+        // Also remove its cover-image status.
         //
         // =========================================================
 
-        hallImage.IsDeleted = true;
-        hallImage.IsCoverImage = false;
+        hallImage.IsDeleted =
+            true;
+
+        hallImage.IsCoverImage =
+            false;
 
         // =========================================================
         // 6. UPDATE ENTITY
@@ -93,10 +112,8 @@ public sealed class DeleteHallImageCommandHandler(
         // 7. SAVE DATABASE CHANGES
         // =========================================================
         //
-        // IMPORTANT:
-        //
-        // Cache must NOT be invalidated before the database
-        // transaction is persisted.
+        // Cache invalidation happens ONLY after the database
+        // changes have been successfully persisted.
         //
         // =========================================================
 
@@ -104,65 +121,71 @@ public sealed class DeleteHallImageCommandHandler(
             cancellationToken);
 
         // =========================================================
-        // 8. CLEAR SINGLE IMAGE CACHE
+        // 8. CLEAR INDIVIDUAL IMAGE CACHE
         // =========================================================
         //
-        // Cache key:
+        // Key:
         //
         // hallimage:{hallImageId}
+        //
+        // Example:
+        //
+        // hallimage:8f5d...
         //
         // =========================================================
 
         await cacheService.RemoveAsync(
-            $"{CacheKeys.HallImage}:{request.HallImageId}",
+            HallImageCacheKeyBuilder.BuildImageKey(
+                request.HallImageId),
             cancellationToken);
 
         // =========================================================
-        // 9. CLEAR PAGINATED HALL IMAGE CACHE
+        // 9. CLEAR HALL-SPECIFIC PAGINATED IMAGE CACHE
         // =========================================================
         //
         // IMPORTANT:
         //
-        // CacheKeys.HallImagesPaged already ends with ":".
-        //
-        // Value:
-        //
-        // hallimages:page:
-        //
-        // Therefore DO NOT add another ":".
-        //
-        // WRONG:
-        //
-        // $"{CacheKeys.HallImagesPaged}:"
-        //
-        // Result:
-        //
-        // hallimages:page::
-        //
-        // CORRECT:
+        // Do NOT use:
         //
         // CacheKeys.HallImagesPaged
+        //
+        // directly here because that would invalidate the
+        // paginated image cache for EVERY hall.
+        //
+        // Instead use the hall-specific prefix:
+        //
+        // hallimages:page:{hallId}:
+        //
+        // This clears:
+        //
+        // hallimages:page:{hallId}:page:1:size:10:...
+        // hallimages:page:{hallId}:page:2:size:10:...
+        // hallimages:page:{hallId}:page:3:size:20:...
+        //
+        // while leaving other halls' caches untouched.
         //
         // =========================================================
 
         await cacheService.RemoveByPrefixAsync(
-            CacheKeys.HallImagesPaged,
+            HallImageCacheKeyBuilder.BuildHallPaginatedPrefix(
+                hallId),
             cancellationToken);
 
         // =========================================================
         // 10. CLEAR HALL COVER IMAGE CACHE
         // =========================================================
         //
-        // The deleted image may have been the cover image.
+        // The deleted image may have been the hall's cover image.
         //
-        // Cache key:
+        // Key:
         //
         // HallCoverImage:{hallId}
         //
         // =========================================================
 
         await cacheService.RemoveAsync(
-            $"{CacheKeys.HallCoverImage}:{hallId}",
+            HallImageCacheKeyBuilder.BuildCoverImageKey(
+                hallId),
             cancellationToken);
 
         // =========================================================
@@ -171,9 +194,11 @@ public sealed class DeleteHallImageCommandHandler(
 
         return ApiResponse<bool>.SuccessResponse(
             true,
+
             messageHelper.DeletedEntity(
                 ResourceNames.Entities,
                 EntityKeys.HallImage),
+
             HttpStatusCode.OK);
     }
 }

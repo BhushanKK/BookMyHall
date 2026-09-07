@@ -6,12 +6,16 @@ using MediatR;
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Abstractions.Messaging;
 using BookMyHall.Application.Abstractions.Persistence;
+
 using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
 using BookMyHall.Application.Common.Interfaces.Storage;
+
 using BookMyHall.Contracts.Common;
 using BookMyHall.Contracts.Messaging;
 using BookMyHall.Contracts.Venue;
+
 using BookMyHall.Domain.Venue;
+
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 
@@ -55,15 +59,30 @@ public sealed class UpdateHallImageCommandHandler(
         }
 
         // =========================================================
-        // 2. STORE OLD OBJECT KEYS
+        // 2. STORE HALL ID
         // =========================================================
         //
-        // We need these before modifying the entity.
+        // The HallId is required for hall-specific cache
+        // invalidation.
         //
-        // ImageUrl       = R2 object key
-        // ThumbnailUrl   = R2 thumbnail object key
+        // =========================================================
+
+        var hallId =
+            hallImage.HallId;
+
+        var hallImageId =
+            hallImage.HallImageId;
+
+        // =========================================================
+        // 3. STORE OLD R2 OBJECT KEYS
+        // =========================================================
         //
-        // These are NOT signed URLs.
+        // These are persistent R2 object keys.
+        //
+        // They are NOT pre-signed URLs.
+        //
+        // We need them for cleanup after the new image is
+        // successfully persisted.
         //
         // =========================================================
 
@@ -74,24 +93,15 @@ public sealed class UpdateHallImageCommandHandler(
             hallImage.ThumbnailUrl;
 
         // =========================================================
-        // 3. UPDATE METADATA
-        // =========================================================
-
-        hallImage.SetCoverImage(
-            request.IsCoverImage);
-
-        hallImage.UpdateDisplayOrder(
-            request.DisplayOrder);
-
-        hallImage.SetActive(
-            request.IsActive);
-
-        // =========================================================
         // 4. CHECK WHETHER IMAGE IS BEING REPLACED
         // =========================================================
 
         var imageReplaced =
             request.ImageStream is not null;
+
+        // =========================================================
+        // 5. VALIDATE REPLACEMENT FILE
+        // =========================================================
 
         if (imageReplaced)
         {
@@ -118,19 +128,51 @@ public sealed class UpdateHallImageCommandHandler(
                     "Content type is required when replacing the image.",
                     HttpStatusCode.BadRequest);
             }
+        }
 
-            // -----------------------------------------------------
-            // Replace R2 image
-            // -----------------------------------------------------
+        // =========================================================
+        // 6. UPDATE METADATA / REPLACE IMAGE
+        // =========================================================
+        //
+        // If a new image is supplied:
+        //
+        //     New original image is uploaded to R2.
+        //     ThumbnailUrl is reset to null.
+        //     RabbitMQ will generate a new thumbnail.
+        //
+        // If no new image is supplied:
+        //
+        //     Only metadata is updated.
+        //
+        // =========================================================
 
+        if (imageReplaced)
+        {
             await ReplaceImageAsync(
                 hallImage,
                 request,
                 cancellationToken);
         }
+        else
+        {
+            // -----------------------------------------------------
+            // No image replacement.
+            //
+            // Update only metadata.
+            // -----------------------------------------------------
+
+            hallImage.SetCoverImage(
+                request.IsCoverImage);
+
+            hallImage.UpdateDisplayOrder(
+                request.DisplayOrder);
+
+            hallImage.SetActive(
+                request.IsActive);
+        }
 
         // =========================================================
-        // 5. UPDATE DATABASE
+        // 7. UPDATE DATABASE
         // =========================================================
 
         await hallImageRepository.UpdateAsync(
@@ -141,7 +183,33 @@ public sealed class UpdateHallImageCommandHandler(
             cancellationToken);
 
         // =========================================================
-        // 6. PUBLISH THUMBNAIL GENERATION MESSAGE
+        // 8. INVALIDATE CACHE
+        // =========================================================
+        //
+        // IMPORTANT:
+        //
+        // Database changes have now been successfully persisted.
+        //
+        // Therefore invalidate cache immediately.
+        //
+        // We DO NOT cache the response because the response may
+        // contain temporary R2 pre-signed URLs.
+        //
+        // =========================================================
+
+        await InvalidateHallImageCachesAsync(
+            hallId,
+            hallImageId,
+            cancellationToken);
+
+        // =========================================================
+        // 9. PUBLISH THUMBNAIL GENERATION MESSAGE
+        // =========================================================
+        //
+        // Only required when the original image was replaced.
+        //
+        // RabbitMQ will asynchronously generate the thumbnail.
+        //
         // =========================================================
 
         if (imageReplaced)
@@ -160,51 +228,46 @@ public sealed class UpdateHallImageCommandHandler(
             await messagePublisher.PublishAsync(
                 message,
                 cancellationToken);
-
-            // -----------------------------------------------------
-            // Delete old ORIGINAL image if the object key changed
-            // -----------------------------------------------------
-
-            if (!string.IsNullOrWhiteSpace(
-                    oldImageKey)
-                &&
-                !string.Equals(
-                    oldImageKey,
-                    hallImage.ImageUrl,
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                await DeleteR2ObjectSafelyAsync(
-                    oldImageKey);
-            }
-
-            // -----------------------------------------------------
-            // Delete old THUMBNAIL
-            // -----------------------------------------------------
-            //
-            // The old thumbnail is no longer referenced after
-            // replacing the original image.
-            //
-            // -----------------------------------------------------
-
-            if (!string.IsNullOrWhiteSpace(
-                    oldThumbnailKey))
-            {
-                await DeleteR2ObjectSafelyAsync(
-                    oldThumbnailKey);
-            }
         }
 
         // =========================================================
-        // 7. INVALIDATE ALL HALL IMAGE CACHES
+        // 10. DELETE OLD R2 ORIGINAL IMAGE
+        // =========================================================
+        //
+        // Only delete the old original image when the object key
+        // actually changed.
+        //
         // =========================================================
 
-        await InvalidateHallImageCachesAsync(
-            hallImage.HallId,
-            hallImage.HallImageId,
-            cancellationToken);
+        if (imageReplaced &&
+            !string.IsNullOrWhiteSpace(oldImageKey) &&
+            !string.Equals(
+                oldImageKey,
+                hallImage.ImageUrl,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            await DeleteR2ObjectSafelyAsync(
+                oldImageKey);
+        }
 
         // =========================================================
-        // 8. MAP ENTITY → DTO
+        // 11. DELETE OLD R2 THUMBNAIL
+        // =========================================================
+        //
+        // The old thumbnail is no longer referenced after the
+        // original image is replaced.
+        //
+        // =========================================================
+
+        if (imageReplaced &&
+            !string.IsNullOrWhiteSpace(oldThumbnailKey))
+        {
+            await DeleteR2ObjectSafelyAsync(
+                oldThumbnailKey);
+        }
+
+        // =========================================================
+        // 12. MAP ENTITY → DTO
         // =========================================================
 
         var response =
@@ -212,7 +275,7 @@ public sealed class UpdateHallImageCommandHandler(
                 hallImage);
 
         // =========================================================
-        // 9. GENERATE FRESH ORIGINAL PRE-SIGNED URL
+        // 13. VALIDATE ORIGINAL IMAGE OBJECT KEY
         // =========================================================
 
         if (string.IsNullOrWhiteSpace(
@@ -223,14 +286,25 @@ public sealed class UpdateHallImageCommandHandler(
                 HttpStatusCode.InternalServerError);
         }
 
+        // =========================================================
+        // 14. GENERATE FRESH ORIGINAL PRE-SIGNED URL
+        // =========================================================
+        //
+        // IMPORTANT:
+        //
+        // This URL is generated AFTER cache invalidation.
+        //
+        // It is never stored in cache.
+        //
+        // =========================================================
+
         var imageUrl =
             await r2StorageService.GetPreSignedUrlAsync(
                 hallImage.ImageUrl,
                 PreSignedUrlExpiration,
                 cancellationToken);
 
-        if (string.IsNullOrWhiteSpace(
-                imageUrl))
+        if (string.IsNullOrWhiteSpace(imageUrl))
         {
             return ApiResponse<HallImageDto>.FailureResponse(
                 "Unable to generate pre-signed URL for the Hall image.",
@@ -241,17 +315,17 @@ public sealed class UpdateHallImageCommandHandler(
             imageUrl;
 
         // =========================================================
-        // 10. GENERATE FRESH THUMBNAIL PRE-SIGNED URL
+        // 15. GENERATE FRESH THUMBNAIL PRE-SIGNED URL
         // =========================================================
         //
-        // When image is replaced:
+        // After image replacement:
         //
         //     ThumbnailUrl = null
         //
-        // RabbitMQ will generate the thumbnail asynchronously.
+        // RabbitMQ generates the thumbnail asynchronously.
         //
-        // Therefore it is perfectly valid for this response to
-        // have ThumbnailUrl = null immediately after update.
+        // Therefore null is expected immediately after replacing
+        // an image.
         //
         // =========================================================
 
@@ -272,36 +346,36 @@ public sealed class UpdateHallImageCommandHandler(
         }
         else
         {
-            response.ThumbnailUrl = null;
+            response.ThumbnailUrl =
+                null;
         }
 
         // =========================================================
-        // 11. IMPORTANT:
-        //     DO NOT CACHE RESPONSE
+        // 16. DO NOT CACHE RESPONSE
         // =========================================================
         //
-        // response contains temporary R2 pre-signed URLs.
+        // IMPORTANT:
         //
-        // NEVER do:
+        // response.ImageUrl and response.ThumbnailUrl can contain
+        // temporary R2 pre-signed URLs.
         //
-        // cacheService.SetAsync(
-        //     cacheKey,
-        //     response,
-        //     ...);
+        // NEVER store this response in cache.
         //
-        // The cache invalidation above is enough.
+        // Cache contains only persistent image metadata.
         //
         // =========================================================
 
         // =========================================================
-        // 12. RETURN RESPONSE
+        // 17. RETURN SUCCESS
         // =========================================================
 
         return ApiResponse<HallImageDto>.SuccessResponse(
             response,
+
             messageHelper.UpdatedEntity(
                 ResourceNames.Entities,
                 EntityKeys.HallImage),
+
             HttpStatusCode.OK);
     }
 
@@ -314,11 +388,15 @@ public sealed class UpdateHallImageCommandHandler(
         UpdateHallImageCommand request,
         CancellationToken cancellationToken)
     {
+        // =========================================================
+        // 1. VALIDATE STREAM
+        // =========================================================
+
         ArgumentNullException.ThrowIfNull(
             request.ImageStream);
 
         // =========================================================
-        // 1. GET FILE EXTENSION
+        // 2. GET FILE EXTENSION
         // =========================================================
 
         var extension =
@@ -334,7 +412,7 @@ public sealed class UpdateHallImageCommandHandler(
         }
 
         // =========================================================
-        // 2. GENERATE NEW R2 OBJECT KEY
+        // 3. GENERATE NEW R2 OBJECT KEY
         // =========================================================
         //
         // Same HallImageId is retained.
@@ -350,7 +428,7 @@ public sealed class UpdateHallImageCommandHandler(
             $"{hallImage.HallImageId}{extension}";
 
         // =========================================================
-        // 3. RESET STREAM
+        // 4. RESET STREAM POSITION
         // =========================================================
 
         if (request.ImageStream.CanSeek)
@@ -359,7 +437,7 @@ public sealed class UpdateHallImageCommandHandler(
         }
 
         // =========================================================
-        // 4. UPLOAD NEW ORIGINAL IMAGE
+        // 5. UPLOAD NEW ORIGINAL IMAGE
         // =========================================================
 
         try
@@ -375,7 +453,7 @@ public sealed class UpdateHallImageCommandHandler(
             // -----------------------------------------------------
             // Upload failed.
             //
-            // Try to remove partially uploaded R2 object.
+            // Try to remove partially uploaded object.
             // -----------------------------------------------------
 
             try
@@ -386,17 +464,17 @@ public sealed class UpdateHallImageCommandHandler(
             }
             catch
             {
-                // Do not hide the original exception.
+                // Do not hide original exception.
             }
 
             throw;
         }
 
         // =========================================================
-        // 5. UPDATE ENTITY
+        // 6. UPDATE ENTITY WITH NEW OBJECT KEY
         // =========================================================
         //
-        // ThumbnailUrl is deliberately reset.
+        // ThumbnailUrl is intentionally reset.
         //
         // RabbitMQ will generate the new thumbnail.
         //
@@ -428,28 +506,58 @@ public sealed class UpdateHallImageCommandHandler(
         Guid hallImageId,
         CancellationToken cancellationToken)
     {
-        // ---------------------------------------------------------
-        // 1. SINGLE IMAGE CACHE
-        // ---------------------------------------------------------
+        // =========================================================
+        // 1. CLEAR INDIVIDUAL IMAGE CACHE
+        // =========================================================
+        //
+        // Key:
+        //
+        // hallimage:{hallImageId}
+        //
+        // =========================================================
 
         await cacheService.RemoveAsync(
-            $"{CacheKeys.HallImage}:{hallImageId}",
+            HallImageCacheKeyBuilder.BuildImageKey(
+                hallImageId),
             cancellationToken);
 
-        // ---------------------------------------------------------
-        // 2. COVER IMAGE CACHE
-        // ---------------------------------------------------------
-
-        await cacheService.RemoveAsync(
-            $"{CacheKeys.HallCoverImage}:{hallId}",
-            cancellationToken);
-
-        // ---------------------------------------------------------
-        // 3. PAGINATED IMAGE CACHE
-        // ---------------------------------------------------------
+        // =========================================================
+        // 2. CLEAR HALL-SPECIFIC PAGINATED CACHE
+        // =========================================================
+        //
+        // Prefix:
+        //
+        // hallimages:page:{hallId}:
+        //
+        // This clears all pagination combinations for THIS hall:
+        //
+        // page 1 / page 2 / page 3
+        // different page sizes
+        // different sorting
+        // different searches
+        //
+        // It does NOT clear image caches belonging to other halls.
+        //
+        // =========================================================
 
         await cacheService.RemoveByPrefixAsync(
-            CacheKeys.HallImagesPaged,
+            HallImageCacheKeyBuilder.BuildHallPaginatedPrefix(
+                hallId),
+            cancellationToken);
+
+        // =========================================================
+        // 3. CLEAR HALL COVER IMAGE CACHE
+        // =========================================================
+        //
+        // Key:
+        //
+        // HallCoverImage:{hallId}
+        //
+        // =========================================================
+
+        await cacheService.RemoveAsync(
+            HallImageCacheKeyBuilder.BuildCoverImageKey(
+                hallId),
             cancellationToken);
     }
 
@@ -468,10 +576,16 @@ public sealed class UpdateHallImageCommandHandler(
         }
         catch
         {
-            // -----------------------------------------------------
-            // Cleanup failure must not make the update operation
-            // fail after the database has already been updated.
-            // -----------------------------------------------------
+            // =====================================================
+            // IMPORTANT
+            // =====================================================
+            //
+            // Database has already been updated.
+            //
+            // R2 cleanup failure should not make the update
+            // operation fail.
+            //
+            // =====================================================
         }
     }
 }

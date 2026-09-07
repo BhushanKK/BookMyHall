@@ -1,17 +1,19 @@
 using System.Net;
 
 using AutoMapper;
+using MediatR;
 
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
 using BookMyHall.Application.Common.Interfaces.Storage;
+
 using BookMyHall.Contracts.Common;
 using BookMyHall.Contracts.Venue;
+
 using BookMyHall.Domain.Venue;
+
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
-
-using MediatR;
 
 namespace BookMyHall.Application.Features.Venue;
 
@@ -21,13 +23,16 @@ public sealed class GetHallCoverImageQueryHandler(
     IMessageHelper messageHelper,
     ICacheService cacheService,
     IR2StorageService r2StorageService)
-    : IRequestHandler<GetHallCoverImageQuery, ApiResponse<HallImageDto>>
+    : IRequestHandler<
+        GetHallCoverImageQuery,
+        ApiResponse<HallImageDto>>
 {
     private static readonly TimeSpan CacheExpiration =
         TimeSpan.FromMinutes(25);
 
     private static readonly TimeSpan PreSignedUrlExpiration =
         TimeSpan.FromMinutes(30);
+
 
     public async Task<ApiResponse<HallImageDto>> Handle(
         GetHallCoverImageQuery request,
@@ -38,43 +43,42 @@ public sealed class GetHallCoverImageQueryHandler(
         // =========================================================
 
         var cacheKey =
-            $"{CacheKeys.HallCoverImage}:{request.HallId}";
+            HallImageCacheKeyBuilder.BuildCoverImageKey(
+                request.HallId);
+
 
         // =========================================================
-        // 2. GET CACHED HALL IMAGE
-        // =========================================================
-        //
-        // IMPORTANT:
-        //
-        // The cache must NOT contain pre-signed R2 URLs.
-        //
-        // We cache HallImage entity information/object keys and
-        // generate fresh URLs below.
-        //
+        // 2. GET FROM CACHE
         // =========================================================
 
-        var cachedHallImage =
-            await cacheService.GetAsync<HallImage>(
+        var cachedImage =
+            await cacheService.GetAsync<HallImageCacheItem>(
                 cacheKey,
                 cancellationToken);
 
-        HallImage? coverImage;
 
-        if (cachedHallImage is not null)
+        HallImageCacheItem? cacheItem;
+
+
+        // =========================================================
+        // 3. CACHE HIT
+        // =========================================================
+
+        if (cachedImage is not null)
         {
-            coverImage =
-                cachedHallImage;
+            cacheItem = cachedImage;
         }
         else
         {
             // =====================================================
-            // 3. GET COVER IMAGE FROM DATABASE
+            // 4. CACHE MISS → DATABASE
             // =====================================================
 
-            coverImage =
+            var coverImage =
                 await hallImageRepository.GetCoverImageAsync(
                     request.HallId,
                     cancellationToken);
+
 
             if (coverImage is null)
             {
@@ -85,42 +89,70 @@ public sealed class GetHallCoverImageQueryHandler(
                     HttpStatusCode.NotFound);
             }
 
+
             // =====================================================
-            // 4. CACHE ENTITY / OBJECT KEYS
+            // 5. MAP ENTITY → CACHE MODEL
             // =====================================================
-            //
-            // We deliberately cache the entity instead of the DTO
-            // containing signed URLs.
-            //
+
+            cacheItem =
+                MapToCacheItem(coverImage);
+
+
+            // =====================================================
+            // 6. CACHE PERSISTENT DATA ONLY
             // =====================================================
 
             await cacheService.SetAsync(
                 cacheKey,
-                coverImage,
+                cacheItem,
                 CacheExpiration,
                 cancellationToken);
         }
 
+
         // =========================================================
-        // 5. MAP ENTITY → DTO
+        // 7. MAP CACHE MODEL → DTO
         // =========================================================
 
         var response =
-            mapper.Map<HallImageDto>(
-                coverImage);
+            new HallImageDto
+            {
+                HallImageId =
+                    cacheItem.HallImageId,
+
+                HallId =
+                    cacheItem.HallId,
+
+                ImageUrl =
+                    null,
+
+                ThumbnailUrl =
+                    null,
+
+                DisplayOrder =
+                    cacheItem.DisplayOrder,
+
+                IsCoverImage =
+                    cacheItem.IsCoverImage,
+
+                IsActive =
+                    cacheItem.IsActive                
+            };
+
 
         // =========================================================
-        // 6. GENERATE FRESH ORIGINAL IMAGE URL
+        // 8. GENERATE FRESH ORIGINAL IMAGE URL
         // =========================================================
 
         if (!string.IsNullOrWhiteSpace(
-                coverImage.ImageUrl))
+                cacheItem.ImageUrl))
         {
             var imageUrl =
                 await r2StorageService.GetPreSignedUrlAsync(
-                    coverImage.ImageUrl,
+                    cacheItem.ImageUrl,
                     PreSignedUrlExpiration,
                     cancellationToken);
+
 
             response.ImageUrl =
                 string.IsNullOrWhiteSpace(imageUrl)
@@ -128,20 +160,24 @@ public sealed class GetHallCoverImageQueryHandler(
                     : imageUrl;
         }
         else
+        {
             response.ImageUrl = null;
+        }
+
 
         // =========================================================
-        // 7. GENERATE FRESH THUMBNAIL URL
+        // 9. GENERATE FRESH THUMBNAIL URL
         // =========================================================
 
         if (!string.IsNullOrWhiteSpace(
-                coverImage.ThumbnailUrl))
+                cacheItem.ThumbnailUrl))
         {
             var thumbnailUrl =
                 await r2StorageService.GetPreSignedUrlAsync(
-                    coverImage.ThumbnailUrl,
+                    cacheItem.ThumbnailUrl,
                     PreSignedUrlExpiration,
                     cancellationToken);
+
 
             response.ThumbnailUrl =
                 string.IsNullOrWhiteSpace(
@@ -151,17 +187,18 @@ public sealed class GetHallCoverImageQueryHandler(
         }
         else
         {
-            // Thumbnail may not have been generated yet.
+            // Thumbnail may still be generating.
             response.ThumbnailUrl = null;
         }
 
+
         // =========================================================
-        // 8. RETURN RESPONSE
+        // 10. RETURN RESPONSE
         // =========================================================
         //
-        // DO NOT CACHE `response` HERE.
+        // DO NOT CACHE response.
         //
-        // The response contains temporary R2 signed URLs.
+        // Signed R2 URLs must always be freshly generated.
         //
         // =========================================================
 
@@ -171,5 +208,41 @@ public sealed class GetHallCoverImageQueryHandler(
                 ResourceNames.Entities,
                 EntityKeys.HallImage),
             HttpStatusCode.OK);
+    }
+
+
+    // =============================================================
+    // MAP DOMAIN ENTITY → CACHE MODEL
+    // =============================================================
+
+    private static HallImageCacheItem MapToCacheItem(
+        HallImage hallImage)
+    {
+        return new HallImageCacheItem
+        {
+            HallImageId =
+                hallImage.HallImageId,
+
+            HallId =
+                hallImage.HallId,
+
+            ImageUrl =
+                hallImage.ImageUrl,
+
+            ThumbnailUrl =
+                hallImage.ThumbnailUrl,
+
+            DisplayOrder =
+                hallImage.DisplayOrder,
+
+            IsCoverImage =
+                hallImage.IsCoverImage,
+
+            IsActive =
+                hallImage.IsActive,
+
+            IsDeleted =
+                hallImage.IsDeleted           
+        };
     }
 }

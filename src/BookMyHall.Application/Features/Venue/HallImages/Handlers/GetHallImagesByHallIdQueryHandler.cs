@@ -6,8 +6,10 @@ using MediatR;
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
 using BookMyHall.Application.Common.Interfaces.Storage;
+
 using BookMyHall.Contracts.Common;
 using BookMyHall.Contracts.Venue;
+
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 
@@ -15,7 +17,6 @@ namespace BookMyHall.Application.Features.Venue;
 
 public sealed class GetHallImagesByHallIdQueryHandler(
     IHallImageRepository hallImageRepository,
-    IMapper mapper,
     IMessageHelper messageHelper,
     ICacheService cacheService,
     IR2StorageService r2StorageService)
@@ -23,47 +24,25 @@ public sealed class GetHallImagesByHallIdQueryHandler(
         GetHallImagesByHallIdQuery,
         ApiResponse<PaginatedResult<HallImageDto>>>
 {
-    // =========================================================
-    // CONFIGURATION
-    // =========================================================
+    private static readonly TimeSpan CacheExpiration =
+        TimeSpan.FromMinutes(25);
 
     private static readonly TimeSpan PreSignedUrlExpiration =
         TimeSpan.FromMinutes(30);
 
-    private static readonly TimeSpan CacheExpiration =
-        TimeSpan.FromMinutes(25);
-
-
-    // =========================================================
-    // HANDLE
-    // =========================================================
 
     public async Task<
         ApiResponse<PaginatedResult<HallImageDto>>> Handle(
-            GetHallImagesByHallIdQuery request,
-            CancellationToken cancellationToken)
+        GetHallImagesByHallIdQuery request,
+        CancellationToken cancellationToken)
     {
-        // =====================================================
-        // 1. GET PAGINATION
-        // =====================================================
-
-        var pagination = request.Pagination;
+        var pagination =
+            request.Pagination;
 
 
-        // =====================================================
-        // 2. BUILD CACHE KEY
-        // =====================================================
-        //
-        // HallImageCacheKeyBuilder MUST generate a key beginning
-        // with:
-        //
-        // hallimages:page:
-        //
-        // Example:
-        //
-        // hallimages:page:{hallId}:1:10:...
-        //
-        // =====================================================
+        // =========================================================
+        // 1. BUILD PAGINATION CACHE KEY
+        // =========================================================
 
         var cacheKey =
             HallImageCacheKeyBuilder.BuildPaginatedKey(
@@ -75,138 +54,185 @@ public sealed class GetHallImagesByHallIdQueryHandler(
                 pagination.SortDescending);
 
 
-        // =====================================================
-        // 3. TRY CACHE
-        // =====================================================
+        // =========================================================
+        // 2. CHECK CACHE
+        // =========================================================
 
         var cachedResult =
             await cacheService.GetAsync<
-                PaginatedResult<HallImageDto>>(
+                PaginatedResult<HallImageCacheItem>>(
                 cacheKey,
                 cancellationToken);
 
+
+        PaginatedResult<HallImageCacheItem>? result;
+
+
+        // =========================================================
+        // 3. CACHE HIT
+        // =========================================================
+
         if (cachedResult is not null)
         {
-            return ApiResponse<
-                PaginatedResult<HallImageDto>>.SuccessResponse(
-                cachedResult,
-                messageHelper.RetrievedEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.HallImage),
-                HttpStatusCode.OK);
+            result = cachedResult;
         }
+        else
+        {
+            // =====================================================
+            // 4. CACHE MISS → DATABASE
+            // =====================================================
+
+            var databaseResult =
+                await hallImageRepository.GetByHallIdAsync(
+                    request.HallId,
+                    pagination,
+                    cancellationToken);
 
 
-        // =====================================================
-        // 4. GET FRESH DATA FROM DATABASE
-        // =====================================================
+            if (databaseResult.Items is null ||
+                databaseResult.Items.Count == 0)
+            {
+                return ApiResponse<
+                    PaginatedResult<HallImageDto>>.FailureResponse(
+                    messageHelper.NotFoundEntity(
+                        ResourceNames.Entities,
+                        EntityKeys.HallImage),
+                    HttpStatusCode.NotFound);
+            }
 
-        var result =
-            await hallImageRepository.GetByHallIdAsync(
-                request.HallId,
-                pagination,
+
+            // =====================================================
+            // 5. MAP DATABASE ENTITIES → CACHE ITEMS
+            // =====================================================
+
+            var cacheItems =
+                databaseResult.Items
+                    .Select(MapToCacheItem)
+                    .ToList();
+
+
+            result =
+                new PaginatedResult<HallImageCacheItem>
+                {
+                    Items =
+                        cacheItems,
+
+                    TotalCount =
+                        databaseResult.TotalCount,
+
+                    PageNumber =
+                        databaseResult.PageNumber,
+
+                    PageSize =
+                        databaseResult.PageSize
+                };
+
+
+            // =====================================================
+            // 6. CACHE PERSISTENT DATA ONLY
+            // =====================================================
+
+            await cacheService.SetAsync(
+                cacheKey,
+                result,
+                CacheExpiration,
                 cancellationToken);
-
-
-        // =====================================================
-        // 5. CHECK RESULT
-        // =====================================================
-
-        if (result.Items is null ||
-            result.Items.Count == 0)
-        {
-            return ApiResponse<
-                PaginatedResult<HallImageDto>>.FailureResponse(
-                messageHelper.NotFoundEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.HallImage),
-                HttpStatusCode.NotFound);
         }
 
 
-        // =====================================================
-        // 6. MAP ENTITY -> DTO
-        // =====================================================
+        // =========================================================
+        // 7. GENERATE DTOs + FRESH R2 URLs
+        // =========================================================
 
-        var mappedItems =
-            mapper.Map<IReadOnlyList<HallImageDto>>(
-                result.Items);
+        var responseItems =
+            new List<HallImageDto>(
+                result.Items.Count);
 
 
-        // =====================================================
-        // 7. GENERATE PRE-SIGNED URLS
-        // =====================================================
-
-        for (var index = 0;
-             index < result.Items.Count;
-             index++)
+        foreach (var item in result.Items)
         {
-            var hallImage =
-                result.Items[index];
-
             var dto =
-                mappedItems[index];
+                new HallImageDto
+                {
+                    HallImageId =
+                        item.HallImageId,
+
+                    HallId =
+                        item.HallId,
+
+                    ImageUrl =
+                        null,
+
+                    ThumbnailUrl =
+                        null,
+
+                    DisplayOrder =
+                        item.DisplayOrder,
+
+                    IsCoverImage =
+                        item.IsCoverImage,
+
+                    IsActive =
+                        item.IsActive                    
+                };
 
 
-            // =================================================
+            // =====================================================
             // ORIGINAL IMAGE
-            // =================================================
+            // =====================================================
 
             if (!string.IsNullOrWhiteSpace(
-                    hallImage.ImageUrl))
+                    item.ImageUrl))
             {
                 var imageUrl =
                     await r2StorageService.GetPreSignedUrlAsync(
-                        hallImage.ImageUrl,
+                        item.ImageUrl,
                         PreSignedUrlExpiration,
                         cancellationToken);
+
 
                 dto.ImageUrl =
                     string.IsNullOrWhiteSpace(imageUrl)
                         ? null
                         : imageUrl;
             }
-            else
-            {
-                dto.ImageUrl = null;
-            }
 
 
-            // =================================================
+            // =====================================================
             // THUMBNAIL
-            // =================================================
+            // =====================================================
 
             if (!string.IsNullOrWhiteSpace(
-                    hallImage.ThumbnailUrl))
+                    item.ThumbnailUrl))
             {
                 var thumbnailUrl =
                     await r2StorageService.GetPreSignedUrlAsync(
-                        hallImage.ThumbnailUrl,
+                        item.ThumbnailUrl,
                         PreSignedUrlExpiration,
                         cancellationToken);
 
+
                 dto.ThumbnailUrl =
-                    string.IsNullOrWhiteSpace(thumbnailUrl)
+                    string.IsNullOrWhiteSpace(
+                        thumbnailUrl)
                         ? null
                         : thumbnailUrl;
             }
-            else
-            {
-                // Thumbnail is generated asynchronously by
-                // RabbitMQ.
-                dto.ThumbnailUrl = null;
-            }
+
+
+            responseItems.Add(dto);
         }
 
 
-        // =====================================================
-        // 8. CREATE PAGINATED RESULT
-        // =====================================================
+        // =========================================================
+        // 8. BUILD API RESULT
+        // =========================================================
 
-        var mappedResult =
+        var response =
             new PaginatedResult<HallImageDto>
             {
-                Items = mappedItems,
+                Items =
+                    responseItems,
 
                 TotalCount =
                     result.TotalCount,
@@ -219,27 +245,60 @@ public sealed class GetHallImagesByHallIdQueryHandler(
             };
 
 
-        // =====================================================
-        // 9. CACHE FRESH RESULT
-        // =====================================================
-
-        await cacheService.SetAsync(
-            cacheKey,
-            mappedResult,
-            CacheExpiration,
-            cancellationToken);
-
-
-        // =====================================================
-        // 10. RETURN
-        // =====================================================
+        // =========================================================
+        // 9. RETURN
+        // =========================================================
+        //
+        // IMPORTANT:
+        //
+        // response contains fresh R2 pre-signed URLs.
+        //
+        // NEVER put this response into cache.
+        //
+        // =========================================================
 
         return ApiResponse<
             PaginatedResult<HallImageDto>>.SuccessResponse(
-            mappedResult,
+            response,
             messageHelper.RetrievedEntity(
                 ResourceNames.Entities,
                 EntityKeys.HallImage),
             HttpStatusCode.OK);
+    }
+
+
+    // =============================================================
+    // MAP DOMAIN ENTITY → CACHE ITEM
+    // =============================================================
+
+    private static HallImageCacheItem MapToCacheItem(
+        BookMyHall.Domain.Venue.HallImage hallImage)
+    {
+        return new HallImageCacheItem
+        {
+            HallImageId =
+                hallImage.HallImageId,
+
+            HallId =
+                hallImage.HallId,
+
+            ImageUrl =
+                hallImage.ImageUrl,
+
+            ThumbnailUrl =
+                hallImage.ThumbnailUrl,
+
+            DisplayOrder =
+                hallImage.DisplayOrder,
+
+            IsCoverImage =
+                hallImage.IsCoverImage,
+
+            IsActive =
+                hallImage.IsActive,
+
+            IsDeleted =
+                hallImage.IsDeleted            
+        };
     }
 }
