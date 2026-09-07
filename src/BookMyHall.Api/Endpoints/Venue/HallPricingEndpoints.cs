@@ -87,18 +87,20 @@ public static class HallPricingEndpoints
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status404NotFound);
 
-        group.MapGet("/", async ([AsParameters] PaginationRequest request,
+        group.MapGet("/", async (
+            [AsParameters] PaginationRequest request,
+            Guid? hallId,
             IMediator mediator,
             CancellationToken cancellationToken) =>
-        {
-            var response = await mediator.Send(new GetHallPricingQuery(request),               cancellationToken);
-            return Results.Json(response, statusCode: response.StatusCode);
-        })
-        .WithName("GetHallPricings")
-        .WithSummary("Get Hall Pricings")
-        .WithDescription("Returns a paginated list of hall pricing configurations.")
-        .Produces<ApiResponse<PaginatedResult<HallPricingDto>>>(StatusCodes.Status200OK)
-        .Produces(StatusCodes.Status401Unauthorized);
+            {
+                var response = await mediator.Send(new GetHallPricingQuery(request, hallId), cancellationToken);
+                return Results.Json(response, statusCode: response.StatusCode);
+            })
+            .WithName("GetHallPricings")
+            .WithSummary("Get Hall Pricings")
+            .WithDescription("Returns a paginated list of hall pricing configurations, optionally filtered by Hall ID.")
+            .Produces<ApiResponse<PaginatedResult<HallPricingDto>>>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized);
 
         group.MapGet("/hall/{hallId:guid}/category/{eventCategoryId:guid}", async (
             Guid hallId,
