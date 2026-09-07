@@ -7,6 +7,7 @@ using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
 using BookMyHall.Application.Common.Interfaces.Storage;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Contracts.Venue;
+using BookMyHall.Domain.Venue;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 
@@ -22,6 +23,9 @@ public sealed class GetHallCoverImageQueryHandler(
     IR2StorageService r2StorageService)
     : IRequestHandler<GetHallCoverImageQuery, ApiResponse<HallImageDto>>
 {
+    private static readonly TimeSpan CacheExpiration =
+        TimeSpan.FromMinutes(25);
+
     private static readonly TimeSpan PreSignedUrlExpiration =
         TimeSpan.FromMinutes(30);
 
@@ -29,62 +33,88 @@ public sealed class GetHallCoverImageQueryHandler(
         GetHallCoverImageQuery request,
         CancellationToken cancellationToken)
     {
-        // ---------------------------------------------------------
-        // 1. Cache key
-        // ---------------------------------------------------------
+        // =========================================================
+        // 1. BUILD CACHE KEY
+        // =========================================================
 
         var cacheKey =
             $"{CacheKeys.HallCoverImage}:{request.HallId}";
 
-        // ---------------------------------------------------------
-        // 2. Check cache
-        // ---------------------------------------------------------
+        // =========================================================
+        // 2. GET CACHED HALL IMAGE
+        // =========================================================
+        //
+        // IMPORTANT:
+        //
+        // The cache must NOT contain pre-signed R2 URLs.
+        //
+        // We cache HallImage entity information/object keys and
+        // generate fresh URLs below.
+        //
+        // =========================================================
 
         var cachedHallImage =
-            await cacheService.GetAsync<HallImageDto>(
+            await cacheService.GetAsync<HallImage>(
                 cacheKey,
                 cancellationToken);
 
+        HallImage? coverImage;
+
         if (cachedHallImage is not null)
         {
-            return ApiResponse<HallImageDto>.SuccessResponse(
-                cachedHallImage,
-                messageHelper.RetrievedEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.HallImage),
-                HttpStatusCode.OK);
+            coverImage =
+                cachedHallImage;
         }
-
-        // ---------------------------------------------------------
-        // 3. Get cover image from database
-        // ---------------------------------------------------------
-
-        var coverImage =
-            await hallImageRepository.GetCoverImageAsync(
-                request.HallId,
-                cancellationToken);
-
-        if (coverImage is null)
+        else
         {
-            return ApiResponse<HallImageDto>.FailureResponse(
-                messageHelper.NotFoundEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.HallImage),
-                HttpStatusCode.NotFound);
+            // =====================================================
+            // 3. GET COVER IMAGE FROM DATABASE
+            // =====================================================
+
+            coverImage =
+                await hallImageRepository.GetCoverImageAsync(
+                    request.HallId,
+                    cancellationToken);
+
+            if (coverImage is null)
+            {
+                return ApiResponse<HallImageDto>.FailureResponse(
+                    messageHelper.NotFoundEntity(
+                        ResourceNames.Entities,
+                        EntityKeys.HallImage),
+                    HttpStatusCode.NotFound);
+            }
+
+            // =====================================================
+            // 4. CACHE ENTITY / OBJECT KEYS
+            // =====================================================
+            //
+            // We deliberately cache the entity instead of the DTO
+            // containing signed URLs.
+            //
+            // =====================================================
+
+            await cacheService.SetAsync(
+                cacheKey,
+                coverImage,
+                CacheExpiration,
+                cancellationToken);
         }
 
-        // ---------------------------------------------------------
-        // 4. Map entity → DTO
-        // ---------------------------------------------------------
+        // =========================================================
+        // 5. MAP ENTITY → DTO
+        // =========================================================
 
         var response =
-            mapper.Map<HallImageDto>(coverImage);
+            mapper.Map<HallImageDto>(
+                coverImage);
 
-        // ---------------------------------------------------------
-        // 5. Generate pre-signed URL for ORIGINAL image
-        // ---------------------------------------------------------
+        // =========================================================
+        // 6. GENERATE FRESH ORIGINAL IMAGE URL
+        // =========================================================
 
-        if (!string.IsNullOrWhiteSpace(coverImage.ImageUrl))
+        if (!string.IsNullOrWhiteSpace(
+                coverImage.ImageUrl))
         {
             var imageUrl =
                 await r2StorageService.GetPreSignedUrlAsync(
@@ -92,47 +122,48 @@ public sealed class GetHallCoverImageQueryHandler(
                     PreSignedUrlExpiration,
                     cancellationToken);
 
-            if (!string.IsNullOrWhiteSpace(imageUrl))
-            {
-                response.ImageUrl = imageUrl;
-            }
+            response.ImageUrl =
+                string.IsNullOrWhiteSpace(imageUrl)
+                    ? null
+                    : imageUrl;
         }
+        else
+            response.ImageUrl = null;
 
-        // ---------------------------------------------------------
-        // 6. Generate pre-signed URL for THUMBNAIL
-        // ---------------------------------------------------------
+        // =========================================================
+        // 7. GENERATE FRESH THUMBNAIL URL
+        // =========================================================
 
-        if (!string.IsNullOrWhiteSpace(coverImage.ThumbnailUrl))
+        if (!string.IsNullOrWhiteSpace(
+                coverImage.ThumbnailUrl))
         {
-            var thumbnailUrl = await r2StorageService.GetPreSignedUrlAsync
-            (
-                coverImage.ThumbnailUrl,
-                PreSignedUrlExpiration,
-                cancellationToken
-            );
+            var thumbnailUrl =
+                await r2StorageService.GetPreSignedUrlAsync(
+                    coverImage.ThumbnailUrl,
+                    PreSignedUrlExpiration,
+                    cancellationToken);
 
-            response.ThumbnailUrl = string.IsNullOrWhiteSpace(thumbnailUrl)
-            ? null : thumbnailUrl;
+            response.ThumbnailUrl =
+                string.IsNullOrWhiteSpace(
+                    thumbnailUrl)
+                    ? null
+                    : thumbnailUrl;
         }
         else
         {
-            // Thumbnail is generated asynchronously by RabbitMQ
+            // Thumbnail may not have been generated yet.
             response.ThumbnailUrl = null;
         }
 
-        // ---------------------------------------------------------
-        // 7. Cache response containing pre-signed URLs
-        // ---------------------------------------------------------
-
-        await cacheService.SetAsync(
-            cacheKey,
-            response,
-            TimeSpan.FromMinutes(25),
-            cancellationToken);
-
-        // ---------------------------------------------------------
-        // 8. Return response
-        // ---------------------------------------------------------
+        // =========================================================
+        // 8. RETURN RESPONSE
+        // =========================================================
+        //
+        // DO NOT CACHE `response` HERE.
+        //
+        // The response contains temporary R2 signed URLs.
+        //
+        // =========================================================
 
         return ApiResponse<HallImageDto>.SuccessResponse(
             response,
