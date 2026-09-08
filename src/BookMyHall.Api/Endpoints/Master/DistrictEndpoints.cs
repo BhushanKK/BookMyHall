@@ -10,7 +10,7 @@ public static class DistrictEndpoints
     {
         var group = app.MapGroup("/api/districts")
             .WithTags("District")
-            .RequireAuthorization(policy => policy.RequireRole("Admin"));
+            .RequireAuthorization();
 
         group.MapPost("/", async (
             CreateDistrictCommand command,

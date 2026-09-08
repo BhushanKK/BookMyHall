@@ -10,7 +10,7 @@ public static class PaymentModeEndpoints
     {
         var group = app.MapGroup("/api/payment-modes")
             .WithTags("Payment Mode")
-            .RequireAuthorization(policy => policy.RequireRole("Admin"));
+            .RequireAuthorization();
 
         group.MapPost("/", async (
             CreatePaymentModeCommand command,

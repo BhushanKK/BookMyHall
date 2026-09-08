@@ -10,7 +10,7 @@ public static class ServiceEndpoints
     {
         var group = app.MapGroup("/api/services")
             .WithTags("Services")
-            .RequireAuthorization(policy => policy.RequireRole("Admin"));
+            .RequireAuthorization();
 
         group.MapPost("/", async (
             CreateServiceCommand command,
