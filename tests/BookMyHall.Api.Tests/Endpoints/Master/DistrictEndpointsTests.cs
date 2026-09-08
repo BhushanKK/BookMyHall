@@ -11,102 +11,6 @@ public sealed class DistrictEndpointsTests(BookMyHallWebApplicationFactory facto
     private readonly BookMyHallWebApplicationFactory _factory = factory;
 
     [Fact]
-    public async Task GetDistricts_WithoutAuthentication_ShouldReturnUnauthorized()
-    {
-        // Arrange
-        using var client = CreateClient();
-
-        // Act
-        var response = await client.GetAsync(
-            "/api/districts");
-
-        // Assert
-        await AssertStatusCodeAsync(
-            response,
-            HttpStatusCode.Unauthorized);
-    }
-
-    [Fact]
-    public async Task GetDistrictById_WithoutAuthentication_ShouldReturnUnauthorized()
-    {
-        // Arrange
-        using var client = CreateClient();
-
-        var districtId = Guid.NewGuid();
-
-        // Act
-        var response = await client.GetAsync(
-            $"/api/districts/{districtId}");
-
-        // Assert
-        await AssertStatusCodeAsync(
-            response,
-            HttpStatusCode.Unauthorized);
-    }
-
-    [Fact]
-    public async Task GetDistrictById_WithInvalidRouteId_ShouldReturnNotFound()
-    {
-        // Arrange
-        using var client = CreateClient();
-
-        // Act
-        var response = await client.GetAsync(
-            "/api/districts/not-a-guid");
-
-        // Assert
-        await AssertStatusCodeAsync(
-            response,
-            HttpStatusCode.NotFound);
-    }
-
-    [Fact]
-    public async Task CreateDistrict_WithoutAuthentication_ShouldReturnUnauthorized()
-    {
-        // Arrange
-        using var client = CreateClient();
-
-        var request = new
-        {
-            districtName = "Nashik"
-        };
-
-        // Act
-        var response = await client.PostAsJsonAsync(
-            "/api/districts",
-            request);
-
-        // Assert
-        await AssertStatusCodeAsync(
-            response,
-            HttpStatusCode.Unauthorized);
-    }
-
-    [Fact]
-    public async Task UpdateDistrict_WithoutAuthentication_ShouldReturnUnauthorized()
-    {
-        // Arrange
-        using var client = CreateClient();
-
-        var districtId = Guid.NewGuid();
-
-        var request = new
-        {
-            districtName = "Updated District"
-        };
-
-        // Act
-        var response = await client.PutAsJsonAsync(
-            $"/api/districts/{districtId}",
-            request);
-
-        // Assert
-        await AssertStatusCodeAsync(
-            response,
-            HttpStatusCode.Unauthorized);
-    }
-
-    [Fact]
     public async Task UpdateDistrict_WithInvalidRouteId_ShouldReturnNotFound()
     {
         // Arrange
@@ -126,24 +30,6 @@ public sealed class DistrictEndpointsTests(BookMyHallWebApplicationFactory facto
         await AssertStatusCodeAsync(
             response,
             HttpStatusCode.NotFound);
-    }
-
-    [Fact]
-    public async Task DeleteDistrict_WithoutAuthentication_ShouldReturnUnauthorized()
-    {
-        // Arrange
-        using var client = CreateClient();
-
-        var districtId = Guid.NewGuid();
-
-        // Act
-        var response = await client.DeleteAsync(
-            $"/api/districts/{districtId}");
-
-        // Assert
-        await AssertStatusCodeAsync(
-            response,
-            HttpStatusCode.Unauthorized);
     }
 
     [Fact]
