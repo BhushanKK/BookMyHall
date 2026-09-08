@@ -20,5 +20,6 @@ public interface IUserRepository
 
     Task<IReadOnlyList<HallOwnerDto>> GetHallOwnersAsync(
     string? searchText = null,
+    Guid? hallOwnerId=null,
     CancellationToken cancellationToken = default);
 }

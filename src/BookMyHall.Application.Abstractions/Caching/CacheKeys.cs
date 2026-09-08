@@ -41,7 +41,7 @@ public static class CacheKeys
     public const string HallPricingsPaged = "hallpricings:page:";
     public const string HallCoverImage = "HallCoverImage";
     public const string HallCoverImagesPaged = "HallCoverImages:page:";
-
+    public const string HallOwner="HallOwner";
     public const string Roles = "roles";
     public const string RolesPaged = "roles:page:";
     public const string Users = "users";

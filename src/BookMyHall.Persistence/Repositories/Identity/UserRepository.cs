@@ -221,14 +221,19 @@ public sealed class UserRepository(BookMyHallDbContext context)
     }
 
     public async Task<IReadOnlyList<HallOwnerDto>> GetHallOwnersAsync(
-        string? searchText = null, CancellationToken cancellationToken = default)
+     string? searchText, Guid? hallOwnerId, CancellationToken cancellationToken = default)
     {
         var query = context.Set<HallOwnerDto>().AsNoTracking();
+        
+        if (hallOwnerId.HasValue)
+            query = query.Where(x => x.UserId == hallOwnerId.Value);
+
         if (!string.IsNullOrWhiteSpace(searchText))
         {
             var searchPattern = $"%{searchText.Trim()}%";
             query = query.Where(x => EF.Functions.ILike(x.FullName, searchPattern));
         }
+
         return await query.OrderBy(x => x.FullName).Take(20).ToListAsync(cancellationToken);
     }
 }
