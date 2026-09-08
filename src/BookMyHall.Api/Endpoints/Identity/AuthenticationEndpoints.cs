@@ -9,7 +9,6 @@ using BookMyHall.Application.Features.Authentication.Commands.VerifyEmail;
 using BookMyHall.Application.Features.Authentication.Commands.ResendVerificationEmail;
 using BookMyHall.Contracts.Authentication;
 using BookMyHall.Application.Features.Authentication;
-
 namespace BookMyHall.Api.Endpoints.Identity;
 
 public static class AuthenticationEndpoints
@@ -168,5 +167,18 @@ public static class AuthenticationEndpoints
         .Produces<ApiResponse<LoginResponse>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<LoginResponse>>(StatusCodes.Status400BadRequest)
         .Produces<ApiResponse<LoginResponse>>(StatusCodes.Status401Unauthorized);
+
+        // group.MapGet("/user-details/{userId:guid}/{roleId:guid}",
+        // async ( Guid userId, Guid roleId,IMediator mediator, CancellationToken cancellationToken) =>
+        // {
+        //     var response = await mediator.Send(new GetUserDetailsByIdQuery(userId,roleId),cancellationToken);
+        //     return Results.Json(response,statusCode: response.StatusCode);
+        // })
+        // .WithName("GetUserDetailsById")
+        // .WithSummary("Get User Details By Id")
+        // .WithDescription("Returns the details of a user by user identifier and role identifier.")
+        // .Produces<ApiResponse<UserDetailsView>>(StatusCodes.Status200OK)
+        // .Produces(StatusCodes.Status401Unauthorized)
+        // .Produces(StatusCodes.Status404NotFound);
     }
 }

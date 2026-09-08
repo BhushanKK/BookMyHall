@@ -24,4 +24,5 @@ public partial class BookMyHallDbContext
     public DbSet<MenuRolePermission> MenuRolePermissions => Set<MenuRolePermission>();
     public DbSet<MenuPermission> MenuPermissions => Set<MenuPermission>();
     public DbSet<HallOwnerDto> HallOwners => Set<HallOwnerDto>();
+     public DbSet<UserDetailsView> UserDetailsViews => Set<UserDetailsView>();
 }

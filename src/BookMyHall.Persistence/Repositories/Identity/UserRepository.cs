@@ -236,4 +236,10 @@ public sealed class UserRepository(BookMyHallDbContext context)
 
         return await query.OrderBy(x => x.FullName).Take(20).ToListAsync(cancellationToken);
     }
+
+        public async Task<UserDetailsView?> GetUserDetailsByIdAsync(
+        Guid userId,Guid roleId, CancellationToken cancellationToken = default)
+        => await context.UserDetailsViews
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x => x.UserId == userId && x.RoleId==roleId, cancellationToken);
 }

@@ -22,4 +22,6 @@ public interface IUserRepository
     string? searchText = null,
     Guid? hallOwnerId=null,
     CancellationToken cancellationToken = default);
+
+     Task<UserDetailsView?> GetUserDetailsByIdAsync(Guid userId,Guid roleId, CancellationToken cancellationToken = default);
 }
