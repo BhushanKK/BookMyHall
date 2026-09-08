@@ -4,6 +4,7 @@ namespace BookMyHall.Domain.Venue;
 public class HallListView
 {
     public Guid HallId { get; set; }
+    public Guid? HallOwnerId { get; set; }
     public string HallName { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string? HallOwnerName { get; set; }

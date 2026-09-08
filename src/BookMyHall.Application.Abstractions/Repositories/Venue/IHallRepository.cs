@@ -9,6 +9,6 @@ public interface IHallRepository
     Task UpdateAsync(Hall hall, CancellationToken cancellationToken = default);
     Task<Hall?> GetByIdAsync(Guid hallId, CancellationToken cancellationToken = default);
     Task<Hall?> GetByHallNameAndAreaAsync(string hallName,Guid areaId,CancellationToken cancellationToken = default);
-    Task<PaginatedResult<HallListView>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default);
+    Task<PaginatedResult<HallListView>> GetAllAsync(PaginationRequest request,Guid? hallOwnerId = null, CancellationToken cancellationToken = default);
     Task<HallListView?> GetHallDetailsByIdAsync(Guid hallId, CancellationToken cancellationToken = default);
 }

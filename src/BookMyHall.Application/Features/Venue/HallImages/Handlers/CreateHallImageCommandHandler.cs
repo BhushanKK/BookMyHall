@@ -1,22 +1,16 @@
 using System.Net;
-
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Abstractions.Messaging;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
 using BookMyHall.Application.Common.Interfaces.Storage;
-
 using BookMyHall.Contracts.Common;
 using BookMyHall.Contracts.Messaging;
-
 using BookMyHall.Domain.Venue;
-
 using BookMyHall.Persistence.Exceptions;
-
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
-
 using FluentValidation;
 using MediatR;
 

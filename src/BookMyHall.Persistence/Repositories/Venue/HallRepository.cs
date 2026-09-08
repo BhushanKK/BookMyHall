@@ -35,22 +35,50 @@ public sealed class HallRepository(BookMyHallDbContext context) : IHallRepositor
             cancellationToken);
     public async Task<PaginatedResult<HallListView>> GetAllAsync(
         PaginationRequest request,
+        Guid? hallOwnerId = null,
         CancellationToken cancellationToken = default)
     {
         // =============================================================
         // Query Hall List View
         // =============================================================
-        var query = context.HallListViews
-            .AsNoTracking()
-            .AsQueryable();
+
+        var query = context.HallListViews.AsNoTracking().AsQueryable();
+
+        // =============================================================
+        // Hall Owner Filter
+        // =============================================================
+        //
+        // Admin:
+        //     hallOwnerId = null
+        //     → All halls are returned.
+        //
+        // Hall Owner:
+        //     hallOwnerId = current user's UserId
+        //     → Only halls belonging to that owner are returned.
+        //
+        // IMPORTANT:
+        // This filter is applied before CountAsync(), Skip() and Take()
+        // so pagination and TotalCount remain correct.
+        //
+        // =============================================================
+
+        if (hallOwnerId.HasValue)
+        {
+            query = query.Where(x => x.HallOwnerId == hallOwnerId.Value);
+        }
+
 
         // =============================================================
         // Search
         // =============================================================
+
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
-            var search = request.SearchText.Trim();
-            var searchPattern = $"%{search}%";
+            var search =
+                request.SearchText.Trim();
+
+            var searchPattern =
+                $"%{search}%";
 
             query = query.Where(x =>
                 EF.Functions.ILike(
@@ -171,30 +199,48 @@ public sealed class HallRepository(BookMyHallDbContext context) : IHallRepositor
             );
         }
 
+
         // =============================================================
         // Total Records
         // =============================================================
-        var totalCount = await query.CountAsync(
-            cancellationToken);
+        //
+        // The owner filter and search filter have already been applied.
+        //
+        // =============================================================
+
+        var totalCount =
+            await query.CountAsync(
+                cancellationToken);
+
 
         // =============================================================
         // Sorting
         // =============================================================
-        query = query.OrderBy(x => x.HallName);
+
+        query =
+            query.OrderBy(
+                x => x.HallName);
+
 
         // =============================================================
         // Pagination
         // =============================================================
-        var items = await query
-            .Skip(
-                (request.PageNumber - 1) *
-                request.PageSize)
-            .Take(request.PageSize)
-            .ToListAsync(cancellationToken);
+
+        var items =
+            await query
+                .Skip(
+                    (request.PageNumber - 1) *
+                    request.PageSize)
+                .Take(
+                    request.PageSize)
+                .ToListAsync(
+                    cancellationToken);
+
 
         // =============================================================
         // Result
         // =============================================================
+
         return new PaginatedResult<HallListView>
         {
             Items = items,
