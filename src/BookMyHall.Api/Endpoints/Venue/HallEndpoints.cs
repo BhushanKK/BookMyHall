@@ -3,6 +3,7 @@ using MediatR;
 using BookMyHall.Application.Features.Venue;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Venue;
+using BookMyHall.Domain.Constants;
 
 namespace BookMyHall.Api.Endpoints.Venue;
 
@@ -11,8 +12,12 @@ public static class HallEndpoints
     public static void MapHallEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/halls")
-            .WithTags("Hall")
-            .RequireAuthorization(policy => policy.RequireRole("Admin"));
+        .WithTags("Hall")
+        .RequireAuthorization(policy => policy.RequireRole
+        (
+            RoleConstants.Admin, 
+            RoleConstants.HallOwner
+        ));
 
         group.MapPost("/", async (
             CreateHallCommand command,

@@ -1,5 +1,7 @@
 using BookMyHall.Application.Features.Venue;
 using BookMyHall.Contracts.Common;
+using BookMyHall.Domain.Constants;
+
 using MediatR;
 
 namespace BookMyHall.Api.Endpoints.Venue;
@@ -9,7 +11,11 @@ public static class HallPricingEndpoints
     {
         var group = app.MapGroup("/api/hall-pricings")
             .WithTags("Hall Pricing")
-            .RequireAuthorization(policy => policy.RequireRole("Admin"));
+            .RequireAuthorization(policy => policy.RequireRole
+            (
+                RoleConstants.Admin, 
+                RoleConstants.HallOwner
+            ));
 
         group.MapPost("/", async (
             CreateHallPricingCommand command,

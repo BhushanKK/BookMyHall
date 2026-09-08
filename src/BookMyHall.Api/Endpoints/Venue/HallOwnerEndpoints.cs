@@ -1,6 +1,7 @@
 using System.Net;
 using BookMyHall.Application.Features.HallOwner.Queries;
 using BookMyHall.Contracts.Common;
+using BookMyHall.Domain.Constants;
 using BookMyHall.Domain.Dtos;
 using MediatR;
 
@@ -14,7 +15,11 @@ public static class HallOwnerEndpoints
         var group = endpoints
             .MapGroup("/api/hall-owners")
             .WithTags("Hall Owners")
-            .RequireAuthorization(policy => policy.RequireRole("Admin"));
+            .RequireAuthorization(policy => policy.RequireRole
+            (
+                RoleConstants.Admin, 
+                RoleConstants.HallOwner
+            ));
 
         group.MapGet(
                 "/",

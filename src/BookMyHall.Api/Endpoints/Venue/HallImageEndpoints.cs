@@ -2,6 +2,7 @@ using MediatR;
 using BookMyHall.Application.Features.Venue;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Contracts.Venue;
+using BookMyHall.Domain.Constants;
 
 namespace BookMyHall.Api.Endpoints.Venue;
 
@@ -13,7 +14,11 @@ public static class HallImageEndpoints
         var group = app.MapGroup("/api/halls")
             .WithTags("Hall Images")
             .DisableAntiforgery()
-            .RequireAuthorization();
+            .RequireAuthorization(policy => policy.RequireRole
+            (
+                RoleConstants.Admin, 
+                RoleConstants.HallOwner
+            ));
 
         group.MapPost("/{hallId:guid}/images",
             async (

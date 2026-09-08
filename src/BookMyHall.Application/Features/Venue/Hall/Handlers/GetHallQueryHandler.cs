@@ -32,7 +32,6 @@ public sealed class GetHallQueryHandler(
 
         var isHallOwner = currentUser.Roles.Any(role => string.Equals(role, RoleConstants.HallOwner, StringComparison.OrdinalIgnoreCase));
 
-        var isAdmin = currentUser.Roles.Any(role => string.Equals(role, RoleConstants.Admin, StringComparison.OrdinalIgnoreCase));
 
         // =============================================================
         // Determine Hall Owner filter
@@ -43,7 +42,7 @@ public sealed class GetHallQueryHandler(
         // Admin can see all halls.
         // Hall Owner can see only their own halls.
         // If user has both roles, Admin takes priority.
-        if (isHallOwner && !isAdmin)
+        if (isHallOwner)
         {
             if (currentUser.UserId is null)
             {
