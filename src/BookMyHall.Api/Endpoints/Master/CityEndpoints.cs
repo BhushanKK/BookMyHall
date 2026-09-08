@@ -9,8 +9,7 @@ public static class CityEndpoints
     public static void MapCityEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/cities")
-            .WithTags("Cities")
-            .RequireAuthorization(policy => policy.RequireRole("Admin"));
+            .WithTags("Cities");
 
         group.MapPost("/", async (
             CreateCityCommand command,
