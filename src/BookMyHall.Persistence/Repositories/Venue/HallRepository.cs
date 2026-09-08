@@ -255,4 +255,38 @@ public sealed class HallRepository(BookMyHallDbContext context) : IHallRepositor
         => await context.HallListViews
         .AsNoTracking()
         .FirstOrDefaultAsync(x => x.HallId == hallId, cancellationToken);
+
+    public async Task<PaginatedResult<NearbyHallView>> GetNearbyAsync(
+        double latitude,
+        double longitude,
+        double radiusKm,
+        PaginationRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var query = context.NearbyHallViews
+            .FromSqlInterpolated($"""
+            SELECT *
+            FROM venue."GetNearbyHalls"(
+                {latitude},
+                {longitude},
+                {radiusKm}
+            )
+            """)
+            .AsNoTracking();
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .ToListAsync(cancellationToken);
+
+        return new PaginatedResult<NearbyHallView>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            PageNumber = request.PageNumber,
+            PageSize = request.PageSize
+        };
+    }
 }

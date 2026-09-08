@@ -10,4 +10,5 @@ public partial class BookMyHallDbContext
     public DbSet<HallPricing> HallPricings => Set<HallPricing>();
     public DbSet<HallBlock> HallBlocks => Set<HallBlock>();    
     public DbSet<HallListView> HallListViews => Set<HallListView>();
+    public DbSet<NearbyHallView> NearbyHallViews => Set<NearbyHallView>();
 }

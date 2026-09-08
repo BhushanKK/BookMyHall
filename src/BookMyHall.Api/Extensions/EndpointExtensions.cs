@@ -41,6 +41,7 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapMenuRolePermissionEndpoints();
         endpoints.MapMenuPermissionEndpoints();
         endpoints.MapHallOwnerEndpoints();
+        endpoints.MapNearbyHallEndpoints();
         return endpoints;
     }
 }
