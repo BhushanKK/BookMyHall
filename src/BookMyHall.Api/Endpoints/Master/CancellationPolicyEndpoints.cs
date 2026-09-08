@@ -1,6 +1,7 @@
 using MediatR;
 using BookMyHall.Application.Features.Master;
 using BookMyHall.Contracts.Common;
+using BookMyHall.Domain.Constants;
 
 namespace BookMyHall.Api.Endpoints.Master;
 
@@ -10,7 +11,12 @@ public static class CancellationPolicyEndpoints
     {
         var group = app.MapGroup("/api/cancellation-policies")
             .WithTags("Cancellation Policies")
-            .RequireAuthorization(policy => policy.RequireRole("Admin"));
+            .RequireAuthorization(policy => policy.RequireRole
+            (
+                RoleConstants.Admin, 
+                RoleConstants.HallOwner
+            ));
+
 
         group.MapPost("/", async (
             CreateCancellationPolicyCommand command,

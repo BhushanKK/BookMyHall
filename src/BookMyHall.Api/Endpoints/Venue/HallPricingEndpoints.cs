@@ -1,7 +1,6 @@
 using BookMyHall.Application.Features.Venue;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Constants;
-
 using MediatR;
 
 namespace BookMyHall.Api.Endpoints.Venue;

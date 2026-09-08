@@ -11,7 +11,7 @@ public static class CountryEndpoints
     {
         var group = app.MapGroup("/api/countries")
             .WithTags("Country")
-            .RequireAuthorization(policy => policy.RequireRole("Admin"));
+            .RequireAuthorization();
 
         group.MapPost("/", async (
             CreateCountryCommand command,

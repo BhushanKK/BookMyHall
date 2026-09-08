@@ -9,7 +9,7 @@ public static class StateEndpoints
     {
         var group = app.MapGroup("/api/states")
             .WithTags("State")
-            .RequireAuthorization(policy => policy.RequireRole("Admin"));
+            .RequireAuthorization();
 
         group.MapPost("/", async (
             CreateStateCommand command,
