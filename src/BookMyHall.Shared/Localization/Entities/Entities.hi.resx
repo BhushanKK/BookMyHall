@@ -258,6 +258,9 @@
     <value>ज़िले का नाम</value>
   </data>
  <!--End District ===================================================== -->
+ <data name="City" xml:space="preserve">
+    <value>शहर</value>
+  </data>
   <data name="CityName" xml:space="preserve">
     <value>शहर का नाम</value>
   </data>

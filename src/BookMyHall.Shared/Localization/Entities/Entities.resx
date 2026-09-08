@@ -206,7 +206,9 @@
   <data name="DistrictName" xml:space="preserve">
     <value>DistrictName</value>
   </data>
-
+<data name="City" xml:space="preserve">
+    <value>City</value>
+  </data>
   <data name="CityName" xml:space="preserve">
     <value>CityName</value>
   </data>
