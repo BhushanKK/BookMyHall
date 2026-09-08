@@ -10,7 +10,7 @@ public static class EventCategoryEndpoints
     {
         var group = app.MapGroup("/api/event-categories")
             .WithTags("Event Category")
-            .RequireAuthorization(policy => policy.RequireRole("Admin"));
+            .RequireAuthorization();
 
         group.MapPost("/", async (
             CreateEventCategoryCommand command,
