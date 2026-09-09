@@ -34,5 +34,5 @@ public sealed class NearbyHallView
     public string? CheckOutTime { get; set; }
     public string? ApprovalStatus { get; set; }
     public string? VerificationStatus { get; set; }
-    public double DistanceKm { get; set; }
+    public double? DistanceKm { get; set; }
 }

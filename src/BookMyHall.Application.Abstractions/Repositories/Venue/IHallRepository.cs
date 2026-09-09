@@ -12,8 +12,8 @@ public interface IHallRepository
     Task<PaginatedResult<HallListView>> GetAllAsync(PaginationRequest request,Guid? hallOwnerId = null, CancellationToken cancellationToken = default);
     Task<HallListView?> GetHallDetailsByIdAsync(Guid hallId, CancellationToken cancellationToken = default);
     Task<PaginatedResult<NearbyHallView>> GetNearbyAsync(
-    double latitude,
-    double longitude,
+    double? latitude,
+    double? longitude,
     double radiusKm,
     Guid? stateId,
     Guid? districtId,

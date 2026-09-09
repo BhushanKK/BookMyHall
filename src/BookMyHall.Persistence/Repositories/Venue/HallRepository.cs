@@ -256,8 +256,8 @@ public sealed class HallRepository(BookMyHallDbContext context) : IHallRepositor
         .AsNoTracking()
         .FirstOrDefaultAsync(x => x.HallId == hallId, cancellationToken);
     public async Task<PaginatedResult<NearbyHallView>> GetNearbyAsync(
-        double latitude,
-        double longitude,
+        double? latitude,
+        double? longitude,
         double radiusKm,
         Guid? stateId,
         Guid? districtId,

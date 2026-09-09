@@ -24,8 +24,18 @@ public sealed class GetNearbyHallsQueryHandler(
         // ============================================================
         // VALIDATE LATITUDE
         // ============================================================
+        // Latitude is optional.
+        //
+        // Device-location search:
+        //     Latitude + Longitude are provided.
+        //
+        // Manual-location search:
+        //     Latitude + Longitude can both be null.
+        // ============================================================
 
-        if (request.Latitude < -90 || request.Latitude > 90)
+        if (request.Latitude.HasValue &&
+            (request.Latitude.Value < -90 ||
+             request.Latitude.Value > 90))
         {
             return ApiResponse<PaginatedResult<NearbyHallView>>.FailureResponse(
                 "Latitude must be between -90 and 90.",
@@ -36,10 +46,29 @@ public sealed class GetNearbyHallsQueryHandler(
         // VALIDATE LONGITUDE
         // ============================================================
 
-        if (request.Longitude < -180 || request.Longitude > 180)
+        if (request.Longitude.HasValue &&
+            (request.Longitude.Value < -180 ||
+             request.Longitude.Value > 180))
         {
             return ApiResponse<PaginatedResult<NearbyHallView>>.FailureResponse(
                 "Longitude must be between -180 and 180.",
+                HttpStatusCode.BadRequest);
+        }
+
+        // ============================================================
+        // VALIDATE COORDINATE PAIR
+        // ============================================================
+        // Either both coordinates must be supplied or both must be null.
+        // This prevents invalid requests such as:
+        //
+        // Latitude = 19.97
+        // Longitude = null
+        // ============================================================
+
+        if (request.Latitude.HasValue != request.Longitude.HasValue)
+        {
+            return ApiResponse<PaginatedResult<NearbyHallView>>.FailureResponse(
+                "Latitude and longitude must either both be provided or both be omitted.",
                 HttpStatusCode.BadRequest);
         }
 
@@ -49,6 +78,10 @@ public sealed class GetNearbyHallsQueryHandler(
         // Radius 0 means unlimited distance.
         // Radius > 0 applies the distance filter.
         // Negative radius values are invalid.
+        //
+        // For manual location filtering, radius can still be used
+        // when coordinates are not available.
+        // ============================================================
 
         if (request.RadiusKm < 0)
         {
@@ -80,6 +113,35 @@ public sealed class GetNearbyHallsQueryHandler(
         }
 
         // ============================================================
+        // VALIDATE SEARCH CRITERIA
+        // ============================================================
+        // At least one search method must be available:
+        //
+        // 1. Device location
+        // OR
+        // 2. Manual location filter
+        //
+        // We do not allow a completely empty nearby-halls search.
+        // ============================================================
+
+        var hasDeviceLocation =
+            request.Latitude.HasValue &&
+            request.Longitude.HasValue;
+
+        var hasManualLocationFilter =
+            request.StateId.HasValue ||
+            request.DistrictId.HasValue ||
+            request.CityId.HasValue ||
+            request.AreaId.HasValue;
+
+        if (!hasDeviceLocation && !hasManualLocationFilter)
+        {
+            return ApiResponse<PaginatedResult<NearbyHallView>>.FailureResponse(
+                "Please provide your current location or select a location manually.",
+                HttpStatusCode.BadRequest);
+        }
+
+        // ============================================================
         // CREATE PAGINATION REQUEST
         // ============================================================
 
@@ -90,7 +152,9 @@ public sealed class GetNearbyHallsQueryHandler(
         };
 
         // ============================================================
-        // GET NEARBY HALLS
+        // GET HALLS
+        // ============================================================
+        // Coordinates may be null for manual location search.
         // ============================================================
 
         var result = await hallRepository.GetNearbyAsync(

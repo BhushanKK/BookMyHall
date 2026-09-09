@@ -5,8 +5,8 @@ using BookMyHall.Domain.Venue;
 namespace BookMyHall.Application.Features.Venue;
 
 public sealed record GetNearbyHallsQuery(
-    double Latitude,
-    double Longitude,
+    double? Latitude,
+    double? Longitude,
     double RadiusKm,
 
     Guid? StateId = null,

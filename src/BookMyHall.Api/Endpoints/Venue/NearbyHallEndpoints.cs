@@ -17,8 +17,8 @@ public static class NearbyHallEndpoints
         group.MapGet(
             "/",
             async (
-                double latitude,
-                double longitude,
+                double? latitude,
+                double? longitude,
                 double radiusKm,
                 Guid? stateId,
                 Guid? districtId,
