@@ -46,11 +46,14 @@ public sealed class GetNearbyHallsQueryHandler(
         // ============================================================
         // VALIDATE RADIUS
         // ============================================================
+        // Radius 0 means unlimited distance.
+        // Radius > 0 applies the distance filter.
+        // Negative radius values are invalid.
 
-        if (request.RadiusKm <= 0)
+        if (request.RadiusKm < 0)
         {
             return ApiResponse<PaginatedResult<NearbyHallView>>.FailureResponse(
-                "Radius must be greater than 0.",
+                "Radius cannot be negative.",
                 HttpStatusCode.BadRequest);
         }
 
