@@ -255,44 +255,43 @@ public sealed class HallRepository(BookMyHallDbContext context) : IHallRepositor
         => await context.HallListViews
         .AsNoTracking()
         .FirstOrDefaultAsync(x => x.HallId == hallId, cancellationToken);
-
     public async Task<PaginatedResult<NearbyHallView>> GetNearbyAsync(
-    double latitude,
-    double longitude,
-    double radiusKm,
-    Guid? stateId,
-    Guid? districtId,
-    Guid? cityId,
-    Guid? areaId,
-    PaginationRequest request,
-    CancellationToken cancellationToken = default)
+        double latitude,
+        double longitude,
+        double radiusKm,
+        Guid? stateId,
+        Guid? districtId,
+        Guid? cityId,
+        Guid? areaId,
+        PaginationRequest request,
+        CancellationToken cancellationToken = default)
     {
         var query = context.NearbyHallViews
             .FromSqlInterpolated($"""
-        SELECT *
-        FROM venue."GetNearbyHalls"(
-            {latitude},
-            {longitude},
-            {radiusKm},
-            {stateId},
-            {districtId},
-            {cityId},
-            {areaId}
-        )
-        """)
+            SELECT *
+            FROM venue."GetNearbyHalls"(
+                {latitude},
+                {longitude},
+                {radiusKm},
+                {stateId},
+                {districtId},
+                {cityId},
+                {areaId}
+            )
+            """)
             .AsNoTracking();
 
-        var totalCount =
-            await query.CountAsync(cancellationToken);
+        // Materialize FIRST.
+        // This prevents EF from composing Count/Skip/Take
+        // over the PostgreSQL function.
+        var allItems = await query.ToListAsync(cancellationToken);
 
-        var items =
-            await query
-                .Skip(
-                    (request.PageNumber - 1) *
-                    request.PageSize)
-                .Take(
-                    request.PageSize)
-                .ToListAsync(cancellationToken);
+        var totalCount = allItems.Count;
+
+        var items = allItems
+            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .ToList();
 
         return new PaginatedResult<NearbyHallView>
         {
