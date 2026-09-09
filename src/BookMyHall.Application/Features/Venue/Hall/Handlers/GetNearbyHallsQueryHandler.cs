@@ -94,6 +94,10 @@ public sealed class GetNearbyHallsQueryHandler(
             request.Latitude,
             request.Longitude,
             request.RadiusKm,
+            request.StateId,
+            request.DistrictId,
+            request.CityId,
+            request.AreaId,
             paginationRequest,
             cancellationToken);
 
