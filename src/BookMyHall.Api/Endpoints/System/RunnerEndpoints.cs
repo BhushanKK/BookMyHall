@@ -37,8 +37,9 @@ public static class RunnerEndpoints
                 return Results.BadRequest(new { message = "Runner service management is supported only on Windows." });
             }
 
+            var pattern = GetRunnerPattern();
             var output = RunPowerShell(
-                "Get-Service | Where-Object { $_.Name -like \"actions.runner.*\" -and $_.Status -ne 'Running' } | ForEach-Object { Start-Service -Name $_.Name }; Get-Service | Where-Object { $_.Name -like \"actions.runner.*\" } | Select-Object Name, Status, StartType | ConvertTo-Json -Compress");
+                $"Get-Service | Where-Object {{ $_.Name -like \"{pattern}\" -and $_.Status -ne 'Running' }} | ForEach-Object {{ Start-Service -Name $_.Name }}; Get-Service | Where-Object {{ $_.Name -like \"{pattern}\" }} | Select-Object Name, Status, StartType | ConvertTo-Json -Compress");
 
             return Results.Ok(ParseRunnerList(output));
         })
@@ -56,8 +57,20 @@ public static class RunnerEndpoints
             return [];
         }
 
-        var output = RunPowerShell("Get-Service | Where-Object { $_.Name -like \"actions.runner.*\" } | Select-Object Name, Status, StartType | ConvertTo-Json -Compress");
+        var pattern = GetRunnerPattern();
+        var output = RunPowerShell($"Get-Service | Where-Object {{ $_.Name -like \"{pattern}\" }} | Select-Object Name, Status, StartType | ConvertTo-Json -Compress");
         return ParseRunnerList(output);
+    }
+
+    private static string GetRunnerPattern()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+            .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: false)
+            .AddEnvironmentVariables()
+            .Build();
+
+        return configuration["RunnerService:Pattern"] ?? "actions.runner.*";
     }
 
     private static List<RunnerServiceDto> ParseRunnerList(string output)
