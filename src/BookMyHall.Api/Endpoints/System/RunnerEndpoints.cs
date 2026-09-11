@@ -65,7 +65,8 @@ public static class RunnerEndpoints
                 return Results.Problem(
                     title: "Failed to get runner services.",
                     detail: ex.Message,
-                    statusCode: StatusCodes.Status500InternalServerError);
+                    statusCode:
+                        StatusCodes.Status500InternalServerError);
             }
         })
         .WithName("GetRunners")
@@ -124,7 +125,8 @@ public static class RunnerEndpoints
                 return Results.Problem(
                     title: "Failed to get runner status.",
                     detail: ex.Message,
-                    statusCode: StatusCodes.Status500InternalServerError);
+                    statusCode:
+                        StatusCodes.Status500InternalServerError);
             }
         })
         .WithName("GetRunnerStatus")
@@ -160,7 +162,7 @@ public static class RunnerEndpoints
             "services and starts any service that is not running.")
         .Produces<RunnerEnsureResponse>(
             StatusCodes.Status200OK)
-        .Produces<RunnerEnsureResponse>(
+        .ProducesProblem(
             StatusCodes.Status500InternalServerError);
 
 
@@ -186,7 +188,7 @@ public static class RunnerEndpoints
             "services and starts every runner that is not running.")
         .Produces<RunnerEnsureResponse>(
             StatusCodes.Status200OK)
-        .Produces<RunnerEnsureResponse>(
+        .ProducesProblem(
             StatusCodes.Status500InternalServerError);
     }
 
@@ -207,6 +209,10 @@ public static class RunnerEndpoints
 
         try
         {
+            /* =====================================================
+               WINDOWS CHECK
+            ===================================================== */
+
             if (!OperatingSystem.IsWindows())
             {
                 logger.LogWarning(
@@ -217,15 +223,22 @@ public static class RunnerEndpoints
                     new RunnerEnsureResponse
                     {
                         Success = false,
+
                         Message =
                             "Runner service management is supported only on Windows."
                     });
             }
 
+
+            /* =====================================================
+               GET RUNNERS
+            ===================================================== */
+
             var runners =
                 GetRunnerServices(
                     configuration,
                     logger);
+
 
             var started =
                 new List<string>();
@@ -245,7 +258,9 @@ public static class RunnerEndpoints
             {
                 logger.LogInformation(
                     "Processing runner service. " +
-                    "ServiceName={ServiceName}, Status={Status}, StartType={StartType}",
+                    "ServiceName={ServiceName}, " +
+                    "Status={Status}, " +
+                    "StartType={StartType}",
                     runner.Name,
                     runner.Status,
                     runner.StartType);
@@ -263,7 +278,7 @@ public static class RunnerEndpoints
                     alreadyRunning.Add(
                         runner.Name);
 
-                    logger.LogDebug(
+                    logger.LogInformation(
                         "Runner service is already running. " +
                         "ServiceName={ServiceName}",
                         runner.Name);
@@ -281,8 +296,11 @@ public static class RunnerEndpoints
                         "Disabled",
                         StringComparison.OrdinalIgnoreCase))
                 {
+                    var disabledMessage =
+                        $"{runner.Name}: service startup type is Disabled.";
+
                     failed.Add(
-                        $"{runner.Name}: service startup type is Disabled.");
+                        disabledMessage);
 
                     logger.LogWarning(
                         "Runner service is disabled and cannot be started. " +
@@ -304,11 +322,18 @@ public static class RunnerEndpoints
                         "ServiceName={ServiceName}",
                         runner.Name);
 
+
                     using var service =
                         new ServiceController(
                             runner.Name);
 
+
                     service.Refresh();
+
+
+                    /* =================================================
+                       CHECK AGAIN BEFORE START
+                    ================================================= */
 
                     if (service.Status ==
                         ServiceControllerStatus.Running)
@@ -325,19 +350,35 @@ public static class RunnerEndpoints
                     }
 
 
+                    /* =================================================
+                       START
+                    ================================================= */
+
                     service.Start();
 
 
-                    /*
-                     * Wait until Windows reports the service as running.
-                     */
+                    logger.LogInformation(
+                        "Start command sent successfully. " +
+                        "Waiting for service to reach Running state. " +
+                        "ServiceName={ServiceName}",
+                        runner.Name);
+
+
+                    /* =================================================
+                       WAIT FOR RUNNING
+                    ================================================= */
 
                     service.WaitForStatus(
                         ServiceControllerStatus.Running,
                         TimeSpan.FromSeconds(30));
 
+
                     service.Refresh();
 
+
+                    /* =================================================
+                       VERIFY
+                    ================================================= */
 
                     if (service.Status ==
                         ServiceControllerStatus.Running)
@@ -352,44 +393,106 @@ public static class RunnerEndpoints
                     }
                     else
                     {
+                        var notRunningMessage =
+                            $"{runner.Name}: service did not reach Running state. " +
+                            $"CurrentStatus={service.Status}";
+
                         failed.Add(
-                            $"{runner.Name}: service did not reach Running state.");
+                            notRunningMessage);
 
                         logger.LogError(
                             "Runner service failed to reach Running state. " +
-                            "ServiceName={ServiceName}, Status={Status}",
+                            "ServiceName={ServiceName}, " +
+                            "Status={Status}",
                             runner.Name,
                             service.Status);
                     }
                 }
                 catch (InvalidOperationException ex)
                 {
-                    failed.Add(
-                        $"{runner.Name}: {ex.Message}");
+                    /*
+                     * ServiceController.Start() commonly wraps
+                     * the Windows Win32Exception inside
+                     * InvalidOperationException.
+                     */
 
-                    logger.LogError(
-                        ex,
-                        "Invalid operation while starting runner service. " +
-                        "ServiceName={ServiceName}",
-                        runner.Name);
+                    var win32Exception =
+                        FindWin32Exception(ex);
+
+
+                    if (win32Exception is not null)
+                    {
+                        var errorMessage =
+                            $"{runner.Name}: " +
+                            $"Windows service operation failed. " +
+                            $"Win32Error={win32Exception.NativeErrorCode}, " +
+                            $"Message={win32Exception.Message}";
+
+                        failed.Add(
+                            errorMessage);
+
+
+                        if (win32Exception.NativeErrorCode == 5)
+                        {
+                            logger.LogError(
+                                ex,
+                                "ACCESS DENIED while starting GitHub runner service. " +
+                                "ServiceName={ServiceName}. " +
+                                "The IIS application pool identity does not have " +
+                                "permission to start this Windows service.",
+                                runner.Name);
+                        }
+                        else
+                        {
+                            logger.LogError(
+                                ex,
+                                "Windows service operation failed. " +
+                                "ServiceName={ServiceName}, " +
+                                "Win32Error={Win32Error}",
+                                runner.Name,
+                                win32Exception.NativeErrorCode);
+                        }
+                    }
+                    else
+                    {
+                        var errorMessage =
+                            $"{runner.Name}: {ex.Message}";
+
+                        failed.Add(
+                            errorMessage);
+
+                        logger.LogError(
+                            ex,
+                            "Invalid operation while starting runner service. " +
+                            "ServiceName={ServiceName}",
+                            runner.Name);
+                    }
                 }
                 catch (Win32Exception ex)
                 {
+                    var errorMessage =
+                        $"{runner.Name}: " +
+                        $"Windows error {ex.NativeErrorCode} - " +
+                        $"{ex.Message}";
+
                     failed.Add(
-                        $"{runner.Name}: {ex.Message}");
+                        errorMessage);
 
                     logger.LogError(
                         ex,
-                        "Windows denied runner service start. " +
-                        "ServiceName={ServiceName}. " +
-                        "The IIS application pool identity may not have " +
-                        "permission to start Windows services.",
-                        runner.Name);
+                        "Windows denied runner service operation. " +
+                        "ServiceName={ServiceName}, " +
+                        "Win32Error={Win32Error}",
+                        runner.Name,
+                        ex.NativeErrorCode);
                 }
                 catch (Exception ex)
                 {
+                    var errorMessage =
+                        $"{runner.Name}: {ex.Message}";
+
                     failed.Add(
-                        $"{runner.Name}: {ex.Message}");
+                        errorMessage);
 
                     logger.LogError(
                         ex,
@@ -404,6 +507,9 @@ public static class RunnerEndpoints
                GET FINAL STATUS
             ===================================================== */
 
+            logger.LogInformation(
+                "Getting final GitHub runner service status.");
+
             var finalRunners =
                 GetRunnerServices(
                     configuration,
@@ -413,25 +519,47 @@ public static class RunnerEndpoints
             stopwatch.Stop();
 
 
+            /* =====================================================
+               RESULT
+            ===================================================== */
+
             var success =
                 failed.Count == 0;
 
 
-            var message =
-                success
-                    ? started.Count > 0
-                        ? $"Runner ensure operation completed successfully. " +
-                          $"{started.Count} runner(s) started."
-                        : "All GitHub runner services are already running."
-                    : "One or more GitHub runner services could not be started. " +
-                      "The application may not have permission to start Windows services. " +
-                      $"FailedCount={failed.Count}.";
+            string message;
+
+
+            if (success)
+            {
+                if (started.Count > 0)
+                {
+                    message =
+                        $"Runner ensure operation completed successfully. " +
+                        $"{started.Count} runner(s) started.";
+                }
+                else
+                {
+                    message =
+                        "All GitHub runner services are already running.";
+                }
+            }
+            else
+            {
+                message =
+                    "One or more GitHub runner services could not be started. " +
+                    $"Started={started.Count}, " +
+                    $"AlreadyRunning={alreadyRunning.Count}, " +
+                    $"Failed={failed.Count}.";
+            }
 
 
             logger.LogInformation(
                 "GitHub runner ensure-running operation completed. " +
-                "Success={Success}, Started={StartedCount}, " +
-                "AlreadyRunning={AlreadyRunningCount}, Failed={FailedCount}, " +
+                "Success={Success}, " +
+                "Started={StartedCount}, " +
+                "AlreadyRunning={AlreadyRunningCount}, " +
+                "Failed={FailedCount}, " +
                 "DurationMs={DurationMs}",
                 success,
                 started.Count,
@@ -440,24 +568,24 @@ public static class RunnerEndpoints
                 stopwatch.ElapsedMilliseconds);
 
 
-            var response = new RunnerEnsureResponse
-            {
-                Success = success,
-                Message = message,
-                Started = started,
-                AlreadyRunning = alreadyRunning,
-                Failed = failed,
-                Runners = finalRunners
-            };
+            return Results.Ok(
+                new RunnerEnsureResponse
+                {
+                    Success = success,
 
-            var httpStatusCode =
-                success
-                    ? StatusCodes.Status200OK
-                    : StatusCodes.Status403Forbidden;
+                    Message = message,
 
-            return Results.Json(
-                response,
-                statusCode: httpStatusCode);
+                    Started = started,
+
+                    AlreadyRunning =
+                        alreadyRunning,
+
+                    Failed =
+                        failed,
+
+                    Runners =
+                        finalRunners
+                });
         }
         catch (Exception ex)
         {
@@ -468,9 +596,43 @@ public static class RunnerEndpoints
                 "Unexpected error during GitHub runner " +
                 "ensure-running operation.");
 
-            return Results.StatusCode(
-                StatusCodes.Status500InternalServerError);
+            return Results.Problem(
+                title:
+                    "Failed to ensure GitHub runners are running.",
+
+                detail:
+                    ex.Message,
+
+                statusCode:
+                    StatusCodes.Status500InternalServerError);
         }
+    }
+
+
+    /* =========================================================
+       FIND WIN32 EXCEPTION
+    ========================================================= */
+
+    private static Win32Exception? FindWin32Exception(
+        Exception exception)
+    {
+        Exception? current =
+            exception;
+
+
+        while (current is not null)
+        {
+            if (current is Win32Exception win32Exception)
+            {
+                return win32Exception;
+            }
+
+            current =
+                current.InnerException;
+        }
+
+
+        return null;
     }
 
 
@@ -482,25 +644,37 @@ public static class RunnerEndpoints
         IConfiguration configuration,
         ILogger logger)
     {
+        /* =====================================================
+           WINDOWS CHECK
+        ===================================================== */
+
         if (!OperatingSystem.IsWindows())
         {
             var pattern =
-                GetRunnerPattern(configuration);
+                GetRunnerPattern(
+                    configuration);
 
             var message =
                 "GitHub runner service lookup is only supported on Windows. " +
-                "The current process is running on a non-Windows host, so it cannot query Windows services. " +
+                "The current process is running on a non-Windows host. " +
                 $"Configured runner pattern: '{pattern}'. " +
-                "Deploy this API on the same Windows server that hosts the GitHub Actions runner services.";
+                "Deploy this API on the Windows server that hosts the GitHub Actions runners.";
 
-            logger.LogError(message);
+            logger.LogError(
+                message);
 
-            throw new InvalidOperationException(message);
+            throw new InvalidOperationException(
+                message);
         }
 
 
+        /* =====================================================
+           GET PATTERN
+        ===================================================== */
+
         var runnerPattern =
-            GetRunnerPattern(configuration);
+            GetRunnerPattern(
+                configuration);
 
 
         logger.LogDebug(
@@ -509,9 +683,17 @@ public static class RunnerEndpoints
             runnerPattern);
 
 
+        /* =====================================================
+           GET WINDOWS SERVICES
+        ===================================================== */
+
         var services =
             ServiceController.GetServices();
 
+
+        /* =====================================================
+           FILTER RUNNER SERVICES
+        ===================================================== */
 
         var matchingServices =
             services
@@ -520,12 +702,13 @@ public static class RunnerEndpoints
                         service.ServiceName,
                         runnerPattern))
                 .OrderBy(
-                    service => service.ServiceName,
+                    service =>
+                        service.ServiceName,
                     StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
 
-        logger.LogDebug(
+        logger.LogInformation(
             "Found {RunnerCount} matching GitHub runner services.",
             matchingServices.Count);
 
@@ -535,14 +718,20 @@ public static class RunnerEndpoints
                 matchingServices.Count);
 
 
+        /* =====================================================
+           MAP SERVICES
+        ===================================================== */
+
         foreach (var service in matchingServices)
         {
             try
             {
                 service.Refresh();
 
+
                 var status =
                     service.Status.ToString();
+
 
                 var startType =
                     GetServiceStartType(
@@ -572,12 +761,14 @@ public static class RunnerEndpoints
                     };
 
 
-                result.Add(dto);
+                result.Add(
+                    dto);
 
 
                 logger.LogDebug(
                     "Runner service found. " +
-                    "Name={Name}, Status={Status}, " +
+                    "Name={Name}, " +
+                    "Status={Status}, " +
                     "StartType={StartType}",
                     dto.Name,
                     dto.Status,
@@ -614,26 +805,35 @@ public static class RunnerEndpoints
             ?? configuration["RunnerService__Pattern"]
             ?? DefaultRunnerPattern;
 
-        return string.IsNullOrWhiteSpace(configuredPattern)
-            ? DefaultRunnerPattern
-            : configuredPattern;
+
+        if (string.IsNullOrWhiteSpace(
+                configuredPattern))
+        {
+            return DefaultRunnerPattern;
+        }
+
+
+        return configuredPattern;
     }
 
 
     /* =========================================================
-       MATCH SERVICE NAME AGAINST PATTERN
+       MATCH SERVICE NAME
     ========================================================= */
 
     private static bool MatchesPattern(
         string serviceName,
         string pattern)
     {
-        if (string.IsNullOrWhiteSpace(serviceName))
+        if (string.IsNullOrWhiteSpace(
+                serviceName))
         {
             return false;
         }
 
-        if (string.IsNullOrWhiteSpace(pattern))
+
+        if (string.IsNullOrWhiteSpace(
+                pattern))
         {
             pattern =
                 DefaultRunnerPattern;
@@ -641,11 +841,11 @@ public static class RunnerEndpoints
 
 
         /*
-         * Current pattern:
+         * Pattern:
          *
          * actions.runner.*
          *
-         * This means:
+         * Matches:
          *
          * actions.runner.BhushanKK-BookMyHall.bookmyhall-vm-2019
          *
@@ -658,6 +858,7 @@ public static class RunnerEndpoints
         {
             var prefix =
                 pattern[..^1];
+
 
             return serviceName.StartsWith(
                 prefix,
@@ -703,11 +904,12 @@ public static class RunnerEndpoints
 
 
             var startValue =
-                Convert.ToInt32(value);
+                Convert.ToInt32(
+                    value);
 
 
             /*
-             * Windows Service startup values:
+             * Windows service startup values:
              *
              * 0 = Boot
              * 1 = System
@@ -719,10 +921,15 @@ public static class RunnerEndpoints
             return startValue switch
             {
                 0 => "Boot",
+
                 1 => "System",
+
                 2 => "Automatic",
+
                 3 => "Manual",
+
                 4 => "Disabled",
+
                 _ => "Unknown"
             };
         }
@@ -740,17 +947,22 @@ public static class RunnerEndpoints
 
 public sealed class RunnerServiceDto
 {
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; set; } =
+        string.Empty;
 
-    public string Status { get; set; } = string.Empty;
+    public string Status { get; set; } =
+        string.Empty;
 
-    public string StartType { get; set; } = string.Empty;
+    public string StartType { get; set; } =
+        string.Empty;
 
-    public string DisplayName { get; set; } = string.Empty;
+    public string DisplayName { get; set; } =
+        string.Empty;
 
     public bool CanStop { get; set; }
 
-    public string MachineName { get; set; } = string.Empty;
+    public string MachineName { get; set; } =
+        string.Empty;
 }
 
 
@@ -762,13 +974,18 @@ public sealed class RunnerEnsureResponse
 {
     public bool Success { get; set; }
 
-    public string Message { get; set; } = string.Empty;
+    public string Message { get; set; } =
+        string.Empty;
 
-    public List<string> Started { get; set; } = [];
+    public List<string> Started { get; set; } =
+        [];
 
-    public List<string> AlreadyRunning { get; set; } = [];
+    public List<string> AlreadyRunning { get; set; } =
+        [];
 
-    public List<string> Failed { get; set; } = [];
+    public List<string> Failed { get; set; } =
+        [];
 
-    public List<RunnerServiceDto> Runners { get; set; } = [];
+    public List<RunnerServiceDto> Runners { get; set; } =
+        [];
 }
