@@ -1,132 +1,765 @@
+using System.ComponentModel;
 using System.Diagnostics;
-using System.Text.Json;
+using System.ServiceProcess;
+using Microsoft.Win32;
 
 namespace BookMyHall.Api.Endpoints.System;
 
 public static class RunnerEndpoints
 {
-    public static void MapRunnerEndpoints(this IEndpointRouteBuilder app)
+    private const string LoggerCategory =
+        "BookMyHall.Api.Endpoints.System.RunnerEndpoints";
+
+    private const string DefaultRunnerPattern =
+        "actions.runner.*";
+
+    public static void MapRunnerEndpoints(
+        this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/runners")
+        var group = app
+            .MapGroup("/api/runners")
             .WithTags("Runners");
 
-        group.MapGet("/", () =>
+        /* =========================================================
+           GET /api/runners
+        ========================================================= */
+
+        group.MapGet("/", (
+            IConfiguration configuration,
+            ILoggerFactory loggerFactory) =>
         {
-            var runners = GetRunnerServices();
-            return Results.Ok(runners);
+            var logger =
+                loggerFactory.CreateLogger(LoggerCategory);
+
+            var stopwatch =
+                Stopwatch.StartNew();
+
+            logger.LogInformation(
+                "Getting GitHub Actions runner services.");
+
+            try
+            {
+                var runners =
+                    GetRunnerServices(
+                        configuration,
+                        logger);
+
+                stopwatch.Stop();
+
+                logger.LogInformation(
+                    "GitHub runner service lookup completed. " +
+                    "RunnerCount={RunnerCount}, DurationMs={DurationMs}",
+                    runners.Count,
+                    stopwatch.ElapsedMilliseconds);
+
+                return Results.Ok(runners);
+            }
+            catch (Exception ex)
+            {
+                stopwatch.Stop();
+
+                logger.LogError(
+                    ex,
+                    "Failed to get GitHub Actions runner services.");
+
+                return Results.Problem(
+                    title: "Failed to get runner services.",
+                    detail: ex.Message,
+                    statusCode: StatusCodes.Status500InternalServerError);
+            }
         })
         .WithName("GetRunners")
         .WithSummary("Get GitHub runner services")
-        .WithDescription("Returns all GitHub Actions self-hosted runner services currently installed on the machine.")
-        .Produces<List<RunnerServiceDto>>(StatusCodes.Status200OK);
+        .WithDescription(
+            "Returns all GitHub Actions self-hosted runner " +
+            "services installed on the Windows machine.")
+        .Produces<List<RunnerServiceDto>>(
+            StatusCodes.Status200OK)
+        .ProducesProblem(
+            StatusCodes.Status500InternalServerError);
 
-        group.MapGet("/status", () =>
+
+        /* =========================================================
+           GET /api/runners/status
+        ========================================================= */
+
+        group.MapGet("/status", (
+            IConfiguration configuration,
+            ILoggerFactory loggerFactory) =>
         {
-            var runners = GetRunnerServices();
-            return Results.Ok(runners);
+            var logger =
+                loggerFactory.CreateLogger(LoggerCategory);
+
+            var stopwatch =
+                Stopwatch.StartNew();
+
+            logger.LogInformation(
+                "Checking GitHub Actions runner service status.");
+
+            try
+            {
+                var runners =
+                    GetRunnerServices(
+                        configuration,
+                        logger);
+
+                stopwatch.Stop();
+
+                logger.LogInformation(
+                    "GitHub runner status check completed. " +
+                    "RunnerCount={RunnerCount}, DurationMs={DurationMs}",
+                    runners.Count,
+                    stopwatch.ElapsedMilliseconds);
+
+                return Results.Ok(runners);
+            }
+            catch (Exception ex)
+            {
+                stopwatch.Stop();
+
+                logger.LogError(
+                    ex,
+                    "Failed to check GitHub Actions runner services.");
+
+                return Results.Problem(
+                    title: "Failed to get runner status.",
+                    detail: ex.Message,
+                    statusCode: StatusCodes.Status500InternalServerError);
+            }
         })
         .WithName("GetRunnerStatus")
         .WithSummary("Get runner service status")
-        .WithDescription("Lists all GitHub Actions runner services with their current status and startup type.")
-        .Produces<List<RunnerServiceDto>>(StatusCodes.Status200OK);
+        .WithDescription(
+            "Lists all GitHub Actions runner services with " +
+            "their current status and startup type.")
+        .Produces<List<RunnerServiceDto>>(
+            StatusCodes.Status200OK)
+        .ProducesProblem(
+            StatusCodes.Status500InternalServerError);
 
-        group.MapPost("/start-stopped", () =>
+
+        /* =========================================================
+           POST /api/runners/start-stopped
+        ========================================================= */
+
+        group.MapPost("/start-stopped", (
+            IConfiguration configuration,
+            ILoggerFactory loggerFactory) =>
         {
-            if (!OperatingSystem.IsWindows())
-            {
-                return Results.BadRequest(new { message = "Runner service management is supported only on Windows." });
-            }
+            var logger =
+                loggerFactory.CreateLogger(LoggerCategory);
 
-            var pattern = GetRunnerPattern();
-            var output = RunPowerShell(
-                $"Get-Service | Where-Object {{ $_.Name -like \"{pattern}\" -and $_.Status -ne 'Running' }} | ForEach-Object {{ Start-Service -Name $_.Name }}; Get-Service | Where-Object {{ $_.Name -like \"{pattern}\" }} | Select-Object Name, Status, StartType | ConvertTo-Json -Compress");
-
-            return Results.Ok(ParseRunnerList(output));
+            return EnsureRunnersRunning(
+                configuration,
+                logger);
         })
         .WithName("StartStoppedRunners")
         .WithSummary("Start any stopped GitHub runners")
-        .WithDescription("Checks all GitHub Actions runner services and starts any service that is currently stopped.")
-        .Produces<List<RunnerServiceDto>>(StatusCodes.Status200OK);
+        .WithDescription(
+            "Checks all configured GitHub Actions runner " +
+            "services and starts any service that is not running.")
+        .Produces<RunnerEnsureResponse>(
+            StatusCodes.Status200OK)
+        .Produces<RunnerEnsureResponse>(
+            StatusCodes.Status500InternalServerError);
 
-    }
 
-    private static List<RunnerServiceDto> GetRunnerServices()
-    {
-        if (!OperatingSystem.IsWindows())
+        /* =========================================================
+           POST /api/runners/ensure-running
+        ========================================================= */
+
+        group.MapPost("/ensure-running", (
+            IConfiguration configuration,
+            ILoggerFactory loggerFactory) =>
         {
-            return [];
-        }
+            var logger =
+                loggerFactory.CreateLogger(LoggerCategory);
 
-        var pattern = GetRunnerPattern();
-        var output = RunPowerShell($"Get-Service | Where-Object {{ $_.Name -like \"{pattern}\" }} | Select-Object Name, Status, StartType | ConvertTo-Json -Compress");
-        return ParseRunnerList(output);
+            return EnsureRunnersRunning(
+                configuration,
+                logger);
+        })
+        .WithName("EnsureRunnersRunning")
+        .WithSummary("Ensure all GitHub runners are running")
+        .WithDescription(
+            "Checks all configured GitHub Actions runner " +
+            "services and starts every runner that is not running.")
+        .Produces<RunnerEnsureResponse>(
+            StatusCodes.Status200OK)
+        .Produces<RunnerEnsureResponse>(
+            StatusCodes.Status500InternalServerError);
     }
 
-    private static string GetRunnerPattern()
-    {
-        var configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
-            .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: false)
-            .AddEnvironmentVariables()
-            .Build();
 
-        return configuration["RunnerService:Pattern"] ?? "actions.runner.*";
-    }
+    /* =========================================================
+       ENSURE RUNNERS RUNNING
+    ========================================================= */
 
-    private static List<RunnerServiceDto> ParseRunnerList(string output)
+    private static IResult EnsureRunnersRunning(
+        IConfiguration configuration,
+        ILogger logger)
     {
-        if (string.IsNullOrWhiteSpace(output))
-        {
-            return [];
-        }
+        var stopwatch =
+            Stopwatch.StartNew();
+
+        logger.LogInformation(
+            "Starting GitHub runner ensure-running operation.");
 
         try
         {
-            var services = JsonSerializer.Deserialize<List<RunnerServiceDto>>(output, new JsonSerializerOptions
+            if (!OperatingSystem.IsWindows())
             {
-                PropertyNameCaseInsensitive = true
-            });
+                logger.LogWarning(
+                    "Runner service management requested on " +
+                    "non-Windows operating system.");
 
-            return services ?? [];
+                return Results.Ok(
+                    new RunnerEnsureResponse
+                    {
+                        Success = false,
+                        Message =
+                            "Runner service management is supported only on Windows."
+                    });
+            }
+
+            var runners =
+                GetRunnerServices(
+                    configuration,
+                    logger);
+
+            var started =
+                new List<string>();
+
+            var alreadyRunning =
+                new List<string>();
+
+            var failed =
+                new List<string>();
+
+
+            /* =====================================================
+               PROCESS EACH RUNNER
+            ===================================================== */
+
+            foreach (var runner in runners)
+            {
+                logger.LogInformation(
+                    "Processing runner service. " +
+                    "ServiceName={ServiceName}, Status={Status}, StartType={StartType}",
+                    runner.Name,
+                    runner.Status,
+                    runner.StartType);
+
+
+                /* =================================================
+                   ALREADY RUNNING
+                ================================================= */
+
+                if (string.Equals(
+                        runner.Status,
+                        ServiceControllerStatus.Running.ToString(),
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    alreadyRunning.Add(
+                        runner.Name);
+
+                    logger.LogDebug(
+                        "Runner service is already running. " +
+                        "ServiceName={ServiceName}",
+                        runner.Name);
+
+                    continue;
+                }
+
+
+                /* =================================================
+                   DISABLED
+                ================================================= */
+
+                if (string.Equals(
+                        runner.StartType,
+                        "Disabled",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    failed.Add(
+                        $"{runner.Name}: service startup type is Disabled.");
+
+                    logger.LogWarning(
+                        "Runner service is disabled and cannot be started. " +
+                        "ServiceName={ServiceName}",
+                        runner.Name);
+
+                    continue;
+                }
+
+
+                /* =================================================
+                   START SERVICE
+                ================================================= */
+
+                try
+                {
+                    logger.LogInformation(
+                        "Attempting to start runner service. " +
+                        "ServiceName={ServiceName}",
+                        runner.Name);
+
+                    using var service =
+                        new ServiceController(
+                            runner.Name);
+
+                    service.Refresh();
+
+                    if (service.Status ==
+                        ServiceControllerStatus.Running)
+                    {
+                        alreadyRunning.Add(
+                            runner.Name);
+
+                        logger.LogInformation(
+                            "Runner became running before Start(). " +
+                            "ServiceName={ServiceName}",
+                            runner.Name);
+
+                        continue;
+                    }
+
+
+                    service.Start();
+
+
+                    /*
+                     * Wait until Windows reports the service as running.
+                     */
+
+                    service.WaitForStatus(
+                        ServiceControllerStatus.Running,
+                        TimeSpan.FromSeconds(30));
+
+                    service.Refresh();
+
+
+                    if (service.Status ==
+                        ServiceControllerStatus.Running)
+                    {
+                        started.Add(
+                            runner.Name);
+
+                        logger.LogInformation(
+                            "Runner service started successfully. " +
+                            "ServiceName={ServiceName}",
+                            runner.Name);
+                    }
+                    else
+                    {
+                        failed.Add(
+                            $"{runner.Name}: service did not reach Running state.");
+
+                        logger.LogError(
+                            "Runner service failed to reach Running state. " +
+                            "ServiceName={ServiceName}, Status={Status}",
+                            runner.Name,
+                            service.Status);
+                    }
+                }
+                catch (InvalidOperationException ex)
+                {
+                    failed.Add(
+                        $"{runner.Name}: {ex.Message}");
+
+                    logger.LogError(
+                        ex,
+                        "Invalid operation while starting runner service. " +
+                        "ServiceName={ServiceName}",
+                        runner.Name);
+                }
+                catch (Win32Exception ex)
+                {
+                    failed.Add(
+                        $"{runner.Name}: {ex.Message}");
+
+                    logger.LogError(
+                        ex,
+                        "Windows denied runner service start. " +
+                        "ServiceName={ServiceName}. " +
+                        "The IIS application pool identity may not have " +
+                        "permission to start Windows services.",
+                        runner.Name);
+                }
+                catch (Exception ex)
+                {
+                    failed.Add(
+                        $"{runner.Name}: {ex.Message}");
+
+                    logger.LogError(
+                        ex,
+                        "Unexpected error while starting runner service. " +
+                        "ServiceName={ServiceName}",
+                        runner.Name);
+                }
+            }
+
+
+            /* =====================================================
+               GET FINAL STATUS
+            ===================================================== */
+
+            var finalRunners =
+                GetRunnerServices(
+                    configuration,
+                    logger);
+
+
+            stopwatch.Stop();
+
+
+            var success =
+                failed.Count == 0;
+
+
+            var message =
+                success
+                    ? started.Count > 0
+                        ? $"Runner ensure operation completed successfully. " +
+                          $"{started.Count} runner(s) started."
+                        : "All GitHub runner services are already running."
+                    : $"Runner ensure operation completed with " +
+                      $"{failed.Count} failure(s).";
+
+
+            logger.LogInformation(
+                "GitHub runner ensure-running operation completed. " +
+                "Success={Success}, Started={StartedCount}, " +
+                "AlreadyRunning={AlreadyRunningCount}, Failed={FailedCount}, " +
+                "DurationMs={DurationMs}",
+                success,
+                started.Count,
+                alreadyRunning.Count,
+                failed.Count,
+                stopwatch.ElapsedMilliseconds);
+
+
+            return Results.Ok(
+                new RunnerEnsureResponse
+                {
+                    Success = success,
+                    Message = message,
+                    Started = started,
+                    AlreadyRunning = alreadyRunning,
+                    Failed = failed,
+                    Runners = finalRunners
+                });
+        }
+        catch (Exception ex)
+        {
+            stopwatch.Stop();
+
+            logger.LogError(
+                ex,
+                "Unexpected error during GitHub runner " +
+                "ensure-running operation.");
+
+            return Results.StatusCode(
+                StatusCodes.Status500InternalServerError);
+        }
+    }
+
+
+    /* =========================================================
+       GET RUNNER SERVICES
+    ========================================================= */
+
+    private static List<RunnerServiceDto> GetRunnerServices(
+        IConfiguration configuration,
+        ILogger logger)
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            var pattern =
+                GetRunnerPattern(configuration);
+
+            var message =
+                "GitHub runner service lookup is only supported on Windows. " +
+                "The current process is running on a non-Windows host, so it cannot query Windows services. " +
+                $"Configured runner pattern: '{pattern}'. " +
+                "Deploy this API on the same Windows server that hosts the GitHub Actions runner services.";
+
+            logger.LogError(message);
+
+            throw new InvalidOperationException(message);
+        }
+
+
+        var runnerPattern =
+            GetRunnerPattern(configuration);
+
+
+        logger.LogDebug(
+            "Searching for GitHub runner services. " +
+            "Pattern={Pattern}",
+            runnerPattern);
+
+
+        var services =
+            ServiceController.GetServices();
+
+
+        var matchingServices =
+            services
+                .Where(service =>
+                    MatchesPattern(
+                        service.ServiceName,
+                        runnerPattern))
+                .OrderBy(
+                    service => service.ServiceName,
+                    StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+
+        logger.LogDebug(
+            "Found {RunnerCount} matching GitHub runner services.",
+            matchingServices.Count);
+
+
+        var result =
+            new List<RunnerServiceDto>(
+                matchingServices.Count);
+
+
+        foreach (var service in matchingServices)
+        {
+            try
+            {
+                service.Refresh();
+
+                var status =
+                    service.Status.ToString();
+
+                var startType =
+                    GetServiceStartType(
+                        service.ServiceName);
+
+
+                var dto =
+                    new RunnerServiceDto
+                    {
+                        Name =
+                            service.ServiceName,
+
+                        Status =
+                            status,
+
+                        StartType =
+                            startType,
+
+                        DisplayName =
+                            service.DisplayName,
+
+                        CanStop =
+                            service.CanStop,
+
+                        MachineName =
+                            service.MachineName
+                    };
+
+
+                result.Add(dto);
+
+
+                logger.LogDebug(
+                    "Runner service found. " +
+                    "Name={Name}, Status={Status}, " +
+                    "StartType={StartType}",
+                    dto.Name,
+                    dto.Status,
+                    dto.StartType);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Failed to read runner service information. " +
+                    "ServiceName={ServiceName}",
+                    service.ServiceName);
+            }
+            finally
+            {
+                service.Dispose();
+            }
+        }
+
+
+        return result;
+    }
+
+
+    /* =========================================================
+       GET RUNNER PATTERN
+    ========================================================= */
+
+    private static string GetRunnerPattern(
+        IConfiguration configuration)
+    {
+        var configuredPattern =
+            configuration["RunnerService:Pattern"]
+            ?? configuration["RunnerService__Pattern"]
+            ?? DefaultRunnerPattern;
+
+        return string.IsNullOrWhiteSpace(configuredPattern)
+            ? DefaultRunnerPattern
+            : configuredPattern;
+    }
+
+
+    /* =========================================================
+       MATCH SERVICE NAME AGAINST PATTERN
+    ========================================================= */
+
+    private static bool MatchesPattern(
+        string serviceName,
+        string pattern)
+    {
+        if (string.IsNullOrWhiteSpace(serviceName))
+        {
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(pattern))
+        {
+            pattern =
+                DefaultRunnerPattern;
+        }
+
+
+        /*
+         * Current pattern:
+         *
+         * actions.runner.*
+         *
+         * This means:
+         *
+         * actions.runner.BhushanKK-BookMyHall.bookmyhall-vm-2019
+         *
+         * actions.runner.BhushanKK-BookMyHall.Web.bookmyhall-web-vm-2019
+         */
+
+        if (pattern.EndsWith(
+                "*",
+                StringComparison.Ordinal))
+        {
+            var prefix =
+                pattern[..^1];
+
+            return serviceName.StartsWith(
+                prefix,
+                StringComparison.OrdinalIgnoreCase);
+        }
+
+
+        return string.Equals(
+            serviceName,
+            pattern,
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+
+    /* =========================================================
+       GET SERVICE START TYPE
+    ========================================================= */
+
+    private static string GetServiceStartType(
+        string serviceName)
+    {
+        try
+        {
+            using var key =
+                Registry.LocalMachine.OpenSubKey(
+                    $@"SYSTEM\CurrentControlSet\Services\{serviceName}");
+
+
+            if (key is null)
+            {
+                return "Unknown";
+            }
+
+
+            var value =
+                key.GetValue("Start");
+
+
+            if (value is null)
+            {
+                return "Unknown";
+            }
+
+
+            var startValue =
+                Convert.ToInt32(value);
+
+
+            /*
+             * Windows Service startup values:
+             *
+             * 0 = Boot
+             * 1 = System
+             * 2 = Automatic
+             * 3 = Manual
+             * 4 = Disabled
+             */
+
+            return startValue switch
+            {
+                0 => "Boot",
+                1 => "System",
+                2 => "Automatic",
+                3 => "Manual",
+                4 => "Disabled",
+                _ => "Unknown"
+            };
         }
         catch
         {
-            return [];
+            return "Unknown";
         }
-    }
-
-    private static string RunPowerShell(string command)
-    {
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = "powershell.exe",
-            Arguments = $"-NoProfile -NonInteractive -ExecutionPolicy Bypass -Command \"{command}\"",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
-
-        using var process = Process.Start(startInfo);
-        if (process is null)
-        {
-            return string.Empty;
-        }
-
-        var output = process.StandardOutput.ReadToEnd();
-        var error = process.StandardError.ReadToEnd();
-        process.WaitForExit();
-
-        return string.IsNullOrWhiteSpace(output) ? error : output;
     }
 }
+
+
+/* =============================================================
+   RUNNER SERVICE DTO
+============================================================= */
 
 public sealed class RunnerServiceDto
 {
     public string Name { get; set; } = string.Empty;
+
     public string Status { get; set; } = string.Empty;
+
     public string StartType { get; set; } = string.Empty;
+
     public string DisplayName { get; set; } = string.Empty;
+
     public bool CanStop { get; set; }
+
     public string MachineName { get; set; } = string.Empty;
+}
+
+
+/* =============================================================
+   RUNNER ENSURE RESPONSE
+============================================================= */
+
+public sealed class RunnerEnsureResponse
+{
+    public bool Success { get; set; }
+
+    public string Message { get; set; } = string.Empty;
+
+    public List<string> Started { get; set; } = [];
+
+    public List<string> AlreadyRunning { get; set; } = [];
+
+    public List<string> Failed { get; set; } = [];
+
+    public List<RunnerServiceDto> Runners { get; set; } = [];
 }
