@@ -423,8 +423,9 @@ public static class RunnerEndpoints
                         ? $"Runner ensure operation completed successfully. " +
                           $"{started.Count} runner(s) started."
                         : "All GitHub runner services are already running."
-                    : $"Runner ensure operation completed with " +
-                      $"{failed.Count} failure(s).";
+                    : "One or more GitHub runner services could not be started. " +
+                      "The application may not have permission to start Windows services. " +
+                      $"FailedCount={failed.Count}.";
 
 
             logger.LogInformation(
@@ -439,16 +440,24 @@ public static class RunnerEndpoints
                 stopwatch.ElapsedMilliseconds);
 
 
-            return Results.Ok(
-                new RunnerEnsureResponse
-                {
-                    Success = success,
-                    Message = message,
-                    Started = started,
-                    AlreadyRunning = alreadyRunning,
-                    Failed = failed,
-                    Runners = finalRunners
-                });
+            var response = new RunnerEnsureResponse
+            {
+                Success = success,
+                Message = message,
+                Started = started,
+                AlreadyRunning = alreadyRunning,
+                Failed = failed,
+                Runners = finalRunners
+            };
+
+            var httpStatusCode =
+                success
+                    ? StatusCodes.Status200OK
+                    : StatusCodes.Status403Forbidden;
+
+            return Results.Json(
+                response,
+                statusCode: httpStatusCode);
         }
         catch (Exception ex)
         {
