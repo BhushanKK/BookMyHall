@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
-using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Persistence.Context;
 
@@ -29,36 +28,5 @@ public sealed class UserPreferenceRepository(
     {
         context.UserPreferences.Update(userPreference);
         return Task.CompletedTask;
-    }
-
-    public async Task<UserPreference?> GetByIdAsync(
-        Guid userPreferenceId,Guid userId,
-        CancellationToken cancellationToken = default)
-        => await context.UserPreferences.FirstOrDefaultAsync(
-            x => x.UserPreferenceId == userPreferenceId && x.UserId==userId,
-            cancellationToken);
-    public async Task<PaginatedResult<UserPreference>> GetAllAsync(
-        PaginationRequest request,
-        CancellationToken cancellationToken = default)
-    {
-        var query = context.UserPreferences
-            .AsNoTracking()
-            .AsQueryable();
-
-        var totalCount = await query.CountAsync(cancellationToken);
-
-        var items = await query
-            .OrderBy(x => x.UserPreferenceId)
-            .Skip((request.PageNumber - 1) * request.PageSize)
-            .Take(request.PageSize)
-            .ToListAsync(cancellationToken);
-
-        return new PaginatedResult<UserPreference>
-        {
-            Items = items,
-            TotalCount = totalCount,
-            PageNumber = request.PageNumber,
-            PageSize = request.PageSize
-        };
-    }
+    }   
 }

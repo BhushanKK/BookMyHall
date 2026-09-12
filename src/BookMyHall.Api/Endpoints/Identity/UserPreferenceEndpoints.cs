@@ -27,12 +27,12 @@ public static class UserPreferenceEndpoints
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status409Conflict);
 
-        group.MapGet("/{userPreferenceId:guid}/{userId:guid}", async (
-            Guid userPreferenceId,Guid userId,
+        group.MapGet("/{userId:guid}", async (
+            Guid userId,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var response = await mediator.Send(new GetUserPreferenceByIdQuery(userPreferenceId,userId),cancellationToken);
+            var response = await mediator.Send(new GetUserPreferenceByIdQuery(userId),cancellationToken);
             return Results.Json(response,statusCode: response.StatusCode);
         })
         .WithName("GetUserPreferenceById")

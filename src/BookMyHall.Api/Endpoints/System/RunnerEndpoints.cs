@@ -1,10 +1,12 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.Versioning;
 using System.ServiceProcess;
 using Microsoft.Win32;
 
 namespace BookMyHall.Api.Endpoints.System;
 
+[SupportedOSPlatform("windows")]
 public static class RunnerEndpoints
 {
     private const string LoggerCategory =
@@ -197,6 +199,7 @@ public static class RunnerEndpoints
        ENSURE RUNNERS RUNNING
     ========================================================= */
 
+    [SupportedOSPlatform("windows")]
     private static IResult EnsureRunnersRunning(
         IConfiguration configuration,
         ILogger logger)
@@ -568,23 +571,14 @@ public static class RunnerEndpoints
                 stopwatch.ElapsedMilliseconds);
 
 
-            return Results.Ok(
-                new RunnerEnsureResponse
+            return Results.Ok(new RunnerEnsureResponse
                 {
                     Success = success,
-
                     Message = message,
-
                     Started = started,
-
-                    AlreadyRunning =
-                        alreadyRunning,
-
-                    Failed =
-                        failed,
-
-                    Runners =
-                        finalRunners
+                    AlreadyRunning = alreadyRunning,
+                    Failed = failed,
+                    Runners = finalRunners
                 });
         }
         catch (Exception ex)
@@ -597,14 +591,9 @@ public static class RunnerEndpoints
                 "ensure-running operation.");
 
             return Results.Problem(
-                title:
-                    "Failed to ensure GitHub runners are running.",
-
-                detail:
-                    ex.Message,
-
-                statusCode:
-                    StatusCodes.Status500InternalServerError);
+                title: "Failed to ensure GitHub runners are running.",
+                detail: ex.Message,
+                statusCode: StatusCodes.Status500InternalServerError);
         }
     }
 
@@ -623,14 +612,10 @@ public static class RunnerEndpoints
         while (current is not null)
         {
             if (current is Win32Exception win32Exception)
-            {
                 return win32Exception;
-            }
 
-            current =
-                current.InnerException;
+            current = current.InnerException;
         }
-
 
         return null;
     }
@@ -640,6 +625,7 @@ public static class RunnerEndpoints
        GET RUNNER SERVICES
     ========================================================= */
 
+    [SupportedOSPlatform("windows")]
     private static List<RunnerServiceDto> GetRunnerServices(
         IConfiguration configuration,
         ILogger logger)
@@ -660,11 +646,8 @@ public static class RunnerEndpoints
                 $"Configured runner pattern: '{pattern}'. " +
                 "Deploy this API on the Windows server that hosts the GitHub Actions runners.";
 
-            logger.LogError(
-                message);
-
-            throw new InvalidOperationException(
-                message);
+            logger.LogError(message);
+            throw new InvalidOperationException(message);
         }
 
 
@@ -672,10 +655,7 @@ public static class RunnerEndpoints
            GET PATTERN
         ===================================================== */
 
-        var runnerPattern =
-            GetRunnerPattern(
-                configuration);
-
+        var runnerPattern = GetRunnerPattern(configuration);
 
         logger.LogDebug(
             "Searching for GitHub runner services. " +
@@ -687,36 +667,19 @@ public static class RunnerEndpoints
            GET WINDOWS SERVICES
         ===================================================== */
 
-        var services =
-            ServiceController.GetServices();
-
+        var services = ServiceController.GetServices();
 
         /* =====================================================
            FILTER RUNNER SERVICES
         ===================================================== */
 
-        var matchingServices =
-            services
-                .Where(service =>
-                    MatchesPattern(
-                        service.ServiceName,
-                        runnerPattern))
-                .OrderBy(
-                    service =>
-                        service.ServiceName,
-                    StringComparer.OrdinalIgnoreCase)
+        var matchingServices = services .Where(service => MatchesPattern(service.ServiceName, runnerPattern))
+                .OrderBy(service => service.ServiceName, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
+        logger.LogInformation( "Found {RunnerCount} matching GitHub runner services.", matchingServices.Count);
 
-        logger.LogInformation(
-            "Found {RunnerCount} matching GitHub runner services.",
-            matchingServices.Count);
-
-
-        var result =
-            new List<RunnerServiceDto>(
-                matchingServices.Count);
-
+        var result = new List<RunnerServiceDto>(matchingServices.Count);
 
         /* =====================================================
            MAP SERVICES
@@ -727,43 +690,19 @@ public static class RunnerEndpoints
             try
             {
                 service.Refresh();
+                var status = service.Status.ToString();
+                var startType = GetServiceStartType(service.ServiceName);
+                var dto = new RunnerServiceDto
+                {
+                    Name = service.ServiceName,
+                    Status = status,
+                    StartType = startType,
+                    DisplayName = service.DisplayName,
+                    CanStop = service.CanStop,
+                    MachineName = service.MachineName
+                };
 
-
-                var status =
-                    service.Status.ToString();
-
-
-                var startType =
-                    GetServiceStartType(
-                        service.ServiceName);
-
-
-                var dto =
-                    new RunnerServiceDto
-                    {
-                        Name =
-                            service.ServiceName,
-
-                        Status =
-                            status,
-
-                        StartType =
-                            startType,
-
-                        DisplayName =
-                            service.DisplayName,
-
-                        CanStop =
-                            service.CanStop,
-
-                        MachineName =
-                            service.MachineName
-                    };
-
-
-                result.Add(
-                    dto);
-
+                result.Add(dto);
 
                 logger.LogDebug(
                     "Runner service found. " +
@@ -788,7 +727,6 @@ public static class RunnerEndpoints
             }
         }
 
-
         return result;
     }
 
@@ -800,18 +738,13 @@ public static class RunnerEndpoints
     private static string GetRunnerPattern(
         IConfiguration configuration)
     {
-        var configuredPattern =
-            configuration["RunnerService:Pattern"]
+        var configuredPattern = configuration["RunnerService:Pattern"]
             ?? configuration["RunnerService__Pattern"]
             ?? DefaultRunnerPattern;
 
 
-        if (string.IsNullOrWhiteSpace(
-                configuredPattern))
-        {
+        if (string.IsNullOrWhiteSpace(configuredPattern))
             return DefaultRunnerPattern;
-        }
-
 
         return configuredPattern;
     }
@@ -825,111 +758,50 @@ public static class RunnerEndpoints
         string serviceName,
         string pattern)
     {
-        if (string.IsNullOrWhiteSpace(
-                serviceName))
-        {
+        if (string.IsNullOrWhiteSpace(serviceName))
             return false;
-        }
 
+        if (string.IsNullOrWhiteSpace(pattern))
+            pattern = DefaultRunnerPattern;
 
-        if (string.IsNullOrWhiteSpace(
-                pattern))
+        if (pattern.EndsWith("*", StringComparison.Ordinal))
         {
-            pattern =
-                DefaultRunnerPattern;
+            var prefix = pattern[..^1];
+            return serviceName.StartsWith( prefix, StringComparison.OrdinalIgnoreCase);
         }
 
-
-        /*
-         * Pattern:
-         *
-         * actions.runner.*
-         *
-         * Matches:
-         *
-         * actions.runner.BhushanKK-BookMyHall.bookmyhall-vm-2019
-         *
-         * actions.runner.BhushanKK-BookMyHall.Web.bookmyhall-web-vm-2019
-         */
-
-        if (pattern.EndsWith(
-                "*",
-                StringComparison.Ordinal))
-        {
-            var prefix =
-                pattern[..^1];
-
-
-            return serviceName.StartsWith(
-                prefix,
-                StringComparison.OrdinalIgnoreCase);
-        }
-
-
-        return string.Equals(
-            serviceName,
-            pattern,
-            StringComparison.OrdinalIgnoreCase);
+        return string.Equals(serviceName, pattern, StringComparison.OrdinalIgnoreCase);
     }
-
 
     /* =========================================================
        GET SERVICE START TYPE
     ========================================================= */
-
+    [SupportedOSPlatform("windows")]
     private static string GetServiceStartType(
         string serviceName)
     {
         try
         {
-            using var key =
-                Registry.LocalMachine.OpenSubKey(
-                    $@"SYSTEM\CurrentControlSet\Services\{serviceName}");
-
+            using var key = Registry.LocalMachine.OpenSubKey( $@"SYSTEM\CurrentControlSet\Services\{serviceName}");
 
             if (key is null)
-            {
                 return "Unknown";
-            }
 
-
-            var value =
-                key.GetValue("Start");
+            var value = key.GetValue("Start");
 
 
             if (value is null)
-            {
                 return "Unknown";
-            }
 
-
-            var startValue =
-                Convert.ToInt32(
-                    value);
-
-
-            /*
-             * Windows service startup values:
-             *
-             * 0 = Boot
-             * 1 = System
-             * 2 = Automatic
-             * 3 = Manual
-             * 4 = Disabled
-             */
+            var startValue = Convert.ToInt32(value);
 
             return startValue switch
             {
                 0 => "Boot",
-
                 1 => "System",
-
                 2 => "Automatic",
-
                 3 => "Manual",
-
                 4 => "Disabled",
-
                 _ => "Unknown"
             };
         }

@@ -43,7 +43,12 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapMenuPermissionEndpoints();
         endpoints.MapHallOwnerEndpoints();
         endpoints.MapNearbyHallEndpoints();
-        endpoints.MapRunnerEndpoints();
+
+        if (OperatingSystem.IsWindows())
+        {
+            endpoints.MapRunnerEndpoints();
+        }
+
         return endpoints;
     }
 }
