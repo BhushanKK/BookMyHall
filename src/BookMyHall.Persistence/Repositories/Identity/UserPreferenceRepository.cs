@@ -32,10 +32,10 @@ public sealed class UserPreferenceRepository(
     }
 
     public async Task<UserPreference?> GetByIdAsync(
-        Guid userPreferenceId,
+        Guid userPreferenceId,Guid userId,
         CancellationToken cancellationToken = default)
         => await context.UserPreferences.FirstOrDefaultAsync(
-            x => x.UserPreferenceId == userPreferenceId,
+            x => x.UserPreferenceId == userPreferenceId && x.UserId==userId,
             cancellationToken);
     public async Task<PaginatedResult<UserPreference>> GetAllAsync(
         PaginationRequest request,

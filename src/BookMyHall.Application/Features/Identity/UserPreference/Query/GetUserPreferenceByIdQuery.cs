@@ -4,5 +4,5 @@ using BookMyHall.Domain.Entities.Identity;
 
 namespace BookMyHall.Application.Features.Identity;
 
-public sealed record GetUserPreferenceByIdQuery(Guid UserPreferenceId)
+public sealed record GetUserPreferenceByIdQuery(Guid UserPreferenceId,Guid UserId)
 : IRequest<ApiResponse<UserPreference>>;

@@ -13,47 +13,32 @@ public static class UserPreferenceEndpoints
             .WithTags("User Preferences")
             .RequireAuthorization();
 
-        group.MapPost("/", async (
-            UpsertUserPreferenceCommand command,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
+        group.MapPost("/", async ( UpsertUserPreferenceCommand command,
+            IMediator mediator, CancellationToken cancellationToken) =>
         {
-            var response = await mediator.Send(
-                command,
-                cancellationToken);
-
-            return Results.Json(
-                response,
-                statusCode: response.StatusCode);
+            var response = await mediator.Send(command,cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
         })
         .WithName("CreateUserPreference")
         .WithSummary("Create User Preference")
         .WithDescription("Creates a new user preference.")
-        .Produces<ApiResponse<UserPreferenceDto>>(
-            StatusCodes.Status201Created)
+        .Produces<ApiResponse<UserPreferenceDto>>(StatusCodes.Status201Created)
         .Produces(StatusCodes.Status400BadRequest)
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status409Conflict);
 
-        group.MapGet("/{userPreferenceId:guid}", async (
-            Guid userPreferenceId,
+        group.MapGet("/{userPreferenceId:guid}/{userId:guid}", async (
+            Guid userPreferenceId,Guid userId,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var response = await mediator.Send(
-                new GetUserPreferenceByIdQuery(userPreferenceId),
-                cancellationToken);
-
-            return Results.Json(
-                response,
-                statusCode: response.StatusCode);
+            var response = await mediator.Send(new GetUserPreferenceByIdQuery(userPreferenceId,userId),cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
         })
         .WithName("GetUserPreferenceById")
         .WithSummary("Get User Preference By Id")
-        .WithDescription(
-            "Returns a user preference by its identifier.")
-        .Produces<ApiResponse<UserPreferenceDto>>(
-            StatusCodes.Status200OK)
+        .WithDescription("Returns a user preference by its identifier.")
+        .Produces<ApiResponse<UserPreferenceDto>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status404NotFound);
     }

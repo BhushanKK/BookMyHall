@@ -16,7 +16,7 @@ public sealed class GetUserPreferenceByIdQueryHandler(
 {
     public async Task<ApiResponse<UserPreference>> Handle(GetUserPreferenceByIdQuery request,CancellationToken cancellationToken)
     {
-        var userPreference = await userPreferenceRepository.GetByIdAsync(request.UserPreferenceId,cancellationToken);
+        var userPreference = await userPreferenceRepository.GetByIdAsync(request.UserPreferenceId,request.UserId,cancellationToken);
 
         if (userPreference is null)
         {
