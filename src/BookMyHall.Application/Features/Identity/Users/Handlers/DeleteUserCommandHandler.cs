@@ -1,21 +1,20 @@
 using System.Net;
 using MediatR;
+using BookMyHall.Application.Abstractions.Caching;
+using BookMyHall.Application.Abstractions.Persistence;
+using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
-using BookMyHall.Application.Abstractions.Persistence;
-using BookMyHall.Application.Abstractions.Persistence.Repositories;
-using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity.Users;
+
 public sealed class DeleteUserCommandHandler(
-    IUserRepository userRepository,
-    IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper,ICacheService cacheService)
+    IUserRepository userRepository, IUnitOfWork unitOfWork,
+    IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<DeleteUserCommand, ApiResponse<bool>>
 {
-    public async Task<ApiResponse<bool>> Handle(DeleteUserCommand request,
-    CancellationToken cancellationToken)
+    public async Task<ApiResponse<bool>> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetByIdAsync(request.UserId, cancellationToken);
 
@@ -29,11 +28,12 @@ public sealed class DeleteUserCommandHandler(
         }
 
         user.Deactivate();
-        user.IsDeleted=true;
-        await userRepository.UpdateAsync(user, cancellationToken);
+        user.IsDeleted = true;
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync( $"{CacheKeys.Users}:{request.UserId}",cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.UsersPaged}:",cancellationToken);
+        await cacheService.RemoveAsync($"{CacheKeys.Users}:{request.UserId}", cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.UsersPaged}:", cancellationToken);
+
         return ApiResponse<bool>.SuccessResponse
         (
             true,

@@ -10,185 +10,129 @@ using BookMyHall.Application.Abstractions.Persistence.Identity;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Contracts.Messaging;
+using BookMyHall.Domain.Dtos;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Domain.Identity;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Shared.Options;
-using BookMyHall.Domain.Dtos;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
 public sealed class CreateUserCommandHandler(
-    IUserRepository userRepository,
-    IRoleRepository roleRepository,
-    IEmailVerificationTokenRepository emailVerificationTokenRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    ITokenGenerator tokenGenerator,
-    ITokenHasher tokenHasher,
-    IMessageHelper messageHelper,
-    ICacheService cacheService,
-    IMessagePublisher messagePublisher,
+    IUserRepository userRepository, IRoleRepository roleRepository,
+    IEmailVerificationTokenRepository emailVerificationTokenRepository, IUnitOfWork unitOfWork,
+    IMapper mapper, ITokenGenerator tokenGenerator,
+    ITokenHasher tokenHasher, IMessageHelper messageHelper,
+    ICacheService cacheService, IMessagePublisher messagePublisher,
     IOptions<EmailOptions> emailVerificationOptions)
     : IRequestHandler<CreateUserCommand, ApiResponse<UserDto>>
 {
-    public async Task<ApiResponse<UserDto>> Handle(
-        CreateUserCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<UserDto>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
-        // ------------------------------------------------------------
-        // 1. Validate roles
-        // ------------------------------------------------------------
-
         if (request.Roles is null || request.Roles.Count == 0)
         {
-            return ApiResponse<UserDto>.FailureResponse(
+            return ApiResponse<UserDto>.FailureResponse
+            (
                 "At least one role is required.",
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest
+            );
         }
 
         var roleIds = request.Roles
             .Where(roleId => roleId != Guid.Empty)
             .Distinct()
-            .ToList();
+            .ToArray();
 
-        if (roleIds.Count == 0)
+        if (roleIds.Length == 0)
         {
-            return ApiResponse<UserDto>.FailureResponse(
+            return ApiResponse<UserDto>.FailureResponse
+            (
                 "At least one valid role is required.",
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest
+            );
         }
 
-        // ------------------------------------------------------------
-        // 2. Load roles
-        // ------------------------------------------------------------
+        var roles = await roleRepository.GetByIdsAsync(roleIds, cancellationToken);
 
-        var roles = new List<Role>();
-
-        foreach (var roleId in roleIds)
+        if (roles.Count != roleIds.Length)
         {
-            var role = await roleRepository.GetByIdAsync(
-                roleId,
-                cancellationToken);
+            var existingRoleIds = roles.Select(role => role.RoleId).ToHashSet();
+            var invalidRoleId = roleIds.First(roleId => !existingRoleIds.Contains(roleId));
 
-            if (role is null)
-            {
-                return ApiResponse<UserDto>.FailureResponse(
-                    $"Role with ID '{roleId}' was not found.",
-                    HttpStatusCode.BadRequest);
-            }
-
-            roles.Add(role);
+            return ApiResponse<UserDto>.FailureResponse
+            (
+                $"Role with ID '{invalidRoleId}' was not found.",
+                HttpStatusCode.BadRequest
+            );
         }
 
-        // ------------------------------------------------------------
-        // 3. Read email verification configuration
-        // ------------------------------------------------------------
-
-        int expiryMinutes = emailVerificationOptions.Value.VerificationExpiryMinutes;
+        var expiryMinutes = emailVerificationOptions.Value.VerificationExpiryMinutes;
 
         if (expiryMinutes <= 0)
         {
-            return ApiResponse<UserDto>.FailureResponse(
+            return ApiResponse<UserDto>.FailureResponse
+            (
                 "Email verification expiry configuration is invalid.",
-                HttpStatusCode.InternalServerError);
+                HttpStatusCode.InternalServerError
+            );
         }
 
-        // ------------------------------------------------------------
-        // 4. Create user
-        // ------------------------------------------------------------
-
         var currentDate = DateTimeOffset.UtcNow;
-
         var user = mapper.Map<User>(request);
+
         user.IsEmailVerified = false;
 
-        user.UserRoles = roles
-            .Select(role => new UserRole
-            {
-                RoleId = role.RoleId,
-                CreatedDate = currentDate,
-                CreatedBy = user.CreatedBy
-            })
-            .ToList();
+        user.UserRoles = roles.Select(role => new UserRole
+        {
+            UserId = user.UserId,
+            RoleId = role.RoleId,
+            CreatedDate = currentDate,
+            CreatedBy = user.CreatedBy
+        }).ToList();
 
         try
         {
-            await userRepository.AddAsync(
-                user,
-                cancellationToken);
-
-            await unitOfWork.SaveChangesAsync(
-                cancellationToken);
+            await userRepository.AddAsync(user, cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
         }
         catch (DuplicateRecordException)
         {
-            return ApiResponse<UserDto>.FailureResponse(
-                messageHelper.AlreadyExistsEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.User),
-                HttpStatusCode.Conflict);
+            return ApiResponse<UserDto>.FailureResponse
+            (
+                messageHelper.AlreadyExistsEntity(ResourceNames.Entities, EntityKeys.User),
+                HttpStatusCode.Conflict
+            );
         }
 
-        // ------------------------------------------------------------
-        // 5. Generate email verification token
-        // ------------------------------------------------------------
+        var verificationToken = tokenGenerator.GenerateEmailVerificationToken();
+        var tokenHash = tokenHasher.Hash(verificationToken);
+        var expiresAt = currentDate.AddMinutes(expiryMinutes);
 
-        var verificationToken =
-            tokenGenerator.GenerateEmailVerificationToken();
+        var verificationTokenEntity = EmailVerificationToken.Create(user.UserId, tokenHash, expiresAt);
+        await emailVerificationTokenRepository.AddAsync(verificationTokenEntity, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.UsersPaged}:", cancellationToken);
 
-        var tokenHash =
-            tokenHasher.Hash(verificationToken);
-
-        var expiresAt =
-            DateTimeOffset.UtcNow.AddMinutes(expiryMinutes);
-
-        var verificationTokenEntity =
-            EmailVerificationToken.Create(
-                user.UserId,
-                tokenHash,
-                expiresAt);
-
-        await emailVerificationTokenRepository.AddAsync(
-            verificationTokenEntity,
-            cancellationToken);
-
-        await unitOfWork.SaveChangesAsync(
-            cancellationToken);
-
-        // ------------------------------------------------------------
-        // 6. Publish RabbitMQ registration event
-        // ------------------------------------------------------------
-
-        var registrationMessage =
-            new UserRegisteredMessage(
-                user.UserId,
-                user.FullName,
-                user.EmailAddress!,
-                verificationToken,
-                expiryMinutes);
+        var registrationMessage = new UserRegisteredMessage
+        (
+            user.UserId,
+            user.FullName,
+            user.EmailAddress!,
+            verificationToken,
+            expiryMinutes
+        );
 
         await messagePublisher.PublishAsync(registrationMessage, cancellationToken);
 
-        // ------------------------------------------------------------
-        // 7. Clear user cache
-        // ------------------------------------------------------------
+        var userDto = mapper.Map<UserDto>(user);
 
-        await cacheService.RemoveByPrefixAsync(
-            $"{CacheKeys.UsersPaged}:",
-            cancellationToken);
-
-        // ------------------------------------------------------------
-        // 8. Return response
-        // ------------------------------------------------------------
-
-        return ApiResponse<UserDto>.SuccessResponse(
-            mapper.Map<UserDto>(user),
-            messageHelper.AddedEntity(
-                ResourceNames.Entities,
-                EntityKeys.User),
-            HttpStatusCode.Created);
+        return ApiResponse<UserDto>.SuccessResponse
+        (
+            userDto,
+            messageHelper.AddedEntity(ResourceNames.Entities, EntityKeys.User),
+            HttpStatusCode.Created
+        );
     }
 }

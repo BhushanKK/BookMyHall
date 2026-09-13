@@ -17,7 +17,7 @@ public sealed class UserDto
                 LastName
             }
             .Where(x => !string.IsNullOrWhiteSpace(x)));
-    public string MobileNumber { get; set; } = string.Empty;
+    public string? MobileNumber { get; set; } = string.Empty;
      public string? ProfileImageUrl { get; set; } = string.Empty;
      
     public DateTimeOffset? DateOfBirth { get; set; }

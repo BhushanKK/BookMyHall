@@ -10,18 +10,14 @@ public interface IUserRepository
     Task AddAsync(User user, CancellationToken cancellationToken = default);
     Task UpdateAsync(User user, CancellationToken cancellationToken = default);
     Task<User?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<UserDto?> GetUserDtoByIdAsync(Guid userId, CancellationToken cancellationToken = default);
     Task<UserLoginDto?> GetForLoginAsync(string mobileNumber, CancellationToken cancellationToken = default);
     Task RecordLoginAsync(Guid userId, DateTimeOffset loginDate, CancellationToken cancellationToken = default);
     Task<PaginatedResult<UserDto>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default);
-    Task<User?> GetByEmailAddressAsync( string emailAddress, CancellationToken cancellationToken = default);
-    Task RemoveUserRolesAsync(Guid userId, CancellationToken cancellationToken);
-    Task AddUserRoleAsync(UserRole userRole, CancellationToken cancellationToken);
+    Task<User?> GetByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken = default);
+    Task RemoveUserRolesAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task AddUserRolesAsync(IEnumerable<UserRole> userRoles, CancellationToken cancellationToken = default);
     Task<UserLoginDto?> GetForGoogleLoginAsync(string emailAddress, CancellationToken cancellationToken = default);
-
-    Task<IReadOnlyList<HallOwnerDto>> GetHallOwnersAsync(
-    string? searchText = null,
-    Guid? hallOwnerId=null,
-    CancellationToken cancellationToken = default);
-
-     Task<UserDetailsView?> GetUserDetailsByIdAsync(Guid userId,Guid roleId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<HallOwnerDto>> GetHallOwnersAsync(string? searchText = null, Guid? hallOwnerId = null, CancellationToken cancellationToken = default);
+    Task<UserDetailsView?> GetUserDetailsByIdAsync(Guid userId, Guid roleId, CancellationToken cancellationToken = default);
 }

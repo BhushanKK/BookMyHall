@@ -78,4 +78,11 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
         .Where(x => x.RoleName == roleName)
         .Select(x => x.RoleId)
         .FirstOrDefaultAsync(cancellationToken);
+
+    public async Task<List<Role>> GetByIdsAsync(IEnumerable<Guid> roleIds, CancellationToken cancellationToken = default)
+    {
+        var ids = roleIds.Where(x => x != Guid.Empty).Distinct().ToArray();
+        if (ids.Length == 0) return [];
+        return await context.Roles.AsNoTracking().Where(x => ids.Contains(x.RoleId)).ToListAsync(cancellationToken);
+    }
 }

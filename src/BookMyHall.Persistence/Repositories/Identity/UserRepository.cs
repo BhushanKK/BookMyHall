@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Dtos;
 using BookMyHall.Domain.Entities.Identity;
@@ -21,32 +20,54 @@ public sealed class UserRepository(BookMyHallDbContext context)
         return Task.CompletedTask;
     }
 
-    // public async Task<User?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
-    //     => await context.Users.FirstOrDefaultAsync(x => !x.IsDeleted && x.UserId == userId, cancellationToken);
-    public async Task<User?> GetByIdAsync(
+    public async Task<User?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        return await context.Users.FirstOrDefaultAsync(x => !x.IsDeleted && x.UserId == userId, cancellationToken);
+    }
+
+    public async Task<UserDto?> GetUserDtoByIdAsync(
         Guid userId,
         CancellationToken cancellationToken = default)
     {
         return await context.Users
-            .Include(
-                x => x.UserRoles
-            )
-            .ThenInclude(
-                x => x.Role
-            )
-            .FirstOrDefaultAsync(
-                x =>
-                    !x.IsDeleted &&
-                    x.UserId == userId,
-                cancellationToken
-            );
+            .AsNoTracking()
+            .Where(x =>
+                !x.IsDeleted &&
+                x.UserId == userId)
+            .Select(x => new UserDto
+            {
+                UserId = x.UserId,
+                FirstName = x.FirstName,
+                MiddleName = x.MiddleName,
+                LastName = x.LastName,
+                EmailAddress = x.EmailAddress,
+                MobileNumber = x.MobileNumber,
+                IsActive = x.IsActive,
+                ProfileImageUrl = x.ProfileImageUrl,
+                DateOfBirth = x.DateOfBirth,
+                Gender = x.Gender,
+
+                Roles = x.UserRoles
+                    .Select(ur => new Role
+                    {
+                        RoleId = ur.RoleId,
+                        RoleName = ur.Role.RoleName
+                    })
+                    .ToList()
+            })
+            .FirstOrDefaultAsync(cancellationToken);
     }
-    public async Task<UserLoginDto?> GetForLoginAsync(string mobileNumber, CancellationToken cancellationToken = default)
+
+    public async Task<UserLoginDto?> GetForLoginAsync(
+        string mobileNumber,
+        CancellationToken cancellationToken = default)
     {
+        var normalizedMobileNumber = mobileNumber.Trim();
+
         return await context.Users
             .AsNoTracking()
             .Where(x =>
-                x.MobileNumber == mobileNumber.Trim() &&
+                x.MobileNumber == normalizedMobileNumber &&
                 x.IsActive &&
                 !x.IsDeleted)
             .Select(x => new UserLoginDto
@@ -93,8 +114,8 @@ public sealed class UserRepository(BookMyHallDbContext context)
     }
 
     public async Task<PaginatedResult<UserDto>> GetAllAsync(
-    PaginationRequest request,
-    CancellationToken cancellationToken = default)
+        PaginationRequest request,
+        CancellationToken cancellationToken = default)
     {
         var query = context.Users
             .AsNoTracking()
@@ -105,24 +126,41 @@ public sealed class UserRepository(BookMyHallDbContext context)
             var searchPattern = $"%{request.SearchText.Trim()}%";
 
             query = query.Where(x =>
-                EF.Functions.ILike(x.FirstName, searchPattern) ||
+                EF.Functions.ILike(
+                    x.FirstName,
+                    searchPattern) ||
+
                 (x.MiddleName != null &&
-                EF.Functions.ILike(x.MiddleName, searchPattern)) ||
+                 EF.Functions.ILike(
+                     x.MiddleName,
+                     searchPattern)) ||
+
                 (x.LastName != null &&
-                EF.Functions.ILike(x.LastName, searchPattern)) ||
+                 EF.Functions.ILike(
+                     x.LastName,
+                     searchPattern)) ||
+
                 (x.MobileNumber != null &&
-                EF.Functions.ILike(x.MobileNumber, searchPattern)) ||
+                 EF.Functions.ILike(
+                     x.MobileNumber,
+                     searchPattern)) ||
+
                 (x.EmailAddress != null &&
-                EF.Functions.ILike(x.EmailAddress, searchPattern)));
+                 EF.Functions.ILike(
+                     x.EmailAddress,
+                     searchPattern)));
         }
 
-        var totalCount = await query.CountAsync(cancellationToken);
+        var totalCount = await query
+            .CountAsync(cancellationToken);
 
         var items = await query
             .OrderBy(x => x.FirstName)
             .ThenBy(x => x.LastName)
             .ThenBy(x => x.UserId)
-            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Skip(
+                (request.PageNumber - 1) *
+                request.PageSize)
             .Take(request.PageSize)
             .Select(x => new UserDto
             {
@@ -136,14 +174,14 @@ public sealed class UserRepository(BookMyHallDbContext context)
                 Gender = x.Gender,
                 EmailAddress = x.EmailAddress,
                 IsActive = x.IsActive,
-                Roles = x.UserRoles
-        .Select(userRole => new Role
-        {
-            RoleId = userRole.RoleId,
 
-            RoleName = userRole.Role.RoleName
-        })
-        .ToList()
+                Roles = x.UserRoles
+                    .Select(ur => new Role
+                    {
+                        RoleId = ur.RoleId,
+                        RoleName = ur.Role.RoleName
+                    })
+                    .ToList()
             })
             .ToListAsync(cancellationToken);
 
@@ -162,35 +200,43 @@ public sealed class UserRepository(BookMyHallDbContext context)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(emailAddress);
 
-        var normalizedEmail = emailAddress.Trim().ToLowerInvariant();
+        var normalizedEmail =
+            emailAddress.Trim().ToLowerInvariant();
 
         return await context.Users
             .AsNoTracking()
             .FirstOrDefaultAsync(
                 x =>
-                    x.IsActive && !x.IsDeleted &&
+                    x.IsActive &&
+                    !x.IsDeleted &&
                     x.EmailAddress == normalizedEmail,
                 cancellationToken);
     }
 
-    public async Task RemoveUserRolesAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task RemoveUserRolesAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default)
     {
-        var userRoles = await context.UserRoles
+        await context.UserRoles
             .Where(x => x.UserId == userId)
-            .ToListAsync(cancellationToken);
-        context.UserRoles.RemoveRange(userRoles);
+            .ExecuteDeleteAsync(cancellationToken);
     }
 
-    public async Task AddUserRoleAsync(
-        UserRole userRole,
+    public async Task AddUserRolesAsync(
+        IEnumerable<UserRole> userRoles,
         CancellationToken cancellationToken = default)
-        => await context.UserRoles.AddAsync(
-            userRole,
-            cancellationToken);
-
-    public async Task<UserLoginDto?> GetForGoogleLoginAsync(string emailAddress, CancellationToken cancellationToken = default)
     {
-        var normalizedEmail = emailAddress.Trim().ToLowerInvariant();
+        await context.UserRoles.AddRangeAsync(
+            userRoles,
+            cancellationToken);
+    }
+
+    public async Task<UserLoginDto?> GetForGoogleLoginAsync(
+        string emailAddress,
+        CancellationToken cancellationToken = default)
+    {
+        var normalizedEmail =
+            emailAddress.Trim().ToLowerInvariant();
 
         return await context.Users
             .AsNoTracking()
@@ -221,25 +267,47 @@ public sealed class UserRepository(BookMyHallDbContext context)
     }
 
     public async Task<IReadOnlyList<HallOwnerDto>> GetHallOwnersAsync(
-     string? searchText, Guid? hallOwnerId, CancellationToken cancellationToken = default)
+        string? searchText,
+        Guid? hallOwnerId,
+        CancellationToken cancellationToken = default)
     {
-        var query = context.Set<HallOwnerDto>().AsNoTracking();
-        
+        var query = context.Set<HallOwnerDto>()
+            .AsNoTracking();
+
         if (hallOwnerId.HasValue)
-            query = query.Where(x => x.UserId == hallOwnerId.Value);
+        {
+            query = query.Where(
+                x => x.UserId == hallOwnerId.Value);
+        }
 
         if (!string.IsNullOrWhiteSpace(searchText))
         {
-            var searchPattern = $"%{searchText.Trim()}%";
-            query = query.Where(x => EF.Functions.ILike(x.FullName, searchPattern));
+            var searchPattern =
+                $"%{searchText.Trim()}%";
+
+            query = query.Where(
+                x => EF.Functions.ILike(
+                    x.FullName,
+                    searchPattern));
         }
 
-        return await query.OrderBy(x => x.FullName).Take(20).ToListAsync(cancellationToken);
+        return await query
+            .OrderBy(x => x.FullName)
+            .Take(20)
+            .ToListAsync(cancellationToken);
     }
 
-        public async Task<UserDetailsView?> GetUserDetailsByIdAsync(
-        Guid userId,Guid roleId, CancellationToken cancellationToken = default)
-        => await context.UserDetailsViews
-        .AsNoTracking()
-        .FirstOrDefaultAsync(x => x.UserId == userId && x.RoleId==roleId, cancellationToken);
+    public async Task<UserDetailsView?> GetUserDetailsByIdAsync(
+        Guid userId,
+        Guid roleId,
+        CancellationToken cancellationToken = default)
+    {
+        return await context.UserDetailsViews
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                x =>
+                    x.UserId == userId &&
+                    x.RoleId == roleId,
+                cancellationToken);
+    }
 }
