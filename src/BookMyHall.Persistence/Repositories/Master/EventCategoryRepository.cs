@@ -36,7 +36,7 @@ public sealed class EventCategoryRepository(BookMyHallDbContext context)
     public async Task<PaginatedResult<EventCategory>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
         IQueryable<EventCategory> query = context.EventCategories
-        .Where(x=>x.IsDeleted==false)
+        .Where(x=>x.IsDeleted==false && x.IsActive==true)
         .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))

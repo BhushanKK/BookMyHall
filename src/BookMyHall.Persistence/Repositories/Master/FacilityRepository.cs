@@ -22,9 +22,7 @@ public sealed class FacilityRepository(BookMyHallDbContext context)
         => await context.Facilities
         .Where(x=>x.IsDeleted==false)
             .AsNoTracking()
-            .FirstOrDefaultAsync(
-                x => x.FacilityId == facilityId && x.IsActive==true,
-                cancellationToken);
+            .FirstOrDefaultAsync(x => x.FacilityId == facilityId && x.IsActive==true, cancellationToken);
 
     public async Task<Facility?> GetByFacilityNameAsync(string facilityName,CancellationToken cancellationToken = default)
         => await context.Facilities

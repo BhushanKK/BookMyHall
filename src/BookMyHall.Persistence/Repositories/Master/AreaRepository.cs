@@ -44,7 +44,7 @@ public sealed class AreaRepository(BookMyHallDbContext context)
         PaginationRequest request,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<Area> query = context.Areas.Where(x=>x.IsDeleted==false).AsNoTracking();
+        IQueryable<Area> query = context.Areas.Where(x=>x.IsDeleted==false && x.IsActive==true).AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {

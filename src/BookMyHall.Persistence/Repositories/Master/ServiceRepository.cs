@@ -35,7 +35,7 @@ public sealed class ServiceRepository(BookMyHallDbContext context): IServiceRepo
     public async Task<PaginatedResult<Service>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
         IQueryable<Service> query = context.Services
-        .Where(x=>x.IsDeleted==false)
+        .Where(x=>x.IsDeleted==false && x.IsActive==true)
             .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))
