@@ -162,7 +162,7 @@ public sealed class UpdateUserForm
     public string? MiddleName { get; set; }
     public string? LastName { get; set; }
     public string MobileNumber { get; set; } = string.Empty;
-    public DateTimeOffset? DateOfBirth { get; set; }
+    public DateOnly? DateOfBirth { get; set; }
     public Gender? Gender { get; set; }
     public string EmailAddress { get; set; } = string.Empty;
     public IFormFile? Image { get; set; }

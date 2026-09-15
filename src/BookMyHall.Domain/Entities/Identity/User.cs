@@ -14,7 +14,7 @@ public class User : BaseEntity
     public string? EmailAddress { get; set; }
     public string? PasswordHash { get; set; }
     public string? ProfileImageUrl { get; set; }
-    public DateTimeOffset? DateOfBirth { get; set; }
+    public DateOnly? DateOfBirth { get; set; }
     public Gender? Gender { get; set; }
     public bool IsMobileVerified { get; set; }
     public bool IsEmailVerified { get; set; } = false;

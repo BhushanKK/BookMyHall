@@ -11,7 +11,7 @@ public sealed record ProfileUpdateUserCommand(
     string? MiddleName,
     string? LastName,
     string MobileNumber,
-    DateTimeOffset? DateOfBirth,
+    DateOnly? DateOfBirth,
     Gender? Gender,
     string EmailAddress,
     Stream? ImageStream = null,

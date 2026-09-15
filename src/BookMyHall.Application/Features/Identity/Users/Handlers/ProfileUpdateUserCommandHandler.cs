@@ -46,7 +46,7 @@ public sealed class ProfileUpdateUserCommandHandler(
         mapper.Map(request, user);
 
         if (request.DateOfBirth.HasValue)
-            user.DateOfBirth = request.DateOfBirth.Value.ToUniversalTime();
+            user.DateOfBirth = request.DateOfBirth.Value;
 
         if (request.ImageStream is not null &&
             !string.IsNullOrWhiteSpace(request.FileName) &&
