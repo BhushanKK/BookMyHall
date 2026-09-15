@@ -10,6 +10,6 @@ public sealed class DeleteHallCommandValidator: AbstractValidator<DeleteHallComm
 {
     public DeleteHallCommandValidator(ILocalizationService localizer)
     {
-        RuleFor(x => x.HallId).Required(localizer, EntityKeys.HallId);
+        RuleFor(x => x.HallId).Required(localizer, EntityKeys.Hall);
     }
 }

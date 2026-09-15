@@ -11,7 +11,7 @@ public sealed class CreateCityCommandValidator
     public CreateCityCommandValidator(ILocalizationService localizer)
     {
         RuleFor(x => x.DistrictId)
-            .Required(localizer, EntityKeys.DistrictId);
+            .Required(localizer, EntityKeys.District);
 
         RuleFor(x => x.CityName)
             .Required(localizer, EntityKeys.CityName)

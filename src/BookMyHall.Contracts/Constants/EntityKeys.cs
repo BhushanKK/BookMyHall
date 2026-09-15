@@ -94,6 +94,7 @@ public static class EntityKeys
   public const string HallId = nameof(HallId);
 
   public const string HallOwnerId = nameof(HallOwnerId);
+    public const string HallOwner = nameof(HallOwner);
 
   public const string HallName = nameof(HallName);
 

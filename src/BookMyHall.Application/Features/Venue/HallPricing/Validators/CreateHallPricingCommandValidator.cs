@@ -12,10 +12,10 @@ public sealed class CreateHallPricingCommandValidator: AbstractValidator<CreateH
     public CreateHallPricingCommandValidator(ILocalizationService localizer)
     {
         RuleFor(x => x.HallId)
-            .Required(localizer, EntityKeys.HallId);
+            .Required(localizer, EntityKeys.Hall);
 
         RuleFor(x => x.EventCategoryId)
-            .Required(localizer, EntityKeys.EventCategoryId);
+            .Required(localizer, EntityKeys.EventCategory);
 
         RuleFor(x => x.PackageName)
             .Required(localizer, EntityKeys.PackageName)

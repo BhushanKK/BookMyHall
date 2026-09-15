@@ -1,9 +1,14 @@
+using System.Text.Json.Serialization;
+
+using BookMyHall.Application.Common.Json;
+
 namespace BookMyHall.Application.Features.Venue;
 
 public class HallBlockDto
 {
     public Guid HallBlockId { get; set; }
-    public Guid HallId { get; set; }
+    [JsonConverter(typeof(NullableGuidJsonConverter))]
+    public Guid? HallId { get; set; }
     public DateOnly BlockFromDate { get; set; }
     public DateOnly BlockToDate { get; set; }
     public TimeSpan? StartTime { get; set; }

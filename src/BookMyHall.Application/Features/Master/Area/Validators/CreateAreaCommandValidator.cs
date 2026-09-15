@@ -18,6 +18,6 @@ public sealed class CreateAreaCommandValidator: AbstractValidator<CreateAreaComm
             .Length(6);
 
         RuleFor(x => x.CityId)
-            .Required(localizer, EntityKeys.CityId);
+            .Required(localizer, EntityKeys.City);
     }
 }

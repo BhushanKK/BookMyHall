@@ -16,10 +16,10 @@ public sealed class UpdateHallCommandValidator
             .Required(localizer, EntityKeys.HallId);
 
         RuleFor(x => x.HallOwnerId)
-            .Required(localizer, EntityKeys.HallOwnerId);
+            .Required(localizer, EntityKeys.HallOwner);
 
         RuleFor(x => x.HallCategoryId)
-            .Required(localizer, EntityKeys.HallCategoryId);
+            .Required(localizer, EntityKeys.HallCategory);
 
         RuleFor(x => x.HallName)
             .Required(localizer, EntityKeys.HallName)
@@ -30,7 +30,7 @@ public sealed class UpdateHallCommandValidator
             .MaximumLength(250);
 
         RuleFor(x => x.AreaId)
-            .Required(localizer, EntityKeys.AreaId);
+            .Required(localizer, EntityKeys.Area);
 
         RuleFor(x => x.ContactPersonName)
             .Required(localizer, EntityKeys.ContactPersonName)

@@ -1,10 +1,16 @@
+using System.Text.Json.Serialization;
+
+using BookMyHall.Application.Common.Json;
+
 namespace BookMyHall.Application.Features.Venue;
 
 public class HallPricingDto
 {
     public Guid HallPricingId { get; set; }
-    public Guid HallId { get; init; }
-    public Guid EventCategoryId { get; init; }
+    [JsonConverter(typeof(NullableGuidJsonConverter))]
+    public Guid? HallId { get; init; }
+    [JsonConverter(typeof(NullableGuidJsonConverter))]
+    public Guid? EventCategoryId { get; init; }
     public string PackageName { get; init; } = string.Empty;
     public int? MinimumGuests { get; init; }
     public int? MaximumGuests { get; init; }

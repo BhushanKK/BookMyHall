@@ -15,7 +15,7 @@ public sealed class UpdateHallBlockCommandValidator: AbstractValidator<UpdateHal
             .Required(localizer,EntityKeys.HallBlockId);
 
         RuleFor(x => x.HallId)
-            .Required(localizer,EntityKeys.HallId);
+            .Required(localizer,EntityKeys.Hall);
 
         RuleFor(x => x.BlockFromDate)
             .NotEmpty()

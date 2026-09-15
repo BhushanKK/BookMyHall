@@ -14,7 +14,7 @@ public sealed class UpdateCityCommandValidator
             .Required(localizer, EntityKeys.CityId);
 
         RuleFor(x => x.DistrictId)
-            .Required(localizer, EntityKeys.DistrictId);
+            .Required(localizer, EntityKeys.District);
 
         RuleFor(x => x.CityName)
             .Required(localizer, EntityKeys.CityName)

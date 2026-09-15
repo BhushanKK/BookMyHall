@@ -12,7 +12,7 @@ public sealed class CreateHallBlockCommandValidator: AbstractValidator<CreateHal
     public CreateHallBlockCommandValidator(ILocalizationService localizer)
     {
         RuleFor(x => x.HallId)
-            .Required(localizer,EntityKeys.HallId);
+            .Required(localizer,EntityKeys.Hall);
 
         RuleFor(x => x.BlockFromDate)
             .NotEmpty()

@@ -31,7 +31,7 @@ public sealed class CreateHallImageCommandValidator
         ILocalizationService localizer)
     {
         RuleFor(x => x.HallId)
-            .Required(localizer, EntityKeys.HallId);
+            .Required(localizer, EntityKeys.Hall);
 
         RuleFor(x => x.ImageStream)
             .NotNull()

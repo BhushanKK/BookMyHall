@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+
+using BookMyHall.Application.Common.Json;
 using BookMyHall.Domain.Enums;
 
 namespace BookMyHall.Application.Features.Venue;
@@ -7,14 +9,18 @@ public class HallDto
 {
     [JsonIgnore]
     public Guid HallId { get; set; }
-    public Guid HallOwnerId { get; init; }
-    public Guid HallCategoryId { get; init; }
+    [JsonConverter(typeof(NullableGuidJsonConverter))]
+    public Guid? HallOwnerId { get; init; }
+    [JsonConverter(typeof(NullableGuidJsonConverter))]
+    public Guid? HallCategoryId { get; init; }
+    [JsonConverter(typeof(NullableGuidJsonConverter))]
     public Guid? CancellationPolicyId { get; init; }
     public string HallName { get; init; } = string.Empty;
     public string? Description { get; init; }
     public string AddressLine1 { get; init; } = string.Empty;
     public string? AddressLine2 { get; init; }
-    public Guid AreaId { get; init; }
+    [JsonConverter(typeof(NullableGuidJsonConverter))]
+    public Guid? AreaId { get; init; }
     public string? Pincode { get; init; }
     public decimal? Latitude { get; init; }
     public decimal? Longitude { get; init; }

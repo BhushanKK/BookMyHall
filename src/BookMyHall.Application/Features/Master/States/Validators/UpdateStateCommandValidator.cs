@@ -14,7 +14,7 @@ public sealed class UpdateStateCommandValidator: AbstractValidator<UpdateStateCo
             .Required(localizer, EntityKeys.StateId);
 
             RuleFor(x => x.CountryId)
-            .Required(localizer,EntityKeys.CountryId);
+            .Required(localizer,EntityKeys.Country);
 
         RuleFor(x => x.StateName)
             .Required(localizer, EntityKeys.State)

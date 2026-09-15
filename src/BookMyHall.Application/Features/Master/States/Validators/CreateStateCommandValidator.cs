@@ -10,7 +10,7 @@ public sealed class CreateStateCommandValidator: AbstractValidator<CreateStateCo
     public CreateStateCommandValidator(ILocalizationService localizer)
     {
         RuleFor(x => x.CountryId)
-            .Required(localizer,EntityKeys.CountryId);
+            .Required(localizer,EntityKeys.Country);
 
         RuleFor(x => x.StateName)
             .Required(localizer,EntityKeys.State)

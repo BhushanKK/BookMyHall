@@ -21,6 +21,6 @@ public sealed class UpdateAreaCommandValidator: AbstractValidator<UpdateAreaComm
             .Length(6);
 
         RuleFor(x => x.CityId)
-            .Required(localizer, EntityKeys.CityId);
+            .Required(localizer, EntityKeys.City);
     }
 }

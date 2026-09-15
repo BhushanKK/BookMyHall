@@ -114,17 +114,27 @@ public static class ValidationExtensions
                 "StrongPassword"));
     }
 
+
     public static IRuleBuilderOptions<T, Guid?> Required<T>(
-    this IRuleBuilder<T, Guid?> ruleBuilder,
-    ILocalizationService localizer,
-    string entityKey)
+        this IRuleBuilder<T, Guid?> ruleBuilder,
+        ILocalizationService localizer,
+        string entityKey)
     {
+        var entityName = localizer.Get(
+            ResourceNames.Entities,
+            entityKey);
+
+        var requiredMessage = localizer.Get(
+            ResourceNames.ValidationMessages,
+            "Required",
+            entityName);
+
         return ruleBuilder
-            .NotNull()
-            .NotEqual(Guid.Empty)
-            .WithMessage(localizer.Get(
-                ResourceNames.ValidationMessages,
-                "Required",
-                localizer.Get(ResourceNames.Entities, entityKey)));
+            .Must(value =>
+                value.HasValue &&
+                value.Value != Guid.Empty)
+            .WithMessage(requiredMessage);
     }
+
+
 }

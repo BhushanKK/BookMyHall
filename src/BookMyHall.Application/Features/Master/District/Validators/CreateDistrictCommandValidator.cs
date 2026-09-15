@@ -10,7 +10,7 @@ public sealed class CreateDistrictCommandValidator: AbstractValidator<CreateDist
     public CreateDistrictCommandValidator(ILocalizationService localizer)
     {
         RuleFor(x => x.StateId)
-            .Required(localizer, EntityKeys.StateId);
+            .Required(localizer, EntityKeys.State);
 
         RuleFor(x => x.DistrictName)
             .Required(localizer, EntityKeys.DistrictName)
