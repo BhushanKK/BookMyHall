@@ -129,6 +129,13 @@
     <value>Hall Id</value>
   </data>
 
+<data name="HallBlock" xml:space="preserve">
+    <value>HallBlock</value>
+  </data>
+
+  <data name="HallBlockId" xml:space="preserve">
+    <value>HallBlock Id</value>
+  </data>
  
 
   <data name="Amenity" xml:space="preserve">
