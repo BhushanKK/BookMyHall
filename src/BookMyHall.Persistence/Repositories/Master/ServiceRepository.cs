@@ -22,7 +22,7 @@ public sealed class ServiceRepository(BookMyHallDbContext context): IServiceRepo
         .Where(x=>x.IsDeleted==false)
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                x => x.ServiceId == serviceId,
+                x => x.ServiceId == serviceId && x.IsActive==true,
                 cancellationToken);
 
     public async Task<Service?> GetByServiceNameAsync(string serviceName,CancellationToken cancellationToken = default)

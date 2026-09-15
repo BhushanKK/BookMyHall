@@ -20,7 +20,7 @@ public sealed class DistrictRepository(BookMyHallDbContext context):IDistrictRep
     public async Task<District?> GetByIdAsync(Guid districtId,CancellationToken cancellationToken = default)
         => await context.Districts.Where(x=>x.IsDeleted==false)
             .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.DistrictId == districtId,cancellationToken);
+            .FirstOrDefaultAsync(x => x.DistrictId == districtId && x.IsActive==true,cancellationToken);
 
     public async Task<District?> GetByDistrictNameAsync(string districtName,CancellationToken cancellationToken = default)
         => await context.Districts

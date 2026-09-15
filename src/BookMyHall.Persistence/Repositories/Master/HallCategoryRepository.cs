@@ -12,7 +12,7 @@ public sealed class HallCategoryRepository(BookMyHallDbContext context): IHallCa
     {
         return await context.HallCategories
             .Where(x=>x.IsDeleted==false)
-            .FirstOrDefaultAsync(x => x.HallCategoryId == hallCategoryId,cancellationToken);
+            .FirstOrDefaultAsync(x => x.HallCategoryId == hallCategoryId && x.IsActive==true,cancellationToken);
     }
 
     public async Task<PaginatedResult<HallCategory>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)

@@ -22,7 +22,7 @@ public sealed class CityRepository(BookMyHallDbContext context)
         => await context.Cities.Where(x=>x.IsDeleted==false)
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                x => x.CityId == cityId,
+                x => x.CityId == cityId && x.IsActive==true,
                 cancellationToken);
 
     public async Task<City?> GetByCityNameAsync(string cityName,CancellationToken cancellationToken = default)

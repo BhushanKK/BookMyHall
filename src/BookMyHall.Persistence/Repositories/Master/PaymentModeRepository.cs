@@ -22,7 +22,7 @@ public sealed class PaymentModeRepository(BookMyHallDbContext context): IPayment
         .Where(x=>x.IsDeleted==false)
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                x => x.PaymentModeId == paymentModeId,
+                x => x.PaymentModeId == paymentModeId && x.IsActive==true,
                 cancellationToken);
 
     public async Task<PaymentMode?> GetByPaymentModeNameAsync(string paymentModeName,CancellationToken cancellationToken = default)

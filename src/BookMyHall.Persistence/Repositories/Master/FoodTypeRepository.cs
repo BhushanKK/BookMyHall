@@ -22,7 +22,7 @@ public sealed class FoodTypeRepository(BookMyHallDbContext context): IFoodTypeRe
         .Where(x=>x.IsDeleted==false)
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                x => x.FoodTypeId == foodTypeId,
+                x => x.FoodTypeId == foodTypeId && x.IsActive==true,
                 cancellationToken);
 
     public async Task<FoodType?> GetByFoodTypeNameAsync(string foodTypeName,CancellationToken cancellationToken = default)

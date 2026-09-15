@@ -29,7 +29,7 @@ public sealed class AmenityRepository(BookMyHallDbContext context)
         .Where(x=>x.IsDeleted==false)
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                x => x.AmenityId == amenityId,
+                x => x.AmenityId == amenityId && x.IsActive==true,
                 cancellationToken);
 
     public async Task<Amenity?> GetByAmenityNameAsync(

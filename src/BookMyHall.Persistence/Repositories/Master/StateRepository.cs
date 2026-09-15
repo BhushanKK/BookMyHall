@@ -23,7 +23,7 @@ public sealed class StateRepository(BookMyHallDbContext context) : IStateReposit
         .Where(x=>x.IsDeleted==false)
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                x => x.StateId == stateId,
+                x => x.StateId == stateId && x.IsActive==true,
                 cancellationToken);
 
     public async Task<State?> GetByStateCodeAsync(string stateCode, CancellationToken cancellationToken = default)

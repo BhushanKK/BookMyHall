@@ -28,7 +28,7 @@ public sealed class AreaRepository(BookMyHallDbContext context)
         => await context.Areas.Where(x=>x.IsDeleted==false)
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                x => x.AreaId == areaId,
+                x => x.AreaId == areaId && x.IsActive==true,
                 cancellationToken);
 
     public async Task<Area?> GetByAreaNameAsync(
