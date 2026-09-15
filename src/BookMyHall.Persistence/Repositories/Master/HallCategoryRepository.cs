@@ -18,7 +18,7 @@ public sealed class HallCategoryRepository(BookMyHallDbContext context): IHallCa
     public async Task<PaginatedResult<HallCategory>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
         var query = context.HallCategories
-        .Where(x=>x.IsDeleted == false && x.IsActive==true)
+        .Where(x=>x.IsDeleted == false )
         .AsNoTracking();
 
         var totalCount = await query.CountAsync(

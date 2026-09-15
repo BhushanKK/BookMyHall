@@ -46,7 +46,7 @@ public sealed class AmenityRepository(BookMyHallDbContext context)
         CancellationToken cancellationToken = default)
     {
         IQueryable<Amenity> query = context.Amenitys
-        .Where(x=>x.IsDeleted==false && x.IsActive==true).AsNoTracking();
+        .Where(x=>x.IsDeleted==false).AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {

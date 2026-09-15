@@ -37,7 +37,7 @@ public sealed class CountryRepository(BookMyHallDbContext context)
         CancellationToken cancellationToken = default)
     {
         IQueryable<Country> query =
-            context.Countries.Where(x=>x.IsDeleted==false && x.IsActive==true).AsNoTracking();
+            context.Countries.Where(x=>x.IsDeleted==false ).AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
