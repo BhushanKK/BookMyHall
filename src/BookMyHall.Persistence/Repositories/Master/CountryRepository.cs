@@ -19,10 +19,10 @@ public sealed class CountryRepository(BookMyHallDbContext context)
     }
 
     public async Task<Country?> GetByIdAsync(Guid countryId,CancellationToken cancellationToken = default)
-        => await context.Countries.Where(x=>x.IsDeleted==false)
+        => await context.Countries.Where(x=>x.IsDeleted==false && x.IsActive==true)
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                x => x.CountryId == countryId && x.IsActive==true,
+                x => x.CountryId == countryId ,
                 cancellationToken);
 
     public async Task<Country?> GetByCountryNameAsync( string countryName,CancellationToken cancellationToken = default)

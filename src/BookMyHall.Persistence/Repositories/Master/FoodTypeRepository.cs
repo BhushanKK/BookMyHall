@@ -19,10 +19,10 @@ public sealed class FoodTypeRepository(BookMyHallDbContext context): IFoodTypeRe
 
     public async Task<FoodType?> GetByIdAsync(Guid foodTypeId,CancellationToken cancellationToken = default)
         => await context.FoodTypes
-        .Where(x=>x.IsDeleted==false)
+        .Where(x=>x.IsDeleted==false && x.IsActive==true)
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                x => x.FoodTypeId == foodTypeId && x.IsActive==true,
+                x => x.FoodTypeId == foodTypeId,
                 cancellationToken);
 
     public async Task<FoodType?> GetByFoodTypeNameAsync(string foodTypeName,CancellationToken cancellationToken = default)

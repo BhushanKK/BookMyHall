@@ -20,10 +20,10 @@ public sealed class EventCategoryRepository(BookMyHallDbContext context)
 
     public async Task<EventCategory?> GetByIdAsync(Guid eventCategoryId,CancellationToken cancellationToken = default)
         => await context.EventCategories
-            .Where(x=>x.IsDeleted==false)
+            .Where(x=>x.IsDeleted==false && x.IsActive==true)
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                x => x.EventCategoryId == eventCategoryId && x.IsActive==true,
+                x => x.EventCategoryId == eventCategoryId,
                 cancellationToken);
 
     public async Task<EventCategory?> GetByEventCategoryNameAsync(string eventCategoryName,CancellationToken cancellationToken = default)

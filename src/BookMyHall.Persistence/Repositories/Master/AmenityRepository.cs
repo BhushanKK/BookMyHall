@@ -26,10 +26,10 @@ public sealed class AmenityRepository(BookMyHallDbContext context)
         Guid amenityId,
         CancellationToken cancellationToken = default)
         => await context.Amenitys
-        .Where(x=>x.IsDeleted==false)
+        .Where(x=>x.IsDeleted==false && x.IsActive==true)
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                x => x.AmenityId == amenityId && x.IsActive==true,
+                x => x.AmenityId == amenityId,
                 cancellationToken);
 
     public async Task<Amenity?> GetByAmenityNameAsync(

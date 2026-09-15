@@ -19,10 +19,10 @@ public sealed class CityRepository(BookMyHallDbContext context)
     }
 
     public async Task<City?> GetByIdAsync(Guid cityId,CancellationToken cancellationToken = default)
-        => await context.Cities.Where(x=>x.IsDeleted==false)
+        => await context.Cities.Where(x=>x.IsDeleted==false && x.IsActive==true)
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                x => x.CityId == cityId && x.IsActive==true,
+                x => x.CityId == cityId,
                 cancellationToken);
 
     public async Task<City?> GetByCityNameAsync(string cityName,CancellationToken cancellationToken = default)

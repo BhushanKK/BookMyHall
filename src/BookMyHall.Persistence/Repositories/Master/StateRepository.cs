@@ -20,10 +20,10 @@ public sealed class StateRepository(BookMyHallDbContext context) : IStateReposit
 
     public async Task<State?> GetByIdAsync(Guid stateId, CancellationToken cancellationToken = default)
         => await context.States
-        .Where(x=>x.IsDeleted==false)
+        .Where(x=>x.IsDeleted==false && x.IsActive==true)
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                x => x.StateId == stateId && x.IsActive==true,
+                x => x.StateId == stateId,
                 cancellationToken);
 
     public async Task<State?> GetByStateCodeAsync(string stateCode, CancellationToken cancellationToken = default)

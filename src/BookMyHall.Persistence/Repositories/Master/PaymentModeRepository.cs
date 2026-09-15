@@ -19,10 +19,10 @@ public sealed class PaymentModeRepository(BookMyHallDbContext context): IPayment
 
     public async Task<PaymentMode?> GetByIdAsync(Guid paymentModeId,CancellationToken cancellationToken = default)
         => await context.PaymentModes
-        .Where(x=>x.IsDeleted==false)
+        .Where(x=>x.IsDeleted==false && x.IsActive==true)
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                x => x.PaymentModeId == paymentModeId && x.IsActive==true,
+                x => x.PaymentModeId == paymentModeId,
                 cancellationToken);
 
     public async Task<PaymentMode?> GetByPaymentModeNameAsync(string paymentModeName,CancellationToken cancellationToken = default)

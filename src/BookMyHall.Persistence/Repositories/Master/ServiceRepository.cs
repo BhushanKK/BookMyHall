@@ -19,10 +19,10 @@ public sealed class ServiceRepository(BookMyHallDbContext context): IServiceRepo
 
     public async Task<Service?> GetByIdAsync(Guid serviceId,CancellationToken cancellationToken = default)
         => await context.Services
-        .Where(x=>x.IsDeleted==false)
+        .Where(x=>x.IsDeleted==false && x.IsActive==true)
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                x => x.ServiceId == serviceId && x.IsActive==true,
+                x => x.ServiceId == serviceId,
                 cancellationToken);
 
     public async Task<Service?> GetByServiceNameAsync(string serviceName,CancellationToken cancellationToken = default)
