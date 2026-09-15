@@ -33,7 +33,7 @@ public sealed class CancellationPolicyRepository(BookMyHallDbContext context): I
     public async Task<PaginatedResult<CancellationPolicy>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
         IQueryable<CancellationPolicy> query = context.CancellationPolicies
-            .Where(x=>x.IsDeleted==false )
+            .Where(x=>x.IsDeleted==false && x.IsActive==true )
             .AsNoTracking();
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
