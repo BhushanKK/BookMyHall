@@ -1,6 +1,8 @@
 using FluentValidation;
+
 using BookMyHall.Shared.Constants;
 using BookMyHall.Shared.Localization;
+
 using System.Linq.Expressions;
 
 namespace BookMyHall.Application.Common.Extensions;
@@ -110,5 +112,19 @@ public static class ValidationExtensions
             .WithMessage(localizer.Get(
                 ResourceNames.ValidationMessages,
                 "StrongPassword"));
+    }
+
+    public static IRuleBuilderOptions<T, Guid?> Required<T>(
+    this IRuleBuilder<T, Guid?> ruleBuilder,
+    ILocalizationService localizer,
+    string entityKey)
+    {
+        return ruleBuilder
+            .NotNull()
+            .NotEqual(Guid.Empty)
+            .WithMessage(localizer.Get(
+                ResourceNames.ValidationMessages,
+                "Required",
+                localizer.Get(ResourceNames.Entities, entityKey)));
     }
 }
