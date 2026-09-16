@@ -61,5 +61,6 @@ public sealed class LocationLookupDto
         public Guid AreaId { get; set; }
         public Guid CityId { get; set; }
         public string AreaName { get; set; } = string.Empty;
+        public string? PinCode { get; set; }
     }
 }
