@@ -90,7 +90,8 @@ public sealed class LocationLookupRepository(BookMyHallDbContext context): ILoca
             {
                 AreaId = area.AreaId,
                 CityId = area.CityId,
-                AreaName = area.AreaName
+                AreaName = area.AreaName,
+                PinCode=area.Pincode
             }
         ).ToListAsync(cancellationToken);
     }
