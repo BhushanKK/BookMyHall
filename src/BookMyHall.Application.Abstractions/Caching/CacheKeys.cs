@@ -56,4 +56,11 @@ public static class CacheKeys
     public const string MenuRolePermission ="menuRolePermission";
     public const string Devices = "devices";
     public const string DevicePaged = "device:page:";
+
+//-----------Location Lookups Cached Keys-------------//
+    public const string CountriesCached ="location:countries";
+    public static string StatesCached="location:states:countryId";
+    public const string DistrictsCached="location:districts:stateId";
+    public const string CitiesCached ="location:cities:districtId";
+    public const string AreasCached="location:areas:cityId";
 }
