@@ -1,9 +1,6 @@
 using System.Net;
-
 using AutoMapper;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
@@ -24,7 +21,7 @@ public sealed class GetAreasQueryHandler(
         var pagination = request.paginationRequest;
 
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Area>(
-            CacheKeys.AmenitiesPaged,
+            CacheKeys.AreasPaged,
             pagination.PageNumber,
             pagination.PageSize,
             pagination.SearchText,
