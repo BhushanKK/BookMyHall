@@ -5,7 +5,6 @@ using BookMyHall.Domain.Masters;
 using BookMyHall.Persistence.Context;
 
 namespace BookMyHall.Persistence.Repositories;
-
 public sealed class DistrictRepository(BookMyHallDbContext context):IDistrictRepository
 {
     public async Task AddAsync(District district,CancellationToken cancellationToken = default)
@@ -18,32 +17,27 @@ public sealed class DistrictRepository(BookMyHallDbContext context):IDistrictRep
     }
 
     public async Task<District?> GetByIdAsync(Guid districtId,CancellationToken cancellationToken = default)
-        => await context.Districts.Where(x=>x.IsDeleted==false && x.IsActive==true)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.DistrictId == districtId,cancellationToken);
+        => await context.Districts.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.DistrictId == districtId && !x.IsDeleted && x.IsActive,cancellationToken);
 
     public async Task<District?> GetByDistrictNameAsync(string districtName,CancellationToken cancellationToken = default)
-        => await context.Districts
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.DistrictName == districtName,cancellationToken);
+        => await context.Districts.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.DistrictName == districtName && !x.IsDeleted,cancellationToken);
 
     public async Task<PaginatedResult<District>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
-        IQueryable<District> query = context.Districts
-        .Where(x=>x.IsDeleted==false && x.IsActive==true)
-        .AsNoTracking();
+        var query = context.Districts.AsNoTracking().Where(x=>!x.IsDeleted && x.IsActive);
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();
-            query = query.Where(x =>
-                EF.Functions.ILike(
-                    x.DistrictName,
-                    $"%{search}%"));
+            var pattern=$"%{search}%";
+            query = query.Where(x =>EF.Functions.ILike(x.DistrictName,pattern));
         }
 
         var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
             .OrderBy(x => x.DistrictName)
+            .ThenBy(x=>x.DistrictId)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);

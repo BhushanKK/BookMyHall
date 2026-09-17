@@ -1,11 +1,7 @@
 using System.Net;
-
 using AutoMapper;
-
 using FluentValidation;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -16,12 +12,8 @@ using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
-
-public sealed class CreateFoodTypeCommandHandler(
-    IFoodTypeRepository foodTypeRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<CreateFoodTypeCommand> validator,
+public sealed class CreateFoodTypeCommandHandler(IFoodTypeRepository foodTypeRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<CreateFoodTypeCommand> validator,
     IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<CreateFoodTypeCommand, ApiResponse<FoodTypeDto>>
 {
@@ -37,7 +29,7 @@ public sealed class CreateFoodTypeCommandHandler(
         var foodType = mapper.Map<FoodType>(request);
         foodType.FoodTypeId = Guid.NewGuid();
         foodType.IsActive = true;
-
+        foodType.IsDeleted=false;
         try
         {
             await foodTypeRepository.AddAsync(foodType, cancellationToken);
@@ -51,8 +43,7 @@ public sealed class CreateFoodTypeCommandHandler(
 
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.FoodtypePaged}:", cancellationToken);
 
-        return ApiResponse<FoodTypeDto>.SuccessResponse(
-            mapper.Map<FoodTypeDto>(foodType),
+        return ApiResponse<FoodTypeDto>.SuccessResponse(mapper.Map<FoodTypeDto>(foodType),
             messageHelper.AddedEntity(ResourceNames.Entities, EntityKeys.FoodType), HttpStatusCode.Created);
     }
 }

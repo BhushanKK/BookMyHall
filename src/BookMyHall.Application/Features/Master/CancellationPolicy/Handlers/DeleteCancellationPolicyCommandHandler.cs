@@ -10,10 +10,8 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class DeleteCancellationPolicyCommandHandler(
-    ICancellationPolicyRepository cancellationPolicyRepository,
-    IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper,ICacheService cacheService)
+public sealed class DeleteCancellationPolicyCommandHandler(ICancellationPolicyRepository cancellationPolicyRepository,
+    IUnitOfWork unitOfWork,IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<DeleteCancellationPolicyCommand, ApiResponse<bool>>
 {
     public async Task<ApiResponse<bool>> Handle(DeleteCancellationPolicyCommand request,CancellationToken cancellationToken)
@@ -25,9 +23,12 @@ public sealed class DeleteCancellationPolicyCommandHandler(
         }
 
         policy.IsDeleted = true;
+        policy.IsActive=false;
         await cancellationPolicyRepository.UpdateAsync(policy, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync( $"{CacheKeys.CancellationPolicies}:{request.CancellationPolicyId}",cancellationToken);
+        
+        var cacheKey=$"{CacheKeys.CancellationPolicies}:{request.CancellationPolicyId}";
+        await cacheService.RemoveAsync( cacheKey,cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.CancellationPoliciesPaged}:",cancellationToken);
         
         return ApiResponse<bool>.SuccessResponse(true,

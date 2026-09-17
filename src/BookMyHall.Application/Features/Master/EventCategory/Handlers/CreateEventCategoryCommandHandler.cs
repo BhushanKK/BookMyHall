@@ -12,12 +12,8 @@ using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
-
-public sealed class CreateEventCategoryCommandHandler(
-    IEventCategoryRepository eventCategoryRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<CreateEventCategoryCommand> validator,
+public sealed class CreateEventCategoryCommandHandler(IEventCategoryRepository eventCategoryRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<CreateEventCategoryCommand> validator,
     IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<CreateEventCategoryCommand, ApiResponse<EventCategoryDto>>
 {
@@ -33,7 +29,7 @@ public sealed class CreateEventCategoryCommandHandler(
         var eventCategory = mapper.Map<EventCategory>(request);
         eventCategory.EventCategoryId = Guid.NewGuid();
         eventCategory.IsActive = true;
-
+        eventCategory.IsDeleted=false;
         try
         {
             await eventCategoryRepository.AddAsync(eventCategory,cancellationToken);

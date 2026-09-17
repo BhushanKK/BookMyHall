@@ -1,11 +1,7 @@
 using System.Net;
-
 using AutoMapper;
-
 using FluentValidation;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -17,13 +13,9 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class CreateCancellationPolicyCommandHandler(
-    ICancellationPolicyRepository cancellationPolicyRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<CreateCancellationPolicyCommand> validator,
-    IMessageHelper messageHelper,
-    ICacheService cacheService)
+public sealed class CreateCancellationPolicyCommandHandler(ICancellationPolicyRepository cancellationPolicyRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<CreateCancellationPolicyCommand> validator,
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<CreateCancellationPolicyCommand, ApiResponse<CancellationPolicyDto>>
 {
     public async Task<ApiResponse<CancellationPolicyDto>> Handle(CreateCancellationPolicyCommand request, CancellationToken cancellationToken)
@@ -32,13 +24,13 @@ public sealed class CreateCancellationPolicyCommandHandler(
         if (!validationResult.IsValid)
         {
             var message = string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage));
-
             return ApiResponse<CancellationPolicyDto>.FailureResponse(message, HttpStatusCode.BadRequest);
         }
 
         var policy = mapper.Map<CancellationPolicy>(request);
         policy.CancellationPolicyId = Guid.NewGuid();
         policy.IsActive = true;
+        policy.IsDeleted=false;
 
         try
         {

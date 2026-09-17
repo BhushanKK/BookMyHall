@@ -1,11 +1,7 @@
 using System.Net;
-
 using AutoMapper;
-
 using FluentValidation;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -14,12 +10,8 @@ using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
-
-public sealed class UpdateFacilityCommandHandler(
-    IFacilityRepository facilityRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<UpdateFacilityCommand> validator,
+public sealed class UpdateFacilityCommandHandler(IFacilityRepository facilityRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<UpdateFacilityCommand> validator,
     IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<UpdateFacilityCommand, ApiResponse<FacilityDto>>
 {
@@ -51,10 +43,12 @@ public sealed class UpdateFacilityCommandHandler(
         mapper.Map(request, facility);
         await facilityRepository.UpdateAsync(facility, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.Facilities}:{request.FacilityId}", cancellationToken);
+
+        var cacheKey = $"{CacheKeys.Facilities}:{request.FacilityId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.FacilitiesPaged}:", cancellationToken);
-        return ApiResponse<FacilityDto>.SuccessResponse(
-            mapper.Map<FacilityDto>(facility),
+        
+        return ApiResponse<FacilityDto>.SuccessResponse(mapper.Map<FacilityDto>(facility),
             messageHelper.UpdatedEntity(ResourceNames.Entities, EntityKeys.Facility), HttpStatusCode.OK);
     }
 }

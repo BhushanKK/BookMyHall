@@ -11,11 +11,8 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class UpdateAreaCommandHandler(
-    IAreaRepository areaRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<UpdateAreaCommand> validator,
+public sealed class UpdateAreaCommandHandler(IAreaRepository areaRepository,IUnitOfWork unitOfWork,
+    IMapper mapper,IValidator<UpdateAreaCommand> validator,
     IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<UpdateAreaCommand, ApiResponse<AreaDto>>
 {
@@ -46,7 +43,8 @@ public sealed class UpdateAreaCommandHandler(
         mapper.Map(request, area);
         await areaRepository.UpdateAsync(area, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.Areas}:{request.AreaId}", cancellationToken);
+        var cacheKey=$"{CacheKeys.Areas}:{request.AreaId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.AreasPaged}:", cancellationToken);
 
         return ApiResponse<AreaDto>.SuccessResponse(

@@ -1,9 +1,6 @@
 using MediatR;
-
 using System.Net;
-
 using AutoMapper;
-
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
@@ -13,16 +10,13 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class GetAmenityQueryHandler(
-    IAmenityRepository amenityRepository,
-    IMapper mapper,
-    IMessageHelper messageHelper, ICacheService cacheService)
+public sealed class GetAmenityQueryHandler(IAmenityRepository amenityRepository,
+    IMapper mapper,IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<GetAmenitiesQuery, ApiResponse<PaginatedResponse<Amenity>>>
 {
     public async Task<ApiResponse<PaginatedResponse<Amenity>>> Handle(GetAmenitiesQuery request, CancellationToken cancellationToken)
     {
         var pagination = request.paginationRequest;
-
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Amenity>(
             CacheKeys.AmenitiesPaged,
             pagination.PageNumber,
@@ -32,7 +26,6 @@ public sealed class GetAmenityQueryHandler(
             pagination.SortDescending);
 
         var cachedResponse = await cacheService.GetAsync<PaginatedResponse<Amenity>>(cacheKey, cancellationToken);
-
         if (cachedResponse is not null)
         {
             return ApiResponse<PaginatedResponse<Amenity>>.SuccessResponse

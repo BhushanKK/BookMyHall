@@ -10,7 +10,6 @@ using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
-
 public sealed class UpdateServiceCommandHandler(IServiceRepository serviceRepository,
     IUnitOfWork unitOfWork,IMapper mapper,IValidator<UpdateServiceCommand> validator,
     IMessageHelper messageHelper,ICacheService cacheService)
@@ -44,10 +43,12 @@ public sealed class UpdateServiceCommandHandler(IServiceRepository serviceReposi
         mapper.Map(request, service);
         await serviceRepository.UpdateAsync(service,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var cacheKey = $"{CacheKeys.Services}:{request.ServiceId}";
         await cacheService.RemoveAsync($"{CacheKeys.Services}:{request.ServiceId}", cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.ServicesPaged}:", cancellationToken);
-        return ApiResponse<ServiceDto>.SuccessResponse(
-            mapper.Map<ServiceDto>(service),
+
+        return ApiResponse<ServiceDto>.SuccessResponse(mapper.Map<ServiceDto>(service),
             messageHelper.UpdatedEntity(ResourceNames.Entities,EntityKeys.Service),HttpStatusCode.OK);
     }
 }

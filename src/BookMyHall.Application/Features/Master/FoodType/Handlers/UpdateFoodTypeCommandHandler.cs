@@ -11,19 +11,14 @@ using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Persistence.Exceptions;
 
 namespace BookMyHall.Application.Features.Master;
-
-public sealed class UpdateFoodTypeCommandHandler(
-    IFoodTypeRepository foodTypeRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<UpdateFoodTypeCommand> validator,
+public sealed class UpdateFoodTypeCommandHandler(IFoodTypeRepository foodTypeRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<UpdateFoodTypeCommand> validator,
     IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<UpdateFoodTypeCommand, ApiResponse<FoodTypeDto>>
 {
     public async Task<ApiResponse<FoodTypeDto>> Handle(UpdateFoodTypeCommand request, CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
         if (!validationResult.IsValid)
         {
             var message = string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage));
@@ -57,12 +52,11 @@ public sealed class UpdateFoodTypeCommandHandler(
             return ApiResponse<FoodTypeDto>.FailureResponse(
                messageHelper.AlreadyExistsEntity(ResourceNames.Entities, EntityKeys.FoodType), HttpStatusCode.Conflict);
         }
-
-        await cacheService.RemoveAsync($"{CacheKeys.Foodtype}:{request.FoodTypeId}", cancellationToken);
+        var cacheKey = $"{CacheKeys.Foodtype}:{request.FoodTypeId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.FoodtypePaged}:", cancellationToken);
          
-        return ApiResponse<FoodTypeDto>.SuccessResponse(
-            mapper.Map<FoodTypeDto>(foodType),
+        return ApiResponse<FoodTypeDto>.SuccessResponse(mapper.Map<FoodTypeDto>(foodType),
             messageHelper.UpdatedEntity(ResourceNames.Entities, EntityKeys.FoodType), HttpStatusCode.OK);
     }
 }

@@ -1,11 +1,7 @@
 using System.Net;
-
 using AutoMapper;
-
 using FluentValidation;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -17,17 +13,14 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class UpdateHallCategoryCommandHandler(
-    IHallCategoryRepository hallCategoryRepository,
-    IUnitOfWork unitOfWork, IMapper mapper,
-    IValidator<UpdateHallCategoryCommand> validator,
+public sealed class UpdateHallCategoryCommandHandler(IHallCategoryRepository hallCategoryRepository,
+    IUnitOfWork unitOfWork, IMapper mapper,IValidator<UpdateHallCategoryCommand> validator,
     IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<UpdateHallCategoryCommand, ApiResponse<HallCategoryDto>>
 {
     public async Task<ApiResponse<HallCategoryDto>> Handle(UpdateHallCategoryCommand request, CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
         if (!validationResult.IsValid)
         {
             var message = string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage));
@@ -54,11 +47,11 @@ public sealed class UpdateHallCategoryCommandHandler(
             return ApiResponse<HallCategoryDto>.FailureResponse(
                 messageHelper.AlreadyExistsEntity(ResourceNames.Entities, EntityKeys.HallCategory), HttpStatusCode.Conflict);
         }
-        await cacheService.RemoveAsync($"{CacheKeys.HallCategories}:{request.HallCategoryId}", cancellationToken);
+        var cacheKey = $"{CacheKeys.HallCategories}:{request.HallCategoryId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallCategoriesPaged}:", cancellationToken);
        
-        return ApiResponse<HallCategoryDto>.SuccessResponse(
-            mapper.Map<HallCategoryDto>(category),
+        return ApiResponse<HallCategoryDto>.SuccessResponse(mapper.Map<HallCategoryDto>(category),
             messageHelper.UpdatedEntity(ResourceNames.Entities, EntityKeys.HallCategory), HttpStatusCode.OK);
     }
 }

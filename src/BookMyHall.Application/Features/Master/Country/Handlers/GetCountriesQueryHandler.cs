@@ -10,19 +10,13 @@ using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class GetCountriesQueryHandler(
-    ICountryRepository countryRepository,
-    IMessageHelper messageHelper,
-    IMapper mapper,
-    ICacheService cacheService)
+public sealed class GetCountriesQueryHandler(ICountryRepository countryRepository,
+    IMessageHelper messageHelper,IMapper mapper,ICacheService cacheService)
     : IRequestHandler<GetCountriesQuery, ApiResponse<PaginatedResult<Country>>>
 {
-    public async Task<ApiResponse<PaginatedResult<Country>>> Handle(
-        GetCountriesQuery request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<PaginatedResult<Country>>> Handle(GetCountriesQuery request,CancellationToken cancellationToken)
     {
         var pagination = request.PaginationRequest;
-
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Country>(
             CacheKeys.CountriesPaged,
             pagination.PageNumber,
@@ -32,7 +26,6 @@ public sealed class GetCountriesQueryHandler(
             pagination.SortDescending);
 
         var cachedResponse = await cacheService.GetAsync<PaginatedResult<Country>>(cacheKey, cancellationToken);
-
         if (cachedResponse is not null)
         {
             return ApiResponse<PaginatedResult<Country>>.SuccessResponse
@@ -52,7 +45,6 @@ public sealed class GetCountriesQueryHandler(
             PageNumber = result.PageNumber,
             PageSize = result.PageSize
         };
-
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
 
         return ApiResponse<PaginatedResult<Country>>.SuccessResponse

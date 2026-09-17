@@ -9,10 +9,8 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class DeleteFoodTypeCommandHandler(
-    IFoodTypeRepository foodTypeRepository,
-    IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper, ICacheService cacheService)
+public sealed class DeleteFoodTypeCommandHandler(IFoodTypeRepository foodTypeRepository,
+    IUnitOfWork unitOfWork,IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<DeleteFoodTypeCommand, ApiResponse<bool>>
 {
     public async Task<ApiResponse<bool>> Handle(DeleteFoodTypeCommand request, CancellationToken cancellationToken)
@@ -26,10 +24,12 @@ public sealed class DeleteFoodTypeCommandHandler(
         }
 
         foodType.IsDeleted = true;
+        foodType.IsActive=false;
         await foodTypeRepository.UpdateAsync(foodType, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         
-        await cacheService.RemoveAsync($"{CacheKeys.Foodtype}:{request.FoodTypeId}", cancellationToken);
+        var cacheKey = $"{CacheKeys.Foodtype}:{request.FoodTypeId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.FoodtypePaged}:", cancellationToken);
         
         return ApiResponse<bool>.SuccessResponse(true,

@@ -31,6 +31,7 @@ public sealed class CreatePaymentModeCommandHandler(IPaymentModeRepository payme
         var paymentMode = mapper.Map<PaymentMode>(request);
         paymentMode.PaymentModeId = Guid.NewGuid();
         paymentMode.IsActive = true;
+        paymentMode.IsDeleted=false;
 
         try
         {

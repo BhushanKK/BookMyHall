@@ -9,7 +9,6 @@ using BookMyHall.Domain.Masters;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
-
 public sealed class GetServiceByIdQueryHandler(IServiceRepository serviceRepository,
     IMessageHelper messageHelper,IMapper mapper,ICacheService cacheService)
     : IRequestHandler<GetServiceByIdQuery, ApiResponse<Service>>
@@ -18,7 +17,6 @@ public sealed class GetServiceByIdQueryHandler(IServiceRepository serviceReposit
     {
         var cacheKey = $"{CacheKeys.Services}:{request.ServiceId}";
         var cachedPaymentMode = await cacheService.GetAsync<Service>(cacheKey, cancellationToken);
-
         if (cachedPaymentMode is not null)
         {
             return ApiResponse<Service>.SuccessResponse
@@ -35,7 +33,7 @@ public sealed class GetServiceByIdQueryHandler(IServiceRepository serviceReposit
                 messageHelper.NotFound(EntityKeys.Service),
                 HttpStatusCode.NotFound);
         }
-          var response = mapper.Map<Service>(service);
+        var response = mapper.Map<Service>(service);
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
        
         return ApiResponse<Service>.SuccessResponse(response,

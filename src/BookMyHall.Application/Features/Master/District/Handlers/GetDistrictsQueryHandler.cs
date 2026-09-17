@@ -1,9 +1,6 @@
 using System.Net;
-
 using AutoMapper;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
@@ -12,17 +9,13 @@ using BookMyHall.Domain.Masters;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
-
-public sealed class GetDistrictsQueryHandler(
-    IDistrictRepository districtRepository,
-    IMessageHelper messageHelper,
-    IMapper mapper, ICacheService cacheService)
+public sealed class GetDistrictsQueryHandler(IDistrictRepository districtRepository,
+    IMessageHelper messageHelper,IMapper mapper, ICacheService cacheService)
     : IRequestHandler<GetDistrictsQuery, ApiResponse<PaginatedResult<District>>>
 {
     public async Task<ApiResponse<PaginatedResult<District>>> Handle(GetDistrictsQuery request, CancellationToken cancellationToken)
     {
         var pagination = request.paginationRequest;
-
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<District>(
             CacheKeys.DistrictsPaged,
             pagination.PageNumber,

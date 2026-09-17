@@ -6,17 +6,12 @@ using BookMyHall.Persistence.Context;
 
 namespace BookMyHall.Persistence.Repositories;
 
-public sealed class AmenityRepository(BookMyHallDbContext context)
-    : IAmenityRepository
+public sealed class AmenityRepository(BookMyHallDbContext context):IAmenityRepository
 {
-    public async Task AddAsync(
-        Amenity amenity,
-        CancellationToken cancellationToken = default)
+    public async Task AddAsync(Amenity amenity,CancellationToken cancellationToken = default)
         => await context.Amenitys.AddAsync(amenity, cancellationToken);
 
-    public Task UpdateAsync(
-        Amenity amenity,
-        CancellationToken cancellationToken = default)
+    public Task UpdateAsync(Amenity amenity,CancellationToken cancellationToken = default)
     {
         context.Amenitys.Update(amenity);
         return Task.CompletedTask;
@@ -26,44 +21,34 @@ public sealed class AmenityRepository(BookMyHallDbContext context)
         Guid amenityId,
         CancellationToken cancellationToken = default)
         => await context.Amenitys
-        .Where(x=>x.IsDeleted==false && x.IsActive==true)
             .AsNoTracking()
             .FirstOrDefaultAsync(
-                x => x.AmenityId == amenityId,
+                x => x.AmenityId == amenityId
+                 && !x.IsDeleted
+                    && x.IsActive,
                 cancellationToken);
 
-    public async Task<Amenity?> GetByAmenityNameAsync(
-        string amenityName,
-        CancellationToken cancellationToken = default)
-        => await context.Amenitys
-            .AsNoTracking()
-            .FirstOrDefaultAsync(
-                x => x.AmenityName == amenityName,
-                cancellationToken);
+    public async Task<Amenity?> GetByAmenityNameAsync(string amenityName,CancellationToken cancellationToken = default)
+        => await context.Amenitys.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.AmenityName == amenityName && !x.IsDeleted, cancellationToken);
 
-    public async Task<PaginatedResult<Amenity>> GetAllAsync(
-        PaginationRequest request,
-        CancellationToken cancellationToken = default)
+    public async Task<PaginatedResult<Amenity>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
-        IQueryable<Amenity> query = context.Amenitys
-        .Where(x=>x.IsDeleted==false && x.IsActive==true).AsNoTracking();
-
+        var query = context.Amenitys.AsNoTracking().Where(x => !x.IsDeleted && x.IsActive);
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();
-
-            query = query.Where(x =>
-                EF.Functions.ILike(x.AmenityName, $"%{search}%"));
+            var pattern= $"%{search}%";
+            query = query.Where(x => EF.Functions.ILike(x.AmenityName,pattern));
         }
 
         var totalCount = await query.CountAsync(cancellationToken);
-
         var items = await query
             .OrderBy(x => x.AmenityName)
+            .ThenBy(x => x.AmenityId)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);
-
         return new PaginatedResult<Amenity>
         {
             Items = items,

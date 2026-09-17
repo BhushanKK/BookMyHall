@@ -1,7 +1,5 @@
 using System.Net;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -11,16 +9,13 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class DeleteFacilityCommandHandler(
-    IFacilityRepository facilityRepository,
-    IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper, ICacheService cacheService)
+public sealed class DeleteFacilityCommandHandler(IFacilityRepository facilityRepository,
+    IUnitOfWork unitOfWork,IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<DeleteFacilityCommand, ApiResponse<bool>>
 {
     public async Task<ApiResponse<bool>> Handle(DeleteFacilityCommand request, CancellationToken cancellationToken)
     {
         var facility = await facilityRepository.GetByIdAsync(request.FacilityId, cancellationToken);
-
         if (facility is null)
         {
             return ApiResponse<bool>.FailureResponse(
@@ -29,9 +24,12 @@ public sealed class DeleteFacilityCommandHandler(
         }
 
         facility.IsDeleted = true;
+        facility.IsActive=false;
         await facilityRepository.UpdateAsync(facility, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.Facilities}:{request.FacilityId}", cancellationToken);
+
+        var cacheKey = $"{CacheKeys.Facilities}:{request.FacilityId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.FacilitiesPaged}:", cancellationToken);
 
         return ApiResponse<bool>.SuccessResponse(true,

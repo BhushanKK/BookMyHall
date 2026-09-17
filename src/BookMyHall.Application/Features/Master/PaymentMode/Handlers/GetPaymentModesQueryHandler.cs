@@ -16,8 +16,7 @@ public sealed class GetPaymentModesQueryHandler(IPaymentModeRepository paymentMo
 {
     public async Task<ApiResponse<PaginatedResult<PaymentMode>>> Handle(GetPaymentModesQuery request,CancellationToken cancellationToken)
     {
-        var pagination = request.paginationRequest;
-
+         var pagination = request.paginationRequest;
          var cacheKey = CacheKeyBuilder.BuildPaginatedKey<PaymentMode>(
             CacheKeys.PaymentModesPaged,
             pagination.PageNumber,
@@ -27,7 +26,6 @@ public sealed class GetPaymentModesQueryHandler(IPaymentModeRepository paymentMo
             pagination.SortDescending);
 
         var cachedResponse = await cacheService.GetAsync<PaginatedResult<PaymentMode>>(cacheKey, cancellationToken);
-
         if (cachedResponse is not null)
         {
             return ApiResponse<PaginatedResult<PaymentMode>>.SuccessResponse

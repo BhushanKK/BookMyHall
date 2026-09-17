@@ -1,9 +1,6 @@
 using System.Net;
-
 using AutoMapper;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
@@ -12,9 +9,9 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class GetStateByStateCodeQueryHandler(
-    IStateRepository stateRepository, IMapper mapper, ICacheService cacheService,
-    IMessageHelper messageHelper) : IRequestHandler<GetStateByStateCodeQuery, ApiResponse<StateDto>>
+public sealed class GetStateByStateCodeQueryHandler(IStateRepository stateRepository, IMapper mapper,
+    ICacheService cacheService,IMessageHelper messageHelper) 
+    : IRequestHandler<GetStateByStateCodeQuery, ApiResponse<StateDto>>
 {
     public async Task<ApiResponse<StateDto>> Handle(GetStateByStateCodeQuery request, CancellationToken cancellationToken)
     {
@@ -27,7 +24,6 @@ public sealed class GetStateByStateCodeQueryHandler(
                     EntityKeys.State), HttpStatusCode.OK);
         }
         var state = await stateRepository.GetByStateCodeAsync(request.StateCode, cancellationToken);
-
         if (state is null)
         {
             return ApiResponse<StateDto>.FailureResponse(messageHelper.NotFound(EntityKeys.State), HttpStatusCode.NotFound);

@@ -13,19 +13,13 @@ using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class CreateCountryCommandHandler(
-    ICountryRepository countryRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<CreateCountryCommand> validator,
-    IMessageHelper messageHelper,
-    ICacheService cacheService)
+public sealed class CreateCountryCommandHandler(ICountryRepository countryRepository,IUnitOfWork unitOfWork,
+    IMapper mapper,IValidator<CreateCountryCommand> validator,IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<CreateCountryCommand, ApiResponse<CountryDto>>
 {
     public async Task<ApiResponse<CountryDto>> Handle(CreateCountryCommand request, CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
         if (!validationResult.IsValid)
         {
             var message = string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage));
@@ -33,10 +27,9 @@ public sealed class CreateCountryCommandHandler(
         }
 
         var country = mapper.Map<Country>(request);
-
         country.CountryId = Guid.NewGuid();
         country.IsActive = true;
-
+        country.IsDeleted=false;
         try
         {
             await countryRepository.AddAsync(country,cancellationToken);
@@ -52,7 +45,6 @@ public sealed class CreateCountryCommandHandler(
         }
 
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.CountriesPaged}:", cancellationToken);
-
         return ApiResponse<CountryDto>.SuccessResponse
         (
             mapper.Map<CountryDto>(country),

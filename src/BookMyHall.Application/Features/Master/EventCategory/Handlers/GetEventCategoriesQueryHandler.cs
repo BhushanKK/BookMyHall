@@ -1,9 +1,6 @@
 using System.Net;
-
 using AutoMapper;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
@@ -13,16 +10,13 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class GetEventCategoriesQueryHandler(
-    IEventCategoryRepository eventCategoryRepository,
-    IMessageHelper messageHelper,
-    IMapper mapper, ICacheService cacheService)
+public sealed class GetEventCategoriesQueryHandler(IEventCategoryRepository eventCategoryRepository,
+    IMessageHelper messageHelper,IMapper mapper, ICacheService cacheService)
     : IRequestHandler<GetEventCategoriesQuery, ApiResponse<PaginatedResult<EventCategory>>>
 {
     public async Task<ApiResponse<PaginatedResult<EventCategory>>> Handle(GetEventCategoriesQuery request, CancellationToken cancellationToken)
     {
         var pagination = request.paginationRequest;
-
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<EventCategory>(
             CacheKeys.EventCategoriesPaged,
             pagination.PageNumber,
@@ -32,7 +26,6 @@ public sealed class GetEventCategoriesQueryHandler(
             pagination.SortDescending);
 
         var cachedResponse = await cacheService.GetAsync<PaginatedResult<EventCategory>>(cacheKey, cancellationToken);
-
         if (cachedResponse is not null)
         {
             return ApiResponse<PaginatedResult<EventCategory>>.SuccessResponse

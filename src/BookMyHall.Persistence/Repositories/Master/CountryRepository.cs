@@ -6,8 +6,7 @@ using BookMyHall.Persistence.Context;
 
 namespace BookMyHall.Persistence.Repositories;
 
-public sealed class CountryRepository(BookMyHallDbContext context)
-    : ICountryRepository
+public sealed class CountryRepository(BookMyHallDbContext context): ICountryRepository
 {
     public async Task AddAsync(Country country,CancellationToken cancellationToken = default)
         => await context.Countries.AddAsync(country, cancellationToken);

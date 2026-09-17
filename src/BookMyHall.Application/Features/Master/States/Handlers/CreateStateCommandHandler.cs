@@ -12,24 +12,22 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Application.Abstractions.Caching;
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class CreateStateCommandHandler(
-    IStateRepository stateRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<CreateStateCommand> validator,
-    IMessageHelper messageHelper,ICacheService cacheService)
+public sealed class CreateStateCommandHandler(IStateRepository stateRepository,IUnitOfWork unitOfWork,
+    IMapper mapper,IValidator<CreateStateCommand> validator,IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<CreateStateCommand, ApiResponse<StateDto>>
 {
     public async Task<ApiResponse<StateDto>> Handle(CreateStateCommand request,CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
         if (!validationResult.IsValid)
         {
             var message = string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage));
             return ApiResponse<StateDto>.FailureResponse(message,HttpStatusCode.BadRequest);
         }
         var state = mapper.Map<State>(request);
+        state.StateId = Guid.NewGuid();
+        state.IsActive = true;
+        state.IsDeleted=false;
 
         try
         {

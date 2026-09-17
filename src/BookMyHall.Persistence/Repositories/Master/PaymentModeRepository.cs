@@ -18,38 +18,28 @@ public sealed class PaymentModeRepository(BookMyHallDbContext context): IPayment
     }
 
     public async Task<PaymentMode?> GetByIdAsync(Guid paymentModeId,CancellationToken cancellationToken = default)
-        => await context.PaymentModes
-        .Where(x=>x.IsDeleted==false && x.IsActive==true)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(
-                x => x.PaymentModeId == paymentModeId,
-                cancellationToken);
+        => await context.PaymentModes .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.PaymentModeId == paymentModeId &&!x.IsDeleted && x.IsActive,cancellationToken);
 
     public async Task<PaymentMode?> GetByPaymentModeNameAsync(string paymentModeName,CancellationToken cancellationToken = default)
-        => await context.PaymentModes
-            .AsNoTracking()
-            .FirstOrDefaultAsync(
-                x => x.PaymentModeName == paymentModeName,
-                cancellationToken);
+        => await context.PaymentModes.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.PaymentModeName == paymentModeName &&!x.IsDeleted,cancellationToken);
 
     public async Task<PaginatedResult<PaymentMode>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
-        IQueryable<PaymentMode> query = context.PaymentModes
-        .Where(x=>x.IsDeleted==false && x.IsActive==true)
-            .AsNoTracking();
+        var query = context.PaymentModes.AsNoTracking().Where(x=>!x.IsDeleted && x.IsActive);
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();
-            query = query.Where(x =>
-                EF.Functions.ILike(
-                    x.PaymentModeName,
-                    $"%{search}%"));
+            var pattern=$"%{search}%";
+            query = query.Where(x =>EF.Functions.ILike(x.PaymentModeName,pattern));
         }
 
         var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
             .OrderBy(x => x.PaymentModeName)
+            .ThenBy(x=>x.PaymentModeId)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);

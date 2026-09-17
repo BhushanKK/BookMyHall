@@ -9,9 +9,9 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class GetStateByStateNameQueryHandler(
-    IStateRepository stateRepository,IMapper mapper,ICacheService cacheService,
-    IMessageHelper messageHelper): IRequestHandler<GetStateByStateNameQuery, ApiResponse<StateDto>>
+public sealed class GetStateByStateNameQueryHandler(IStateRepository stateRepository,IMapper mapper,
+ICacheService cacheService,IMessageHelper messageHelper)
+: IRequestHandler<GetStateByStateNameQuery, ApiResponse<StateDto>>
 {
     public async Task<ApiResponse<StateDto>> Handle(GetStateByStateNameQuery request,CancellationToken cancellationToken)
     {
@@ -24,7 +24,6 @@ public sealed class GetStateByStateNameQueryHandler(
                     EntityKeys.State), HttpStatusCode.OK);
         }
         var state = await stateRepository.GetByStateNameAsync(request.StateName,cancellationToken);
-
         if (state is null)
         {
             return ApiResponse<StateDto>.FailureResponse(messageHelper.NotFound(EntityKeys.State),HttpStatusCode.NotFound);
@@ -32,6 +31,7 @@ public sealed class GetStateByStateNameQueryHandler(
 
         var response = mapper.Map<StateDto>(state);
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
+        
         return ApiResponse<StateDto>.SuccessResponse(response,
             messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.State),HttpStatusCode.OK);
     }

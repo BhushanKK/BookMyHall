@@ -9,19 +9,13 @@ using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class DeleteCountryCommandHandler(
-    ICountryRepository countryRepository,
-    IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper,
-    ICacheService cacheService)
+public sealed class DeleteCountryCommandHandler(ICountryRepository countryRepository,IUnitOfWork unitOfWork,
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<DeleteCountryCommand, ApiResponse<bool>>
 {
-    public async Task<ApiResponse<bool>> Handle(
-        DeleteCountryCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<bool>> Handle(DeleteCountryCommand request,CancellationToken cancellationToken)
     {
         var country = await countryRepository.GetByIdAsync(request.CountryId, cancellationToken);
-
         if (country is null)
         {
             return ApiResponse<bool>.FailureResponse
@@ -32,9 +26,11 @@ public sealed class DeleteCountryCommandHandler(
         }
 
         country.IsDeleted = true;
+        country.IsActive=false;
         await countryRepository.UpdateAsync(country, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.Country}:{request.CountryId}", cancellationToken);
+        var cacheKey = $"{CacheKeys.Country}:{request.CountryId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.CountriesPaged}:", cancellationToken);
 
         return ApiResponse<bool>.SuccessResponse

@@ -1,11 +1,7 @@
 using MediatR;
-
 using System.Net;
-
 using AutoMapper;
-
 using FluentValidation;
-
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Persistence.Exceptions;
@@ -17,27 +13,21 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity;
 
-public sealed class UpdateStateCommandHandler(
-    IStateRepository stateRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<UpdateStateCommand> validator,
+public sealed class UpdateStateCommandHandler(IStateRepository stateRepository,IUnitOfWork unitOfWork,
+    IMapper mapper,IValidator<UpdateStateCommand> validator,
     IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<UpdateStateCommand, ApiResponse<StateDto>>
 {
     public async Task<ApiResponse<StateDto>> Handle(UpdateStateCommand request, CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
         if (!validationResult.IsValid)
         {
             var message = string.Join(" | ", validationResult.Errors.Select(e => e.ErrorMessage));
-
             return ApiResponse<StateDto>.FailureResponse(message, HttpStatusCode.BadRequest);
         }
 
         var state = await stateRepository.GetByIdAsync(request.StateId, cancellationToken);
-
         if (state is null)
         {
             return ApiResponse<StateDto>.FailureResponse(
@@ -54,8 +44,11 @@ public sealed class UpdateStateCommandHandler(
             return ApiResponse<StateDto>.FailureResponse(
                 messageHelper.AlreadyExistsEntity(ResourceNames.Entities, EntityKeys.State), HttpStatusCode.Conflict);
         }
-        await cacheService.RemoveAsync($"{CacheKeys.States}:{request.StateId}", cancellationToken);
+
+        var cacheKey = $"{CacheKeys.States}:{request.StateId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.StatesPaged}:", cancellationToken);
+        
         return ApiResponse<StateDto>.SuccessResponse(mapper.Map<StateDto>(state),
             messageHelper.UpdatedEntity(ResourceNames.Entities, EntityKeys.State), HttpStatusCode.OK);
     }

@@ -1,9 +1,6 @@
 using System.Net;
-
 using AutoMapper;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
@@ -12,11 +9,8 @@ using BookMyHall.Domain.Masters;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
-
-public sealed class GetHallCategoryByIdQueryHandler(
-    IHallCategoryRepository hallCategoryRepository,
-    IMapper mapper,
-    IMessageHelper messageHelper, ICacheService cacheService)
+public sealed class GetHallCategoryByIdQueryHandler(IHallCategoryRepository hallCategoryRepository,
+    IMapper mapper,IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<GetHallCategoryByIdQuery, ApiResponse<HallCategory>>
 {
     public async Task<ApiResponse<HallCategory>> Handle(GetHallCategoryByIdQuery request, CancellationToken cancellationToken)
@@ -34,7 +28,6 @@ public sealed class GetHallCategoryByIdQueryHandler(
             );
         }
         var category = await hallCategoryRepository.GetByIdAsync(request.HallCategoryId, cancellationToken);
-
         if (category is null)
         {
             return ApiResponse<HallCategory>.FailureResponse(

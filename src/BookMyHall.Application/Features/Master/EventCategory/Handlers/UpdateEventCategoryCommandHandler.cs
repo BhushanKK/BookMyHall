@@ -1,11 +1,7 @@
 using System.Net;
-
 using AutoMapper;
-
 using FluentValidation;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -15,11 +11,8 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class UpdateEventCategoryCommandHandler(
-    IEventCategoryRepository eventCategoryRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<UpdateEventCategoryCommand> validator,
+public sealed class UpdateEventCategoryCommandHandler(IEventCategoryRepository eventCategoryRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<UpdateEventCategoryCommand> validator,
     IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<UpdateEventCategoryCommand, ApiResponse<EventCategoryDto>>
 {
@@ -52,8 +45,11 @@ public sealed class UpdateEventCategoryCommandHandler(
         mapper.Map(request, eventCategory);
         await eventCategoryRepository.UpdateAsync(eventCategory, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.EventCategories}:{request.EventCategoryId}", cancellationToken);
+
+        var cacheKey = $"{CacheKeys.EventCategories}:{request.EventCategoryId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.EventCategoriesPaged}:", cancellationToken);
+        
         return ApiResponse<EventCategoryDto>.SuccessResponse(
             mapper.Map<EventCategoryDto>(eventCategory),
             messageHelper.UpdatedEntity(ResourceNames.Entities, EntityKeys.EventCategory), HttpStatusCode.OK);

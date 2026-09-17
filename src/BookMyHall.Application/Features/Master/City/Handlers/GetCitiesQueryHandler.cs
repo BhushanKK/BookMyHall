@@ -13,16 +13,13 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class GetCitiesQueryHandler(
-    ICityRepository cityRepository,
-    IMessageHelper messageHelper,
-    IMapper mapper, ICacheService cacheService)
+public sealed class GetCitiesQueryHandler(ICityRepository cityRepository,
+    IMessageHelper messageHelper,IMapper mapper, ICacheService cacheService)
     : IRequestHandler<GetCitiesQuery, ApiResponse<PaginatedResult<City>>>
 {
     public async Task<ApiResponse<PaginatedResult<City>>> Handle(GetCitiesQuery request, CancellationToken cancellationToken)
     {
         var pagination = request.paginationRequest;
-
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<City>(
             CacheKeys.CitiesPaged,
             pagination.PageNumber,

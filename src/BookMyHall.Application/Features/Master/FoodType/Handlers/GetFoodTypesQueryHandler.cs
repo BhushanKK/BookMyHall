@@ -1,9 +1,6 @@
 using System.Net;
-
 using AutoMapper;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
@@ -12,18 +9,14 @@ using BookMyHall.Domain.Masters;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
-
-public sealed class GetFoodTypesQueryHandler(
-    IFoodTypeRepository foodTypeRepository,
-    IMessageHelper messageHelper,
-    IMapper mapper, ICacheService cacheService)
+public sealed class GetFoodTypesQueryHandler(IFoodTypeRepository foodTypeRepository,
+    IMessageHelper messageHelper,IMapper mapper, ICacheService cacheService)
     : IRequestHandler<GetFoodTypesQuery, ApiResponse<PaginatedResult<FoodType>>>
 {
     public async Task<ApiResponse<PaginatedResult<FoodType>>> Handle(GetFoodTypesQuery request, CancellationToken cancellationToken)
     {
 
         var pagination = request.paginationRequest;
-
           var cacheKey = CacheKeyBuilder.BuildPaginatedKey<FoodType>(
             CacheKeys.FoodtypePaged,
             pagination.PageNumber,

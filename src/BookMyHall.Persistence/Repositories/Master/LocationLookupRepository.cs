@@ -8,8 +8,9 @@ public sealed class LocationLookupRepository(BookMyHallDbContext context): ILoca
     public async Task<IReadOnlyList<LocationLookupDto.CountryLookupDto>>GetCountriesAsync(CancellationToken cancellationToken = default)
     {
         return await context.Countries.AsNoTracking()
-            .Where(x => x.IsActive==true && x.IsDeleted==false)
+            .Where(x => x.IsActive && !x.IsDeleted==false)
             .OrderBy(x => x.CountryName)
+            .ThenBy(x=>x.CountryId)
             .Select(x => new LocationLookupDto.CountryLookupDto
             {
                 CountryId = x.CountryId,
@@ -26,9 +27,10 @@ public sealed class LocationLookupRepository(BookMyHallDbContext context): ILoca
         return await (from state in context.States.AsNoTracking()
             join country in context.Countries.AsNoTracking()
             on state.CountryId equals country.CountryId
-            where state.CountryId == countryId && state.IsActive==true
-            && country.IsActive==true && state.IsDeleted==false
-            orderby state.StateName
+            where state.CountryId == countryId &&
+                state.IsActive && !state.IsDeleted &&
+                country.IsActive && !country.IsDeleted
+            orderby state.StateName, state.StateId
             select new LocationLookupDto.StateLookupDto
             {
                 StateId = state.StateId,
@@ -44,9 +46,10 @@ public sealed class LocationLookupRepository(BookMyHallDbContext context): ILoca
         return await (from district in context.Districts.AsNoTracking()
             join state in context.States.AsNoTracking()
             on district.StateId equals state.StateId
-            where district.StateId == stateId && district.IsActive==true
-            && state.IsActive==true && district.IsDeleted==false
-            orderby district.DistrictName
+            where  district.StateId == stateId &&
+            district.IsActive &&!district.IsDeleted &&
+            state.IsActive && !state.IsDeleted
+            orderby district.DistrictName, district.DistrictId
             select new LocationLookupDto.DistrictLookupDto
             {
                 DistrictId = district.DistrictId,
@@ -60,16 +63,12 @@ public sealed class LocationLookupRepository(BookMyHallDbContext context): ILoca
     {
         return await (
             from city in context.Cities.AsNoTracking()
-
             join district in context.Districts.AsNoTracking()
-                on city.DistrictId equals district.DistrictId
-
-            where city.DistrictId == districtId
-                  && city.IsActive==true
-                  && district.IsActive==true && city.IsDeleted==false
-
-            orderby city.CityName
-
+            on city.DistrictId equals district.DistrictId
+            where city.DistrictId == districtId &&
+            city.IsActive && !city.IsDeleted &&
+            district.IsActive && !district.IsDeleted
+            orderby city.CityName, city.CityId
             select new LocationLookupDto.CityLookupDto
             {
                 CityId = city.CityId,
@@ -84,8 +83,9 @@ public sealed class LocationLookupRepository(BookMyHallDbContext context): ILoca
         return await (from area in context.Areas.AsNoTracking()
             join city in context.Cities.AsNoTracking()
             on area.CityId equals city.CityId
-            where area.CityId == cityId && area.IsActive==true && area.IsDeleted==false
-            && city.IsActive==true orderby area.AreaName
+            where area.CityId == cityId && area.IsActive &&
+            !area.IsDeleted && city.IsActive && !city.IsDeleted
+            orderby area.AreaName, area.AreaId
             select new LocationLookupDto.AreaLookupDto
             {
                 AreaId = area.AreaId,

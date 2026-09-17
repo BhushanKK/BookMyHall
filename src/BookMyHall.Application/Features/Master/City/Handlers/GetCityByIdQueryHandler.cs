@@ -13,10 +13,8 @@ using BookMyHall.Application.Abstractions.Caching;
 namespace BookMyHall.Application.Features.Master;
 
 
-public sealed class GetCityByIdQueryHandler(
-    ICityRepository cityRepository,
-    IMessageHelper messageHelper,
-    IMapper mapper, ICacheService cacheService)
+public sealed class GetCityByIdQueryHandler(ICityRepository cityRepository,
+    IMessageHelper messageHelper,IMapper mapper, ICacheService cacheService)
     : IRequestHandler<GetCityByIdQuery, ApiResponse<City>>
 {
     public async Task<ApiResponse<City>> Handle(GetCityByIdQuery request, CancellationToken cancellationToken)
@@ -33,10 +31,10 @@ public sealed class GetCityByIdQueryHandler(
         {
             return ApiResponse<City>.FailureResponse(messageHelper.NotFound(EntityKeys.City), HttpStatusCode.NotFound);
         }
+        
         var response = mapper.Map<City>(city);
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
-        return ApiResponse<City>.SuccessResponse(
-            mapper.Map<City>(city),
+        return ApiResponse<City>.SuccessResponse(mapper.Map<City>(city),
             messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.City), HttpStatusCode.OK);
     }
 }

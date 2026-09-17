@@ -1,11 +1,7 @@
 using System.Net;
-
 using AutoMapper;
-
 using FluentValidation;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -14,13 +10,8 @@ using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
-
-public sealed class UpdateAmenityCommandHandler(
-    IAmenityRepository amenityRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<UpdateAmenityCommand> validator,
-    IMessageHelper messageHelper, ICacheService cacheService)
+public sealed class UpdateAmenityCommandHandler(IAmenityRepository amenityRepository,IUnitOfWork unitOfWork,
+    IMapper mapper,IValidator<UpdateAmenityCommand> validator,IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<UpdateAmenityCommand, ApiResponse<AmenityDto>>
 {
     public async Task<ApiResponse<AmenityDto>> Handle(UpdateAmenityCommand request, CancellationToken cancellationToken)
@@ -35,8 +26,7 @@ public sealed class UpdateAmenityCommandHandler(
         var amenity = await amenityRepository.GetByIdAsync(request.AmenityId, cancellationToken);
         if (amenity is null)
         {
-            return ApiResponse<AmenityDto>.FailureResponse(
-                messageHelper.NotFound(EntityKeys.Amenity),
+            return ApiResponse<AmenityDto>.FailureResponse(messageHelper.NotFound(EntityKeys.Amenity),
                 HttpStatusCode.NotFound);
         }
 
@@ -52,11 +42,11 @@ public sealed class UpdateAmenityCommandHandler(
         mapper.Map(request, amenity);
         await amenityRepository.UpdateAsync(amenity, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.Amenity}:{request.AmenityId}", cancellationToken);
+        var cacheKey = $"{CacheKeys.Amenity}:{request.AmenityId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.AmenitiesPaged}:", cancellationToken);
 
-        return ApiResponse<AmenityDto>.SuccessResponse(
-            mapper.Map<AmenityDto>(amenity),
+        return ApiResponse<AmenityDto>.SuccessResponse(mapper.Map<AmenityDto>(amenity),
             messageHelper.UpdatedEntity(ResourceNames.Entities, EntityKeys.Amenity), HttpStatusCode.OK);
     }
 }

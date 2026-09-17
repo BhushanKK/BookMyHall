@@ -13,11 +13,8 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class CreateAreaCommandHandler(
-    IAreaRepository areaRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<CreateAreaCommand> validator,
+public sealed class CreateAreaCommandHandler(IAreaRepository areaRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<CreateAreaCommand> validator,
     IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<CreateAreaCommand, ApiResponse<AreaDto>>
 {
@@ -34,6 +31,7 @@ public sealed class CreateAreaCommandHandler(
         var area = mapper.Map<Area>(request);
         area.AreaId = Guid.NewGuid();
         area.IsActive = true;
+        area.IsDeleted=false;
 
         try
         {
@@ -46,8 +44,7 @@ public sealed class CreateAreaCommandHandler(
                 messageHelper.AlreadyExistsEntity(ResourceNames.Entities, EntityKeys.Area), HttpStatusCode.Conflict);
         }
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.AreasPaged}:", cancellationToken);
-        return ApiResponse<AreaDto>.SuccessResponse(
-            mapper.Map<AreaDto>(area),
+        return ApiResponse<AreaDto>.SuccessResponse(mapper.Map<AreaDto>(area),
             messageHelper.AddedEntity(ResourceNames.Entities, EntityKeys.Area), HttpStatusCode.Created);
     }
 }

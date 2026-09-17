@@ -30,7 +30,7 @@ public sealed class CreateServiceCommandHandler(IServiceRepository serviceReposi
         var service = mapper.Map<Service>(request);
         service.ServiceId = Guid.NewGuid();
         service.IsActive = true;
-
+        service.IsDeleted=false;
         try
         {
             await serviceRepository.AddAsync(service,cancellationToken);
@@ -44,8 +44,7 @@ public sealed class CreateServiceCommandHandler(IServiceRepository serviceReposi
 
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.ServicesPaged}:", cancellationToken);
         
-        return ApiResponse<ServiceDto>.SuccessResponse(
-            mapper.Map<ServiceDto>(service),
+        return ApiResponse<ServiceDto>.SuccessResponse(mapper.Map<ServiceDto>(service),
             messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.Service),HttpStatusCode.Created);
     }
 }

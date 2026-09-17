@@ -12,19 +12,14 @@ using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
-
-public sealed class CreateDistrictCommandHandler(
-    IDistrictRepository districtRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<CreateDistrictCommand> validator,
+public sealed class CreateDistrictCommandHandler(IDistrictRepository districtRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<CreateDistrictCommand> validator,
     IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<CreateDistrictCommand, ApiResponse<DistrictDto>>
 {
     public async Task<ApiResponse<DistrictDto>> Handle(CreateDistrictCommand request,CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request,cancellationToken);
-
         if (!validationResult.IsValid)
         {
             var message = string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage));
@@ -34,7 +29,7 @@ public sealed class CreateDistrictCommandHandler(
         var district = mapper.Map<District>(request);
         district.DistrictId = Guid.NewGuid();
         district.IsActive = true;
-
+        district.IsDeleted=false;
         try
         {
             await districtRepository.AddAsync(district,cancellationToken);

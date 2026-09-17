@@ -10,16 +10,13 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class GetAreasQueryHandler(
-    IAreaRepository areaRepository,
-    IMessageHelper messageHelper,
-    IMapper mapper, ICacheService cacheService)
+public sealed class GetAreasQueryHandler(IAreaRepository areaRepository,
+    IMessageHelper messageHelper,IMapper mapper, ICacheService cacheService)
     : IRequestHandler<GetAreasQuery, ApiResponse<PaginatedResult<Area>>>
 {
     public async Task<ApiResponse<PaginatedResult<Area>>> Handle(GetAreasQuery request, CancellationToken cancellationToken)
     {
         var pagination = request.paginationRequest;
-
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Area>(
             CacheKeys.AreasPaged,
             pagination.PageNumber,
@@ -29,7 +26,6 @@ public sealed class GetAreasQueryHandler(
             pagination.SortDescending);
 
         var cachedResponse = await cacheService.GetAsync<PaginatedResult<Area>>(cacheKey, cancellationToken);
-
         if (cachedResponse is not null)
         {
             return ApiResponse<PaginatedResult<Area>>.SuccessResponse

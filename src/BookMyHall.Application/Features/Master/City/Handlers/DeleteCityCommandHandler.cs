@@ -1,7 +1,5 @@
 using System.Net;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -10,10 +8,7 @@ using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
-
-public sealed class DeleteCityCommandHandler(
-    ICityRepository cityRepository,
-    IUnitOfWork unitOfWork,
+public sealed class DeleteCityCommandHandler(ICityRepository cityRepository,IUnitOfWork unitOfWork,
     IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<DeleteCityCommand, ApiResponse<bool>>
 {
@@ -26,10 +21,14 @@ public sealed class DeleteCityCommandHandler(
         }
 
         city.IsDeleted = true;
+        city.IsActive=false;
         await cityRepository.UpdateAsync(city, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.Cities}:{request.CityId}", cancellationToken);
+
+        var cacheKey = $"{CacheKeys.Cities}:{request.CityId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.CitiesPaged}:", cancellationToken);
+        
         return ApiResponse<bool>.SuccessResponse(true, messageHelper.DeletedEntity(ResourceNames.Entities, EntityKeys.City), HttpStatusCode.OK);
     }
 }

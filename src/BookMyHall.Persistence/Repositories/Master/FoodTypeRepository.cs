@@ -18,39 +18,27 @@ public sealed class FoodTypeRepository(BookMyHallDbContext context): IFoodTypeRe
     }
 
     public async Task<FoodType?> GetByIdAsync(Guid foodTypeId,CancellationToken cancellationToken = default)
-        => await context.FoodTypes
-        .Where(x=>x.IsDeleted==false && x.IsActive==true)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(
-                x => x.FoodTypeId == foodTypeId,
-                cancellationToken);
+        => await context.FoodTypes.AsNoTracking()
+         .FirstOrDefaultAsync(x =>x.FoodTypeId == foodTypeId && !x.IsDeleted==false && x.IsActive,cancellationToken);
 
     public async Task<FoodType?> GetByFoodTypeNameAsync(string foodTypeName,CancellationToken cancellationToken = default)
-        => await context.FoodTypes
-            .AsNoTracking()
-            .FirstOrDefaultAsync(
-                x => x.FoodTypeName == foodTypeName,
-                cancellationToken);
+        => await context.FoodTypes.AsNoTracking()
+            .FirstOrDefaultAsync( x => x.FoodTypeName == foodTypeName &&!x.IsDeleted,cancellationToken);
 
     public async Task<PaginatedResult<FoodType>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
-        IQueryable<FoodType> query = context.FoodTypes
-        .Where(x=>x.IsDeleted==false && x.IsActive==true)
-            .AsNoTracking();
-
+        var query = context.FoodTypes.AsNoTracking().Where(x=>!x.IsDeleted && x.IsActive);
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();
-
-            query = query.Where(x =>
-                EF.Functions.ILike(
-                    x.FoodTypeName,
-                    $"%{search}%"));
+            var pattern=$"%{search}%";
+            query = query.Where(x=>EF.Functions.ILike( x.FoodTypeName,pattern));
         }
 
         var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
             .OrderBy(x => x.FoodTypeName)
+            .ThenBy(x=>x.FoodTypeId)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);

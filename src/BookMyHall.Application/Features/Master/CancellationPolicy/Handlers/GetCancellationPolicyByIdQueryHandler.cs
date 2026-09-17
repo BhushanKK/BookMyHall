@@ -1,9 +1,6 @@
 using System.Net;
-
 using AutoMapper;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
@@ -12,11 +9,8 @@ using BookMyHall.Domain.Masters;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
-
-public sealed class GetCancellationPolicyByIdQueryHandler(
-    ICancellationPolicyRepository cancellationPolicyRepository,
-    IMessageHelper messageHelper,
-    IMapper mapper, ICacheService cacheService)
+public sealed class GetCancellationPolicyByIdQueryHandler(ICancellationPolicyRepository cancellationPolicyRepository,
+    IMessageHelper messageHelper,IMapper mapper, ICacheService cacheService)
     : IRequestHandler<GetCancellationPolicyByIdQuery, ApiResponse<CancellationPolicy>>
 {
     public async Task<ApiResponse<CancellationPolicy>> Handle(GetCancellationPolicyByIdQuery request, CancellationToken cancellationToken)
@@ -36,6 +30,7 @@ public sealed class GetCancellationPolicyByIdQueryHandler(
                 messageHelper.NotFound(EntityKeys.CancellationPolicy),
                 HttpStatusCode.NotFound);
         }
+        
         var response = mapper.Map<CancellationPolicy>(policy);
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
         return ApiResponse<CancellationPolicy>.SuccessResponse(

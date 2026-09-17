@@ -18,38 +18,28 @@ public sealed class ServiceRepository(BookMyHallDbContext context): IServiceRepo
     }
 
     public async Task<Service?> GetByIdAsync(Guid serviceId,CancellationToken cancellationToken = default)
-        => await context.Services
+        => await context.Services.AsNoTracking()
         .Where(x=>x.IsDeleted==false && x.IsActive==true)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(
-                x => x.ServiceId == serviceId,
-                cancellationToken);
+            .FirstOrDefaultAsync(x => x.ServiceId == serviceId &&!x.IsDeleted,cancellationToken);
 
     public async Task<Service?> GetByServiceNameAsync(string serviceName,CancellationToken cancellationToken = default)
-        => await context.Services
-            .AsNoTracking()
-            .FirstOrDefaultAsync(
-                x => x.ServiceName == serviceName,
-                cancellationToken);
+        => await context.Services.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.ServiceName == serviceName && !x.IsDeleted,cancellationToken);
 
     public async Task<PaginatedResult<Service>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
-        IQueryable<Service> query = context.Services
-        .Where(x=>x.IsDeleted==false && x.IsActive==true)
-            .AsNoTracking();
-
+        var query = context.Services.AsNoTracking().Where(x=>!x.IsDeleted && x.IsActive);
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();
-            query = query.Where(x =>
-                EF.Functions.ILike(
-                    x.ServiceName,
-                    $"%{search}%"));
+            var pattern= $"%{search}%";
+            query = query.Where(x =>EF.Functions.ILike(x.ServiceName,pattern));
         }
 
         var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
             .OrderBy(x => x.ServiceName)
+            .ThenBy(x=>x.ServiceId)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);

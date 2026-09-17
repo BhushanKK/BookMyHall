@@ -1,9 +1,6 @@
 using System.Net;
-
 using AutoMapper;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
@@ -13,10 +10,8 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class GetFacilityByIdQueryHandler(
-    IFacilityRepository facilityRepository,
-    IMessageHelper messageHelper,
-    IMapper mapper, ICacheService cacheService)
+public sealed class GetFacilityByIdQueryHandler(IFacilityRepository facilityRepository,
+    IMessageHelper messageHelper,IMapper mapper, ICacheService cacheService)
     : IRequestHandler<GetFacilityByIdQuery, ApiResponse<Facility>>
 {
     public async Task<ApiResponse<Facility>> Handle(GetFacilityByIdQuery request, CancellationToken cancellationToken)

@@ -10,10 +10,8 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class GetFoodTypeByIdQueryHandler(
-    IFoodTypeRepository foodTypeRepository,
-    IMessageHelper messageHelper,
-    IMapper mapper, ICacheService cacheService)
+public sealed class GetFoodTypeByIdQueryHandler(IFoodTypeRepository foodTypeRepository,
+    IMessageHelper messageHelper,IMapper mapper, ICacheService cacheService)
     : IRequestHandler<GetFoodTypeByIdQuery, ApiResponse<FoodType>>
 {
     public async Task<ApiResponse<FoodType>> Handle(GetFoodTypeByIdQuery request, CancellationToken cancellationToken)

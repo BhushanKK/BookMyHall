@@ -10,19 +10,14 @@ using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
-
-public sealed class UpdateDistrictCommandHandler(
-    IDistrictRepository districtRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<UpdateDistrictCommand> validator,
+public sealed class UpdateDistrictCommandHandler(IDistrictRepository districtRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<UpdateDistrictCommand> validator,
     IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<UpdateDistrictCommand, ApiResponse<DistrictDto>>
 {
     public async Task<ApiResponse<DistrictDto>> Handle(UpdateDistrictCommand request,CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request,cancellationToken);
-
         if (!validationResult.IsValid)
         {
             var message = string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage));
@@ -38,7 +33,6 @@ public sealed class UpdateDistrictCommandHandler(
         }
 
         var existingDistrict = await districtRepository.GetByDistrictNameAsync(request.DistrictName,cancellationToken);
-
         if (existingDistrict is not null && existingDistrict.DistrictId != request.DistrictId)
         {
             return ApiResponse<DistrictDto>.FailureResponse(
@@ -49,7 +43,9 @@ public sealed class UpdateDistrictCommandHandler(
         mapper.Map(request, district);
         await districtRepository.UpdateAsync(district,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.Districts}:{request.DistrictId}", cancellationToken);
+        
+        var cacheKey = $"{CacheKeys.Districts}:{request.DistrictId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.DistrictsPaged}:", cancellationToken);
         return ApiResponse<DistrictDto>.SuccessResponse(
             mapper.Map<DistrictDto>(district),

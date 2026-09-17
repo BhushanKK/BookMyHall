@@ -1,11 +1,7 @@
 using System.Net;
-
 using AutoMapper;
-
 using FluentValidation;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -15,11 +11,8 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class UpdateCancellationPolicyCommandHandler(
-    ICancellationPolicyRepository cancellationPolicyRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<UpdateCancellationPolicyCommand> validator,
+public sealed class UpdateCancellationPolicyCommandHandler(ICancellationPolicyRepository cancellationPolicyRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<UpdateCancellationPolicyCommand> validator,
     IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<UpdateCancellationPolicyCommand, ApiResponse<CancellationPolicyDto>>
 {
@@ -52,7 +45,9 @@ public sealed class UpdateCancellationPolicyCommandHandler(
         mapper.Map(request, policy);
         await cancellationPolicyRepository.UpdateAsync(policy, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.CancellationPolicies}:{request.CancellationPolicyId}", cancellationToken);
+        
+        var cacheKey = $"{CacheKeys.CancellationPolicies}:{request.CancellationPolicyId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.CancellationPoliciesPaged}:", cancellationToken);
         
         return ApiResponse<CancellationPolicyDto>.SuccessResponse(

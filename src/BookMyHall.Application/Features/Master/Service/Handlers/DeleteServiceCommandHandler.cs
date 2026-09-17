@@ -24,10 +24,14 @@ public sealed class DeleteServiceCommandHandler(IServiceRepository serviceReposi
                 HttpStatusCode.NotFound);
         }
         service.IsDeleted = true;
+        service.IsActive=false;
         await serviceRepository.UpdateAsync(service, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.Services}:{request.ServiceId}", cancellationToken);
+
+        var cacheKey = $"{CacheKeys.Services}:{request.ServiceId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.ServicesPaged}:", cancellationToken);
+
         return ApiResponse<bool>.SuccessResponse(true,
             messageHelper.DeletedEntity(ResourceNames.Entities,EntityKeys.Service),HttpStatusCode.OK);
     }

@@ -10,10 +10,8 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class GetAreaByIdQueryHandler(
-    IAreaRepository areaRepository,
-    IMessageHelper messageHelper,
-    IMapper mapper, ICacheService cacheService)
+public sealed class GetAreaByIdQueryHandler(IAreaRepository areaRepository,
+    IMessageHelper messageHelper,IMapper mapper, ICacheService cacheService)
     : IRequestHandler<GetAreaByIdQuery, ApiResponse<Area>>
 {
     public async Task<ApiResponse<Area>> Handle(GetAreaByIdQuery request, CancellationToken cancellationToken)
@@ -34,8 +32,10 @@ public sealed class GetAreaByIdQueryHandler(
         }
         var response = mapper.Map<Area>(area);
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
-        return ApiResponse<Area>.SuccessResponse(
+        return ApiResponse<Area>.SuccessResponse
+        (
             mapper.Map<Area>(area),
-            messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Area), HttpStatusCode.OK);
+            messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Area), HttpStatusCode.OK
+        );
     }
 }

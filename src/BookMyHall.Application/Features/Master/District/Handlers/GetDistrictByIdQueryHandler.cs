@@ -1,9 +1,6 @@
 using System.Net;
-
 using AutoMapper;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
@@ -13,10 +10,8 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class GetDistrictByIdQueryHandler(
-    IDistrictRepository districtRepository,
-    IMessageHelper messageHelper,
-    IMapper mapper, ICacheService cacheService)
+public sealed class GetDistrictByIdQueryHandler(IDistrictRepository districtRepository,
+    IMessageHelper messageHelper,IMapper mapper, ICacheService cacheService)
     : IRequestHandler<GetDistrictByIdQuery, ApiResponse<District>>
 {
     public async Task<ApiResponse<District>> Handle(GetDistrictByIdQuery request, CancellationToken cancellationToken)
@@ -36,10 +31,10 @@ public sealed class GetDistrictByIdQueryHandler(
                 messageHelper.NotFound(EntityKeys.District),
                 HttpStatusCode.NotFound);
         }
+
         var response = mapper.Map<District>(district);
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
-        return ApiResponse<District>.SuccessResponse(
-            mapper.Map<District>(district),
+        return ApiResponse<District>.SuccessResponse(mapper.Map<District>(district),
             messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.District), HttpStatusCode.OK);
     }
 }

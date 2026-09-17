@@ -17,7 +17,6 @@ public sealed class GetHallCategoriesQueryHandler(IHallCategoryRepository hallCa
     public async Task<ApiResponse<PaginatedResult<HallCategory>>> Handle(GetHallCategoriesQuery request, CancellationToken cancellationToken)
     {
         var pagination = request.paginationRequest;
-
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<HallCategory>(
             CacheKeys.HallCategoriesPaged,
             pagination.PageNumber,

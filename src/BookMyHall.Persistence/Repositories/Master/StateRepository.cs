@@ -19,45 +19,31 @@ public sealed class StateRepository(BookMyHallDbContext context) : IStateReposit
     }
 
     public async Task<State?> GetByIdAsync(Guid stateId, CancellationToken cancellationToken = default)
-        => await context.States
-        .Where(x=>x.IsDeleted==false && x.IsActive==true)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(
-                x => x.StateId == stateId,
-                cancellationToken);
+        => await context.States.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.StateId == stateId && !x.IsDeleted && x.IsActive,cancellationToken);
 
     public async Task<State?> GetByStateCodeAsync(string stateCode, CancellationToken cancellationToken = default)
-        => await context.States
-            .AsNoTracking()
-            .FirstOrDefaultAsync(
-                x => x.StateCode == stateCode,
-                cancellationToken);
+        => await context.States.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.StateCode == stateCode && !x.IsDeleted,cancellationToken);
 
     public async Task<State?> GetByStateNameAsync(string stateName, CancellationToken cancellationToken = default)
-        => await context.States
-            .AsNoTracking()
-            .FirstOrDefaultAsync(
-                x => x.StateName == stateName,
-                cancellationToken);
+        => await context.States.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.StateName == stateName &&!x.IsDeleted,cancellationToken);
 
     public async Task<PaginatedResult<State>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default)
     {
-        IQueryable<State> query = context.States
-        .Where(x=>x.IsDeleted==false && x.IsActive==true)
-            .AsNoTracking();
-
+       var query = context.States.AsNoTracking().Where(x=>!x.IsDeleted && x.IsActive);
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();
-            query = query.Where(x =>
-                EF.Functions.ILike(
-                    x.StateName,
-                    $"%{search}%"));
+            var pattern=$"%{search}%";
+            query = query.Where(x =>EF.Functions.ILike(x.StateName,pattern));
         }
 
         var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
             .OrderBy(x => x.StateName)
+            .ThenBy(x=>x.StateId)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);

@@ -18,34 +18,28 @@ public sealed class CancellationPolicyRepository(BookMyHallDbContext context): I
     }
 
     public async Task<CancellationPolicy?> GetByIdAsync(Guid cancellationPolicyId,CancellationToken cancellationToken = default)
-        => await context.CancellationPolicies
-            .Where(x=>x.IsDeleted==false && x.IsActive==true)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(
-                x => x.CancellationPolicyId == cancellationPolicyId,cancellationToken);
-
+        => await context.CancellationPolicies.AsNoTracking()
+            .FirstOrDefaultAsync(x=>x.CancellationPolicyId == cancellationPolicyId && !x.IsDeleted && x.IsActive,cancellationToken);
+               
     public async Task<CancellationPolicy?> GetByPolicyNameAsync(string policyName,CancellationToken cancellationToken = default)
-        => await context.CancellationPolicies
-            .AsNoTracking()
-            .FirstOrDefaultAsync(
-                x => x.PolicyName == policyName,cancellationToken);
+        => await context.CancellationPolicies.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.PolicyName == policyName && !x.IsDeleted,cancellationToken);
 
     public async Task<PaginatedResult<CancellationPolicy>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
-        IQueryable<CancellationPolicy> query = context.CancellationPolicies
-            .Where(x=>x.IsDeleted==false && x.IsActive==true )
-            .AsNoTracking();
+        var query = context.CancellationPolicies.AsNoTracking().Where(x => !x.IsDeleted && x.IsActive);
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();
+            var pattern = $"%{search}%";
             query = query.Where(x =>
-                EF.Functions.ILike(x.PolicyName, $"%{search}%") ||
-                EF.Functions.ILike(x.Description, $"%{search}%"));
+                EF.Functions.ILike(x.PolicyName, pattern) || EF.Functions.ILike(x.Description, pattern));
         }
 
         var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
             .OrderBy(x => x.PolicyName)
+            .ThenBy(x => x.CancellationPolicyId)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);

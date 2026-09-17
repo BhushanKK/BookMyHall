@@ -1,11 +1,7 @@
 using System.Net;
-
 using AutoMapper;
-
 using FluentValidation;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
@@ -16,12 +12,8 @@ using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
-
-public sealed class CreateFacilityCommandHandler(
-    IFacilityRepository facilityRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<CreateFacilityCommand> validator,
+public sealed class CreateFacilityCommandHandler(IFacilityRepository facilityRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<CreateFacilityCommand> validator,
     IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<CreateFacilityCommand, ApiResponse<FacilityDto>>
 {
@@ -37,7 +29,7 @@ public sealed class CreateFacilityCommandHandler(
         var facility = mapper.Map<Facility>(request);
         facility.FacilityId = Guid.NewGuid();
         facility.IsActive = true;
-
+        facility.IsDeleted=false;
         try
         {
             await facilityRepository.AddAsync(facility, cancellationToken);
@@ -50,8 +42,7 @@ public sealed class CreateFacilityCommandHandler(
         }
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.FacilitiesPaged}:", cancellationToken);
 
-        return ApiResponse<FacilityDto>.SuccessResponse(
-            mapper.Map<FacilityDto>(facility),
+        return ApiResponse<FacilityDto>.SuccessResponse(mapper.Map<FacilityDto>(facility),
             messageHelper.AddedEntity(ResourceNames.Entities, EntityKeys.Facility), HttpStatusCode.Created);
     }
 }

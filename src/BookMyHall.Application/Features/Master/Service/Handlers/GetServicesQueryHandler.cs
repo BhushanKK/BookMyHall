@@ -16,8 +16,7 @@ public sealed class GetServicesQueryHandler(IServiceRepository serviceRepository
 {
     public async Task<ApiResponse<PaginatedResult<Service>>> Handle(GetServicesQuery request,CancellationToken cancellationToken)
     {
-         var pagination = request.paginationRequest;
-
+        var pagination = request.paginationRequest;
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Service>(
             CacheKeys.ServicesPaged,
             pagination.PageNumber,
@@ -27,7 +26,6 @@ public sealed class GetServicesQueryHandler(IServiceRepository serviceRepository
             pagination.SortDescending);
 
         var cachedResponse = await cacheService.GetAsync<PaginatedResult<Service>>(cacheKey, cancellationToken);
-
         if (cachedResponse is not null)
         {
             return ApiResponse<PaginatedResult<Service>>.SuccessResponse
@@ -38,7 +36,6 @@ public sealed class GetServicesQueryHandler(IServiceRepository serviceRepository
             );
         }
         var result = await serviceRepository.GetAllAsync(request.paginationRequest,cancellationToken);
-
         var response = new PaginatedResult<Service>
         {
             Items = mapper.Map<IReadOnlyList<Service>>(result.Items),

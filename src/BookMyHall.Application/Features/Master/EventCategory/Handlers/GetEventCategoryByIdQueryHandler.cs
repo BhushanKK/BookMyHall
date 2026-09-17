@@ -1,9 +1,6 @@
 using System.Net;
-
 using AutoMapper;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
@@ -12,11 +9,8 @@ using BookMyHall.Domain.Masters;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
-
-public sealed class GetEventCategoryByIdQueryHandler(
-    IEventCategoryRepository eventCategoryRepository,
-    IMessageHelper messageHelper,
-    IMapper mapper, ICacheService cacheService)
+public sealed class GetEventCategoryByIdQueryHandler(IEventCategoryRepository eventCategoryRepository,
+    IMessageHelper messageHelper,IMapper mapper, ICacheService cacheService)
     : IRequestHandler<GetEventCategoryByIdQuery, ApiResponse<EventCategory>>
 {
     public async Task<ApiResponse<EventCategory>> Handle(GetEventCategoryByIdQuery request, CancellationToken cancellationToken)
@@ -35,7 +29,6 @@ public sealed class GetEventCategoryByIdQueryHandler(
         }
 
         var eventCategory = await eventCategoryRepository.GetByIdAsync(request.EventCategoryId, cancellationToken);
-
         if (eventCategory is null)
         {
             return ApiResponse<EventCategory>.FailureResponse(
@@ -43,7 +36,6 @@ public sealed class GetEventCategoryByIdQueryHandler(
                 HttpStatusCode.NotFound);
         }
         var response = mapper.Map<EventCategory>(eventCategory);
-
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
 
         return ApiResponse<EventCategory>.SuccessResponse(response,

@@ -9,14 +9,13 @@ using BookMyHall.Domain.Masters;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
-
 public sealed class GetPaymentModeByIdQueryHandler(IPaymentModeRepository paymentModeRepository,
     IMessageHelper messageHelper,IMapper mapper,ICacheService cacheService)
     : IRequestHandler<GetPaymentModeByIdQuery, ApiResponse<PaymentMode>>
 {
     public async Task<ApiResponse<PaymentMode>> Handle(GetPaymentModeByIdQuery request,CancellationToken cancellationToken)
     {
-         var cacheKey = $"{CacheKeys.PaymentMode}:{request.PaymentModeId}";
+        var cacheKey = $"{CacheKeys.PaymentMode}:{request.PaymentModeId}";
         var cachedPaymentMode = await cacheService.GetAsync<PaymentMode>(cacheKey, cancellationToken);
 
         if (cachedPaymentMode is not null)

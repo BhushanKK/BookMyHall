@@ -10,14 +10,11 @@ using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Master;
 
-public sealed class GetCountryByIdQueryHandler(
-    ICountryRepository countryRepository, IMessageHelper messageHelper,
-    IMapper mapper, ICacheService cacheService)
+public sealed class GetCountryByIdQueryHandler(ICountryRepository countryRepository, 
+    IMessageHelper messageHelper,IMapper mapper, ICacheService cacheService)
     : IRequestHandler<GetCountryByIdQuery, ApiResponse<Country>>
 {
-    public async Task<ApiResponse<Country>> Handle(
-        GetCountryByIdQuery request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<Country>> Handle(GetCountryByIdQuery request,CancellationToken cancellationToken)
     {
         var cacheKey = $"{CacheKeys.Country}:{request.CountryId}";
         var cachedCountry = await cacheService.GetAsync<Country>(cacheKey, cancellationToken);
@@ -33,7 +30,6 @@ public sealed class GetCountryByIdQueryHandler(
         }
 
         var country = await countryRepository.GetByIdAsync(request.CountryId, cancellationToken);
-
         if (country is null)
         {
             return ApiResponse<Country>.FailureResponse
@@ -44,9 +40,7 @@ public sealed class GetCountryByIdQueryHandler(
         }
 
         var response = mapper.Map<Country>(country);
-
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
-
         return ApiResponse<Country>.SuccessResponse
         (
             response,

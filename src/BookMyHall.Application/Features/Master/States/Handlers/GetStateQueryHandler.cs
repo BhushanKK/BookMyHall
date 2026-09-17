@@ -1,9 +1,6 @@
 using System.Net;
-
 using AutoMapper;
-
 using MediatR;
-
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
@@ -12,17 +9,13 @@ using BookMyHall.Domain.Masters;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Master;
-
-public sealed class GetStateQueryHandler(
-    IStateRepository stateRepository,
-    IMessageHelper messageHelper,
+public sealed class GetStateQueryHandler(IStateRepository stateRepository,IMessageHelper messageHelper,
     IMapper mapper, ICacheService cacheService)
     : IRequestHandler<GetStateQuery, ApiResponse<PaginatedResult<State>>>
 {
     public async Task<ApiResponse<PaginatedResult<State>>> Handle(GetStateQuery request, CancellationToken cancellationToken)
     {
         var pagination = request.paginationRequest;
-
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<State>(
             CacheKeys.StatesPaged,
             pagination.PageNumber,
@@ -32,7 +25,6 @@ public sealed class GetStateQueryHandler(
             pagination.SortDescending);
 
         var cachedResponse = await cacheService.GetAsync<PaginatedResult<State>>(cacheKey, cancellationToken);
-
         if (cachedResponse is not null)
         {
             return ApiResponse<PaginatedResult<State>>.SuccessResponse
@@ -43,7 +35,6 @@ public sealed class GetStateQueryHandler(
             );
         }
         var result = await stateRepository.GetAllAsync(request.paginationRequest, cancellationToken);
-
         var response = new PaginatedResult<State>
         {
             Items = mapper.Map<IReadOnlyList<State>>(result.Items),
