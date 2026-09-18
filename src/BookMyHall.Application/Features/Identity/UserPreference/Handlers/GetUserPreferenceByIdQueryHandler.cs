@@ -8,15 +8,13 @@ using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Identity;
 
-public sealed class GetUserPreferenceByIdQueryHandler(
-    IUserPreferenceRepository userPreferenceRepository,
+public sealed class GetUserPreferenceByIdQueryHandler(IUserPreferenceRepository userPreferenceRepository,
     IMapper mapper,IMessageHelper messageHelper)
     : IRequestHandler<GetUserPreferenceByIdQuery, ApiResponse<UserPreferenceDto>>
 {
     public async Task<ApiResponse<UserPreferenceDto>> Handle(GetUserPreferenceByIdQuery request,CancellationToken cancellationToken)
     {
         var userPreference = await userPreferenceRepository.GetByUserIdAsync(request.UserId,cancellationToken);
-
         if (userPreference is null)
         {
             return ApiResponse<UserPreferenceDto>.FailureResponse(messageHelper.NotFoundEntity(ResourceNames.Entities,

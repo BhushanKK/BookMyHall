@@ -9,7 +9,6 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Venue;
-
 public sealed class GetHallByIdQueryHandler(IHallRepository hallRepository,
     IMapper mapper,IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<GetHallByIdQuery, ApiResponse<Hall>>
@@ -21,15 +20,10 @@ public sealed class GetHallByIdQueryHandler(IHallRepository hallRepository,
 
         if (cachedHall is not null)
         {
-            return ApiResponse<Hall>.SuccessResponse
-            (
-                cachedHall,
-                messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Hall),
-                HttpStatusCode.OK
-            );
+            return ApiResponse<Hall>.SuccessResponse(cachedHall,
+                messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Hall),HttpStatusCode.OK);
         }
         var hall = await hallRepository.GetByIdAsync(request.HallId, cancellationToken);
-
         if (hall is null)
         {
             return ApiResponse<Hall>.FailureResponse
@@ -40,6 +34,7 @@ public sealed class GetHallByIdQueryHandler(IHallRepository hallRepository,
         }
         var response = mapper.Map<Hall>(hall);
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
+        
         return ApiResponse<Hall>.SuccessResponse
         (response ,messageHelper.RetrievedEntity(ResourceNames.Entities,EntityKeys.Hall),
             HttpStatusCode.OK

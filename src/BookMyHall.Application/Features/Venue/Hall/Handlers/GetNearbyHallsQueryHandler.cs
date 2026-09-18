@@ -9,17 +9,11 @@ using BookMyHall.Application.Common.Interfaces.Storage;
 
 namespace BookMyHall.Application.Features.Venue;
 
-public sealed class GetNearbyHallsQueryHandler(
-    IHallRepository hallRepository,
-    IR2StorageService storageService,
-    IMessageHelper messageHelper)
-    : IRequestHandler<
-        GetNearbyHallsQuery,
-        ApiResponse<PaginatedResult<NearbyHallView>>>
+public sealed class GetNearbyHallsQueryHandler(IHallRepository hallRepository,
+    IR2StorageService storageService,IMessageHelper messageHelper)
+    : IRequestHandler<GetNearbyHallsQuery,ApiResponse<PaginatedResult<NearbyHallView>>>
 {
-    public async Task<ApiResponse<PaginatedResult<NearbyHallView>>> Handle(
-        GetNearbyHallsQuery request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<PaginatedResult<NearbyHallView>>> Handle(GetNearbyHallsQuery request,CancellationToken cancellationToken)
     {
         // ============================================================
         // VALIDATE LATITUDE
@@ -33,26 +27,18 @@ public sealed class GetNearbyHallsQueryHandler(
         //     Latitude + Longitude can both be null.
         // ============================================================
 
-        if (request.Latitude.HasValue &&
-            (request.Latitude.Value < -90 ||
-             request.Latitude.Value > 90))
+        if (request.Latitude.HasValue && (request.Latitude.Value < -90 || request.Latitude.Value > 90))
         {
-            return ApiResponse<PaginatedResult<NearbyHallView>>.FailureResponse(
-                "Latitude must be between -90 and 90.",
-                HttpStatusCode.BadRequest);
+            return ApiResponse<PaginatedResult<NearbyHallView>>.FailureResponse("Latitude must be between -90 and 90.",HttpStatusCode.BadRequest);
         }
 
         // ============================================================
         // VALIDATE LONGITUDE
         // ============================================================
 
-        if (request.Longitude.HasValue &&
-            (request.Longitude.Value < -180 ||
-             request.Longitude.Value > 180))
+        if (request.Longitude.HasValue &&(request.Longitude.Value < -180 || request.Longitude.Value > 180))
         {
-            return ApiResponse<PaginatedResult<NearbyHallView>>.FailureResponse(
-                "Longitude must be between -180 and 180.",
-                HttpStatusCode.BadRequest);
+            return ApiResponse<PaginatedResult<NearbyHallView>>.FailureResponse("Longitude must be between -180 and 180.",HttpStatusCode.BadRequest);
         }
 
         // ============================================================
@@ -68,8 +54,7 @@ public sealed class GetNearbyHallsQueryHandler(
         if (request.Latitude.HasValue != request.Longitude.HasValue)
         {
             return ApiResponse<PaginatedResult<NearbyHallView>>.FailureResponse(
-                "Latitude and longitude must either both be provided or both be omitted.",
-                HttpStatusCode.BadRequest);
+                "Latitude and longitude must either both be provided or both be omitted.",HttpStatusCode.BadRequest);
         }
 
         // ============================================================
@@ -86,8 +71,7 @@ public sealed class GetNearbyHallsQueryHandler(
         if (request.RadiusKm < 0)
         {
             return ApiResponse<PaginatedResult<NearbyHallView>>.FailureResponse(
-                "Radius cannot be negative.",
-                HttpStatusCode.BadRequest);
+                "Radius cannot be negative.",HttpStatusCode.BadRequest);
         }
 
         // ============================================================
@@ -97,8 +81,7 @@ public sealed class GetNearbyHallsQueryHandler(
         if (request.PageNumber <= 0)
         {
             return ApiResponse<PaginatedResult<NearbyHallView>>.FailureResponse(
-                "Page number must be greater than 0.",
-                HttpStatusCode.BadRequest);
+                "Page number must be greater than 0.",HttpStatusCode.BadRequest);
         }
 
         // ============================================================
@@ -108,8 +91,7 @@ public sealed class GetNearbyHallsQueryHandler(
         if (request.PageSize <= 0)
         {
             return ApiResponse<PaginatedResult<NearbyHallView>>.FailureResponse(
-                "Page size must be greater than 0.",
-                HttpStatusCode.BadRequest);
+                "Page size must be greater than 0.",HttpStatusCode.BadRequest);
         }
 
         // ============================================================
@@ -124,15 +106,10 @@ public sealed class GetNearbyHallsQueryHandler(
         // We do not allow a completely empty nearby-halls search.
         // ============================================================
 
-        var hasDeviceLocation =
-            request.Latitude.HasValue &&
-            request.Longitude.HasValue;
+        var hasDeviceLocation = request.Latitude.HasValue && request.Longitude.HasValue;
 
-        var hasManualLocationFilter =
-            request.StateId.HasValue ||
-            request.DistrictId.HasValue ||
-            request.CityId.HasValue ||
-            request.AreaId.HasValue;
+        var hasManualLocationFilter = request.StateId.HasValue || request.DistrictId.HasValue ||
+            request.CityId.HasValue || request.AreaId.HasValue;
 
         if (!hasDeviceLocation && !hasManualLocationFilter)
         {
@@ -176,12 +153,8 @@ public sealed class GetNearbyHallsQueryHandler(
         {
             if (!string.IsNullOrWhiteSpace(hall.CoverImageUrl))
             {
-                hall.CoverImageUrl =
-                    await storageService.GetPreSignedUrlAsync(
-                        hall.CoverImageUrl,
-                        TimeSpan.FromDays(6).Add(
-                            TimeSpan.FromHours(23)),
-                        cancellationToken);
+                hall.CoverImageUrl = await storageService.GetPreSignedUrlAsync(hall.CoverImageUrl,
+                TimeSpan.FromDays(6).Add(TimeSpan.FromHours(23)),cancellationToken);
             }
         }
 
@@ -189,11 +162,7 @@ public sealed class GetNearbyHallsQueryHandler(
         // RETURN RESPONSE
         // ============================================================
 
-        return ApiResponse<PaginatedResult<NearbyHallView>>.SuccessResponse(
-            result,
-            messageHelper.RetrievedEntity(
-                ResourceNames.Entities,
-                EntityKeys.Hall),
-            HttpStatusCode.OK);
+        return ApiResponse<PaginatedResult<NearbyHallView>>.SuccessResponse(result,
+            messageHelper.RetrievedEntity(ResourceNames.Entities,EntityKeys.Hall),HttpStatusCode.OK);
     }
 }

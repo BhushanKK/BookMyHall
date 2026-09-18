@@ -10,17 +10,13 @@ using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity;
-
-public sealed class UpdatePermissionCommandHandler(
-    IPermissionRepository permissionRepository,
-    IUnitOfWork unitOfWork,IMapper mapper,
-    IValidator<UpdatePermissionCommand> validator,
+public sealed class UpdatePermissionCommandHandler(IPermissionRepository permissionRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<UpdatePermissionCommand> validator,
     IMessageHelper messageHelper,ICacheService cacheService): IRequestHandler<UpdatePermissionCommand, ApiResponse<PermissionDto>>
 {
     public async Task<ApiResponse<PermissionDto>> Handle(UpdatePermissionCommand request,CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request,cancellationToken);
-
         if (!validationResult.IsValid)
         {
             var message = string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage));
@@ -28,7 +24,6 @@ public sealed class UpdatePermissionCommandHandler(
         }
 
         var permission = await permissionRepository.GetByIdAsync(request.PermissionId,cancellationToken);
-
         if (permission is null)
         {
             return ApiResponse<PermissionDto>.FailureResponse(messageHelper.NotFoundEntity(
@@ -38,8 +33,11 @@ public sealed class UpdatePermissionCommandHandler(
         mapper.Map(request, permission);
         await permissionRepository.UpdateAsync(permission,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.Permissions}:{request.PermissionId}", cancellationToken);
+
+        var cacheKey = $"{CacheKeys.Permissions}:{request.PermissionId}";
+        await cacheService.RemoveAsync( cacheKey,cancellationToken);
         await cacheService.RemoveByPrefixAsync(CacheKeys.PermissionPaged, cancellationToken);
+
         return ApiResponse<PermissionDto>.SuccessResponse(mapper.Map<PermissionDto>(permission),
             messageHelper.UpdatedEntity(ResourceNames.Entities,EntityKeys.Permission),HttpStatusCode.OK);
     }

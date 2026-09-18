@@ -10,22 +10,15 @@ using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Persistence.Exceptions;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
-
 namespace BookMyHall.Application.Features.Identity;
 
-public sealed class CreateMenuCommandHandler(
-    IMenuRepository menuRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<CreateMenuCommand> validator,
-    IMessageHelper messageHelper,
-    ICacheService cacheService)
+public sealed class CreateMenuCommandHandler(IMenuRepository menuRepository,IUnitOfWork unitOfWork,
+    IMapper mapper,IValidator<CreateMenuCommand> validator,IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<CreateMenuCommand, ApiResponse<MenuDto>>
 {
     public async Task<ApiResponse<MenuDto>> Handle(CreateMenuCommand request, CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
         if (!validationResult.IsValid)
         {
             var message = string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage));
@@ -33,11 +26,9 @@ public sealed class CreateMenuCommandHandler(
         }
 
         Menu? parentMenu = null;
-
         if (request.ParentMenuId.HasValue)
         {
             parentMenu = await menuRepository.GetByIdAsync(request.ParentMenuId.Value, cancellationToken);
-
             if (parentMenu is null)
             {
                 return ApiResponse<MenuDto>.FailureResponse
@@ -49,11 +40,7 @@ public sealed class CreateMenuCommandHandler(
         }
 
         var menu = mapper.Map<Menu>(request);
-
-        menu.Level = parentMenu is null
-        ? (short)1
-        : (short)(parentMenu.Level + 1);
-
+        menu.Level = parentMenu is null ? (short)1 : (short)(parentMenu.Level + 1);
         try
         {
             await menuRepository.AddAsync(menu, cancellationToken);
@@ -69,7 +56,6 @@ public sealed class CreateMenuCommandHandler(
         }
 
         await cacheService.RemoveByPrefixAsync(CacheKeys.Menus, cancellationToken);
-
         return ApiResponse<MenuDto>.SuccessResponse
         (
             mapper.Map<MenuDto>(menu),

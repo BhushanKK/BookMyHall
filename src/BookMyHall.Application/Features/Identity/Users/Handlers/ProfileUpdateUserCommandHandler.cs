@@ -14,28 +14,21 @@ using BookMyHall.Domain.Dtos;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
-public sealed class ProfileUpdateUserCommandHandler(
-    IUserRepository userRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<ProfileUpdateUserCommand> validator,
-    IMessageHelper messageHelper,
-    IR2StorageService r2StorageService,ICacheService cacheService)
+public sealed class ProfileUpdateUserCommandHandler(IUserRepository userRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<ProfileUpdateUserCommand> validator,
+    IMessageHelper messageHelper,IR2StorageService r2StorageService,ICacheService cacheService)
     : IRequestHandler<ProfileUpdateUserCommand, ApiResponse<UserDto>>
 {
     public async Task<ApiResponse<UserDto>> Handle(ProfileUpdateUserCommand request, CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
         if (!validationResult.IsValid)
             return ApiResponse<UserDto>.FailureResponse
-            (
-                string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage)),
+            ( string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage)),
                 HttpStatusCode.BadRequest
             );
 
         var user = await userRepository.GetByIdAsync(request.UserId, cancellationToken);
-
         if (user is null)
             return ApiResponse<UserDto>.FailureResponse
             (
@@ -55,11 +48,7 @@ public sealed class ProfileUpdateUserCommandHandler(
             var oldObjectKey = user.ProfileImageUrl;
             var newObjectKey = $"Users/{request.UserId}/Profile";
 
-            await r2StorageService.UploadAsync(
-                request.ImageStream,
-                newObjectKey,
-                request.ContentType,
-                cancellationToken);
+            await r2StorageService.UploadAsync(request.ImageStream,newObjectKey,request.ContentType,cancellationToken);
 
             if (!string.IsNullOrWhiteSpace(oldObjectKey) &&
                 !string.Equals(oldObjectKey, newObjectKey, StringComparison.OrdinalIgnoreCase))
@@ -83,13 +72,11 @@ public sealed class ProfileUpdateUserCommandHandler(
         }
 
         var userDto = mapper.Map<UserDto>(user);
-        await cacheService.RemoveAsync($"{CacheKeys.Users}:{request.UserId}", cancellationToken);
+        var cacheKey = $"{CacheKeys.Users}:{request.UserId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.UsersPaged}:", cancellationToken);
+
         return ApiResponse<UserDto>.SuccessResponse
-        (
-            userDto,
-            messageHelper.UpdatedEntity(ResourceNames.Entities, EntityKeys.User),
-            HttpStatusCode.OK
-        );
+        (userDto,messageHelper.UpdatedEntity(ResourceNames.Entities, EntityKeys.User),HttpStatusCode.OK);
     }
 }

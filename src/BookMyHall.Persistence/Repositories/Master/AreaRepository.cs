@@ -18,7 +18,7 @@ public sealed class AreaRepository(BookMyHallDbContext context): IAreaRepository
     }
 
     public async Task<Area?> GetByIdAsync(Guid areaId,CancellationToken cancellationToken = default)
-        => await context.Areas.AsNoTracking()
+        => await context.Areas
             .FirstOrDefaultAsync(x => x.AreaId == areaId && !x.IsDeleted && x.IsActive,cancellationToken);
 
     public async Task<Area?> GetByAreaNameAsync(string areaName,CancellationToken cancellationToken = default)

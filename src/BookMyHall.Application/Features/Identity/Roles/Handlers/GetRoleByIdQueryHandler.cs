@@ -9,22 +9,14 @@ using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Identity;
-
-public sealed class GetRoleByIdQueryHandler(
-    IRoleRepository roleRepository,
-    IMapper mapper,
-    IMessageHelper messageHelper,
-    ICacheService cacheService)
+public sealed class GetRoleByIdQueryHandler(IRoleRepository roleRepository,IMapper mapper,
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<GetRoleByIdQuery, ApiResponse<Role>>
 {
-    public async Task<ApiResponse<Role>> Handle(
-        GetRoleByIdQuery request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<Role>> Handle(GetRoleByIdQuery request,CancellationToken cancellationToken)
     {
         var cacheKey = $"{CacheKeys.Roles}:{request.RoleId}";
-
         var cachedRole = await cacheService.GetAsync<Role>(cacheKey, cancellationToken);
-
         if (cachedRole is not null)
         {
             return ApiResponse<Role>.SuccessResponse
@@ -36,7 +28,6 @@ public sealed class GetRoleByIdQueryHandler(
         }
 
         var role = await roleRepository.GetByIdAsync(request.RoleId, cancellationToken);
-
         if (role is null)
         {
             return ApiResponse<Role>.FailureResponse
@@ -47,14 +38,8 @@ public sealed class GetRoleByIdQueryHandler(
         }
 
         var response = mapper.Map<Role>(role);
-
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
-
-        return ApiResponse<Role>.SuccessResponse
-        (
-            response,
-            messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Role),
-            HttpStatusCode.OK
-        );
+        return ApiResponse<Role>.SuccessResponse(response,
+            messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Role),HttpStatusCode.OK);
     }
 }

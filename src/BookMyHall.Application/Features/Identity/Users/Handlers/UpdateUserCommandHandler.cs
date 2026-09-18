@@ -21,7 +21,6 @@ public sealed class UpdateUserCommandHandler(
     public async Task<ApiResponse<UserDto>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
         var cacheKey = $"{CacheKeys.Users}:{request.UserId}";
-
         var user = await userRepository.GetByIdAsync(request.UserId, cancellationToken);
 
         if (user is null)
@@ -41,14 +40,10 @@ public sealed class UpdateUserCommandHandler(
         if (roleIds is null || roleIds.Length == 0)
         {
             return ApiResponse<UserDto>.FailureResponse
-            (
-                "At least one valid role is required.",
-                HttpStatusCode.BadRequest
-            );
+            ("At least one valid role is required.",HttpStatusCode.BadRequest);
         }
 
         var roles = await roleRepository.GetByIdsAsync(roleIds, cancellationToken);
-
         if (roles.Count != roleIds.Length)
         {
             var existingRoleIds = roles
@@ -59,17 +54,12 @@ public sealed class UpdateUserCommandHandler(
                 .First(roleId => !existingRoleIds.Contains(roleId));
 
             return ApiResponse<UserDto>.FailureResponse
-            (
-                $"Role with ID '{invalidRoleId}' was not found.",
-                HttpStatusCode.BadRequest
-            );
+            ($"Role with ID '{invalidRoleId}' was not found.",HttpStatusCode.BadRequest);
         }
 
         if (!string.IsNullOrWhiteSpace(request.EmailAddress))
         {
-            var existingUser = await userRepository.GetByEmailAddressAsync(
-                request.EmailAddress,
-                cancellationToken);
+            var existingUser = await userRepository.GetByEmailAddressAsync(request.EmailAddress,cancellationToken);
 
             if (existingUser is not null && existingUser.UserId != user.UserId)
             {
@@ -114,9 +104,7 @@ public sealed class UpdateUserCommandHandler(
         await userRepository.AddUserRolesAsync(userRoles, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var userDto = await userRepository.GetUserDtoByIdAsync(
-            user.UserId,
-            cancellationToken);
+        var userDto = await userRepository.GetUserDtoByIdAsync(user.UserId,cancellationToken);
 
         if (userDto is null)
         {
@@ -135,15 +123,8 @@ public sealed class UpdateUserCommandHandler(
                 cancellationToken);
         }
 
-        await cacheService.SetAsync(
-            cacheKey,
-            userDto,
-            TimeSpan.FromMinutes(30),
-            cancellationToken);
-
-        await cacheService.RemoveByPrefixAsync(
-            $"{CacheKeys.UsersPaged}:",
-            cancellationToken);
+        await cacheService.SetAsync(cacheKey,userDto,TimeSpan.FromMinutes(30),cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.UsersPaged}:",cancellationToken);
 
         return ApiResponse<UserDto>.SuccessResponse
         (

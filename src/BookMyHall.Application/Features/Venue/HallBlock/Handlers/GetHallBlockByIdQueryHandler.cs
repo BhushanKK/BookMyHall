@@ -9,44 +9,28 @@ using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Venue;
 
-public sealed class GetHallBlockByIdQueryHandler(
-    IHallBlockRepository hallBlockRepository,
-    IMessageHelper messageHelper,
-    ICacheService cacheService)
-    : IRequestHandler<
-        GetHallBlockByIdQuery,
-        ApiResponse<HallBlock>>
+public sealed class GetHallBlockByIdQueryHandler(IHallBlockRepository hallBlockRepository,
+    IMessageHelper messageHelper,ICacheService cacheService)
+    : IRequestHandler<GetHallBlockByIdQuery,ApiResponse<HallBlock>>
 {
-    public async Task<ApiResponse<HallBlock>> Handle(
-        GetHallBlockByIdQuery request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<HallBlock>> Handle(GetHallBlockByIdQuery request,CancellationToken cancellationToken)
     {
         // =====================================================
         // CACHE KEY
         // =====================================================
 
-        var cacheKey =
-            HallBlockCacheKeyBuilder.BuildByIdKey(
-                request.HallBlockId);
+        var cacheKey =HallBlockCacheKeyBuilder.BuildByIdKey(request.HallBlockId);
 
 
         // =====================================================
         // CHECK CACHE
         // =====================================================
 
-        var cachedHallBlock =
-            await cacheService.GetAsync<HallBlock>(
-                cacheKey,
-                cancellationToken);
-
+        var cachedHallBlock =await cacheService.GetAsync<HallBlock>(cacheKey,cancellationToken);
         if (cachedHallBlock is not null)
         {
-            return ApiResponse<HallBlock>.SuccessResponse(
-                cachedHallBlock,
-                messageHelper.RetrievedEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.HallBlock),
-                HttpStatusCode.OK);
+            return ApiResponse<HallBlock>.SuccessResponse(cachedHallBlock,messageHelper.RetrievedEntity(
+                    ResourceNames.Entities,EntityKeys.HallBlock),HttpStatusCode.OK);
         }
 
 
@@ -54,41 +38,23 @@ public sealed class GetHallBlockByIdQueryHandler(
         // DATABASE
         // =====================================================
 
-        var hallBlock =
-            await hallBlockRepository.GetByIdAsync(
-                request.HallBlockId,
-                cancellationToken);
-
+        var hallBlock =await hallBlockRepository.GetByIdAsync(request.HallBlockId,cancellationToken);
         if (hallBlock is null)
         {
-            return ApiResponse<HallBlock>.FailureResponse(
-                messageHelper.NotFoundEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.HallBlock),
-                HttpStatusCode.NotFound);
+            return ApiResponse<HallBlock>.FailureResponse(messageHelper.NotFoundEntity(
+                    ResourceNames.Entities,EntityKeys.HallBlock),HttpStatusCode.NotFound);
         }
 
 
         // =====================================================
         // CACHE
         // =====================================================
-
-        await cacheService.SetAsync(
-            cacheKey,
-            hallBlock,
-            TimeSpan.FromMinutes(30),
-            cancellationToken);
-
-
+        await cacheService.SetAsync(cacheKey,hallBlock,TimeSpan.FromMinutes(30),cancellationToken);
         // =====================================================
         // RESPONSE
         // =====================================================
 
-        return ApiResponse<HallBlock>.SuccessResponse(
-            hallBlock,
-            messageHelper.RetrievedEntity(
-                ResourceNames.Entities,
-                EntityKeys.HallBlock),
-            HttpStatusCode.OK);
+        return ApiResponse<HallBlock>.SuccessResponse(hallBlock, messageHelper.RetrievedEntity(
+                ResourceNames.Entities,EntityKeys.HallBlock),HttpStatusCode.OK);
     }
 }

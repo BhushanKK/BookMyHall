@@ -9,15 +9,13 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity;
 
-public sealed class RemoveRolePermissionCommandHandler(
-    IRolePermissionRepository rolePermissionRepository,
+public sealed class RemoveRolePermissionCommandHandler(IRolePermissionRepository rolePermissionRepository,
     IUnitOfWork unitOfWork,IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler< RemoveRolePermissionCommand,ApiResponse<bool>>
 {
     public async Task<ApiResponse<bool>> Handle( RemoveRolePermissionCommand request,CancellationToken cancellationToken)
     {
         var rolePermission =await rolePermissionRepository.GetAsync(request.RoleId,request.PermissionId,cancellationToken);
-
         if (rolePermission is null)
         {
             return ApiResponse<bool>.FailureResponse(
@@ -27,8 +25,11 @@ public sealed class RemoveRolePermissionCommandHandler(
 
         rolePermissionRepository.Delete(rolePermission);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync( $"{CacheKeys.RolePermissions}:{request.RoleId}",cancellationToken);
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.RolePermissionPaged}:",cancellationToken);
+
+        var cacheKey= $"{CacheKeys.RolePermissions}:{request.RoleId}";
+        await cacheService.RemoveAsync(cacheKey,cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.RolePermissionPaged}:",cancellationToken)
+        ;
         return ApiResponse<bool>.SuccessResponse( true,
             messageHelper.DeletedEntity(ResourceNames.Entities,
                 EntityKeys.RolePermission), HttpStatusCode.OK);

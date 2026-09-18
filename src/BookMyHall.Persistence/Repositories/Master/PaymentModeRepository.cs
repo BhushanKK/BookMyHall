@@ -18,7 +18,7 @@ public sealed class PaymentModeRepository(BookMyHallDbContext context): IPayment
     }
 
     public async Task<PaymentMode?> GetByIdAsync(Guid paymentModeId,CancellationToken cancellationToken = default)
-        => await context.PaymentModes .AsNoTracking()
+        => await context.PaymentModes 
             .FirstOrDefaultAsync(x => x.PaymentModeId == paymentModeId &&!x.IsDeleted && x.IsActive,cancellationToken);
 
     public async Task<PaymentMode?> GetByPaymentModeNameAsync(string paymentModeName,CancellationToken cancellationToken = default)

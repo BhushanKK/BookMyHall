@@ -18,7 +18,6 @@ public sealed class DeleteHallCommandHandler(IHallRepository hallRepository,
     public async Task<ApiResponse<bool>> Handle(DeleteHallCommand request,CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request,cancellationToken);
-
         if (!validationResult.IsValid)
         {
             var message = string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage));
@@ -26,17 +25,20 @@ public sealed class DeleteHallCommandHandler(IHallRepository hallRepository,
         }
 
         var hall = await hallRepository.GetByIdAsync(request.HallId,cancellationToken);
-
         if (hall is null)
         {
             return ApiResponse<bool>.FailureResponse(messageHelper.NotFound(EntityKeys.Hall),HttpStatusCode.NotFound);
         }
 
         hall.IsDeleted = true;
+        hall.IsActive=false;
         await hallRepository.UpdateAsync(hall,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.Hall}:{request.HallId}", cancellationToken);
+
+        var cacheKey = $"{CacheKeys.Hall}:{request.HallId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallsPaged}:", cancellationToken);
+        
         return ApiResponse<bool>.SuccessResponse(true,messageHelper.DeletedEntity(
                 ResourceNames.Entities,EntityKeys.Hall),HttpStatusCode.OK);
     }

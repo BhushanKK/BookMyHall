@@ -33,11 +33,7 @@ public sealed class CreateUserCommandHandler(
     {
         if (request.Roles is null || request.Roles.Count == 0)
         {
-            return ApiResponse<UserDto>.FailureResponse
-            (
-                "At least one role is required.",
-                HttpStatusCode.BadRequest
-            );
+            return ApiResponse<UserDto>.FailureResponse("At least one role is required.",HttpStatusCode.BadRequest);
         }
 
         var roleIds = request.Roles
@@ -48,42 +44,29 @@ public sealed class CreateUserCommandHandler(
         if (roleIds.Length == 0)
         {
             return ApiResponse<UserDto>.FailureResponse
-            (
-                "At least one valid role is required.",
-                HttpStatusCode.BadRequest
-            );
+            ("At least one valid role is required.",HttpStatusCode.BadRequest);
         }
 
         var roles = await roleRepository.GetByIdsAsync(roleIds, cancellationToken);
-
         if (roles.Count != roleIds.Length)
         {
             var existingRoleIds = roles.Select(role => role.RoleId).ToHashSet();
             var invalidRoleId = roleIds.First(roleId => !existingRoleIds.Contains(roleId));
 
             return ApiResponse<UserDto>.FailureResponse
-            (
-                $"Role with ID '{invalidRoleId}' was not found.",
-                HttpStatusCode.BadRequest
-            );
+            ($"Role with ID '{invalidRoleId}' was not found.", HttpStatusCode.BadRequest);
         }
 
         var expiryMinutes = emailVerificationOptions.Value.VerificationExpiryMinutes;
-
         if (expiryMinutes <= 0)
         {
             return ApiResponse<UserDto>.FailureResponse
-            (
-                "Email verification expiry configuration is invalid.",
-                HttpStatusCode.InternalServerError
-            );
+            ("Email verification expiry configuration is invalid.",HttpStatusCode.InternalServerError);
         }
 
         var currentDate = DateTimeOffset.UtcNow;
         var user = mapper.Map<User>(request);
-
         user.IsEmailVerified = false;
-
         user.UserRoles = roles.Select(role => new UserRole
         {
             UserId = user.UserId,
@@ -125,9 +108,7 @@ public sealed class CreateUserCommandHandler(
         );
 
         await messagePublisher.PublishAsync(registrationMessage, cancellationToken);
-
         var userDto = mapper.Map<UserDto>(user);
-
         return ApiResponse<UserDto>.SuccessResponse
         (
             userDto,

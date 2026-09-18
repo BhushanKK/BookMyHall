@@ -11,20 +11,13 @@ using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Identity;
-
-public sealed class UpdateRoleCommandHandler(
-    IRoleRepository roleRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<UpdateRoleCommand> validator,
-    IMessageHelper messageHelper,
-    ICacheService cacheService)
+public sealed class UpdateRoleCommandHandler(IRoleRepository roleRepository,IUnitOfWork unitOfWork,IMapper mapper,
+    IValidator<UpdateRoleCommand> validator,IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<UpdateRoleCommand, ApiResponse<RoleDto>>
 {
     public async Task<ApiResponse<RoleDto>> Handle(UpdateRoleCommand request, CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
         if (!validationResult.IsValid)
         {
             var message = string.Join(" | ",validationResult.Errors.Select(e => e.ErrorMessage));
@@ -32,7 +25,6 @@ public sealed class UpdateRoleCommandHandler(
         }
 
         var role = await roleRepository.GetByIdAsync(request.RoleId, cancellationToken);
-
         if (role is null)
         {
             return ApiResponse<RoleDto>.FailureResponse
@@ -43,7 +35,6 @@ public sealed class UpdateRoleCommandHandler(
         }
 
         mapper.Map(request, role);
-
         try
         {
             await roleRepository.UpdateAsync(role, cancellationToken);
@@ -57,8 +48,8 @@ public sealed class UpdateRoleCommandHandler(
                 HttpStatusCode.Conflict
             );
         }
-
-        await cacheService.RemoveAsync($"{CacheKeys.Roles}:{request.RoleId}", cancellationToken);
+         var cacheKey = $"{CacheKeys.Roles}:{request.RoleId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync(CacheKeys.RolesPaged, cancellationToken);
 
         return ApiResponse<RoleDto>.SuccessResponse

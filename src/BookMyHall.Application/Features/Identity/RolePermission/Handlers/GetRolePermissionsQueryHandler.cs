@@ -8,14 +8,11 @@ using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Identity;
 
-public sealed class GetRolePermissionsQueryHandler(
-    IRolePermissionRepository rolePermissionRepository,
+public sealed class GetRolePermissionsQueryHandler(IRolePermissionRepository rolePermissionRepository,
     IMapper mapper,IMessageHelper messageHelper)
-    : IRequestHandler<GetRolePermissionsQuery,
-        ApiResponse<IReadOnlyList<RolePermissionDto>>>
+    : IRequestHandler<GetRolePermissionsQuery,ApiResponse<IReadOnlyList<RolePermissionDto>>>
 {
-    public async Task<ApiResponse<IReadOnlyList<RolePermissionDto>>> Handle(
-        GetRolePermissionsQuery request,
+    public async Task<ApiResponse<IReadOnlyList<RolePermissionDto>>> Handle(GetRolePermissionsQuery request,
         CancellationToken cancellationToken)
     {
         var rolePermissions =await rolePermissionRepository.GetByRoleIdAsync(request.RoleId,cancellationToken);

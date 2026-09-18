@@ -10,8 +10,7 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
-public sealed class GetUserByIdQueryHandler(
-    IUserRepository userRepository, IMessageHelper messageHelper,
+public sealed class GetUserByIdQueryHandler(IUserRepository userRepository, IMessageHelper messageHelper,
     IR2StorageService storageService, ICacheService cacheService)
     : IRequestHandler<GetUserByIdQuery, ApiResponse<UserDto>>
 {
@@ -31,7 +30,6 @@ public sealed class GetUserByIdQueryHandler(
         }
 
         var userDto = await userRepository.GetUserDtoByIdAsync(request.UserId, cancellationToken);
-
         if (userDto is null)
         {
             return ApiResponse<UserDto>.FailureResponse

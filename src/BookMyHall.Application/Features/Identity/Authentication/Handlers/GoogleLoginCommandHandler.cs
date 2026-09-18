@@ -4,51 +4,32 @@ using Google.Apis.Auth;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
 using BookMyHall.Application.Abstractions.Authentication;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Application.Common.Interfaces.Storage;
 using BookMyHall.Application.Features.Identity.Authentication;
-
 using BookMyHall.Contracts.Common;
-
 using BookMyHall.Domain.Audit;
 using BookMyHall.Domain.Common;
 using BookMyHall.Domain.Dtos;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Domain.Identity;
-
 using BookMyHall.Infrastructure.Authentication;
-
 using BookMyHall.Persistence.Exceptions;
-
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Configuration;
 
 namespace BookMyHall.Application.Features.Authentication;
-
-public sealed class GoogleLoginCommandHandler(
-    IUserRepository userRepository,
-    IRoleRepository roleRepository,
-    IRefreshTokenRepository refreshTokenRepository,
-    IUserSessionRepository userSessionRepository,
-    IUnitOfWork unitOfWork,
-    IJwtTokenService jwtTokenService,
-    IMessageHelper messageHelper,
-    IMapper mapper,
-    IOptions<JwtOptions> jwtOptions,
-    IOptions<GoogleOptions> googleOptions,
-    IUserLoginHistoryRepository userLoginHistoryRepository,
-    IClientInfoService clientInfoService,
-    IDeviceRepository deviceRepository,
-    IR2StorageService storageService,
-    ILogger<GoogleLoginCommandHandler> logger)
+public sealed class GoogleLoginCommandHandler(IUserRepository userRepository,IRoleRepository roleRepository,
+    IRefreshTokenRepository refreshTokenRepository,IUserSessionRepository userSessionRepository,
+    IUnitOfWork unitOfWork,IJwtTokenService jwtTokenService,IMessageHelper messageHelper,
+    IMapper mapper,IOptions<JwtOptions> jwtOptions,IOptions<GoogleOptions> googleOptions,
+    IUserLoginHistoryRepository userLoginHistoryRepository,IClientInfoService clientInfoService,
+    IDeviceRepository deviceRepository,IR2StorageService storageService,ILogger<GoogleLoginCommandHandler> logger)
     : IRequestHandler<GoogleLoginCommand, ApiResponse<LoginResponse>>
 {
-    public async Task<ApiResponse<LoginResponse>> Handle(
-        GoogleLoginCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<LoginResponse>> Handle(GoogleLoginCommand request,CancellationToken cancellationToken)
     {
         try
         {
@@ -58,15 +39,13 @@ public sealed class GoogleLoginCommandHandler(
 
             if (string.IsNullOrWhiteSpace(request.Credential))
             {
-                return ApiResponse<LoginResponse>.FailureResponse(
-                    "Google credential is required.",
+                return ApiResponse<LoginResponse>.FailureResponse("Google credential is required.",
                     HttpStatusCode.BadRequest);
             }
 
             if (string.IsNullOrWhiteSpace(request.DeviceIdentifier))
             {
-                return ApiResponse<LoginResponse>.FailureResponse(
-                    "Device identifier is required.",
+                return ApiResponse<LoginResponse>.FailureResponse("Device identifier is required.",
                     HttpStatusCode.BadRequest);
             }
 
@@ -78,11 +57,9 @@ public sealed class GoogleLoginCommandHandler(
 
             if (string.IsNullOrWhiteSpace(clientId))
             {
-                logger.LogError(
-                    "Google authentication is not configured. Google ClientId is missing.");
+                logger.LogError("Google authentication is not configured. Google ClientId is missing.");
 
-                return ApiResponse<LoginResponse>.FailureResponse(
-                    "Google authentication is not configured.",
+                return ApiResponse<LoginResponse>.FailureResponse("Google authentication is not configured.",
                     HttpStatusCode.InternalServerError);
             }
 
@@ -94,8 +71,7 @@ public sealed class GoogleLoginCommandHandler(
 
             try
             {
-                payload = await GoogleJsonWebSignature.ValidateAsync(
-                    request.Credential,
+                payload = await GoogleJsonWebSignature.ValidateAsync(request.Credential,
                     new GoogleJsonWebSignature.ValidationSettings
                     {
                         Audience = [clientId]
@@ -103,22 +79,14 @@ public sealed class GoogleLoginCommandHandler(
             }
             catch (InvalidJwtException ex)
             {
-                logger.LogWarning(
-                    ex,
-                    "Invalid Google authentication token.");
-
-                return ApiResponse<LoginResponse>.FailureResponse(
-                    "Invalid Google authentication.",
+                logger.LogWarning(ex,"Invalid Google authentication token.");
+                return ApiResponse<LoginResponse>.FailureResponse("Invalid Google authentication.",
                     HttpStatusCode.Unauthorized);
             }
             catch (Exception ex)
             {
-                logger.LogError(
-                    ex,
-                    "Error while validating Google authentication token.");
-
-                return ApiResponse<LoginResponse>.FailureResponse(
-                    "Unable to validate Google authentication.",
+                logger.LogError(ex,"Error while validating Google authentication token.");
+                return ApiResponse<LoginResponse>.FailureResponse("Unable to validate Google authentication.",
                     HttpStatusCode.Unauthorized);
             }
 
@@ -128,69 +96,46 @@ public sealed class GoogleLoginCommandHandler(
 
             if (string.IsNullOrWhiteSpace(payload.Email))
             {
-                return ApiResponse<LoginResponse>.FailureResponse(
-                    "Google account email is not available.",
+                return ApiResponse<LoginResponse>.FailureResponse("Google account email is not available.",
                     HttpStatusCode.Unauthorized);
             }
 
             if (!payload.EmailVerified)
             {
-                return ApiResponse<LoginResponse>.FailureResponse(
-                    "Google email address is not verified.",
+                return ApiResponse<LoginResponse>.FailureResponse("Google email address is not verified.",
                     HttpStatusCode.Unauthorized);
             }
 
-            var emailAddress =
-                payload.Email.Trim().ToLowerInvariant();
+            var emailAddress =payload.Email.Trim().ToLowerInvariant();
 
-            logger.LogInformation(
-                "Google login requested for {EmailAddress}.",
+            logger.LogInformation("Google login requested for {EmailAddress}.",
                 emailAddress);
 
             // ============================================================
             // 5. Find existing BookMyHall user
             // ============================================================
-
-            var user =
-                await userRepository.GetForGoogleLoginAsync(
-                    emailAddress,
-                    cancellationToken);
-
+            var user =await userRepository.GetForGoogleLoginAsync(emailAddress,cancellationToken);
             // ============================================================
             // 6. Create Google user if user does not exist
             // ============================================================
 
             if (user is null)
             {
-                logger.LogInformation(
-                    "Google user does not exist. Creating user for {EmailAddress}.",
-                    emailAddress);
-
-                user = await CreateGoogleUserAsync(
-                    payload,
-                    emailAddress,
-                    cancellationToken);
-
+                logger.LogInformation("Google user does not exist. Creating user for {EmailAddress}.",emailAddress);
+                user = await CreateGoogleUserAsync(payload,emailAddress,cancellationToken);
                 if (user is null)
                 {
-                    logger.LogError(
-                        "Google user could not be created or retrieved for {EmailAddress}.",
-                        emailAddress);
+                    logger.LogError("Google user could not be created or retrieved for {EmailAddress}.",emailAddress);
 
-                    return ApiResponse<LoginResponse>.FailureResponse(
-                        "Unable to create Google user.",
+                    return ApiResponse<LoginResponse>.FailureResponse("Unable to create Google user.",
                         HttpStatusCode.InternalServerError);
                 }
 
-                logger.LogInformation(
-                    "Google user created successfully. UserId: {UserId}",
-                    user.UserId);
+                logger.LogInformation("Google user created successfully. UserId: {UserId}",user.UserId);
             }
             else
             {
-                logger.LogInformation(
-                    "Existing BookMyHall user found. UserId: {UserId}",
-                    user.UserId);
+                logger.LogInformation("Existing BookMyHall user found. UserId: {UserId}",user.UserId);
             }
 
             // ============================================================
@@ -199,8 +144,7 @@ public sealed class GoogleLoginCommandHandler(
 
             if (!string.IsNullOrWhiteSpace(user.ProfileImageUrl))
             {
-                user.ProfileImageUrl =
-                    await storageService.GetPreSignedUrlAsync(
+                user.ProfileImageUrl =await storageService.GetPreSignedUrlAsync(
                         user.ProfileImageUrl,
                         TimeSpan.FromDays(6).Add(
                             TimeSpan.FromHours(23)),
@@ -216,7 +160,6 @@ public sealed class GoogleLoginCommandHandler(
             // ============================================================
 
             var now = DateTimeOffset.UtcNow;
-
             await userRepository.RecordLoginAsync(
                 user.UserId,
                 now,

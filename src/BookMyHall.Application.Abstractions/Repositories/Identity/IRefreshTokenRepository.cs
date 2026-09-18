@@ -7,7 +7,7 @@ public interface IRefreshTokenRepository
     Task AddAsync(RefreshToken refreshToken, CancellationToken cancellationToken = default);
     Task UpdateAsync(RefreshToken refreshToken, CancellationToken cancellationToken = default);
     Task<RefreshTokenWithUserDto?> GetByTokenAsync(string token, CancellationToken cancellationToken = default);
-    Task<IEnumerable<RefreshToken>> GetActiveTokensByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<RefreshToken>> GetActiveTokensByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Revokes all active refresh tokens for a user.

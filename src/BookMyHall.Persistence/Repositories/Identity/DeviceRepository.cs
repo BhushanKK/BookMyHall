@@ -6,16 +6,10 @@ using BookMyHall.Contracts.Common;
 
 namespace BookMyHall.Persistence.Repositories;
 
-public sealed class DeviceRepository(BookMyHallDbContext context)
-    : IDeviceRepository
+public sealed class DeviceRepository(BookMyHallDbContext context): IDeviceRepository
 {
     public async Task<Device?> GetByDeviceIdentifierAsync(Guid userId, string deviceIdentifier, CancellationToken cancellationToken)
-        => await context.Devices.FirstOrDefaultAsync
-        (
-                x => x.UserId == userId
-                  && x.DeviceIdentifier == deviceIdentifier,
-                cancellationToken
-        );
+        => await context.Devices.FirstOrDefaultAsync(x=>x.UserId ==userId && x.DeviceIdentifier == deviceIdentifier,cancellationToken);
         
     public async Task AddAsync(Device device, CancellationToken cancellationToken)
         => await context.Devices.AddAsync(device, cancellationToken);
@@ -27,28 +21,22 @@ public sealed class DeviceRepository(BookMyHallDbContext context)
     }
 
     public async Task<Device?> GetByIdAsync(Guid deviceId, CancellationToken cancellationToken = default)
-        => await context.Devices
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.DeviceId == deviceId, cancellationToken);
+        => await context.Devices.FirstOrDefaultAsync(x => x.DeviceId == deviceId, cancellationToken);
 
-    public async Task<PaginatedResult<Device>> GetAllAsync(
-        PaginationRequest request,
-        CancellationToken cancellationToken = default)
+    public async Task<PaginatedResult<Device>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
-        IQueryable<Device> query = context.Devices.AsNoTracking();
-
+        var query = context.Devices.AsNoTracking();
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();
-
-            query = query.Where(x =>
-                EF.Functions.ILike(x.DeviceIdentifier, $"%{search}%"));
+            var pattern= $"%{search}%";
+            query = query.Where(x =>EF.Functions.ILike(x.DeviceIdentifier,pattern));
         }
 
         var totalCount = await query.CountAsync(cancellationToken);
-
         var items = await query
             .OrderBy(x => x.DeviceIdentifier)
+            .ThenBy(x=>x.DeviceId)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);

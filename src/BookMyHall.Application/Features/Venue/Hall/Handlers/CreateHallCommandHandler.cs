@@ -17,8 +17,7 @@ public sealed class CreateHallCommandHandler(IHallRepository hallRepository,
     IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<CreateHallCommand, ApiResponse<HallDto>>
 {
-    public async Task<ApiResponse<HallDto>> Handle(CreateHallCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<HallDto>> Handle(CreateHallCommand request,CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
 

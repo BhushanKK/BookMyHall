@@ -12,19 +12,14 @@ using BookMyHall.Domain.Identity;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity;
-
-public sealed class CreatePermissionCommandHandler(
-    IPermissionRepository permissionRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<CreatePermissionCommand> validator,
+public sealed class CreatePermissionCommandHandler(IPermissionRepository permissionRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<CreatePermissionCommand> validator,
     IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<CreatePermissionCommand, ApiResponse<PermissionDto>>
 {
     public async Task<ApiResponse<PermissionDto>> Handle(CreatePermissionCommand request,CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request,cancellationToken);
-
         if (!validationResult.IsValid)
         {
             var message = string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage));
@@ -34,7 +29,6 @@ public sealed class CreatePermissionCommandHandler(
         var permission = mapper.Map<Permission>(request);
         permission.PermissionId = Guid.NewGuid();
         permission.IsActive = true;
-
         try
         {
             await permissionRepository.AddAsync(permission,cancellationToken);

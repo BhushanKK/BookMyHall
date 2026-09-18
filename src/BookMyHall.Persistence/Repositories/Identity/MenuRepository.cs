@@ -4,17 +4,14 @@ using BookMyHall.Persistence.Context;
 using BookMyHall.Domain.Entities.Identity;
 
 namespace BookMyHall.Persistence.Repositories;
-
-public sealed class MenuRepository(BookMyHallDbContext context)
-: IMenuRepository
+public sealed class MenuRepository(BookMyHallDbContext context): IMenuRepository
 {
     public async Task<Menu?> GetByIdAsync(Guid menuId,CancellationToken cancellationToken = default)
         => await context.Menus.FirstOrDefaultAsync(x => x.MenuId == menuId && x.IsActive, cancellationToken);
 
     public async Task<IReadOnlyList<Menu>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await context.Menus
-            .AsNoTracking()
+        return await context.Menus.AsNoTracking()
             .Where(x => x.IsActive)
             .OrderBy(x => x.Level)
             .ThenBy(x => x.DisplayOrder)
@@ -40,13 +37,9 @@ public sealed class MenuRepository(BookMyHallDbContext context)
     public async Task<IReadOnlyList<Menu>> GetByRoleIdAsync(Guid roleId, CancellationToken cancellationToken)
     {
         return await context.Menus
-            .AsNoTracking()
-            .Where
-            (
-                x => x.IsActive &&
-                x.MenuRolePermissions.Any(mp => mp.RoleId == roleId))
-                .OrderBy(x => x.DisplayOrder
-            )
-        .ToListAsync(cancellationToken);
+            .Where(x => x.IsActive && x.MenuRolePermissions
+            .Any(mp => mp.RoleId == roleId))
+            .OrderBy(x => x.DisplayOrder)
+            .ToListAsync(cancellationToken);
     }
 }

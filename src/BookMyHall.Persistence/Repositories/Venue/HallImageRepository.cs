@@ -2,37 +2,22 @@ using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Venue;
 using BookMyHall.Persistence.Context;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace BookMyHall.Persistence.Repositories.Venue;
-
-public sealed class HallImageRepository(BookMyHallDbContext context)
-    : IHallImageRepository
+public sealed class HallImageRepository(BookMyHallDbContext context): IHallImageRepository
 {
     public async Task<HallImage?> GetByIdAsync(Guid hallImageId, CancellationToken cancellationToken = default)
     {
         return await context.HallImages
-        .Where(x=>x.IsDeleted==false)
-            .FirstOrDefaultAsync(
-                x => x.HallImageId == hallImageId,
-                cancellationToken);
+            .FirstOrDefaultAsync(x => x.HallImageId == hallImageId && !x.IsDeleted,cancellationToken);
     }
-    public async Task<PaginatedResult<HallImage>> GetByHallIdAsync(
-    Guid hallId,
-    PaginationRequest request,
-    CancellationToken cancellationToken = default)
+    public async Task<PaginatedResult<HallImage>> GetByHallIdAsync(Guid hallId,PaginationRequest request,CancellationToken cancellationToken = default)
     {
-        IQueryable<HallImage> query = context.HallImages
-        .Where(x=>x.IsDeleted==false)
-            .AsNoTracking()
-            .Where(x =>
-                x.HallId == hallId &&
-                x.IsActive);
+        var query = context.HallImages
+        .Where(x=>x.HallId == hallId && x.IsActive && !x.IsDeleted);
 
-        var totalCount = await query.CountAsync(
-            cancellationToken);
-
+        var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
             .OrderBy(x => x.DisplayOrder)
             .ThenBy(x => x.HallImageId)
@@ -50,14 +35,8 @@ public sealed class HallImageRepository(BookMyHallDbContext context)
     }
     public async Task<HallImage?> GetCoverImageAsync(Guid hallId, CancellationToken cancellationToken = default)
     {
-        return await context.HallImages
-            .AsNoTracking()
-            .FirstOrDefaultAsync(
-                x =>
-                    x.HallId == hallId &&
-                    x.IsCoverImage &&
-                    x.IsActive,
-                cancellationToken);
+        return await context.HallImages.AsNoTracking()
+            .FirstOrDefaultAsync(x =>x.HallId == hallId &&x.IsCoverImage && x.IsActive,cancellationToken);
     }
     public async Task AddAsync(HallImage hallImage, CancellationToken cancellationToken = default)
         => await context.HallImages.AddAsync(hallImage, cancellationToken);

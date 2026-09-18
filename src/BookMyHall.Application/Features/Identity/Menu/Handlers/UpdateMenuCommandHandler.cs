@@ -12,33 +12,19 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity;
 
-public sealed class UpdateMenuCommandHandler(
-    IMenuRepository menuRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<UpdateMenuCommand> validator,
-    IMessageHelper messageHelper,ICacheService cacheService)
+public sealed class UpdateMenuCommandHandler(IMenuRepository menuRepository,IUnitOfWork unitOfWork,IMapper mapper,
+    IValidator<UpdateMenuCommand> validator,IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<UpdateMenuCommand, ApiResponse<MenuDto>>
 {
-    public async Task<ApiResponse<MenuDto>> Handle(
-        UpdateMenuCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<MenuDto>> Handle(UpdateMenuCommand request,CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
         if (!validationResult.IsValid)
         {
             var message = string.Join(" | ", validationResult.Errors.Select(e => e.ErrorMessage));
-
-            return ApiResponse<MenuDto>.FailureResponse
-            (
-                message,
-                HttpStatusCode.BadRequest
-            );
+            return ApiResponse<MenuDto>.FailureResponse(message,HttpStatusCode.BadRequest);
         }
-
         var menu = await menuRepository.GetByIdAsync(request.MenuId, cancellationToken);
-
         if (menu is null)
         {
             return ApiResponse<MenuDto>.FailureResponse
@@ -49,7 +35,6 @@ public sealed class UpdateMenuCommandHandler(
         }
 
         mapper.Map(request, menu);
-
         try
         {
             await menuRepository.UpdateAsync(menu,cancellationToken);
@@ -64,14 +49,11 @@ public sealed class UpdateMenuCommandHandler(
             );
         }
 
-        await cacheService.RemoveAsync($"{CacheKeys.Menus}:{request.MenuId}", cancellationToken);
+         var cacheKey = $"{CacheKeys.Menus}:{request.MenuId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveAsync(CacheKeys.Menus, cancellationToken);
         
-        return ApiResponse<MenuDto>.SuccessResponse
-        (
-            mapper.Map<MenuDto>(menu),
-            messageHelper.UpdatedEntity(ResourceNames.Entities,EntityKeys.Menu),
-            HttpStatusCode.OK
-        );
+        return ApiResponse<MenuDto>.SuccessResponse(mapper.Map<MenuDto>(menu),
+            messageHelper.UpdatedEntity(ResourceNames.Entities,EntityKeys.Menu),HttpStatusCode.OK);
     }
 }

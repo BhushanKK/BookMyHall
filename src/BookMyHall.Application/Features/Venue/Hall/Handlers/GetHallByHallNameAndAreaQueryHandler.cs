@@ -12,16 +12,10 @@ public sealed class GetHallByHallNameAndAreaQueryHandler(
     IHallRepository hallRepository,IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<GetHallByHallNameAndAreaQuery, ApiResponse<Hall>>
 {
-    public async Task<ApiResponse<Hall>> Handle(
-        GetHallByHallNameAndAreaQuery request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<Hall>> Handle(GetHallByHallNameAndAreaQuery request,CancellationToken cancellationToken)
     {
-         var cacheKey =
-            $"{CacheKeys.Hall}:" +
-            $"name:{request.HallName.Trim().ToLowerInvariant()}:" +
-            $"area:{request.AreaId}";
-
-            var cachedHall = await cacheService.GetAsync<Hall>(cacheKey,cancellationToken);
+        var cacheKey =$"{CacheKeys.Hall}:" + $"name:{request.HallName.Trim().ToLowerInvariant()}:" + $"area:{request.AreaId}";
+        var cachedHall = await cacheService.GetAsync<Hall>(cacheKey,cancellationToken);
 
         if (cachedHall is not null)
         {

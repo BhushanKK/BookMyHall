@@ -20,19 +20,13 @@ public sealed class UpdateHallCommandHandler(IHallRepository hallRepository,
     public async Task<ApiResponse<HallDto>> Handle(UpdateHallCommand request,CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
         if (!validationResult.IsValid)
         {
             var message = string.Join(" | ", validationResult.Errors.Select(e => e.ErrorMessage));
-            return ApiResponse<HallDto>.FailureResponse
-            (
-                message,
-                HttpStatusCode.BadRequest
-            );
+            return ApiResponse<HallDto>.FailureResponse(message,HttpStatusCode.BadRequest);
         }
 
         var hall = await hallRepository.GetByIdAsync(request.HallId, cancellationToken);
-
         if (hall is null)
         {
             return ApiResponse<HallDto>.FailureResponse
@@ -43,7 +37,6 @@ public sealed class UpdateHallCommandHandler(IHallRepository hallRepository,
         }
 
         mapper.Map(request, hall);
-
         try
         {
             await hallRepository.UpdateAsync(hall, cancellationToken);
@@ -57,13 +50,10 @@ public sealed class UpdateHallCommandHandler(IHallRepository hallRepository,
                 HttpStatusCode.Conflict
             );
         }
-        await cacheService.RemoveAsync($"{CacheKeys.Hall}:{request.HallId}", cancellationToken);
+        var cacheKey=$"{CacheKeys.Hall}:{request.HallId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallsPaged}:", cancellationToken);
-        return ApiResponse<HallDto>.SuccessResponse
-        (
-            mapper.Map<HallDto>(hall),
-            messageHelper.UpdatedEntity(ResourceNames.Entities, EntityKeys.Hall),
-            HttpStatusCode.OK
-        );
+        return ApiResponse<HallDto>.SuccessResponse(mapper.Map<HallDto>(hall),
+            messageHelper.UpdatedEntity(ResourceNames.Entities, EntityKeys.Hall),HttpStatusCode.OK);
     }
 }

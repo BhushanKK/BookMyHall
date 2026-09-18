@@ -4,8 +4,7 @@ using BookMyHall.Persistence.Context;
 using BookMyHall.Application.Abstractions.Persistence.Identity;
 
 namespace BookMyHall.Persistence.Repositories.Identity;
-
-public sealed class PasswordResetTokenRepository(BookMyHallDbContext dbContext) : IPasswordResetTokenRepository
+public sealed class PasswordResetTokenRepository(BookMyHallDbContext dbContext):IPasswordResetTokenRepository
 {
     public async Task AddAsync(PasswordResetToken passwordResetToken, CancellationToken cancellationToken = default)
     {
@@ -15,23 +14,17 @@ public sealed class PasswordResetTokenRepository(BookMyHallDbContext dbContext) 
 
     public async Task<PasswordResetToken?> GetActiveTokenAsync(Guid userId, string tokenHash, CancellationToken cancellationToken = default)
     {
+        var now= DateTimeOffset.UtcNow;
         ArgumentException.ThrowIfNullOrWhiteSpace(tokenHash);
-        return await dbContext.PasswordResetTokens
-            .FirstOrDefaultAsync(
-                x => x.UserId == userId
-                  && x.TokenHash == tokenHash
-                  && x.UsedAt == null
-                  && x.ExpiresAt > DateTimeOffset.UtcNow,
-                cancellationToken);
+        return await dbContext.PasswordResetTokens.AsNoTracking()
+        .FirstOrDefaultAsync(x=>x.UserId==userId && x.TokenHash == tokenHash && x.UsedAt==null&& x.ExpiresAt>now,cancellationToken);
     }
 
-    public async Task<IEnumerable<PasswordResetToken>> GetActiveTokensByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<PasswordResetToken>> GetActiveTokensByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
+        var now= DateTimeOffset.UtcNow;
         return await dbContext.PasswordResetTokens
-            .Where(x =>
-                x.UserId == userId &&
-                x.UsedAt == null &&
-                x.ExpiresAt > DateTimeOffset.UtcNow)
+            .Where(x =>x.UserId == userId &&x.UsedAt == null &&x.ExpiresAt > now)
             .ToListAsync(cancellationToken);
     }
 
@@ -45,20 +38,15 @@ public sealed class PasswordResetTokenRepository(BookMyHallDbContext dbContext) 
     {
         var tokens = await dbContext.PasswordResetTokens
             .Where(x => x.UserId == userId)
-            .ToListAsync(cancellationToken);
-
-        if (tokens.Count > 0)
-            dbContext.PasswordResetTokens.RemoveRange(tokens);
+            .ExecuteDeleteAsync(cancellationToken);
     }
 
     public async Task DeleteExpiredAsync(CancellationToken cancellationToken = default)
     {
+        var now= DateTimeOffset.UtcNow;
         var expiredTokens = await dbContext.PasswordResetTokens
-            .Where(x => x.ExpiresAt <= DateTimeOffset.UtcNow)
-            .ToListAsync(cancellationToken);
-
-        if (expiredTokens.Count > 0)
-            dbContext.PasswordResetTokens.RemoveRange(expiredTokens);
+            .Where(x => x.ExpiresAt <= now)
+            .ExecuteDeleteAsync(cancellationToken);
     }
 }
 

@@ -18,7 +18,7 @@ public sealed class CancellationPolicyRepository(BookMyHallDbContext context): I
     }
 
     public async Task<CancellationPolicy?> GetByIdAsync(Guid cancellationPolicyId,CancellationToken cancellationToken = default)
-        => await context.CancellationPolicies.AsNoTracking()
+        => await context.CancellationPolicies
             .FirstOrDefaultAsync(x=>x.CancellationPolicyId == cancellationPolicyId && !x.IsDeleted && x.IsActive,cancellationToken);
                
     public async Task<CancellationPolicy?> GetByPolicyNameAsync(string policyName,CancellationToken cancellationToken = default)

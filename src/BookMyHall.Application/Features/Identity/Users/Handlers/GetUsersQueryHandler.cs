@@ -10,27 +10,17 @@ using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
-public sealed class GetUsersQueryHandler(
-    IUserRepository userRepository,
-    IMessageHelper messageHelper,
-    ICacheService cacheService,
-    IR2StorageService storageService)
-    : IRequestHandler<
-        GetUsersQuery,
-        ApiResponse<PaginatedResponse<UserDto>>>
+public sealed class GetUsersQueryHandler(IUserRepository userRepository,IMessageHelper messageHelper,
+    ICacheService cacheService,IR2StorageService storageService)
+    : IRequestHandler<GetUsersQuery, ApiResponse<PaginatedResponse<UserDto>>>
 {
-    private static readonly TimeSpan CacheDuration =
-        TimeSpan.FromMinutes(30);
+    private static readonly TimeSpan CacheDuration =TimeSpan.FromMinutes(30);
 
-    private static readonly TimeSpan PreSignedUrlDuration =
-        TimeSpan.FromDays(7);
+    private static readonly TimeSpan PreSignedUrlDuration =TimeSpan.FromDays(7);
 
-    public async Task<ApiResponse<PaginatedResponse<UserDto>>> Handle(
-        GetUsersQuery request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<PaginatedResponse<UserDto>>> Handle(GetUsersQuery request,CancellationToken cancellationToken)
     {
         var pagination = request.paginationRequest;
-
         // ------------------------------------------------------------
         // 1. Build the paginated cache key
         // ------------------------------------------------------------
@@ -48,40 +38,18 @@ public sealed class GetUsersQueryHandler(
         // 2. Check cache first
         // ------------------------------------------------------------
 
-        var cachedResponse =
-            await cacheService.GetAsync<
-                PaginatedResponse<UserDto>>(
-                cacheKey,
-                cancellationToken);
-
+        var cachedResponse =await cacheService.GetAsync<PaginatedResponse<UserDto>>(cacheKey,cancellationToken);
         if (cachedResponse is not null)
         {
-            return ApiResponse<
-                PaginatedResponse<UserDto>>.SuccessResponse(
-                cachedResponse,
-                messageHelper.RetrievedEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.User),
-                HttpStatusCode.OK);
+            return ApiResponse<PaginatedResponse<UserDto>>.SuccessResponse(cachedResponse,
+                messageHelper.RetrievedEntity(ResourceNames.Entities,EntityKeys.User),HttpStatusCode.OK);
         }
 
         // ------------------------------------------------------------
         // 3. Get users from database
         // ------------------------------------------------------------
 
-        var pagedResult =
-            await userRepository.GetAllAsync(
-                pagination,
-                cancellationToken);
-
-        // ------------------------------------------------------------
-        // 4. Get repository result directly
-        // ------------------------------------------------------------
-        //
-        // GetAllAsync already returns UserDto, so there is no need
-        // to map User -> UserDto again.
-        // ------------------------------------------------------------
-
+        var pagedResult =await userRepository.GetAllAsync(pagination,cancellationToken);
         var users = pagedResult.Items;
 
         // ------------------------------------------------------------
@@ -94,9 +62,7 @@ public sealed class GetUsersQueryHandler(
         // ------------------------------------------------------------
 
         var usersWithImages = users
-            .Where(user =>
-                !string.IsNullOrWhiteSpace(
-                    user.ProfileImageUrl))
+            .Where(user =>!string.IsNullOrWhiteSpace(user.ProfileImageUrl))
             .ToList();
 
         if (usersWithImages.Count > 0)
@@ -104,9 +70,7 @@ public sealed class GetUsersQueryHandler(
             await Task.WhenAll(
                 usersWithImages.Select(async user =>
                 {
-                    user.ProfileImageUrl =
-                        await storageService.GetPreSignedUrlAsync(
-                            user.ProfileImageUrl!,
+                    user.ProfileImageUrl =await storageService.GetPreSignedUrlAsync(user.ProfileImageUrl!,
                             PreSignedUrlDuration,
                             cancellationToken);
                 }));
@@ -137,22 +101,13 @@ public sealed class GetUsersQueryHandler(
         // URL's configured lifetime.
         // ------------------------------------------------------------
 
-        await cacheService.SetAsync(
-            cacheKey,
-            response,
-            CacheDuration,
-            cancellationToken);
+        await cacheService.SetAsync(cacheKey,response,CacheDuration,cancellationToken);
 
         // ------------------------------------------------------------
         // 8. Return response
         // ------------------------------------------------------------
 
-        return ApiResponse<
-            PaginatedResponse<UserDto>>.SuccessResponse(
-            response,
-            messageHelper.RetrievedEntity(
-                ResourceNames.Entities,
-                EntityKeys.User),
-            HttpStatusCode.OK);
+        return ApiResponse<PaginatedResponse<UserDto>>.SuccessResponse(response,
+            messageHelper.RetrievedEntity(ResourceNames.Entities,EntityKeys.User),HttpStatusCode.OK);
     }
 }

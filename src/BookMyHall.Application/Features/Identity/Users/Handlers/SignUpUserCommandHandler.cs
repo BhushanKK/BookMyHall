@@ -38,16 +38,13 @@ public sealed class SignUpUserCommandHandler(
     IOptions<EmailOptions> emailOptions)
     : IRequestHandler<SignupUserCommand, ApiResponse<UserDto>>
 {
-    public async Task<ApiResponse<UserDto>> Handle(
-        SignupUserCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<UserDto>> Handle(SignupUserCommand request,CancellationToken cancellationToken)
     {
         // ------------------------------------------------------------
         // 1. Validate request
         // ------------------------------------------------------------
 
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
         if (!validationResult.IsValid)
         {
             return ApiResponse<UserDto>.FailureResponse
@@ -82,10 +79,7 @@ public sealed class SignUpUserCommandHandler(
         if (verificationExpiryMinutes <= 0)
         {
             return ApiResponse<UserDto>.FailureResponse
-            (
-                "Email verification expiry configuration is invalid.",
-                HttpStatusCode.InternalServerError
-            );
+            ("Email verification expiry configuration is invalid.",HttpStatusCode.InternalServerError);
         }
 
         // ------------------------------------------------------------
@@ -93,10 +87,8 @@ public sealed class SignUpUserCommandHandler(
         // ------------------------------------------------------------
 
         var currentDate = DateTimeOffset.UtcNow;
-
         var user = mapper.Map<User>(request);
         user.PasswordHash = passwordHasher.HashPassword(request.Password);
-
         user.UserRoles =
         [
             new UserRole

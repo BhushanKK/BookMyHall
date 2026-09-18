@@ -9,15 +9,13 @@ using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Identity.Users;
 
-public sealed class DeleteUserCommandHandler(
-    IUserRepository userRepository, IUnitOfWork unitOfWork,
+public sealed class DeleteUserCommandHandler(IUserRepository userRepository, IUnitOfWork unitOfWork,
     IMessageHelper messageHelper, ICacheService cacheService)
     : IRequestHandler<DeleteUserCommand, ApiResponse<bool>>
 {
     public async Task<ApiResponse<bool>> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetByIdAsync(request.UserId, cancellationToken);
-
         if (user is null)
         {
             return ApiResponse<bool>.FailureResponse
@@ -29,9 +27,10 @@ public sealed class DeleteUserCommandHandler(
 
         user.Deactivate();
         user.IsDeleted = true;
-
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.Users}:{request.UserId}", cancellationToken);
+
+        var cacheKey = $"{CacheKeys.Users}:{request.UserId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.UsersPaged}:", cancellationToken);
 
         return ApiResponse<bool>.SuccessResponse

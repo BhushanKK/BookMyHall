@@ -1,11 +1,9 @@
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Domain.Identity;
 using BookMyHall.Persistence.Context;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace BookMyHall.Persistence.Repositories;
-
 public sealed class RolePermissionRepository(BookMyHallDbContext context) : IRolePermissionRepository
 {
     public async Task<RolePermission?> GetByIdAsync(Guid rolePermissionId, CancellationToken cancellationToken = default)
@@ -14,16 +12,15 @@ public sealed class RolePermissionRepository(BookMyHallDbContext context) : IRol
             .FirstOrDefaultAsync(x => x.RolePermissionId == rolePermissionId, cancellationToken);
     }
 
-    public async Task<RolePermission?> GetAsync(Guid roleId, Guid permissionId, CancellationToken cancellationToken = default)
+    public async Task<RolePermission?>GetAsync(Guid roleId, Guid permissionId, CancellationToken cancellationToken = default)
     {
-        return await context.RolePermissions
+        return await context.RolePermissions.AsNoTracking()
             .FirstOrDefaultAsync(x => x.RoleId == roleId && x.PermissionId == permissionId, cancellationToken);
     }
 
     public async Task<IReadOnlyList<RolePermission>> GetByRoleIdAsync(Guid roleId, CancellationToken cancellationToken = default)
     {
         return await context.RolePermissions
-            .AsNoTracking()
             .Where(x => x.RoleId == roleId)
             .ToListAsync(cancellationToken);
     }

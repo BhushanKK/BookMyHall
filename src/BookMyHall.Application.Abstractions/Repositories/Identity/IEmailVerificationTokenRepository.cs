@@ -7,7 +7,7 @@ public interface IEmailVerificationTokenRepository
     Task AddAsync(EmailVerificationToken emailVerificationToken,CancellationToken cancellationToken = default);
     Task<EmailVerificationToken?> GetActiveTokenAsync(Guid userId, string tokenHash, CancellationToken cancellationToken = default);
     Task<EmailVerificationToken?> GetVerifiedTokenAsync(Guid userId, string tokenHash, CancellationToken cancellationToken = default);
-    Task<IEnumerable<EmailVerificationToken>> GetActiveTokensByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<EmailVerificationToken>> GetActiveTokensByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
     Task DeleteAsync(EmailVerificationToken emailVerificationToken, CancellationToken cancellationToken = default);
     Task DeleteByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
     Task DeleteExpiredAsync(CancellationToken cancellationToken = default);

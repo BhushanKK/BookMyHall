@@ -2,48 +2,33 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Persistence.Context;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace BookMyHall.Persistence.Repositories;
-
 public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepository
 {
-    public async Task<Role?> GetByIdAsync(
-        Guid roleId,
-        CancellationToken cancellationToken = default)
-       => await context.Roles.FirstOrDefaultAsync(x => x.RoleId == roleId,
-        cancellationToken);
+    public async Task<Role?> GetByIdAsync(Guid roleId,CancellationToken cancellationToken = default)
+       => await context.Roles
+       .FirstOrDefaultAsync(x => x.RoleId == roleId,cancellationToken);
 
-    public async Task<PaginatedResult<Role>> GetAllAsync(
-    PaginationRequest paginationRequest,
-    CancellationToken cancellationToken = default)
+    public async Task<PaginatedResult<Role>> GetAllAsync(PaginationRequest paginationRequest,CancellationToken cancellationToken = default)
     {
         var query = context.Roles.AsNoTracking();
-
-        if (!string.IsNullOrWhiteSpace(
-            paginationRequest.SearchText))
+        if (!string.IsNullOrWhiteSpace(paginationRequest.SearchText))
         {
-            var searchText =
-                paginationRequest.SearchText.Trim();
-
-            query = query.Where(x =>
-                EF.Functions.ILike(
-                    x.RoleName,
-                    $"%{searchText}%"));
+            var searchText =paginationRequest.SearchText.Trim();
+            var pattern= $"%{searchText}%";
+            query = query.Where(x =>EF.Functions.ILike(x.RoleName,pattern));
         }
 
-        var totalCount =
-            await query.CountAsync(cancellationToken);
+        var totalCount = await query.CountAsync(cancellationToken);
 
         query = paginationRequest.SortDescending
             ? query.OrderByDescending(x => x.RoleName)
             : query.OrderBy(x => x.RoleName);
 
         var roles = await query
-            .Skip(
-                (paginationRequest.PageNumber - 1)
-                * paginationRequest.PageSize)
+            .Skip((paginationRequest.PageNumber - 1) * paginationRequest.PageSize)
             .Take(paginationRequest.PageSize)
             .ToListAsync(cancellationToken);
 
@@ -71,10 +56,8 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
         return Task.CompletedTask;
     }
 
-    public async Task<Guid> GetRoleIdByRoleName(
-    string roleName,
-    CancellationToken cancellationToken)
-    => await context.Roles
+    public async Task<Guid> GetRoleIdByRoleName(string roleName,CancellationToken cancellationToken)
+    => await context.Roles.AsNoTracking()
         .Where(x => x.RoleName == roleName)
         .Select(x => x.RoleId)
         .FirstOrDefaultAsync(cancellationToken);

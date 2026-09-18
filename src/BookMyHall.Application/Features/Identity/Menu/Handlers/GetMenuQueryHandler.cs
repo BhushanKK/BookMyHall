@@ -10,20 +10,14 @@ using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Identity;
 
-public sealed class GetMenuQueryHandler(
-    IMenuRepository menuRepository,
-    IMapper mapper,
-    IMessageHelper messageHelper,
-    ICacheService cacheService)
+public sealed class GetMenuQueryHandler(IMenuRepository menuRepository,IMapper mapper,
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<GetMenuQuery, ApiResponse<IReadOnlyList<Menu>>>
 {
-    public async Task<ApiResponse<IReadOnlyList<Menu>>> Handle(
-        GetMenuQuery request, CancellationToken cancellationToken)
+    public async Task<ApiResponse<IReadOnlyList<Menu>>> Handle(GetMenuQuery request, CancellationToken cancellationToken)
     {
         var cacheKey = CacheKeys.Menus;
-
         var cachedMenus = await cacheService.GetAsync<IReadOnlyList<Menu>>(cacheKey,cancellationToken);
-
         if (cachedMenus is not null)
         {
             return ApiResponse<IReadOnlyList<Menu>>.SuccessResponse
@@ -36,9 +30,7 @@ public sealed class GetMenuQueryHandler(
 
         var menus = await menuRepository.GetAllAsync(cancellationToken);
         var response = mapper.Map<IReadOnlyList<Menu>>(menus);
-
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
-        
         return ApiResponse<IReadOnlyList<Menu>>.SuccessResponse
         (
             response,

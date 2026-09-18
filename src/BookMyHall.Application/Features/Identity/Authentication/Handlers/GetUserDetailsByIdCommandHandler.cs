@@ -9,15 +9,10 @@ using BookMyHall.Application.Common.Interfaces.Storage;
 
 namespace BookMyHall.Application.Features.Identity;
 
-public sealed class GetUserDetailsByIdQueryHandler(
-    IUserRepository userRepository,
-    IMessageHelper messageHelper,
-    IR2StorageService storageService)
-    : IRequestHandler<GetUserDetailsByIdQuery, ApiResponse<UserDetailsView>>
+public sealed class GetUserDetailsByIdQueryHandler(IUserRepository userRepository,IMessageHelper messageHelper,
+    IR2StorageService storageService): IRequestHandler<GetUserDetailsByIdQuery, ApiResponse<UserDetailsView>>
 {
-    public async Task<ApiResponse<UserDetailsView>> Handle(
-        GetUserDetailsByIdQuery request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<UserDetailsView>> Handle(GetUserDetailsByIdQuery request,CancellationToken cancellationToken)
     {
         var userDetails = await userRepository.GetUserDetailsByIdAsync
         (

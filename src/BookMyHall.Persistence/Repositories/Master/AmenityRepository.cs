@@ -17,16 +17,9 @@ public sealed class AmenityRepository(BookMyHallDbContext context):IAmenityRepos
         return Task.CompletedTask;
     }
 
-    public async Task<Amenity?> GetByIdAsync(
-        Guid amenityId,
-        CancellationToken cancellationToken = default)
+    public async Task<Amenity?> GetByIdAsync(Guid amenityId,CancellationToken cancellationToken = default)
         => await context.Amenitys
-            .AsNoTracking()
-            .FirstOrDefaultAsync(
-                x => x.AmenityId == amenityId
-                 && !x.IsDeleted
-                    && x.IsActive,
-                cancellationToken);
+            .FirstOrDefaultAsync(x => x.AmenityId == amenityId && !x.IsDeleted && x.IsActive,cancellationToken);
 
     public async Task<Amenity?> GetByAmenityNameAsync(string amenityName,CancellationToken cancellationToken = default)
         => await context.Amenitys.AsNoTracking()

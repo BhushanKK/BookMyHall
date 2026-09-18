@@ -8,25 +8,14 @@ using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Identity;
 
-public sealed class GetAllMenuPermissionQueryHandler(
-    IMenuPermissionRepository menuPermissionRepository,
-    IMapper mapper,
-    IMessageHelper messageHelper)
-    : IRequestHandler<
-        GetAllMenuPermissionQuery,
-        ApiResponse<PaginatedResponse<MenuPermissionDto>>>
+public sealed class GetAllMenuPermissionQueryHandler(IMenuPermissionRepository menuPermissionRepository,
+    IMapper mapper,IMessageHelper messageHelper)
+    : IRequestHandler<GetAllMenuPermissionQuery,ApiResponse<PaginatedResponse<MenuPermissionDto>>>
 {
-    public async Task<ApiResponse<PaginatedResponse<MenuPermissionDto>>> Handle(
-        GetAllMenuPermissionQuery request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<PaginatedResponse<MenuPermissionDto>>> Handle(GetAllMenuPermissionQuery request,CancellationToken cancellationToken)
     {
-        var result = await menuPermissionRepository.GetAllAsync(
-            request.Request,
-            cancellationToken);
-
-        var items = mapper.Map<List<MenuPermissionDto>>(
-            result.Items);
-
+        var result = await menuPermissionRepository.GetAllAsync(request.Request,cancellationToken);
+        var items = mapper.Map<List<MenuPermissionDto>>(result.Items);
         var response = new PaginatedResponse<MenuPermissionDto>
         {
             Items = items,
@@ -34,11 +23,7 @@ public sealed class GetAllMenuPermissionQueryHandler(
             PageSize = result.PageSize
         };
 
-        return ApiResponse<PaginatedResponse<MenuPermissionDto>>.SuccessResponse(
-            response,
-            messageHelper.RetrievedEntity(
-                ResourceNames.Entities,
-                EntityKeys.MenuPermission),
-            HttpStatusCode.OK);
+        return ApiResponse<PaginatedResponse<MenuPermissionDto>>.SuccessResponse(response,
+            messageHelper.RetrievedEntity(ResourceNames.Entities,EntityKeys.MenuPermission),HttpStatusCode.OK);
     }
 }

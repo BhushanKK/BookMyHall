@@ -13,19 +13,14 @@ using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity;
 
-public sealed class AssignRolePermissionCommandHandler(
-    IRolePermissionRepository rolePermissionRepository,
-    IUnitOfWork unitOfWork,IMapper mapper,
-    IValidator<AssignRolePermissionCommand> validator,
+public sealed class AssignRolePermissionCommandHandler(IRolePermissionRepository rolePermissionRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<AssignRolePermissionCommand> validator,
     IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<AssignRolePermissionCommand,ApiResponse<RolePermissionDto>>
 {
-    public async Task<ApiResponse<RolePermissionDto>> Handle(
-        AssignRolePermissionCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<RolePermissionDto>> Handle(AssignRolePermissionCommand request,CancellationToken cancellationToken)
     {
         var validationResult =await validator.ValidateAsync(request,cancellationToken);
-
         if (!validationResult.IsValid)
         {
             var message = string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage));
@@ -48,6 +43,7 @@ public sealed class AssignRolePermissionCommandHandler(
 
         var response = mapper.Map<RolePermissionDto>(rolePermission);
         await cacheService.RemoveByPrefixAsync(CacheKeys.RolePermissionPaged,cancellationToken);
+        
         return ApiResponse<RolePermissionDto>.SuccessResponse(response,
             messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.RolePermission),HttpStatusCode.Created);
     }

@@ -16,43 +16,23 @@ using MediatR;
 
 namespace BookMyHall.Application.Features.Venue;
 
-public sealed class CreateHallImageCommandHandler(
-    IHallRepository hallRepository,
-    IHallImageRepository hallImageRepository,
-    IUnitOfWork unitOfWork,
-    IR2StorageService r2StorageService,
-    IValidator<CreateHallImageCommand> validator,
-    IMessageHelper messageHelper,
-    ICacheService cacheService,
+public sealed class CreateHallImageCommandHandler(IHallRepository hallRepository,
+    IHallImageRepository hallImageRepository,IUnitOfWork unitOfWork,IR2StorageService r2StorageService,
+    IValidator<CreateHallImageCommand> validator,IMessageHelper messageHelper,ICacheService cacheService,
     IMessagePublisher messagePublisher)
-    : IRequestHandler<
-        CreateHallImageCommand,
-        ApiResponse<Guid>>
+    : IRequestHandler<CreateHallImageCommand,ApiResponse<Guid>>
 {
-    public async Task<ApiResponse<Guid>> Handle(
-        CreateHallImageCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<Guid>> Handle(CreateHallImageCommand request,CancellationToken cancellationToken)
     {
         // =========================================================
         // 1. VALIDATE REQUEST
         // =========================================================
 
-        var validationResult =
-            await validator.ValidateAsync(
-                request,
-                cancellationToken);
-
+        var validationResult =await validator.ValidateAsync(request,cancellationToken);
         if (!validationResult.IsValid)
         {
-            var message =
-                string.Join(
-                    " | ",
-                    validationResult.Errors
-                        .Select(x => x.ErrorMessage));
-
-            return ApiResponse<Guid>.FailureResponse(
-                message,
-                HttpStatusCode.BadRequest);
+            var message =string.Join(" | ",validationResult.Errors.Select(x => x.ErrorMessage));
+            return ApiResponse<Guid>.FailureResponse(message,HttpStatusCode.BadRequest);
         }
 
 
@@ -60,18 +40,11 @@ public sealed class CreateHallImageCommandHandler(
         // 2. VERIFY HALL EXISTS
         // =========================================================
 
-        var hall =
-            await hallRepository.GetByIdAsync(
-                request.HallId,
-                cancellationToken);
-
+        var hall =await hallRepository.GetByIdAsync(request.HallId,cancellationToken);
         if (hall is null)
         {
-            return ApiResponse<Guid>.FailureResponse(
-                messageHelper.NotFoundEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.Hall),
-                HttpStatusCode.NotFound);
+            return ApiResponse<Guid>.FailureResponse(messageHelper.NotFoundEntity(
+                    ResourceNames.Entities,EntityKeys.Hall),HttpStatusCode.NotFound);
         }
 
 
@@ -79,32 +52,18 @@ public sealed class CreateHallImageCommandHandler(
         // 3. GENERATE HALL IMAGE ID
         // =========================================================
 
-        var hallImageId =
-            Guid.NewGuid();
-
-
+        var hallImageId =Guid.NewGuid();
         // =========================================================
         // 4. GET FILE EXTENSION
         // =========================================================
 
-        var extension =
-            Path.GetExtension(
-                request.FileName)
-                .ToLowerInvariant();
-
-
+        var extension =Path.GetExtension(request.FileName).ToLowerInvariant();
         // =========================================================
         // 5. BUILD R2 OBJECT KEY
         // =========================================================
 
-        var objectKey =
-            $"halls/{request.HallId}/{hallImageId}{extension}";
-
-
-        var originalUploaded =
-            false;
-
-
+        var objectKey =$"halls/{request.HallId}/{hallImageId}{extension}";
+        var originalUploaded =false;
         try
         {
             // =====================================================
@@ -119,44 +78,20 @@ public sealed class CreateHallImageCommandHandler(
             //
             // =====================================================
 
-            await using var requestStream =
-                request.ImageStream;
+            await using var requestStream =request.ImageStream;
+            using var inputMemoryStream =new MemoryStream();
+            await requestStream.CopyToAsync(inputMemoryStream,cancellationToken);
 
-            using var inputMemoryStream =
-                new MemoryStream();
-
-
-            await requestStream.CopyToAsync(
-                inputMemoryStream,
-                cancellationToken);
-
-
-            var imageBytes =
-                inputMemoryStream.ToArray();
-
-
+            var imageBytes =inputMemoryStream.ToArray();
             // =====================================================
             // 7. UPLOAD ORIGINAL IMAGE TO R2
             // =====================================================
 
-            await using (
-                var originalStream =
-                    new MemoryStream(
-                        imageBytes,
-                        writable: false))
+            await using (var originalStream =new MemoryStream(imageBytes,writable: false))
             {
-                await r2StorageService.UploadAsync(
-                    originalStream,
-                    objectKey,
-                    request.ContentType,
-                    cancellationToken);
+                await r2StorageService.UploadAsync(originalStream,objectKey,request.ContentType,cancellationToken);
             }
-
-
-            originalUploaded =
-                true;
-
-
+            originalUploaded =true;
             // =====================================================
             // 8. CREATE HALL IMAGE ENTITY
             // =====================================================
@@ -168,8 +103,7 @@ public sealed class CreateHallImageCommandHandler(
             //
             // =====================================================
 
-            var hallImage =
-                new HallImage(
+            var hallImage =new HallImage(
                     hallImageId,
                     request.HallId,
                     objectKey,
@@ -182,16 +116,8 @@ public sealed class CreateHallImageCommandHandler(
             // =====================================================
             // 9. SAVE HALL IMAGE TO DATABASE
             // =====================================================
-
-            await hallImageRepository.AddAsync(
-                hallImage,
-                cancellationToken);
-
-
-            await unitOfWork.SaveChangesAsync(
-                cancellationToken);
-
-
+            await hallImageRepository.AddAsync(hallImage,cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
             // =====================================================
             // 10. INVALIDATE CACHE
             // =====================================================
@@ -204,12 +130,7 @@ public sealed class CreateHallImageCommandHandler(
             // returning the newly-created image.
             //
             // =====================================================
-
-            await InvalidateHallImageCachesAsync(
-                request.HallId,
-                cancellationToken);
-
-
+            await InvalidateHallImageCachesAsync(request.HallId,cancellationToken);
             // =====================================================
             // 11. PUBLISH RABBITMQ EVENT
             // =====================================================
@@ -218,35 +139,20 @@ public sealed class CreateHallImageCommandHandler(
             //
             // =====================================================
 
-            var message =
-                new HallImageUploadedMessage(
-                    HallImageId:
-                        hallImage.HallImageId,
+            var message =new HallImageUploadedMessage(
+                    HallImageId:hallImage.HallImageId,
+                    HallId:hallImage.HallId,
+                    ObjectKey:objectKey);
 
-                    HallId:
-                        hallImage.HallId,
-
-                    ObjectKey:
-                        objectKey);
-
-
-            await messagePublisher.PublishAsync(
-                message,
-                cancellationToken);
+            await messagePublisher.PublishAsync(message,cancellationToken);
 
 
             // =====================================================
             // 12. RETURN SUCCESS
             // =====================================================
 
-            return ApiResponse<Guid>.SuccessResponse(
-                hallImage.HallImageId,
-
-                messageHelper.AddedEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.HallImage),
-
-                HttpStatusCode.Created);
+            return ApiResponse<Guid>.SuccessResponse(hallImage.HallImageId,messageHelper.AddedEntity(
+                    ResourceNames.Entities,EntityKeys.HallImage),HttpStatusCode.Created);
         }
         catch (DuplicateRecordException)
         {
@@ -254,17 +160,9 @@ public sealed class CreateHallImageCommandHandler(
             // DUPLICATE RECORD
             // =====================================================
 
-            await CleanupR2ObjectAsync(
-                objectKey,
-                originalUploaded);
-
-
-            return ApiResponse<Guid>.FailureResponse(
-                messageHelper.AlreadyExistsEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.HallImage),
-
-                HttpStatusCode.Conflict);
+            await CleanupR2ObjectAsync(objectKey,originalUploaded);
+            return ApiResponse<Guid>.FailureResponse(messageHelper.AlreadyExistsEntity(
+                    ResourceNames.Entities,EntityKeys.HallImage),HttpStatusCode.Conflict);
         }
         catch
         {
@@ -272,10 +170,7 @@ public sealed class CreateHallImageCommandHandler(
             // GENERAL FAILURE
             // =====================================================
 
-            await CleanupR2ObjectAsync(
-                objectKey,
-                originalUploaded);
-
+            await CleanupR2ObjectAsync(objectKey,originalUploaded);
             throw;
         }
     }
@@ -285,9 +180,7 @@ public sealed class CreateHallImageCommandHandler(
     // INVALIDATE HALL IMAGE CACHES
     // =============================================================
 
-    private async Task InvalidateHallImageCachesAsync(
-        Guid hallId,
-        CancellationToken cancellationToken)
+    private async Task InvalidateHallImageCachesAsync(Guid hallId,CancellationToken cancellationToken)
     {
         // =========================================================
         // 1. INVALIDATE PAGINATED HALL IMAGE CACHE

@@ -13,30 +13,19 @@ using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Identity;
 
-public sealed class UpsertUserPreferenceCommandHandler(
-    IUserPreferenceRepository userPreferenceRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<UpsertUserPreferenceCommand> validator,
-    IMessageHelper messageHelper,
-    ICurrentUser currentUser)
-    : IRequestHandler<UpsertUserPreferenceCommand,
-        ApiResponse<UserPreferenceDto>>
+public sealed class UpsertUserPreferenceCommandHandler(IUserPreferenceRepository userPreferenceRepository,
+    IUnitOfWork unitOfWork,IMapper mapper,IValidator<UpsertUserPreferenceCommand> validator,
+    IMessageHelper messageHelper,ICurrentUser currentUser)
+    : IRequestHandler<UpsertUserPreferenceCommand,ApiResponse<UserPreferenceDto>>
 {
-    public async Task<ApiResponse<UserPreferenceDto>> Handle(
-        UpsertUserPreferenceCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<UserPreferenceDto>> Handle(UpsertUserPreferenceCommand request,CancellationToken cancellationToken)
     {
         // ---------------------------------------------------------
         // 1. Authentication
         // ---------------------------------------------------------
         if (!currentUser.UserId.HasValue)
         {
-            return ApiResponse<UserPreferenceDto>.FailureResponse
-            (
-                "User authentication is required.",
-                HttpStatusCode.Unauthorized
-            );
+            return ApiResponse<UserPreferenceDto>.FailureResponse("User authentication is required.",HttpStatusCode.Unauthorized);
         }
 
         var userId = currentUser.UserId.Value;
@@ -47,7 +36,6 @@ public sealed class UpsertUserPreferenceCommandHandler(
         // 2. Validation
         // ---------------------------------------------------------
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
         if (!validationResult.IsValid)
         {
             var message = string.Join(" | ", validationResult.Errors.Select(error => error.ErrorMessage));
@@ -58,7 +46,6 @@ public sealed class UpsertUserPreferenceCommandHandler(
         // 3. Check existing preference
         // ---------------------------------------------------------
         var existingPreference = await userPreferenceRepository.GetByUserIdAsync(userId, cancellationToken);
-
         try
         {
             // =====================================================

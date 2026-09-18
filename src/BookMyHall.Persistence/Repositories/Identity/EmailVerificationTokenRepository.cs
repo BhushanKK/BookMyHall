@@ -1,13 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-
 using BookMyHall.Domain.Entities.Identity;
 using BookMyHall.Persistence.Context;
 using BookMyHall.Application.Abstractions.Persistence.Identity;
 
 namespace BookMyHall.Persistence.Repositories.Identity;
-
-public sealed class EmailVerificationTokenRepository(BookMyHallDbContext dbContext)
-    : IEmailVerificationTokenRepository
+public sealed class EmailVerificationTokenRepository(BookMyHallDbContext dbContext): IEmailVerificationTokenRepository
 {
     public async Task AddAsync(EmailVerificationToken emailVerificationToken, CancellationToken cancellationToken = default)
     {
@@ -18,30 +15,25 @@ public sealed class EmailVerificationTokenRepository(BookMyHallDbContext dbConte
     public async Task<EmailVerificationToken?> GetActiveTokenAsync(Guid userId, string tokenHash, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(tokenHash);
-
-        return await dbContext.EmailVerificationTokens
+        var now = DateTimeOffset.UtcNow;
+        return await dbContext.EmailVerificationTokens.AsNoTracking()
             .FirstOrDefaultAsync(
                 x => x.UserId == userId
                   && x.TokenHash == tokenHash
                   && x.VerifiedAt == null
-                  && x.ExpiresAt > DateTimeOffset.UtcNow,
+                  && x.ExpiresAt > now,
                 cancellationToken);
     }
 
-    public async Task<IEnumerable<EmailVerificationToken>> GetActiveTokensByUserIdAsync(
-        Guid userId,
-        CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<EmailVerificationToken>>GetActiveTokensByUserIdAsync(Guid userId,CancellationToken cancellationToken = default)
     {
-        return await dbContext.EmailVerificationTokens
-            .Where(x =>
-                x.UserId == userId &&
-                x.VerifiedAt == null &&
-                x.ExpiresAt > DateTimeOffset.UtcNow)
+        var now = DateTimeOffset.UtcNow;
+        return await dbContext.EmailVerificationTokens.AsNoTracking()
+            .Where(x => x.UserId == userId && x.VerifiedAt == null && x.ExpiresAt > now)
             .ToListAsync(cancellationToken);
     }
 
-    public Task DeleteAsync(EmailVerificationToken emailVerificationToken,
-        CancellationToken cancellationToken = default)
+    public Task DeleteAsync(EmailVerificationToken emailVerificationToken,CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(emailVerificationToken);
         dbContext.EmailVerificationTokens.Remove(emailVerificationToken);
@@ -52,23 +44,19 @@ public sealed class EmailVerificationTokenRepository(BookMyHallDbContext dbConte
     {
         var tokens = await dbContext.EmailVerificationTokens
             .Where(x => x.UserId == userId)
-            .ToListAsync(cancellationToken);
+            .ExecuteDeleteAsync(cancellationToken);
 
-        if (tokens.Count > 0)
-            dbContext.EmailVerificationTokens.RemoveRange(tokens);
+     
     }
 
-    public async Task DeleteExpiredAsync(
-        CancellationToken cancellationToken = default)
+    public async Task DeleteExpiredAsync(CancellationToken cancellationToken = default)
     {
+        var now =DateTimeOffset.UtcNow;
         var expiredTokens = await dbContext.EmailVerificationTokens
-            .Where(x =>
-                x.VerifiedAt == null &&
-                x.ExpiresAt <= DateTimeOffset.UtcNow)
-            .ToListAsync(cancellationToken);
+            .Where(x =>x.VerifiedAt == null && x.ExpiresAt <= now)
+            .ExecuteDeleteAsync(cancellationToken);
 
-        if (expiredTokens.Count > 0)
-            dbContext.EmailVerificationTokens.RemoveRange(expiredTokens);
+      
     }
 
     public async Task<EmailVerificationToken?> GetVerifiedTokenAsync(Guid userId, string tokenHash,

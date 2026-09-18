@@ -12,22 +12,13 @@ using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Caching;
 
 namespace BookMyHall.Application.Features.Identity;
-
-public sealed class CreateRoleCommandHandler(
-    IRoleRepository roleRepository,
-    IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IValidator<CreateRoleCommand> validator,
-    IMessageHelper messageHelper,
-    ICacheService cacheService)
+public sealed class CreateRoleCommandHandler(IRoleRepository roleRepository,IUnitOfWork unitOfWork,
+    IMapper mapper,IValidator<CreateRoleCommand> validator,IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<CreateRoleCommand, ApiResponse<RoleDto>>
 {
-    public async Task<ApiResponse<RoleDto>> Handle(
-        CreateRoleCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<RoleDto>> Handle(CreateRoleCommand request,CancellationToken cancellationToken)
     {
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
         if (!validationResult.IsValid)
         {
             var message = string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage));
@@ -35,7 +26,6 @@ public sealed class CreateRoleCommandHandler(
         }
 
         var role = mapper.Map<Role>(request);
-
         try
         {
             await roleRepository.AddAsync(role, cancellationToken);

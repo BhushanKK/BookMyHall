@@ -18,7 +18,7 @@ public sealed class CityRepository(BookMyHallDbContext context): ICityRepository
     }
 
     public async Task<City?> GetByIdAsync(Guid cityId,CancellationToken cancellationToken = default)
-        => await context.Cities.AsNoTracking()
+        => await context.Cities
             .FirstOrDefaultAsync(x => x.CityId == cityId  && !x.IsDeleted && x.IsActive,cancellationToken);
 
     public async Task<City?> GetByCityNameAsync(string cityName,CancellationToken cancellationToken = default)

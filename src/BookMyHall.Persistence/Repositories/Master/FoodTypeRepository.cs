@@ -18,8 +18,8 @@ public sealed class FoodTypeRepository(BookMyHallDbContext context): IFoodTypeRe
     }
 
     public async Task<FoodType?> GetByIdAsync(Guid foodTypeId,CancellationToken cancellationToken = default)
-        => await context.FoodTypes.AsNoTracking()
-         .FirstOrDefaultAsync(x =>x.FoodTypeId == foodTypeId && !x.IsDeleted==false && x.IsActive,cancellationToken);
+        => await context.FoodTypes
+         .FirstOrDefaultAsync(x =>x.FoodTypeId == foodTypeId && !x.IsDeleted && x.IsActive,cancellationToken);
 
     public async Task<FoodType?> GetByFoodTypeNameAsync(string foodTypeName,CancellationToken cancellationToken = default)
         => await context.FoodTypes.AsNoTracking()

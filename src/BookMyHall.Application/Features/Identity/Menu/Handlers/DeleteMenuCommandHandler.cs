@@ -9,17 +9,13 @@ using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Identity;
 
-public sealed class DeleteMenuCommandHandler(
-    IMenuRepository menuRepository,
-    IUnitOfWork unitOfWork,
-    IMessageHelper messageHelper,
-    ICacheService cacheService)
+public sealed class DeleteMenuCommandHandler(IMenuRepository menuRepository,IUnitOfWork unitOfWork,
+    IMessageHelper messageHelper,ICacheService cacheService)
     : IRequestHandler<DeleteMenuCommand, ApiResponse<bool>>
 {
     public async Task<ApiResponse<bool>> Handle(DeleteMenuCommand request, CancellationToken cancellationToken)
     {
         var menu = await menuRepository.GetByIdAsync(request.MenuId, cancellationToken);
-
         if (menu is null)
         {
             return ApiResponse<bool>.FailureResponse
@@ -31,9 +27,10 @@ public sealed class DeleteMenuCommandHandler(
 
         await menuRepository.UpdateAsync(menu, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-
+        
+        var cacheKey = $"{CacheKeys.Menus}:{request.MenuId}";
+        await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveAsync(CacheKeys.Menus, cancellationToken);
-        await cacheService.RemoveAsync($"{CacheKeys.Menus}:{request.MenuId}", cancellationToken);
 
         return ApiResponse<bool>.SuccessResponse
         (

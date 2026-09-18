@@ -13,24 +13,16 @@ using BookMyHall.Shared.Options;
 
 namespace BookMyHall.Application.Features.Identity.Authentication.Handlers;
 
-public sealed class ForgotPasswordCommandHandler(
-    IUserRepository userRepository,
-    IPasswordResetTokenRepository passwordResetTokenRepository,
-    ITokenGenerator tokenGenerator,
-    ITokenHasher tokenHasher,
-    IUnitOfWork unitOfWork,
-    IMessagePublisher messagePublisher,
+public sealed class ForgotPasswordCommandHandler(IUserRepository userRepository,
+    IPasswordResetTokenRepository passwordResetTokenRepository,ITokenGenerator tokenGenerator,
+    ITokenHasher tokenHasher,IUnitOfWork unitOfWork,IMessagePublisher messagePublisher,
     IOptions<EmailOptions> emailOptions)
     : IRequestHandler<ForgotPasswordCommand, ApiResponse<ForgotPasswordResponse>>
 {
     private readonly EmailOptions _emailOptions = emailOptions.Value;
-
-    public async Task<ApiResponse<ForgotPasswordResponse>> Handle(
-        ForgotPasswordCommand request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<ForgotPasswordResponse>> Handle(ForgotPasswordCommand request,CancellationToken cancellationToken)
     {
         var response = CreateSuccessResponse();
-
         var user = await userRepository.GetByEmailAddressAsync
         (
             request.Email,
@@ -42,16 +34,9 @@ public sealed class ForgotPasswordCommandHandler(
             return response;
         }
 
-        await passwordResetTokenRepository.DeleteByUserIdAsync
-        (
-            user.UserId,
-            cancellationToken
-        );
-
+        await passwordResetTokenRepository.DeleteByUserIdAsync(user.UserId,cancellationToken);
         var resetToken = tokenGenerator.GeneratePasswordResetToken();
-
         var tokenHash = tokenHasher.Hash(resetToken);
-
         var passwordResetToken = PasswordResetToken.Create
         (
             userId: user.UserId,
@@ -59,14 +44,8 @@ public sealed class ForgotPasswordCommandHandler(
             expiresAt: DateTimeOffset.UtcNow.AddMinutes(_emailOptions.PasswordResetExpiryMinutes)
         );
 
-        await passwordResetTokenRepository.AddAsync
-        (
-            passwordResetToken,
-            cancellationToken
-        );
-
+        await passwordResetTokenRepository.AddAsync(passwordResetToken,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-
         var passwordResetMessage = new PasswordResetRequestedMessage
         (
             user.UserId,
@@ -74,13 +53,7 @@ public sealed class ForgotPasswordCommandHandler(
             user.EmailAddress!,
             resetToken
         );
-
-        await messagePublisher.PublishAsync
-        (
-            passwordResetMessage,
-            cancellationToken
-        );
-
+        await messagePublisher.PublishAsync(passwordResetMessage,cancellationToken);
         return response;
     }
 

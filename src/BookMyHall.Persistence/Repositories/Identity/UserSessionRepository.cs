@@ -4,9 +4,7 @@ using BookMyHall.Domain.Identity;
 using BookMyHall.Persistence.Context;
 
 namespace BookMyHall.Persistence.Repositories.Identity;
-
-public sealed class UserSessionRepository(BookMyHallDbContext context)
-    : IUserSessionRepository
+public sealed class UserSessionRepository(BookMyHallDbContext context): IUserSessionRepository
 {
     public async Task AddAsync(UserSession session, CancellationToken cancellationToken = default)
         => await context.UserSessions.AddAsync(session, cancellationToken);
@@ -18,47 +16,39 @@ public sealed class UserSessionRepository(BookMyHallDbContext context)
 
     public async Task<UserSession?> GetByRefreshTokenIdAsync(Guid refreshTokenId, CancellationToken cancellationToken = default)
     {
-        return await context.UserSessions
-            .FirstOrDefaultAsync(x => x.RefreshTokenId == refreshTokenId, cancellationToken);
+        return await context.UserSessions.FirstOrDefaultAsync(x => x.RefreshTokenId == refreshTokenId, cancellationToken);
     }
 
     public async Task<UserSession?> GetByIdAsync(Guid userSessionId, CancellationToken cancellationToken = default)
     {
-        return await context.UserSessions
-            .FirstOrDefaultAsync(x => x.UserSessionId == userSessionId, cancellationToken);
+        return await context.UserSessions.FirstOrDefaultAsync(x => x.UserSessionId == userSessionId, cancellationToken);
     }
 
     public async Task<IReadOnlyList<UserSession>> GetActiveSessionsAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        return await context.UserSessions
-            .Where(x =>
-                x.UserId == userId &&
-                x.IsActive)
+        return await context.UserSessions.AsNoTracking()
+            .Where(x =>x.UserId == userId &&x.IsActive)
             .OrderByDescending(x => x.LastActivity)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task RevokeAllSessionsAsync(
-        Guid userId,
-        CancellationToken cancellationToken = default)
+    public async Task RevokeAllSessionsAsync(Guid userId,CancellationToken cancellationToken = default)
     {
+        var now=DateTimeOffset.UtcNow;
         var sessions = await context.UserSessions
-            .Where(x =>
-                x.UserId == userId &&
-                x.IsActive)
+            .Where(x =>x.UserId == userId &&x.IsActive)
             .ToListAsync(cancellationToken);
 
         foreach (var session in sessions)
         {
             session.IsActive = false;
-            session.SessionEnd = DateTimeOffset.UtcNow;
+            session.SessionEnd = now;
         }
     }
 
-    public async Task EndAllSessionsAsync(
-    Guid userId,
-    CancellationToken cancellationToken = default)
+    public async Task EndAllSessionsAsync(Guid userId,CancellationToken cancellationToken = default)
     {
+        var now=DateTimeOffset.UtcNow;
         var sessions = await context.UserSessions
             .Where(x => x.UserId == userId && x.IsActive)
             .ToListAsync(cancellationToken);
@@ -66,8 +56,8 @@ public sealed class UserSessionRepository(BookMyHallDbContext context)
         foreach (var session in sessions)
         {
             session.IsActive = false;
-            session.SessionEnd = DateTimeOffset.UtcNow;
-            session.LastActivity = DateTimeOffset.UtcNow;
+            session.SessionEnd = now;
+            session.LastActivity = now;
         }
     }
 }

@@ -5,27 +5,21 @@ using BookMyHall.Domain.Venue;
 using BookMyHall.Persistence.Context;
 
 namespace BookMyHall.Persistence.Repositories;
-
 public sealed class HallBlockRepository(BookMyHallDbContext context): IHallBlockRepository
 {
     public async Task<HallBlock?> GetByIdAsync(Guid hallBlockId,CancellationToken cancellationToken = default)
     {
         return await context.HallBlocks
-        .Where(x=>x.IsDeleted==false)
-            .FirstOrDefaultAsync( x => x.HallBlockId == hallBlockId,cancellationToken);
+            .FirstOrDefaultAsync( x => x.HallBlockId == hallBlockId && !x.IsDeleted,cancellationToken);
     }
 
     public async Task<PaginatedResult<HallBlock>> GetAllAsync(PaginationRequest request,Guid? hallId,CancellationToken cancellationToken = default)
     {
-        var query = context.HallBlocks
-        .Where(x=>x.IsDeleted==false)
-            .AsNoTracking()
-            .Where(x => x.IsActive);
+        var query = context.HallBlocks.AsNoTracking().Where(x=>!x.IsDeleted && x.IsActive);
         if (hallId.HasValue)
             query = query.Where(x => x.HallId == hallId.Value);
 
         var totalCount = await query.CountAsync(cancellationToken);
-
         var items = await query
             .OrderByDescending(x => x.BlockFromDate)
             .ThenBy(x => x.StartTime)
