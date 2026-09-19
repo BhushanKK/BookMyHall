@@ -50,10 +50,7 @@ public sealed class AuditLogMiddleware(RequestDelegate next)
                             currentUser.UserId
                             ?? Guid.Empty,
 
-                        CorrelationId =
-                            auditRequestContext
-                                .CorrelationId
-                                .ToString(),
+                        CorrelationId = auditRequestContext.CorrelationId ,
 
                         HttpMethod =
                             context.Request.Method,

@@ -9,7 +9,7 @@ public static class AreaEndpoints
     public static void MapAreaEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/areas")
-            .WithTags("Areas");            
+            .WithTags("Areas").RequireAuthorization(policy=>policy.RequireRole("Admin"));;            
 
         group.MapPost("/", async (
             CreateAreaCommand command,

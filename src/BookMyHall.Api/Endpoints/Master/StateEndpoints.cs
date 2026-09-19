@@ -8,7 +8,7 @@ public static class StateEndpoints
     public static void MapStateEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/states")
-            .WithTags("State");
+            .WithTags("State").RequireAuthorization(policy=>policy.RequireRole("Admin"));;
 
         group.MapPost("/", async (
             CreateStateCommand command,

@@ -9,7 +9,7 @@ public static class DistrictEndpoints
     public static void MapDistrictEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/districts")
-            .WithTags("District");
+            .WithTags("District").RequireAuthorization(policy=>policy.RequireRole("Admin"));
 
         group.MapPost("/", async (
             CreateDistrictCommand command,

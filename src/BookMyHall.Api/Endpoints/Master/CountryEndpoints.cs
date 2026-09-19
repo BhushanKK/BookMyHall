@@ -10,7 +10,7 @@ public static class CountryEndpoints
     public static void MapCountryEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/countries")
-            .WithTags("Country");
+            .WithTags("Country").RequireAuthorization(policy=>policy.RequireRole("Admin"));
 
         group.MapPost("/", async (
             CreateCountryCommand command,

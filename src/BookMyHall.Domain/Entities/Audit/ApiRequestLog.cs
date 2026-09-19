@@ -5,7 +5,7 @@ public class ApiRequestLog : BaseEntity
 {
     public Guid ApiRequestLogId { get; set; }
     public Guid UserId { get; set; }
-    public string CorrelationId { get; set; } = string.Empty;
+    public Guid CorrelationId { get; set; }
     public string HttpMethod { get; set; } = string.Empty;
     public string RequestPath { get; set; } = string.Empty;
     public string QueryString { get; set; } = string.Empty;
