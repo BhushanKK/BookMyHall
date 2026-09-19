@@ -24,7 +24,9 @@ using BookMyHall.Infrastructure.Storage.CloudflareR2;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Shared.Options;
 using BookMyHall.Shared.Configuration;
-
+using BookMyHall.Infrastructure.Audit;
+using BookMyHall.Application.Abstractions.Audit;
+using BookMyHall.Infrastructure.Persistence.Interceptors;
 namespace BookMyHall.Infrastructure;
 
 public static class DependencyInjection
@@ -120,6 +122,10 @@ public static class DependencyInjection
 
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, CurrentUser>();
+        services.AddScoped<AuditSaveChangesInterceptor>();
+        services.AddScoped<IAuditRequestContext, AuditRequestContext>();
+        services.AddScoped<IApiRequestLogService,ApiRequestLogService>();
+      
         services.AddScoped<IClientInfoService, ClientInfoService>();
 
         services.Configure<EmailOptions>(configuration.GetSection(EmailOptions.SectionName));
@@ -163,6 +169,7 @@ public static class DependencyInjection
         services.AddMemoryCache();
 
         services.AddSingleton<ICacheService, MemoryCacheService>();
+       
 
         return services;
     }
