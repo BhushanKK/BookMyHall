@@ -20,10 +20,23 @@ public static class DependencyInjection
     public static IServiceCollection AddPersistence(this IServiceCollection services,
     IConfiguration configuration)
     {
-        services.AddDbContext<BookMyHallDbContext>(options =>
-        {
-            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
-        });
+        var connectionString =
+    configuration.GetConnectionString("DefaultConnection");
+
+services.AddDbContextFactory<BookMyHallDbContext>(
+    options =>
+    {
+        options.UseNpgsql(connectionString);
+    },
+    ServiceLifetime.Scoped);
+
+services.AddScoped(sp =>
+{
+    var factory =
+        sp.GetRequiredService<IDbContextFactory<BookMyHallDbContext>>();
+
+    return factory.CreateDbContext();
+});
 
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IUserRepository, UserRepository>();

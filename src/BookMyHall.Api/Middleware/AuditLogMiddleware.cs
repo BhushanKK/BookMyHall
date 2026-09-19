@@ -5,15 +5,15 @@ using BookMyHall.Domain.Audit;
 
 namespace BookMyHall.Api.Middleware;
 
-public sealed class AuditLogMiddleware(
-    RequestDelegate next,
-    IApiRequestLogService apiRequestLogService,
-    ICurrentUser currentUser,
-    IAuditRequestContext auditRequestContext)
+public sealed class AuditLogMiddleware(RequestDelegate next)
 {
     private readonly RequestDelegate _next = next;
 
-    public async Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(
+        HttpContext context,
+        IApiRequestLogService apiRequestLogService,
+        ICurrentUser currentUser,
+        IAuditRequestContext auditRequestContext)
     {
         var startTimestamp = Stopwatch.GetTimestamp();
 
@@ -30,8 +30,7 @@ public sealed class AuditLogMiddleware(
         }
         finally
         {
-            var elapsed =
-                Stopwatch.GetElapsedTime(startTimestamp);
+            var elapsed = Stopwatch.GetElapsedTime(startTimestamp);
 
             var executionTimeMs =
                 elapsed.TotalMilliseconds >= int.MaxValue
@@ -42,7 +41,8 @@ public sealed class AuditLogMiddleware(
 
             try
             {
-                await apiRequestLogService.LogAsync(new ApiRequestLog
+                await apiRequestLogService.LogAsync(
+                    new ApiRequestLog
                     {
                         ApiRequestLogId = Guid.NewGuid(),
 
@@ -92,8 +92,6 @@ public sealed class AuditLogMiddleware(
             }
             catch
             {
-                // Audit logging must not replace
-                // the original request exception.
             }
         }
     }
