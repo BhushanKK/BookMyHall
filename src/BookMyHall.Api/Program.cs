@@ -155,7 +155,3 @@ app.MapHealthChecks("/health");
 app.MapBookMyHallEndpoints();
 
 await app.RunAsync();
-
-public partial class Program
-{
-}

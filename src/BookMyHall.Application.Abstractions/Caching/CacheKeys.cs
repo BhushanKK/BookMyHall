@@ -63,4 +63,5 @@ public static class CacheKeys
     public const string DistrictsCached="location:districts:stateId";
     public const string CitiesCached ="location:cities:districtId";
     public const string AreasCached="location:areas:cityId";
+    public const string AmenitiesAutoComplete="AmenitiesAutoComplete";
 }

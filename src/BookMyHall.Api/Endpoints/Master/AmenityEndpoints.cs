@@ -66,15 +66,10 @@ public static class AmenityEndpoints
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status404NotFound);
 
-        group.MapGet("/{amenityId:guid}", async (
-            Guid amenityId,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
+        group.MapGet("/{amenityId:guid}", async (Guid amenityId,
+            IMediator mediator, CancellationToken cancellationToken) =>
         {
-            var response = await mediator.Send(
-                new GetAmenityByIdQuery(amenityId),
-                cancellationToken);
-
+            var response = await mediator.Send(new GetAmenityByIdQuery(amenityId), cancellationToken);
             return Results.Json(response, statusCode: response.StatusCode);
         })
         .WithName("GetAmenityById")
@@ -84,21 +79,28 @@ public static class AmenityEndpoints
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status404NotFound);
 
-        group.MapGet("/", async (
-            [AsParameters] PaginationRequest request,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
+        group.MapGet("/", async ([AsParameters] PaginationRequest request,
+            IMediator mediator, CancellationToken cancellationToken) =>
         {
-            var response = await mediator.Send(
-                new GetAmenitiesQuery(request),
-                cancellationToken);
-
+            var response = await mediator.Send(new GetAmenitiesQuery(request), cancellationToken);
             return Results.Json(response, statusCode: response.StatusCode);
         })
         .WithName("GetAmenities")
         .WithSummary("Get Amenities")
         .WithDescription("Returns a paginated list of amenities.")
         .Produces<ApiResponse<PaginatedResult<AmenityDto>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
+
+        group.MapGet("/amenity/autocomplete", async (string? searchTerm,
+            IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(new GetAmenitiesAutoCompleteQuery(searchTerm), cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
+        })
+        .WithName("GetAmenitiesAutoComplete")
+        .WithSummary("Get Amenities AutoComplete")
+        .WithDescription("Returns up to 20 active amenities matching the optional search term.")
+        .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
     }
 }

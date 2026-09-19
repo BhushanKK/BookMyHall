@@ -6,7 +6,7 @@ using BookMyHall.Persistence.Context;
 
 namespace BookMyHall.Persistence.Repositories;
 
-public sealed class AmenityRepository(BookMyHallDbContext context):IAmenityRepository
+public sealed class AmenityRepository(BookMyHallDbContext context) : IAmenityRepository
 {
     public async Task AddAsync(Amenity amenity,CancellationToken cancellationToken = default)
         => await context.Amenitys.AddAsync(amenity, cancellationToken);
@@ -49,5 +49,25 @@ public sealed class AmenityRepository(BookMyHallDbContext context):IAmenityRepos
             PageNumber = request.PageNumber,
             PageSize = request.PageSize
         };
+    }
+
+    public async Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(
+        string? searchTerm, int limit = 20, CancellationToken cancellationToken = default)
+    {
+        var query = context.Amenitys.AsNoTracking().Where(x => !x.IsDeleted && x.IsActive);
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var search = searchTerm.Trim();
+            var pattern = $"%{search}%";
+            query = query.Where(x => EF.Functions.ILike(x.AmenityName, pattern));
+        }
+
+        return await query
+            .OrderBy(x => x.AmenityName)
+            .ThenBy(x => x.AmenityId)
+            .Take(Math.Clamp(limit, 1, 20))
+            .Select(x => new AutoCompleteItem(x.AmenityId, x.AmenityName))
+            .ToListAsync(cancellationToken);
     }
 }
