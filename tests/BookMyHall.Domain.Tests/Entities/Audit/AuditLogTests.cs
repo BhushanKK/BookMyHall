@@ -119,18 +119,60 @@ public sealed class AuditLogTests
         auditLog.CorrelationId.Should().Be(correlationId);
     }
 
-    [Fact]
-    public void AuditLog_Should_Have_Default_Values()
-    {
-        var auditLog = new AuditLog();
+[Fact]
+public void AuditLog_Should_Have_Default_Values()
+{
+    // Arrange
+    var auditLog = new AuditLog();
 
-        auditLog.AuditLogId.Should().Be(Guid.Empty);
-        auditLog.TableName.Should().BeEmpty();
-        auditLog.RecordId.Should().Be(Guid.Empty);
-        auditLog.Operation.Should().BeEmpty();
-        auditLog.UserId.Should().Be(Guid.Empty);
-        auditLog.IpAddress.Should().BeEmpty();
-        auditLog.UserAgent.Should().BeEmpty();
-        auditLog.CorrelationId.Should().Be(Guid.Empty);
-    }
+    // Assert
+    auditLog.AuditLogId
+        .Should()
+        .Be(Guid.Empty);
+
+    auditLog.UserId
+        .Should()
+        .BeNull();
+
+    auditLog.CorrelationId
+        .Should()
+        .Be(Guid.Empty);
+
+    auditLog.RecordId
+        .Should()
+        .Be(Guid.Empty);
+
+    auditLog.TableName
+        .Should()
+        .BeEmpty();
+
+    auditLog.Operation
+        .Should()
+        .BeEmpty();
+
+    auditLog.IpAddress
+        .Should()
+        .BeEmpty();
+
+    auditLog.UserAgent
+        .Should()
+        .BeEmpty();
+
+    // BaseEntity
+    auditLog.CreatedBy
+        .Should()
+        .BeNull();
+
+    auditLog.CreatedDate
+        .Should()
+        .Be(default(DateTimeOffset));
+
+    auditLog.UpdatedBy
+        .Should()
+        .BeNull();
+
+    auditLog.UpdatedDate
+        .Should()
+        .BeNull();
+}
 }
