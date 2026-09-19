@@ -122,9 +122,10 @@ app.MapScalarApiReference(options =>
 // Exception Handling & Audit
 // ============================================================
 
+app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<AuditLogMiddleware>();
-app.UseMiddleware<CorrelationIdMiddleware>();
+
 
 // ============================================================
 // Authentication / Authorization

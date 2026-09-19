@@ -26,7 +26,7 @@ using BookMyHall.Shared.Options;
 using BookMyHall.Shared.Configuration;
 using BookMyHall.Infrastructure.Audit;
 using BookMyHall.Application.Abstractions.Audit;
-using BookMyHall.Infrastructure.Persistence.Interceptors;
+using BookMyHall.Persistence.Interceptors;
 namespace BookMyHall.Infrastructure;
 
 public static class DependencyInjection

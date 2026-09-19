@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Persistence.Context;
@@ -12,6 +13,7 @@ using BookMyHall.Infrastructure.Authentication;
 using BookMyHall.Persistence.Repositories.Venue;
 using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
 using BookMyHall.Infrastructure.Persistence.Repositories;
+using BookMyHall.Persistence.Interceptors;
 
 namespace BookMyHall.Persistence;
 
@@ -22,16 +24,14 @@ public static class DependencyInjection
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-        services.AddDbContextFactory<BookMyHallDbContext>(options =>
-        {
-            options.UseNpgsql(connectionString);
-        }, ServiceLifetime.Scoped);
-
-        services.AddScoped(sp =>
-        {
-            var factory = sp.GetRequiredService<IDbContextFactory<BookMyHallDbContext>>();
-            return factory.CreateDbContext();
-        });
+        services.AddScoped<AuditSaveChangesInterceptor>();
+        services.AddDbContextFactory<BookMyHallDbContext>(
+            (serviceProvider, options) =>
+            {
+                options.UseNpgsql(connectionString);
+                options.AddInterceptors(serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>());
+            },
+            ServiceLifetime.Scoped);
 
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
@@ -60,12 +60,12 @@ public static class DependencyInjection
         services.AddScoped<IHallImageRepository, HallImageRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ICountryRepository, CountryRepository>();
-        services.AddScoped<IPermissionRepository,PermissionRepository>();
-        services.AddScoped< IRolePermissionRepository, RolePermissionRepository>();
+        services.AddScoped<IPermissionRepository, PermissionRepository>();
+        services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
         services.AddScoped<IMenuRepository, MenuRepository>();
         services.AddScoped<IMenuRolePermissionRepository, MenuRolePermissionRepository>();
         services.AddScoped<IMenuPermissionRepository, MenuPermissionRepository>();
-        services.AddScoped<ILocationLookupRepository,LocationLookupRepository>();
+        services.AddScoped<ILocationLookupRepository, LocationLookupRepository>();
 
         return services;
     }

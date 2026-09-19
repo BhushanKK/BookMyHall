@@ -2,13 +2,10 @@ using BookMyHall.Application.Abstractions.Audit;
 using Microsoft.AspNetCore.Http;
 
 namespace BookMyHall.Infrastructure.Audit;
-
 public sealed class AuditRequestContext(IHttpContextAccessor httpContextAccessor): IAuditRequestContext
 {
     private const string CorrelationIdItem = "CorrelationId";
-
-    private HttpContext? HttpContext =>
-        httpContextAccessor.HttpContext;
+    private HttpContext? HttpContext =>httpContextAccessor.HttpContext;
 
     public Guid CorrelationId
     {
@@ -19,14 +16,9 @@ public sealed class AuditRequestContext(IHttpContextAccessor httpContextAccessor
             {
                 return correlationId;
             }
-
             return Guid.Empty;
         }
     }
-
-    public string? IpAddress =>
-        HttpContext?.Connection.RemoteIpAddress?.ToString();
-
-    public string? UserAgent =>
-        HttpContext?.Request.Headers.UserAgent.FirstOrDefault();
+    public string? IpAddress =>HttpContext?.Connection.RemoteIpAddress?.ToString();
+    public string? UserAgent =>HttpContext?.Request.Headers.UserAgent.FirstOrDefault();
 }
