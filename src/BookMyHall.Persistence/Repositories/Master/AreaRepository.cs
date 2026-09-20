@@ -52,4 +52,24 @@ public sealed class AreaRepository(BookMyHallDbContext context): IAreaRepository
             PageSize = request.PageSize
         };
     }
+
+    public async Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(string? searchTerm, 
+        int limit = 20, CancellationToken cancellationToken = default)
+    {
+        var query = context.Areas.AsNoTracking().Where(x => !x.IsDeleted && x.IsActive);
+        
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var search = searchTerm.Trim();
+            var pattern = $"%{search}%";
+            query = query.Where(x => EF.Functions.ILike(x.AreaName, pattern));
+        }
+
+        return await query
+            .OrderBy(x => x.AreaName)
+            .ThenBy(x => x.AreaId)
+            .Take(Math.Clamp(limit, 1, 20))
+            .Select(x => new AutoCompleteItem(x.AreaId, x.AreaName))
+            .ToListAsync(cancellationToken);
+    }
 }

@@ -134,5 +134,17 @@ public static class StateEndpoints
         .Produces<ApiResponse<StateDto>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status404NotFound);
+
+          group.MapGet("/state/autocomplete", async (string? searchTerm,
+            IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(new GetStatesAutoCompleteQuery(searchTerm), cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
+        })
+        .WithName("GetStatesAutoComplete")
+        .WithSummary("Get States AutoComplete")
+        .WithDescription("Returns up to 20 active states matching the optional search term.")
+        .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }

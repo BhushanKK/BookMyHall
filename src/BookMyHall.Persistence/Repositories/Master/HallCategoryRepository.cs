@@ -45,6 +45,28 @@ public sealed class HallCategoryRepository(BookMyHallDbContext context): IHallCa
             TotalCount = totalCount
         };
     }
+    public async Task<HallCategory?> GetByHallCategoryNameAsync(string hallCategoryName,CancellationToken cancellationToken = default)
+        => await context.HallCategories.AsNoTracking()
+            .FirstOrDefaultAsync( x => x.HallCategoryName == hallCategoryName &&!x.IsDeleted,cancellationToken);
 
-   
+
+    public async Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(string? searchTerm, 
+        int limit = 20, CancellationToken cancellationToken = default)
+    {
+        var query = context.HallCategories.AsNoTracking().Where(x => !x.IsDeleted && x.IsActive);
+        
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var search = searchTerm.Trim();
+            var pattern = $"%{search}%";
+            query = query.Where(x => EF.Functions.ILike(x.HallCategoryName, pattern));
+        }
+
+        return await query
+            .OrderBy(x => x.HallCategoryName)
+            .ThenBy(x => x.HallCategoryId)
+            .Take(Math.Clamp(limit, 1, 20))
+            .Select(x => new AutoCompleteItem(x.HallCategoryId, x.HallCategoryName))
+            .ToListAsync(cancellationToken);
+    }
 }

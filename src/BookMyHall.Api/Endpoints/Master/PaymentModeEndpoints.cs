@@ -100,5 +100,17 @@ public static class PaymentModeEndpoints
         .WithDescription("Returns a paginated list of payment modes.")
         .Produces<ApiResponse<PaginatedResponse<PaymentModeDto>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
+
+         group.MapGet("/paymentmode/autocomplete", async (string? searchTerm,
+            IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(new GetPaymentModesAutoCompleteQuery(searchTerm), cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
+        })
+        .WithName("GetPaymentModesAutoComplete")
+        .WithSummary("Get PaymentModes AutoComplete")
+        .WithDescription("Returns up to 20 active paymentmodes matching the optional search term.")
+        .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }

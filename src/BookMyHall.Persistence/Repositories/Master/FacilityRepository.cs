@@ -51,4 +51,23 @@ public sealed class FacilityRepository(BookMyHallDbContext context): IFacilityRe
             PageSize = request.PageSize
         };
     }
+     public async Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(string? searchTerm, 
+        int limit = 20, CancellationToken cancellationToken = default)
+    {
+        var query = context.Facilities.AsNoTracking().Where(x => !x.IsDeleted && x.IsActive);
+        
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var search = searchTerm.Trim();
+            var pattern = $"%{search}%";
+            query = query.Where(x => EF.Functions.ILike(x.FacilityName, pattern));
+        }
+
+        return await query
+            .OrderBy(x => x.FacilityName)
+            .ThenBy(x => x.FacilityId)
+            .Take(Math.Clamp(limit, 1, 20))
+            .Select(x => new AutoCompleteItem(x.FacilityId, x.FacilityName))
+            .ToListAsync(cancellationToken);
+    }
 }

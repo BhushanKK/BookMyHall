@@ -100,5 +100,17 @@ public static class FoodTypeEndpoints
         .WithDescription("Returns a paginated list of food types.")
         .Produces<ApiResponse<PaginatedResponse<FoodTypeDto>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
+
+          group.MapGet("/foodtype/autocomplete", async (string? searchTerm,
+            IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(new GetFoodTypesAutoCompleteQuery(searchTerm), cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
+        })
+        .WithName("GetFoodTypesAutoComplete")
+        .WithSummary("Get FoodTypes AutoComplete")
+        .WithDescription("Returns up to 20 active foodtypes matching the optional search term.")
+        .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }

@@ -56,4 +56,23 @@ public sealed class StateRepository(BookMyHallDbContext context) : IStateReposit
             PageSize = request.PageSize
         };
     }
+     public async Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(string? searchTerm, 
+        int limit = 20, CancellationToken cancellationToken = default)
+    {
+        var query = context.States.AsNoTracking().Where(x => !x.IsDeleted && x.IsActive);
+        
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var search = searchTerm.Trim();
+            var pattern = $"%{search}%";
+            query = query.Where(x => EF.Functions.ILike(x.StateName, pattern));
+        }
+
+        return await query
+            .OrderBy(x => x.StateName)
+            .ThenBy(x => x.StateId)
+            .Take(Math.Clamp(limit, 1, 20))
+            .Select(x => new AutoCompleteItem(x.StateId, x.StateName))
+            .ToListAsync(cancellationToken);
+    }
 }

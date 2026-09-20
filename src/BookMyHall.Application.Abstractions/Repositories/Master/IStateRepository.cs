@@ -15,5 +15,6 @@ public interface IStateRepository
 
     Task<State?> GetByStateNameAsync(string stateName, CancellationToken cancellationToken = default);
      Task<PaginatedResult<State>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default);
+     Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(string? searchTerm, int limit = 20, CancellationToken cancellationToken = default);
 
 }

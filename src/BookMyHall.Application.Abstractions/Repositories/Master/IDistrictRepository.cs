@@ -14,4 +14,5 @@ public interface IDistrictRepository
     Task<District?> GetByDistrictNameAsync(string districtName,CancellationToken cancellationToken = default);
 
     Task<PaginatedResult<District>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(string? searchTerm, int limit = 20, CancellationToken cancellationToken = default);
 }
