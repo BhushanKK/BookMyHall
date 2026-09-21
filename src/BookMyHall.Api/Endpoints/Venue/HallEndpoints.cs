@@ -136,5 +136,17 @@ public static class HallEndpoints
         .Produces<ApiResponse<HallListView>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status404NotFound);
+
+         group.MapGet("/hall/autocomplete", async (string? searchTerm,
+            IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(new GetHallsAutoCompleteQuery(searchTerm), cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
+        })
+        .WithName("GetHallsAutoComplete")
+        .WithSummary("Get Halls AutoComplete")
+        .WithDescription("Returns up to 20 active halls matching the optional search term.")
+        .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }
