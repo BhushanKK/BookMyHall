@@ -20,7 +20,7 @@ public sealed class ApiRequestLogTests
 
         apiRequestLog.UserId
             .Should()
-            .Be(Guid.Empty);
+            .BeNull();
 
         apiRequestLog.CorrelationId
             .Should()
