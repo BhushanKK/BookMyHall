@@ -14,4 +14,5 @@ public interface ICityRepository
     Task<City?> GetByCityNameAsync(string cityName,CancellationToken cancellationToken = default);
 
     Task<PaginatedResult<City>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(string? searchTerm, int limit = 20, CancellationToken cancellationToken = default);
 }

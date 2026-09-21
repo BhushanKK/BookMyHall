@@ -99,5 +99,17 @@ public static class CityEndpoints
         .WithDescription("Returns a paginated list of cities.")
         .Produces<ApiResponse<PaginatedResponse<CityDto>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
+
+         group.MapGet("/city/autocomplete", async (string? searchTerm,
+            IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(new GetCitiesAutoCompleteQuery(searchTerm), cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
+        })
+        .WithName("GetCitiesAutoComplete")
+        .WithSummary("Get ities AutoComplete")
+        .WithDescription("Returns up to 20 active cities matching the optional search term.")
+        .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }

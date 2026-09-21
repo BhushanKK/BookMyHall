@@ -115,5 +115,17 @@ public static class CountryEndpoints
         .Produces<ApiResponse<PaginatedResult<Country>>>(
             StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
+
+        group.MapGet("/country/autocomplete", async (string? searchTerm,
+            IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(new GetCountriesAutoCompleteQuery(searchTerm), cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
+        })
+        .WithName("GetCountriesAutoComplete")
+        .WithSummary("Get Countries AutoComplete")
+        .WithDescription("Returns up to 20 active countries matching the optional search term.")
+        .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }

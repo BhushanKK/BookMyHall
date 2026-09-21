@@ -101,5 +101,17 @@ public static class HallCategoryEndpoints
         .WithDescription("Returns a paginated list of hall categories.")
         .Produces<ApiResponse<PaginatedResponse<HallCategoryDto>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
+
+         group.MapGet("/hallcategory/autocomplete", async (string? searchTerm,
+            IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(new GetHallCategoriesAutoCompleteQuery(searchTerm), cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
+        })
+        .WithName("GetHallCategoriesAutoComplete")
+        .WithSummary("Get HallCategories AutoComplete")
+        .WithDescription("Returns up to 20 active hallcategories matching the optional search term.")
+        .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }

@@ -14,4 +14,5 @@ public interface IFacilityRepository
     Task<Facility?> GetByFacilityNameAsync(string facilityName,CancellationToken cancellationToken = default);
 
     Task<PaginatedResult<Facility>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(string? searchTerm, int limit = 20, CancellationToken cancellationToken = default);
 }

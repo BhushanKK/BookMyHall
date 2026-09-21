@@ -59,9 +59,23 @@ public static class CacheKeys
 
 //-----------Location Lookups Cached Keys-------------//
     public const string CountriesCached ="location:countries";
-    public static string StatesCached="location:states:countryId";
+    public const string StatesCached="location:states:countryId";
     public const string DistrictsCached="location:districts:stateId";
     public const string CitiesCached ="location:cities:districtId";
     public const string AreasCached="location:areas:cityId";
+
+//-----------Masters AutoComplete Cached Keys-------------//
     public const string AmenitiesAutoComplete="AmenitiesAutoComplete";
+    public const string AreasAutoComplete="AreasAutoComplete";
+    public const string CancellationPoliciesAutoComplete="CancellationPoliciesAutoComplete";
+    public const string CitiesAutoComplete="CitiesAutoComplete";
+    public const string CountriesAutoComplete="CountriesAutoComplete";
+    public const string DistrictsAutoComplete="DistrictsAutoComplete";
+    public const string EventCategoriesAutoComplete="EventCategoriesAutoComplete";
+    public const string FacilitiesAutoComplete="FacilitiesAutoComplete";
+    public const string FoodTypesAutoComplete="FoodTypesAutoComplete";
+    public const string HallCategoriesAutoComplete="HallCategoriesAutoComplete";
+    public const string PaymentModesAutoComplete="PaymentModesAutoComplete";
+    public const string ServicesAutoComplete="ServicesAutoComplete";
+    public const string StatesAutoComplete="StatesAutoComplete";
 }

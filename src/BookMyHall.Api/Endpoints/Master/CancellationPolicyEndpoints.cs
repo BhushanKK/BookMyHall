@@ -106,5 +106,17 @@ public static class CancellationPolicyEndpoints
         .WithDescription("Returns a paginated list of cancellation policies.")
         .Produces<ApiResponse<PaginatedResult<CancellationPolicyDto>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
+
+           group.MapGet("/cancellationpolicy/autocomplete", async (string? searchTerm,
+            IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(new GetCancellationPoliciesAutoCompleteQuery(searchTerm), cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
+        })
+        .WithName("GetCancellationPoliciesAutoComplete")
+        .WithSummary("Get CancellationPolicies AutoComplete")
+        .WithDescription("Returns up to 20 active cancellationpolicies matching the optional search term.")
+        .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }

@@ -100,5 +100,17 @@ public static class EventCategoryEndpoints
         .WithDescription("Returns a paginated list of event categories.")
         .Produces<ApiResponse<PaginatedResponse<EventCategoryDto>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
+
+         group.MapGet("/eventcategory/autocomplete", async (string? searchTerm,
+            IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(new GetEventCategoriesAutoCompleteQuery(searchTerm), cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
+        })
+        .WithName("GetEventCategoriesAutoComplete")
+        .WithSummary("Get EventCategories AutoComplete")
+        .WithDescription("Returns up to 20 active eventcategories matching the optional search term.")
+        .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }

@@ -99,5 +99,17 @@ public static class DistrictEndpoints
         .WithDescription("Returns a paginated list of districts.")
         .Produces<ApiResponse<PaginatedResponse<DistrictDto>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
+
+        group.MapGet("/district/autocomplete", async (string? searchTerm,
+            IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(new GetDistrictsAutoCompleteQuery(searchTerm), cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
+        })
+        .WithName("GetDistrictsAutoComplete")
+        .WithSummary("Get Districts AutoComplete")
+        .WithDescription("Returns up to 20 active districts matching the optional search term.")
+        .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }

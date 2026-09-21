@@ -93,5 +93,17 @@ public static class ServiceEndpoints
         .WithDescription("Retrieves a paginated list of services.")
         .Produces<ApiResponse<PaginatedResult<ServiceDto>>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<PaginatedResult<ServiceDto>>>(StatusCodes.Status400BadRequest);
+
+          group.MapGet("/service/autocomplete", async (string? searchTerm,
+            IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(new GetServiesAutoCompleteQuery(searchTerm), cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
+        })
+        .WithName("GetServicesAutoComplete")
+        .WithSummary("Get Services AutoComplete")
+        .WithDescription("Returns up to 20 active services matching the optional search term.")
+        .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }

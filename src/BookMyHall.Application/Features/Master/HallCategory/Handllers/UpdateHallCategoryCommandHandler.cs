@@ -27,19 +27,27 @@ public sealed class UpdateHallCategoryCommandHandler(IHallCategoryRepository hal
             return ApiResponse<HallCategoryDto>.FailureResponse(message, HttpStatusCode.BadRequest);
         }
 
-        var category = await hallCategoryRepository.GetByIdAsync(request.HallCategoryId, cancellationToken);
+        var hallcategory = await hallCategoryRepository.GetByIdAsync(request.HallCategoryId, cancellationToken);
 
-        if (category is null)
+        if (hallcategory is null)
         {
             return ApiResponse<HallCategoryDto>.FailureResponse(
                 messageHelper.NotFoundEntity(ResourceNames.Entities, EntityKeys.HallCategory), HttpStatusCode.NotFound);
         }
 
-        mapper.Map(request, category);
+        var existinghallcategory = await hallCategoryRepository.GetByHallCategoryNameAsync(request.HallCategoryName,cancellationToken);
+        if (existinghallcategory is not null && existinghallcategory.HallCategoryId != request.HallCategoryId)
+        {
+            return ApiResponse<HallCategoryDto>.FailureResponse(
+                messageHelper.AlreadyExists(EntityKeys.HallCategory),
+                HttpStatusCode.BadRequest);
+        }
+
+        mapper.Map(request, hallcategory);
 
         try
         {
-            await hallCategoryRepository.UpdateAsync(category, cancellationToken);
+            await hallCategoryRepository.UpdateAsync(hallcategory, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
         catch (DuplicateRecordException)
@@ -51,7 +59,7 @@ public sealed class UpdateHallCategoryCommandHandler(IHallCategoryRepository hal
         await cacheService.RemoveAsync(cacheKey, cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallCategoriesPaged}:", cancellationToken);
        
-        return ApiResponse<HallCategoryDto>.SuccessResponse(mapper.Map<HallCategoryDto>(category),
+        return ApiResponse<HallCategoryDto>.SuccessResponse(mapper.Map<HallCategoryDto>(hallcategory),
             messageHelper.UpdatedEntity(ResourceNames.Entities, EntityKeys.HallCategory), HttpStatusCode.OK);
     }
 }

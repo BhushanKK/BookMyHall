@@ -100,5 +100,17 @@ public static class FacilityEndpoints
         .WithDescription("Returns a paginated list of facilities.")
         .Produces<ApiResponse<PaginatedResponse<FacilityDto>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
+
+         group.MapGet("/facility/autocomplete", async (string? searchTerm,
+            IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(new GetFacilitiesAutoCompleteQuery(searchTerm), cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
+        })
+        .WithName("GetFacilitiesAutoComplete")
+        .WithSummary("Get Facilities AutoComplete")
+        .WithDescription("Returns up to 20 active facilities matching the optional search term.")
+        .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }

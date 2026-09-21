@@ -99,5 +99,17 @@ public static class AreaEndpoints
         .WithDescription("Returns a paginated list of areas.")
         .Produces<ApiResponse<PaginatedResult<AreaDto>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
+
+         group.MapGet("/area/autocomplete", async (string? searchTerm,
+            IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(new GetAreasAutoCompleteQuery(searchTerm), cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
+        })
+        .WithName("GetAreasAutoComplete")
+        .WithSummary("Get Areas AutoComplete")
+        .WithDescription("Returns up to 20 active areas matching the optional search term.")
+        .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }
