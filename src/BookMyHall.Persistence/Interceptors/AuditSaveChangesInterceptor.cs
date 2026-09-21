@@ -1,8 +1,10 @@
 using System.Text.Json;
+
 using BookMyHall.Application.Abstractions.Audit;
 using BookMyHall.Application.Abstractions.Security;
 using BookMyHall.Domain.Audit;
 using BookMyHall.Domain.Common;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -10,18 +12,21 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 namespace BookMyHall.Persistence.Interceptors;
 
 public sealed class AuditSaveChangesInterceptor(
-    ICurrentUser currentUser, IAuditRequestContext auditRequestContext)
+    ICurrentUser currentUser,
+    IAuditRequestContext auditRequestContext)
     : SaveChangesInterceptor
 {
     public override InterceptionResult<int> SavingChanges(
-        DbContextEventData eventData, InterceptionResult<int> result)
+        DbContextEventData eventData,
+        InterceptionResult<int> result)
     {
         ProcessChanges(eventData.Context);
         return base.SavingChanges(eventData, result);
     }
 
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
-        DbContextEventData eventData, InterceptionResult<int> result,
+        DbContextEventData eventData,
+        InterceptionResult<int> result,
         CancellationToken cancellationToken = default)
     {
         ProcessChanges(eventData.Context);
@@ -42,16 +47,18 @@ public sealed class AuditSaveChangesInterceptor(
         if (entries.Count == 0)
             return;
 
-        SetAuditFields(entries);
-        CreateAuditLogs(context, entries);
-    }
-
-    private void SetAuditFields(
-        IReadOnlyCollection<EntityEntry> entries)
-    {
         var now = DateTimeOffset.UtcNow;
         var userId = GetUserId();
 
+        SetAuditFields(entries, now, userId);
+        CreateAuditLogs(context, entries, now, userId);
+    }
+
+    private static void SetAuditFields(
+        IReadOnlyCollection<EntityEntry> entries,
+        DateTimeOffset now,
+        Guid? userId)
+    {
         foreach (var entry in entries)
         {
             if (entry.Entity is not BaseEntity entity)
@@ -60,45 +67,39 @@ public sealed class AuditSaveChangesInterceptor(
             switch (entry.State)
             {
                 case EntityState.Added:
-                    SetCreatedAuditFields(entity, now, userId);
+                    entity.CreatedDate = now;
+                    entity.CreatedBy = userId;
                     break;
 
                 case EntityState.Modified:
-                    SetUpdatedAuditFields(entity, now, userId);
+                    entity.UpdatedDate = now;
+                    entity.UpdatedBy = userId;
                     break;
             }
         }
     }
 
-    private static void SetCreatedAuditFields(
-        BaseEntity entity, DateTimeOffset now, Guid? userId)
-    {
-        entity.CreatedDate = now;
-        entity.CreatedBy = userId;
-    }
-
-    private static void SetUpdatedAuditFields(
-        BaseEntity entity, DateTimeOffset now, Guid? userId)
-    {
-        entity.UpdatedDate = now;
-        entity.UpdatedBy = userId;
-    }
-
-    private void CreateAuditLogs(DbContext context, IReadOnlyCollection<EntityEntry> entries)
+    private void CreateAuditLogs(
+        DbContext context,
+        IReadOnlyCollection<EntityEntry> entries,
+        DateTimeOffset now,
+        Guid? userId)
     {
         foreach (var entry in entries)
         {
-            var auditLog = CreateAuditLog(entry);
+            var auditLog = CreateAuditLog(entry, userId);
 
             if (auditLog is null)
                 continue;
 
             context.Set<AuditLog>().Add(auditLog);
-            AddAuditLogDetails(context, entry, auditLog.AuditLogId);
+            AddAuditLogDetails(context, entry, auditLog.AuditLogId, now, userId);
         }
     }
 
-    private AuditLog? CreateAuditLog(EntityEntry entry)
+    private AuditLog? CreateAuditLog(
+        EntityEntry entry,
+        Guid? userId)
     {
         var recordId = GetRecordId(entry);
         var tableName = entry.Metadata.GetTableName();
@@ -112,7 +113,7 @@ public sealed class AuditSaveChangesInterceptor(
             TableName = tableName,
             RecordId = recordId.Value,
             Operation = GetOperation(entry.State),
-            UserId = GetUserId(),
+            UserId = userId,
             IpAddress = auditRequestContext.IpAddress ?? string.Empty,
             UserAgent = auditRequestContext.UserAgent ?? string.Empty,
             CorrelationId = auditRequestContext.CorrelationId
@@ -122,7 +123,9 @@ public sealed class AuditSaveChangesInterceptor(
     private static void AddAuditLogDetails(
         DbContext context,
         EntityEntry entry,
-        Guid auditLogId)
+        Guid auditLogId,
+        DateTimeOffset now,
+        Guid? userId)
     {
         foreach (var property in entry.Properties)
         {
@@ -135,7 +138,9 @@ public sealed class AuditSaveChangesInterceptor(
                 AuditLogId = auditLogId,
                 ColumnName = GetColumnName(property),
                 OldValue = GetOldValue(entry, property),
-                NewValue = GetNewValue(entry, property)
+                NewValue = GetNewValue(entry, property),
+                CreatedBy = userId,
+                CreatedDate = now
             };
 
             context.Set<AuditLogDetail>().Add(detail);
@@ -159,18 +164,24 @@ public sealed class AuditSaveChangesInterceptor(
             EntityState.Deleted;
     }
 
-    private static bool IsUnchangedProperty(EntityEntry entry, PropertyEntry property)
+    private static bool IsUnchangedProperty(
+        EntityEntry entry,
+        PropertyEntry property)
         => entry.State == EntityState.Modified && !property.IsModified;
 
     private static string GetColumnName(PropertyEntry property)
         => property.Metadata.GetColumnName() ?? property.Metadata.Name;
 
-    private static string? GetOldValue(EntityEntry entry, PropertyEntry property)
+    private static string? GetOldValue(
+        EntityEntry entry,
+        PropertyEntry property)
         => entry.State == EntityState.Added
             ? null
             : SerializeValue(property.OriginalValue);
 
-    private static string? GetNewValue(EntityEntry entry, PropertyEntry property)
+    private static string? GetNewValue(
+        EntityEntry entry,
+        PropertyEntry property)
         => entry.State == EntityState.Deleted
             ? null
             : SerializeValue(property.CurrentValue);
@@ -206,9 +217,22 @@ public sealed class AuditSaveChangesInterceptor(
     }
 
     private static bool ShouldSkipProperty(PropertyEntry property)
-        => property.Metadata.IsPrimaryKey() ||
-               SensitiveProperties.Contains(property.Metadata.Name);
+    {
+        if (property.Metadata.IsPrimaryKey())
+            return true;
 
+        if (SensitiveProperties.Contains(property.Metadata.Name))
+            return true;
+
+        return AuditProperties.Contains(property.Metadata.Name);
+    }
+    private static readonly HashSet<string> AuditProperties =
+    [
+        nameof(BaseEntity.CreatedBy),
+        nameof(BaseEntity.CreatedDate),
+        nameof(BaseEntity.UpdatedBy),
+        nameof(BaseEntity.UpdatedDate)
+    ];
     private static string? SerializeValue(object? value)
     {
         if (value is null)
@@ -225,7 +249,9 @@ public sealed class AuditSaveChangesInterceptor(
 
     private static bool IsAuditEntity(object entity)
         => entity is AuditLog or
-            AuditLogDetail or ApiRequestLog or ErrorLog;
+            AuditLogDetail or
+            ApiRequestLog or
+            ErrorLog;
 
     private static readonly HashSet<string> SensitiveProperties =
     [

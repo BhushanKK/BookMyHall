@@ -1,6 +1,5 @@
 
 using FluentAssertions;
-
 using BookMyHall.Domain.Audit;
 
 namespace BookMyHall.Domain.Tests.Entities.Audit;
