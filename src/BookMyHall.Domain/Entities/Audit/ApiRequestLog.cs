@@ -4,7 +4,7 @@ namespace BookMyHall.Domain.Audit;
 public class ApiRequestLog : BaseEntity
 {
     public Guid ApiRequestLogId { get; set; }
-    public Guid UserId { get; set; }
+    public Guid? UserId { get; set; }
     public Guid CorrelationId { get; set; }
     public string HttpMethod { get; set; } = string.Empty;
     public string RequestPath { get; set; } = string.Empty;

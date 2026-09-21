@@ -12,10 +12,8 @@ public static class AmenityEndpoints
             .WithTags("Amenities")
             .RequireAuthorization(policy => policy.RequireRole("Admin"));
 
-        group.MapPost("/", async (
-            CreateAmenityCommand command,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
+        group.MapPost("/", async (CreateAmenityCommand command,
+            IMediator mediator, CancellationToken cancellationToken) =>
         {
             var response = await mediator.Send(command, cancellationToken);
             return Results.Json(response, statusCode: response.StatusCode);

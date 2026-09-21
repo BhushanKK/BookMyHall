@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.IO.Compression;
+
 using BookMyHall.Api.Extensions;
 using BookMyHall.Api.Middleware;
 using BookMyHall.Application;
@@ -9,6 +11,7 @@ using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Shared.Localization;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 using Serilog;
@@ -23,10 +26,6 @@ builder.Services
     .AddApplication(builder.Configuration)
     .AddInfrastructure(builder.Configuration)
     .AddPersistence(builder.Configuration);
-
-// ============================================================
-// CORS
-// ============================================================
 
 const string CorsPolicyName = "BookMyHallFrontend";
 
@@ -45,10 +44,6 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
-
-// ============================================================
-// Localization
-// ============================================================
 
 builder.Services.AddLocalization(options =>
 {
@@ -80,36 +75,40 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     ];
 });
 
-// ============================================================
-// Health Checks
-// ============================================================
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+    [
+        "application/json",
+        "application/problem+json"
+    ]);
+});
+
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Fastest;
+});
+
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Fastest;
+});
 
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-// ============================================================
-// Middleware
-// ============================================================
-
 app.UseSerilogRequestLogging();
 
-var localizationOptions =
-    app.Services.GetRequiredService<
-        IOptions<RequestLocalizationOptions>>();
+var localizationOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();
 
 app.UseRequestLocalization(localizationOptions.Value);
 
-// ============================================================
-// CORS
-// IMPORTANT: Before Authentication / Authorization
-// ============================================================
-
 app.UseCors(CorsPolicyName);
 
-// ============================================================
-// Scalar
-// ============================================================
 app.MapOpenApi();
 app.MapScalarApiReference(options =>
 {
@@ -118,18 +117,10 @@ app.MapScalarApiReference(options =>
         .WithTheme(ScalarTheme.BluePlanet);
 });
 
-// ============================================================
-// Exception Handling & Audit
-// ============================================================
-
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<AuditLogMiddleware>();
 
-
-// ============================================================
-// Authentication / Authorization
-// ============================================================
 using (var scope = app.Services.CreateScope())
 {
     var topology = scope.ServiceProvider
@@ -137,22 +128,10 @@ using (var scope = app.Services.CreateScope())
 
     await topology.ConfigureAsync();
 }
+
 app.UseAuthentication();
-
 app.UseAuthorization();
-
-// ============================================================
-// Static Files
-// ============================================================
-
 app.UseStaticFiles();
-
-// ============================================================
-// Endpoints
-// ============================================================
-
 app.MapHealthChecks("/health");
-
 app.MapBookMyHallEndpoints();
-
 await app.RunAsync();

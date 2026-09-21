@@ -84,8 +84,7 @@ public static class StateEndpoints
 
         group.MapGet("/", async (
             [AsParameters] PaginationRequest request,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
+            IMediator mediator, CancellationToken cancellationToken) =>
         {
             var response = await mediator.Send(
                 new GetStateQuery(request),

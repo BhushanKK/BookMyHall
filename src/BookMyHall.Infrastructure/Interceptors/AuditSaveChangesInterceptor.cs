@@ -1,9 +1,7 @@
 using System.Text.Json;
-
 using BookMyHall.Application.Abstractions.Audit;
 using BookMyHall.Application.Abstractions.Security;
 using BookMyHall.Domain.Audit;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -74,11 +72,17 @@ public sealed class AuditSaveChangesInterceptor(
             TableName = tableName,
             RecordId = recordId.Value,
             Operation = GetOperation(entry.State),
-            UserId = currentUser.UserId,
+            UserId = GetUserId(),
             IpAddress = auditRequestContext.IpAddress ?? string.Empty,
             UserAgent = auditRequestContext.UserAgent ?? string.Empty,
             CorrelationId = auditRequestContext.CorrelationId
         };
+    }
+
+    private Guid? GetUserId()
+    {
+        var userId = currentUser.UserId;
+        return userId == Guid.Empty ? null : currentUser.UserId;
     }
 
     private static void AddAuditLogDetails(DbContext context, EntityEntry entry, Guid auditLogId)
@@ -101,8 +105,7 @@ public sealed class AuditSaveChangesInterceptor(
                         ? null
                         : SerializeValue(property.OriginalValue),
 
-                NewValue =
-                    entry.State == EntityState.Deleted
+                NewValue = entry.State == EntityState.Deleted
                         ? null 
                         : SerializeValue(property.CurrentValue)
             };
@@ -111,8 +114,7 @@ public sealed class AuditSaveChangesInterceptor(
         }
     }
 
-    private static Guid? GetRecordId(
-        EntityEntry entry)
+    private static Guid? GetRecordId(EntityEntry entry)
     {
         var primaryKey = entry.Metadata.FindPrimaryKey();
 
