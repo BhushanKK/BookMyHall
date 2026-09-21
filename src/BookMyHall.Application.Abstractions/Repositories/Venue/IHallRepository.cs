@@ -11,6 +11,7 @@ public interface IHallRepository
     Task<Hall?> GetByHallNameAndAreaAsync(string hallName,Guid areaId,CancellationToken cancellationToken = default);
     Task<PaginatedResult<HallListView>> GetAllAsync(PaginationRequest request,Guid? hallOwnerId = null, CancellationToken cancellationToken = default);
     Task<HallListView?> GetHallDetailsByIdAsync(Guid hallId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(string? searchTerm, int limit = 20, CancellationToken cancellationToken = default);
     Task<PaginatedResult<NearbyHallView>> GetNearbyAsync(
     double? latitude,
     double? longitude,
