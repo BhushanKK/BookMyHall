@@ -366,18 +366,18 @@ dotnet test
 
 - [x] Database Design
 - [x] Clean Architecture Skeleton
-- [ ] Identity Module
-- [ ] Master Module
-- [ ] Venue Module
+- [x] Identity Module
+- [x] Master Module
+- [x] Venue Module
 - [ ] Booking Module
 - [ ] Payment Module
 - [ ] Notification Module
 - [ ] Review Module
 - [ ] Support Module
-- [ ] React Frontend
+- [x] React Frontend
 - [ ] Docker
-- [ ] CI/CD
-- [ ] Azure Deployment
+- [x] CI/CD
+- [x] Deployment on On-Prem Cloud.
 
 ---
 
