@@ -5,6 +5,7 @@ using RabbitMQ.Client;
 using BookMyHall.Application.Abstractions.Messaging;
 using BookMyHall.Contracts.Messaging;
 using BookMyHall.Infrastructure.Configuration;
+using BookMyHall.Application.Events.Identity;
 
 namespace BookMyHall.Infrastructure.Messaging;
 
@@ -118,6 +119,9 @@ public sealed class RabbitMqMessagePublisher(
 
              var type when type == typeof(HallImageUploadedMessage)
                 => RabbitMqKeys.HallImageUploadedRoutingKey,
+            
+            var type when type == typeof(UserLoggedInEvent)
+                => RabbitMqKeys.UserLoggedInRoutingKey,
 
             _ => throw new InvalidOperationException(
                 $"No RabbitMQ routing key configured for message type '{typeof(T).Name}'.")

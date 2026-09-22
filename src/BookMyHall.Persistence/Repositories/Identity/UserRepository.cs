@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Dtos;
 using BookMyHall.Domain.Entities.Identity;
@@ -8,7 +9,7 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 
 namespace BookMyHall.Persistence.Repositories;
 
-public sealed class UserRepository(BookMyHallDbContext context): IUserRepository
+public sealed class UserRepository(BookMyHallDbContext context) : IUserRepository
 {
     public async Task AddAsync(User user, CancellationToken cancellationToken = default)
         => await context.Users.AddAsync(user, cancellationToken);
@@ -25,10 +26,10 @@ public sealed class UserRepository(BookMyHallDbContext context): IUserRepository
         .FirstOrDefaultAsync(x => !x.IsDeleted && x.UserId == userId, cancellationToken);
     }
 
-    public async Task<UserDto?> GetUserDtoByIdAsync(Guid userId,CancellationToken cancellationToken = default)
+    public async Task<UserDto?> GetUserDtoByIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return await context.Users.AsNoTracking()
-            .Where(x =>!x.IsDeleted && x.UserId == userId)
+            .Where(x => !x.IsDeleted && x.UserId == userId)
             .Select(x => new UserDto
             {
                 UserId = x.UserId,
@@ -52,11 +53,11 @@ public sealed class UserRepository(BookMyHallDbContext context): IUserRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<UserLoginDto?> GetForLoginAsync(string mobileNumber,CancellationToken cancellationToken = default)
+    public async Task<UserLoginDto?> GetForLoginAsync(string mobileNumber, CancellationToken cancellationToken = default)
     {
         var normalizedMobileNumber = mobileNumber.Trim();
         return await context.Users.AsNoTracking()
-            .Where(x =>x.MobileNumber == normalizedMobileNumber &&x.IsActive &&!x.IsDeleted)
+            .Where(x => x.MobileNumber == normalizedMobileNumber && x.IsActive && !x.IsDeleted)
             .Select(x => new UserLoginDto
             {
                 UserId = x.UserId,
@@ -78,17 +79,20 @@ public sealed class UserRepository(BookMyHallDbContext context): IUserRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task RecordLoginAsync(Guid userId,DateTimeOffset loginDate,CancellationToken cancellationToken = default)
+    public async Task RecordLoginAsync(
+    Guid userId,
+    DateTimeOffset loginDate,
+    CancellationToken cancellationToken = default)
     {
         await context.Users
             .Where(x => x.UserId == userId)
-            .ExecuteUpdateAsync(setters => setters
-                    .SetProperty(x => x.LastLoginAt,loginDate)
-                    .SetProperty(x => x.UpdatedBy,userId)
-                    .SetProperty(x => x.UpdatedDate,loginDate),cancellationToken);
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(x => x.LastLoginAt, loginDate),
+                cancellationToken);
     }
 
-    public async Task<PaginatedResult<UserDto>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
+    public async Task<PaginatedResult<UserDto>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default)
     {
         var query = context.Users.AsNoTracking()
             .Where(x => !x.IsDeleted);
@@ -96,9 +100,9 @@ public sealed class UserRepository(BookMyHallDbContext context): IUserRepository
         {
             var searchPattern = $"%{request.SearchText.Trim()}%";
 
-            query = query.Where(x =>EF.Functions.ILike(x.FirstName,searchPattern) ||
-                (x.MiddleName != null && EF.Functions.ILike(x.MiddleName,searchPattern)) ||
-                (x.LastName != null && EF.Functions.ILike(x.LastName,searchPattern)) ||
+            query = query.Where(x => EF.Functions.ILike(x.FirstName, searchPattern) ||
+                (x.MiddleName != null && EF.Functions.ILike(x.MiddleName, searchPattern)) ||
+                (x.LastName != null && EF.Functions.ILike(x.LastName, searchPattern)) ||
                 (x.MobileNumber != null && EF.Functions.ILike(x.MobileNumber, searchPattern)) ||
                 (x.EmailAddress != null && EF.Functions.ILike(x.EmailAddress, searchPattern)));
         }
@@ -145,11 +149,11 @@ public sealed class UserRepository(BookMyHallDbContext context): IUserRepository
         };
     }
 
-    public async Task<User?> GetByEmailAddressAsync(string emailAddress,CancellationToken cancellationToken = default)
+    public async Task<User?> GetByEmailAddressAsync(string emailAddress, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(emailAddress);
 
-        var normalizedEmail =emailAddress.Trim().ToLowerInvariant();
+        var normalizedEmail = emailAddress.Trim().ToLowerInvariant();
 
         return await context.Users
             .AsNoTracking()

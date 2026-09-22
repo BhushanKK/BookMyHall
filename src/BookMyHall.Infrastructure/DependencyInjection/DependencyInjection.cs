@@ -165,12 +165,10 @@ public static class DependencyInjection
         services.AddHostedService<HallImageThumbnailConsumer>();
         services.AddScoped<IR2StorageService, CloudflareR2StorageService>();
         services.AddScoped<IImageProcessingService, ImageProcessingService>();
-        
         services.AddMemoryCache();
-
         services.AddSingleton<ICacheService, MemoryCacheService>();
-       
-
+        services.AddHostedService<OutboxBackgroundService>();
+        services.AddHostedService<UserLoggedInConsumer>();
         return services;
     }
 
