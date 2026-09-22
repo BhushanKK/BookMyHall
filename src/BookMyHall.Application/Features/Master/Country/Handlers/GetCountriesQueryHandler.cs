@@ -12,9 +12,9 @@ namespace BookMyHall.Application.Features.Master;
 
 public sealed class GetCountriesQueryHandler(ICountryRepository countryRepository,
     IMessageHelper messageHelper,IMapper mapper,ICacheService cacheService)
-    : IRequestHandler<GetCountriesQuery, ApiResponse<PaginatedResult<Country>>>
+    : IRequestHandler<GetCountriesQuery, ApiResponse<PaginatedResponse<Country>>>
 {
-    public async Task<ApiResponse<PaginatedResult<Country>>> Handle(GetCountriesQuery request,CancellationToken cancellationToken)
+    public async Task<ApiResponse<PaginatedResponse<Country>>> Handle(GetCountriesQuery request,CancellationToken cancellationToken)
     {
         var pagination = request.PaginationRequest;
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Country>(
@@ -25,10 +25,10 @@ public sealed class GetCountriesQueryHandler(ICountryRepository countryRepositor
             pagination.SortBy,
             pagination.SortDescending);
 
-        var cachedResponse = await cacheService.GetAsync<PaginatedResult<Country>>(cacheKey, cancellationToken);
+        var cachedResponse = await cacheService.GetAsync<PaginatedResponse<Country>>(cacheKey, cancellationToken);
         if (cachedResponse is not null)
         {
-            return ApiResponse<PaginatedResult<Country>>.SuccessResponse
+            return ApiResponse<PaginatedResponse<Country>>.SuccessResponse
             (
                 cachedResponse,
                 messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Country),
@@ -38,16 +38,16 @@ public sealed class GetCountriesQueryHandler(ICountryRepository countryRepositor
 
         var result = await countryRepository.GetAllAsync(pagination, cancellationToken);
 
-        var response = new PaginatedResult<Country>
+        var response = new PaginatedResponse<Country>
         {
             Items = mapper.Map<IReadOnlyList<Country>>(result.Items),
-            TotalCount = result.TotalCount,
+            TotalRecords = result.TotalCount,
             PageNumber = result.PageNumber,
             PageSize = result.PageSize
         };
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
 
-        return ApiResponse<PaginatedResult<Country>>.SuccessResponse
+        return ApiResponse<PaginatedResponse<Country>>.SuccessResponse
         (
             response,
             messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Country),

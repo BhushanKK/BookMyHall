@@ -5,4 +5,4 @@ using BookMyHall.Domain.Masters;
 namespace BookMyHall.Application.Features.Master;
 
 public sealed record GetCountriesQuery(PaginationRequest PaginationRequest)
-    : IRequest<ApiResponse<PaginatedResult<Country>>>;
+    : IRequest<ApiResponse<PaginatedResponse<Country>>>;

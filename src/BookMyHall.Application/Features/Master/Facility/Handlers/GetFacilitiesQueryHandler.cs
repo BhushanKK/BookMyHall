@@ -11,9 +11,9 @@ using BookMyHall.Application.Abstractions.Caching;
 namespace BookMyHall.Application.Features.Master;
 public sealed class GetFacilitiesQueryHandler(IFacilityRepository facilityRepository,
     IMessageHelper messageHelper,IMapper mapper, ICacheService cacheService)
-    : IRequestHandler<GetFacilitiesQuery, ApiResponse<PaginatedResult<Facility>>>
+    : IRequestHandler<GetFacilitiesQuery, ApiResponse<PaginatedResponse<Facility>>>
 {
-    public async Task<ApiResponse<PaginatedResult<Facility>>> Handle(GetFacilitiesQuery request, CancellationToken cancellationToken)
+    public async Task<ApiResponse<PaginatedResponse<Facility>>> Handle(GetFacilitiesQuery request, CancellationToken cancellationToken)
     {
         var pagination = request.paginationRequest;
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Facility>(
@@ -24,10 +24,10 @@ public sealed class GetFacilitiesQueryHandler(IFacilityRepository facilityReposi
             pagination.SortBy,
             pagination.SortDescending);
 
-        var cachedResponse = await cacheService.GetAsync<PaginatedResult<Facility>>(cacheKey, cancellationToken);
+        var cachedResponse = await cacheService.GetAsync<PaginatedResponse<Facility>>(cacheKey, cancellationToken);
         if (cachedResponse is not null)
         {
-            return ApiResponse<PaginatedResult<Facility>>.SuccessResponse
+            return ApiResponse<PaginatedResponse<Facility>>.SuccessResponse
             (
                 cachedResponse,
                 messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Facility),
@@ -35,15 +35,15 @@ public sealed class GetFacilitiesQueryHandler(IFacilityRepository facilityReposi
             );
         }
         var result = await facilityRepository.GetAllAsync(request.paginationRequest, cancellationToken);
-        var response = new PaginatedResult<Facility>
+        var response = new PaginatedResponse<Facility>
         {
             Items = mapper.Map<IReadOnlyList<Facility>>(result.Items),
-            TotalCount = result.TotalCount,
+            TotalRecords = result.TotalCount,
             PageNumber = result.PageNumber,
             PageSize = result.PageSize
         };
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
-        return ApiResponse<PaginatedResult<Facility>>.SuccessResponse(response,
+        return ApiResponse<PaginatedResponse<Facility>>.SuccessResponse(response,
             messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Facility), HttpStatusCode.OK);
     }
 }

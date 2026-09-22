@@ -5,4 +5,4 @@ using BookMyHall.Domain.Masters;
 namespace BookMyHall.Application.Features.Master;
 
 public sealed record GetAreasQuery(PaginationRequest paginationRequest)
-    : IRequest<ApiResponse<PaginatedResult<Area>>>;
+    : IRequest<ApiResponse<PaginatedResponse<Area>>>;

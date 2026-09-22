@@ -12,9 +12,9 @@ namespace BookMyHall.Application.Features.Master;
 
 public sealed class GetAreasQueryHandler(IAreaRepository areaRepository,
     IMessageHelper messageHelper,IMapper mapper, ICacheService cacheService)
-    : IRequestHandler<GetAreasQuery, ApiResponse<PaginatedResult<Area>>>
+    : IRequestHandler<GetAreasQuery, ApiResponse<PaginatedResponse<Area>>>
 {
-    public async Task<ApiResponse<PaginatedResult<Area>>> Handle(GetAreasQuery request, CancellationToken cancellationToken)
+    public async Task<ApiResponse<PaginatedResponse<Area>>> Handle(GetAreasQuery request, CancellationToken cancellationToken)
     {
         var pagination = request.paginationRequest;
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Area>(
@@ -25,10 +25,10 @@ public sealed class GetAreasQueryHandler(IAreaRepository areaRepository,
             pagination.SortBy,
             pagination.SortDescending);
 
-        var cachedResponse = await cacheService.GetAsync<PaginatedResult<Area>>(cacheKey, cancellationToken);
+        var cachedResponse = await cacheService.GetAsync<PaginatedResponse<Area>>(cacheKey, cancellationToken);
         if (cachedResponse is not null)
         {
-            return ApiResponse<PaginatedResult<Area>>.SuccessResponse
+            return ApiResponse<PaginatedResponse<Area>>.SuccessResponse
             (
                 cachedResponse,
                 messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Area),
@@ -36,15 +36,15 @@ public sealed class GetAreasQueryHandler(IAreaRepository areaRepository,
             );
         }
         var result = await areaRepository.GetAllAsync(request.paginationRequest, cancellationToken);
-        var response = new PaginatedResult<Area>
+        var response = new PaginatedResponse<Area>
         {
             Items = mapper.Map<IReadOnlyList<Area>>(result.Items),
-            TotalCount = result.TotalCount,
+            TotalRecords = result.TotalCount,
             PageNumber = result.PageNumber,
             PageSize = result.PageSize
         };
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
-        return ApiResponse<PaginatedResult<Area>>.SuccessResponse(response,
+        return ApiResponse<PaginatedResponse<Area>>.SuccessResponse(response,
             messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Area), HttpStatusCode.OK);
     }
 }

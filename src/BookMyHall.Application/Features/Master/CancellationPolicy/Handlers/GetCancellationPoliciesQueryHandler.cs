@@ -11,9 +11,9 @@ using BookMyHall.Application.Abstractions.Caching;
 namespace BookMyHall.Application.Features.Master;
 public sealed class GetCancellationPoliciesQueryHandler(ICancellationPolicyRepository cancellationPolicyRepository,
     IMessageHelper messageHelper,IMapper mapper, ICacheService cacheService)
-    : IRequestHandler<GetCancellationPoliciesQuery, ApiResponse<PaginatedResult<CancellationPolicy>>>
+    : IRequestHandler<GetCancellationPoliciesQuery, ApiResponse<PaginatedResponse<CancellationPolicy>>>
 {
-    public async Task<ApiResponse<PaginatedResult<CancellationPolicy>>>Handle(GetCancellationPoliciesQuery request, CancellationToken cancellationToken)
+    public async Task<ApiResponse<PaginatedResponse<CancellationPolicy>>>Handle(GetCancellationPoliciesQuery request, CancellationToken cancellationToken)
     {
         var pagination = request.paginationRequest;
         var cacheKey = CacheKeyBuilder.BuildPaginatedKey<CancellationPolicy>(
@@ -24,10 +24,10 @@ public sealed class GetCancellationPoliciesQueryHandler(ICancellationPolicyRepos
             pagination.SortBy,
             pagination.SortDescending);
 
-        var cachedResponse = await cacheService.GetAsync<PaginatedResult<CancellationPolicy>>(cacheKey, cancellationToken);
+        var cachedResponse = await cacheService.GetAsync<PaginatedResponse<CancellationPolicy>>(cacheKey, cancellationToken);
         if (cachedResponse is not null)
         {
-            return ApiResponse<PaginatedResult<CancellationPolicy>>.SuccessResponse
+            return ApiResponse<PaginatedResponse<CancellationPolicy>>.SuccessResponse
             (
                 cachedResponse,
                 messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.CancellationPolicy),
@@ -35,15 +35,15 @@ public sealed class GetCancellationPoliciesQueryHandler(ICancellationPolicyRepos
             );
         }
         var result = await cancellationPolicyRepository.GetAllAsync(request.paginationRequest, cancellationToken);
-        var response = new PaginatedResult<CancellationPolicy>
+        var response = new PaginatedResponse<CancellationPolicy>
         {
             Items = mapper.Map<IReadOnlyList<CancellationPolicy>>(result.Items),
-            TotalCount = result.TotalCount,
+            TotalRecords = result.TotalCount,
             PageNumber = result.PageNumber,
             PageSize = result.PageSize
         };
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
-        return ApiResponse<PaginatedResult<CancellationPolicy>>.SuccessResponse(response,
+        return ApiResponse<PaginatedResponse<CancellationPolicy>>.SuccessResponse(response,
             messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.CancellationPolicy), HttpStatusCode.OK);
     }
 }

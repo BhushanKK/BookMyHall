@@ -11,9 +11,9 @@ using BookMyHall.Application.Abstractions.Caching;
 namespace BookMyHall.Application.Features.Master;
 public sealed class GetFoodTypesQueryHandler(IFoodTypeRepository foodTypeRepository,
     IMessageHelper messageHelper,IMapper mapper, ICacheService cacheService)
-    : IRequestHandler<GetFoodTypesQuery, ApiResponse<PaginatedResult<FoodType>>>
+    : IRequestHandler<GetFoodTypesQuery, ApiResponse<PaginatedResponse<FoodType>>>
 {
-    public async Task<ApiResponse<PaginatedResult<FoodType>>> Handle(GetFoodTypesQuery request, CancellationToken cancellationToken)
+    public async Task<ApiResponse<PaginatedResponse<FoodType>>> Handle(GetFoodTypesQuery request, CancellationToken cancellationToken)
     {
 
         var pagination = request.paginationRequest;
@@ -25,11 +25,11 @@ public sealed class GetFoodTypesQueryHandler(IFoodTypeRepository foodTypeReposit
             pagination.SortBy,
             pagination.SortDescending);
 
-        var cachedResponse = await cacheService.GetAsync<PaginatedResult<FoodType>>(cacheKey, cancellationToken);
+        var cachedResponse = await cacheService.GetAsync<PaginatedResponse<FoodType>>(cacheKey, cancellationToken);
 
         if (cachedResponse is not null)
         {
-            return ApiResponse<PaginatedResult<FoodType>>.SuccessResponse
+            return ApiResponse<PaginatedResponse<FoodType>>.SuccessResponse
             (
                 cachedResponse,
                 messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.FoodType),
@@ -38,16 +38,16 @@ public sealed class GetFoodTypesQueryHandler(IFoodTypeRepository foodTypeReposit
         }
 
         var result = await foodTypeRepository.GetAllAsync(request.paginationRequest, cancellationToken);
-        var response = new PaginatedResult<FoodType>
+        var response = new PaginatedResponse<FoodType>
         {
             Items = mapper.Map<IReadOnlyList<FoodType>>(result.Items),
-            TotalCount = result.TotalCount,
+            TotalRecords = result.TotalCount,
             PageNumber = result.PageNumber,
             PageSize = result.PageSize
         };
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
 
-        return ApiResponse<PaginatedResult<FoodType>>.SuccessResponse(response,
+        return ApiResponse<PaginatedResponse<FoodType>>.SuccessResponse(response,
             messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.FoodType), HttpStatusCode.OK);
     }
 }

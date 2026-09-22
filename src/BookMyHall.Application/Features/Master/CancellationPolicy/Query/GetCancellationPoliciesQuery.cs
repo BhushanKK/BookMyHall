@@ -5,4 +5,4 @@ using BookMyHall.Domain.Masters;
 namespace BookMyHall.Application.Features.Master;
 
 public sealed record GetCancellationPoliciesQuery(PaginationRequest paginationRequest)
-    : IRequest<ApiResponse<PaginatedResult<CancellationPolicy>>>;
+    : IRequest<ApiResponse<PaginatedResponse<CancellationPolicy>>>;

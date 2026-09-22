@@ -12,9 +12,9 @@ namespace BookMyHall.Application.Features.Master;
 
 public sealed class GetPaymentModesQueryHandler(IPaymentModeRepository paymentModeRepository,
     IMessageHelper messageHelper,IMapper mapper,ICacheService cacheService)
-    : IRequestHandler<GetPaymentModesQuery, ApiResponse<PaginatedResult<PaymentMode>>>
+    : IRequestHandler<GetPaymentModesQuery, ApiResponse<PaginatedResponse<PaymentMode>>>
 {
-    public async Task<ApiResponse<PaginatedResult<PaymentMode>>> Handle(GetPaymentModesQuery request,CancellationToken cancellationToken)
+    public async Task<ApiResponse<PaginatedResponse<PaymentMode>>> Handle(GetPaymentModesQuery request,CancellationToken cancellationToken)
     {
          var pagination = request.paginationRequest;
          var cacheKey = CacheKeyBuilder.BuildPaginatedKey<PaymentMode>(
@@ -25,10 +25,10 @@ public sealed class GetPaymentModesQueryHandler(IPaymentModeRepository paymentMo
             pagination.SortBy,
             pagination.SortDescending);
 
-        var cachedResponse = await cacheService.GetAsync<PaginatedResult<PaymentMode>>(cacheKey, cancellationToken);
+        var cachedResponse = await cacheService.GetAsync<PaginatedResponse<PaymentMode>>(cacheKey, cancellationToken);
         if (cachedResponse is not null)
         {
-            return ApiResponse<PaginatedResult<PaymentMode>>.SuccessResponse
+            return ApiResponse<PaginatedResponse<PaymentMode>>.SuccessResponse
             (
                 cachedResponse,
                 messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.PaymentMode),
@@ -36,15 +36,15 @@ public sealed class GetPaymentModesQueryHandler(IPaymentModeRepository paymentMo
             );
         }
         var result = await paymentModeRepository.GetAllAsync(request.paginationRequest,cancellationToken);
-        var response = new PaginatedResult<PaymentMode>
+        var response = new PaginatedResponse<PaymentMode>
         {
             Items = mapper.Map<IReadOnlyList<PaymentMode>>(result.Items),
-            TotalCount = result.TotalCount,
+            TotalRecords = result.TotalCount,
             PageNumber = result.PageNumber,
             PageSize = result.PageSize
         };
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
-        return ApiResponse<PaginatedResult<PaymentMode>>.SuccessResponse(response,
+        return ApiResponse<PaginatedResponse<PaymentMode>>.SuccessResponse(response,
             messageHelper.RetrievedEntity(ResourceNames.Entities,EntityKeys.PaymentMode),HttpStatusCode.OK);
     }
 }

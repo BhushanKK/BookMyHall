@@ -4,4 +4,4 @@ using BookMyHall.Domain.Masters;
 
 namespace BookMyHall.Application.Features.Master;
 public sealed record GetHallCategoriesQuery(PaginationRequest paginationRequest)
-    : IRequest<ApiResponse<PaginatedResult<HallCategory>>>;
+    : IRequest<ApiResponse<PaginatedResponse<HallCategory>>>;

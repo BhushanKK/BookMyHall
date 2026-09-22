@@ -5,6 +5,4 @@ using BookMyHall.Domain.Masters;
 namespace BookMyHall.Application.Features.Master;
 
 public sealed record GetEventCategoriesQuery(PaginationRequest paginationRequest)
-    : IRequest<ApiResponse<PaginatedResult<EventCategory>>>
-{
-}
+    : IRequest<ApiResponse<PaginatedResponse<EventCategory>>>;
