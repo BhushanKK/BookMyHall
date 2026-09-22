@@ -12,5 +12,7 @@ public class AreaDto
     public Guid? CityId { get; set; }
     public string AreaName { get; set; } = string.Empty;
     public string Pincode { get; set; } = string.Empty;
+    public decimal? Latitude { get; set; }
+    public decimal? Longitude { get; set; }
     public bool IsActive { get; set; }
 }
