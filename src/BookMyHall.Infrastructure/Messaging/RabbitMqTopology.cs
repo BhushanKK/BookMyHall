@@ -1,5 +1,7 @@
 using BookMyHall.Infrastructure.Configuration;
+
 using Microsoft.Extensions.Options;
+
 using RabbitMQ.Client;
 
 namespace BookMyHall.Infrastructure.Messaging;
@@ -149,5 +151,18 @@ public sealed class RabbitMqTopology(IOptions<RabbitMqOptions> options)
             routingKey: RabbitMqKeys.HallImageUploadedRoutingKey,
             cancellationToken: cancellationToken
         );
+
+        await channel.QueueDeclareAsync(
+            queue: RabbitMqKeys.UserLoggedInQueueName,
+            durable: true,
+            exclusive: false,
+            autoDelete: false,
+            cancellationToken: cancellationToken);
+
+        await channel.QueueBindAsync(
+            queue: RabbitMqKeys.UserLoggedInQueueName,
+            exchange: _options.ExchangeName,
+            routingKey: RabbitMqKeys.UserLoggedInRoutingKey,
+            cancellationToken: cancellationToken);
     }
 }

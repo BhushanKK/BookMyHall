@@ -9,7 +9,7 @@ namespace BookMyHall.Persistence.Repositories;
 public sealed class DeviceRepository(BookMyHallDbContext context): IDeviceRepository
 {
     public async Task<Device?> GetByDeviceIdentifierAsync(Guid userId, string deviceIdentifier, CancellationToken cancellationToken)
-        => await context.Devices.FirstOrDefaultAsync(x=>x.UserId ==userId && x.DeviceIdentifier == deviceIdentifier,cancellationToken);
+        => await context.Devices.FirstOrDefaultAsync(x=>x.UserId ==userId && x.DeviceIdentifier == deviceIdentifier && x.IsActive,cancellationToken);
         
     public async Task AddAsync(Device device, CancellationToken cancellationToken)
         => await context.Devices.AddAsync(device, cancellationToken);

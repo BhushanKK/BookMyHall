@@ -14,6 +14,8 @@ using BookMyHall.Persistence.Repositories.Venue;
 using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
 using BookMyHall.Infrastructure.Persistence.Repositories;
 using BookMyHall.Persistence.Interceptors;
+using BookMyHall.Application.Abstractions.Messaging;
+using BookMyHall.Persistence.Services;
 
 namespace BookMyHall.Persistence;
 
@@ -66,7 +68,8 @@ public static class DependencyInjection
         services.AddScoped<IMenuRolePermissionRepository, MenuRolePermissionRepository>();
         services.AddScoped<IMenuPermissionRepository, MenuPermissionRepository>();
         services.AddScoped<ILocationLookupRepository, LocationLookupRepository>();
-
+        services.AddScoped<IOutboxService, OutboxService>();
+        services.AddScoped<IOutboxRepository, OutboxRepository>();
         return services;
     }
 }

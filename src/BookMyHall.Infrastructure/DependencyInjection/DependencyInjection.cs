@@ -169,8 +169,9 @@ public static class DependencyInjection
         services.AddMemoryCache();
 
         services.AddSingleton<ICacheService, MemoryCacheService>();
-       
-
+        services.AddHostedService<OutboxBackgroundService>();
+        services.AddScoped<UserLoggedInConsumer>();
+        services.AddHostedService<UserLoggedInConsumerHostedService>();
         return services;
     }
 
