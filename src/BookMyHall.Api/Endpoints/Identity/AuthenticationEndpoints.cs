@@ -43,16 +43,16 @@ public static class AuthenticationEndpoints
             CancellationToken cancellationToken) =>
         {
             var refreshToken = httpContext.Request.Cookies["bookmyhall_refresh_token"];
-
             if (string.IsNullOrWhiteSpace(refreshToken))
             {
-                return Results.Json(ApiResponse<LoginResponse>.FailureResponse
+                return Results.Json(ApiResponse<LoginResponse>
+                .FailureResponse
                 (
-                    "Refresh token is required.", 
-                    HttpStatusCode.BadRequest),
-                    statusCode: StatusCodes.Status400BadRequest
-                );
+                    "Refresh token cookie not found.",
+                    HttpStatusCode.BadRequest
+                ),statusCode: StatusCodes.Status400BadRequest);
             }
+
             var command = new RefreshTokenCommand(refreshToken);
             var response = await mediator.Send(command, cancellationToken);
             return Results.Json(response, statusCode: response.StatusCode);
