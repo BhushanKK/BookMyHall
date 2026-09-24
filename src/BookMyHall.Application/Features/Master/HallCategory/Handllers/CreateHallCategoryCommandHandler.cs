@@ -27,22 +27,59 @@ public sealed class CreateHallCategoryCommandHandler(IHallCategoryRepository hal
             return ApiResponse<HallCategoryDto>.FailureResponse(message, HttpStatusCode.BadRequest);
         }
 
-        var category = mapper.Map<HallCategory>(request);
-        category.HallCategoryId = Guid.NewGuid();
-        category.IsActive = true;
-        category.IsDeleted=false;
+        var hallCategoryName = request.HallCategoryName.Trim();
+        var existingHallCategory =await hallCategoryRepository.GetByNameIncludingDeletedAsync(hallCategoryName,cancellationToken);
+
+        // Active record already exists.
+        if (existingHallCategory is not null && !existingHallCategory.IsDeleted)
+        {
+            return ApiResponse<HallCategoryDto>.FailureResponse(messageHelper.AlreadyExistsEntity
+            (ResourceNames.Entities,EntityKeys.HallCategory),HttpStatusCode.Conflict);
+        }
+
+        // Restore previously soft-deleted record.
+        if (existingHallCategory is not null &&
+            existingHallCategory.IsDeleted)
+        {
+            existingHallCategory.IsDeleted = false;
+            existingHallCategory.IsActive = true;
+            existingHallCategory.HallCategoryName =hallCategoryName;
+
+            await hallCategoryRepository.UpdateAsync(existingHallCategory,cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            await InvalidateCacheAsync(existingHallCategory.HallCategoryId,cancellationToken);
+
+            return ApiResponse<HallCategoryDto>.SuccessResponse(mapper.Map<HallCategoryDto>(existingHallCategory),
+                messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.HallCategory),HttpStatusCode.Created);
+        }
+
+        // Create a completely new record.
+        var hallCategory = mapper.Map<HallCategory>(request);
+        hallCategory.HallCategoryId = Guid.NewGuid();
+        hallCategory.HallCategoryName = hallCategoryName;
+        hallCategory.IsActive = true;
+        hallCategory.IsDeleted = false;
+
         try
         {
-            await hallCategoryRepository.AddAsync(category, cancellationToken);
+            await hallCategoryRepository.AddAsync(hallCategory,cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
         catch (DuplicateRecordException)
         {
             return ApiResponse<HallCategoryDto>.FailureResponse(
-                messageHelper.AlreadyExistsEntity(ResourceNames.Entities, EntityKeys.HallCategory), HttpStatusCode.Conflict);
+                messageHelper.AlreadyExistsEntity(ResourceNames.Entities,
+                    EntityKeys.HallCategory),HttpStatusCode.Conflict);
         }
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallCategoriesPaged}:", cancellationToken);
-        return ApiResponse<HallCategoryDto>.SuccessResponse(mapper.Map<HallCategoryDto>(category),
-            messageHelper.AddedEntity(ResourceNames.Entities, EntityKeys.HallCategory), HttpStatusCode.Created);
+
+        await InvalidateCacheAsync(hallCategory.HallCategoryId,cancellationToken);
+        return ApiResponse<HallCategoryDto>.SuccessResponse(mapper.Map<HallCategoryDto>(hallCategory),
+            messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.HallCategory),HttpStatusCode.Created);
+    }
+
+    private async Task InvalidateCacheAsync(Guid hallCategoryId,CancellationToken cancellationToken)
+    {
+        await cacheService.RemoveAsync($"{CacheKeys.HallCategories}:{hallCategoryId}",cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.HallCategoriesPaged}:",cancellationToken);
     }
 }

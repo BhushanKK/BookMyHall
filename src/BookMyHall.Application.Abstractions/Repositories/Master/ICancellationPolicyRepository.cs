@@ -8,6 +8,7 @@ public interface ICancellationPolicyRepository
     Task AddAsync(CancellationPolicy cancellationPolicy,CancellationToken cancellationToken = default);
 
     Task UpdateAsync(CancellationPolicy cancellationPolicy, CancellationToken cancellationToken = default);
+    Task<CancellationPolicy?> GetByNameIncludingDeletedAsync(string policyName,CancellationToken cancellationToken = default);
 
     Task<CancellationPolicy?> GetByIdAsync(Guid cancellationPolicyId, CancellationToken cancellationToken = default);
 

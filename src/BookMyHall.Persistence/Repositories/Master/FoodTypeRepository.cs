@@ -20,7 +20,13 @@ public sealed class FoodTypeRepository(BookMyHallDbContext context): IFoodTypeRe
     public async Task<FoodType?> GetByIdAsync(Guid foodTypeId,CancellationToken cancellationToken = default)
         => await context.FoodTypes
          .FirstOrDefaultAsync(x =>x.FoodTypeId == foodTypeId && !x.IsDeleted && x.IsActive,cancellationToken);
-
+    public async Task<FoodType?> GetByNameIncludingDeletedAsync(string foodtypeName, CancellationToken cancellationToken)
+    {
+        var normalizedName = foodtypeName.Trim();
+        return await context.FoodTypes
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(x => x.FoodTypeName == normalizedName, cancellationToken);
+    }
     public async Task<FoodType?> GetByFoodTypeNameAsync(string foodTypeName,CancellationToken cancellationToken = default)
         => await context.FoodTypes.AsNoTracking()
             .FirstOrDefaultAsync( x => x.FoodTypeName == foodTypeName &&!x.IsDeleted,cancellationToken);

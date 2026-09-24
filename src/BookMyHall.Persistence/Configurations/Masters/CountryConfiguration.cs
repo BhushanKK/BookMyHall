@@ -10,5 +10,6 @@ public sealed class CountryConfiguration : IEntityTypeConfiguration<Country>
     {
         builder.ToTable("Country", "masters");
         builder.HasKey(x => x.CountryId);
+        builder.HasQueryFilter(x=>!x.IsDeleted);
     }
 }

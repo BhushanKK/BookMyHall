@@ -10,6 +10,7 @@ public interface IFacilityRepository
     Task UpdateAsync(Facility facility,CancellationToken cancellationToken = default);
 
     Task<Facility?> GetByIdAsync(Guid facilityId,CancellationToken cancellationToken = default);
+    Task<Facility?> GetByNameIncludingDeletedAsync(string facilityName,CancellationToken cancellationToken = default);
 
     Task<Facility?> GetByFacilityNameAsync(string facilityName,CancellationToken cancellationToken = default);
 

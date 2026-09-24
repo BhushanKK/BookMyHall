@@ -28,10 +28,38 @@ public sealed class CreatePaymentModeCommandHandler(IPaymentModeRepository payme
             return ApiResponse<PaymentModeDto>.FailureResponse(message,HttpStatusCode.BadRequest);
         }
 
+       var paymentModeName = request.PaymentModeName.Trim();
+        var existingPaymentMode =await paymentModeRepository.GetByNameIncludingDeletedAsync(paymentModeName,cancellationToken);
+
+        // Active record already exists.
+        if (existingPaymentMode is not null && !existingPaymentMode.IsDeleted)
+        {
+            return ApiResponse<PaymentModeDto>.FailureResponse(messageHelper.AlreadyExistsEntity
+            (ResourceNames.Entities,EntityKeys.PaymentMode),HttpStatusCode.Conflict);
+        }
+
+        // Restore previously soft-deleted record.
+        if (existingPaymentMode is not null &&
+            existingPaymentMode.IsDeleted)
+        {
+            existingPaymentMode.IsDeleted = false;
+            existingPaymentMode.IsActive = true;
+            existingPaymentMode.PaymentModeName =paymentModeName;
+
+            await paymentModeRepository.UpdateAsync(existingPaymentMode,cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            await InvalidateCacheAsync(existingPaymentMode.PaymentModeId,cancellationToken);
+
+            return ApiResponse<PaymentModeDto>.SuccessResponse(mapper.Map<PaymentModeDto>(existingPaymentMode),
+                messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.PaymentMode),HttpStatusCode.Created);
+        }
+
+        // Create a completely new record.
         var paymentMode = mapper.Map<PaymentMode>(request);
         paymentMode.PaymentModeId = Guid.NewGuid();
+        paymentMode.PaymentModeName = paymentModeName;
         paymentMode.IsActive = true;
-        paymentMode.IsDeleted=false;
+        paymentMode.IsDeleted = false;
 
         try
         {
@@ -41,13 +69,18 @@ public sealed class CreatePaymentModeCommandHandler(IPaymentModeRepository payme
         catch (DuplicateRecordException)
         {
             return ApiResponse<PaymentModeDto>.FailureResponse(
-                messageHelper.AlreadyExistsEntity(ResourceNames.Entities,EntityKeys.PaymentMode),HttpStatusCode.Conflict);
+                messageHelper.AlreadyExistsEntity(ResourceNames.Entities,
+                    EntityKeys.PaymentMode),HttpStatusCode.Conflict);
         }
-        
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.PaymentModesPaged}:", cancellationToken);
 
-        return ApiResponse<PaymentModeDto>.SuccessResponse(
-            mapper.Map<PaymentModeDto>(paymentMode),
+        await InvalidateCacheAsync(paymentMode.PaymentModeId,cancellationToken);
+        return ApiResponse<PaymentModeDto>.SuccessResponse(mapper.Map<PaymentModeDto>(paymentMode),
             messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.PaymentMode),HttpStatusCode.Created);
+    }
+
+    private async Task InvalidateCacheAsync(Guid paymentModeId,CancellationToken cancellationToken)
+    {
+        await cacheService.RemoveAsync($"{CacheKeys.PaymentMode}:{paymentModeId}",cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.PaymentModesPaged}:",cancellationToken);
     }
 }

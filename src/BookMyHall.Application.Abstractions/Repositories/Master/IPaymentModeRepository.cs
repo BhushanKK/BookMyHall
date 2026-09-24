@@ -10,6 +10,7 @@ public interface IPaymentModeRepository
     Task UpdateAsync(PaymentMode paymentMode,CancellationToken cancellationToken = default);
 
     Task<PaymentMode?> GetByIdAsync(Guid paymentModeId,CancellationToken cancellationToken = default);
+    Task<PaymentMode?> GetByNameIncludingDeletedAsync(string paymentModeName,CancellationToken cancellationToken = default);
 
     Task<PaymentMode?> GetByPaymentModeNameAsync(string paymentModeName,CancellationToken cancellationToken = default);
 

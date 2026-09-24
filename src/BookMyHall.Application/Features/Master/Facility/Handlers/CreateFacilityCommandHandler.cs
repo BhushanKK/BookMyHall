@@ -26,23 +26,59 @@ public sealed class CreateFacilityCommandHandler(IFacilityRepository facilityRep
             return ApiResponse<FacilityDto>.FailureResponse(message, HttpStatusCode.BadRequest);
         }
 
+        var facilityName = request.FacilityName.Trim();
+        var existingFacility =await facilityRepository.GetByNameIncludingDeletedAsync(facilityName,cancellationToken);
+
+        // Active record already exists.
+        if (existingFacility is not null && !existingFacility.IsDeleted)
+        {
+            return ApiResponse<FacilityDto>.FailureResponse(messageHelper.AlreadyExistsEntity
+            (ResourceNames.Entities,EntityKeys.Facility),HttpStatusCode.Conflict);
+        }
+
+        // Restore previously soft-deleted record.
+        if (existingFacility is not null &&
+            existingFacility.IsDeleted)
+        {
+            existingFacility.IsDeleted = false;
+            existingFacility.IsActive = true;
+            existingFacility.FacilityName =facilityName;
+
+            await facilityRepository.UpdateAsync(existingFacility,cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            await InvalidateCacheAsync(existingFacility.FacilityId,cancellationToken);
+
+            return ApiResponse<FacilityDto>.SuccessResponse(mapper.Map<FacilityDto>(existingFacility),
+                messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.Facility),HttpStatusCode.Created);
+        }
+
+        // Create a completely new record.
         var facility = mapper.Map<Facility>(request);
         facility.FacilityId = Guid.NewGuid();
+        facility.FacilityName = facilityName;
         facility.IsActive = true;
-        facility.IsDeleted=false;
+        facility.IsDeleted = false;
+
         try
         {
-            await facilityRepository.AddAsync(facility, cancellationToken);
+            await facilityRepository.AddAsync(facility,cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
         catch (DuplicateRecordException)
         {
             return ApiResponse<FacilityDto>.FailureResponse(
-                messageHelper.AlreadyExistsEntity(ResourceNames.Entities, EntityKeys.Facility), HttpStatusCode.Conflict);
+                messageHelper.AlreadyExistsEntity(ResourceNames.Entities,
+                    EntityKeys.Facility),HttpStatusCode.Conflict);
         }
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.FacilitiesPaged}:", cancellationToken);
 
+        await InvalidateCacheAsync(facility.FacilityId,cancellationToken);
         return ApiResponse<FacilityDto>.SuccessResponse(mapper.Map<FacilityDto>(facility),
-            messageHelper.AddedEntity(ResourceNames.Entities, EntityKeys.Facility), HttpStatusCode.Created);
+            messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.Facility),HttpStatusCode.Created);
+    }
+
+    private async Task InvalidateCacheAsync(Guid facilityId,CancellationToken cancellationToken)
+    {
+        await cacheService.RemoveAsync($"{CacheKeys.Facilities}:{facilityId}",cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.FacilitiesPaged}:",cancellationToken);
     }
 }

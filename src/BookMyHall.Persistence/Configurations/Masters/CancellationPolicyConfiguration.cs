@@ -10,5 +10,6 @@ public sealed class CancellationPolicyConfiguration : IEntityTypeConfiguration<C
     {
         builder.ToTable("CancellationPolicy", "masters");
         builder.HasKey(x =>  x.CancellationPolicyId );
+        builder.HasQueryFilter(x=>!x.IsDeleted);
     }
 }

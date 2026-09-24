@@ -10,5 +10,6 @@ public sealed class ServiceConfiguration : IEntityTypeConfiguration<Service>
     {
         builder.ToTable("Service", "masters");
         builder.HasKey(x =>  x.ServiceId );
+        builder.HasQueryFilter(x=>!x.IsDeleted);
     }
 }

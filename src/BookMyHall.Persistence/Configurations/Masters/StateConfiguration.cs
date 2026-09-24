@@ -8,5 +8,6 @@ public sealed class StateConfiguration : IEntityTypeConfiguration<State>
     {
         builder.ToTable("State", "masters");
         builder.HasKey(x =>  x.StateId );
+        builder.HasQueryFilter(x=>!x.IsDeleted);
     }
 }
