@@ -368,20 +368,17 @@ public static class AuthenticationEndpoints
                 StatusCodes.Status404NotFound);
     }
 
-    private static void SetRefreshTokenCookie(
-        HttpContext httpContext,
-        string refreshToken)
+    private static void SetRefreshTokenCookie(HttpContext httpContext, string refreshToken)
     {
-        httpContext.Response.Cookies.Append(
-            RefreshTokenCookieName,
-            refreshToken,
-            new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.None,
-                Path = RefreshTokenCookiePath
-            });
+        httpContext.Response.Cookies.Append(RefreshTokenCookieName, refreshToken,
+        new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Path = RefreshTokenCookiePath,
+            MaxAge = TimeSpan.FromDays(30)
+        });
     }
 
     private static void DeleteRefreshTokenCookie(
