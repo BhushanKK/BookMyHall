@@ -47,9 +47,7 @@ public sealed class RefreshTokenCommandHandler(
         // Load Refresh Token + Required User Data
         // ---------------------------------------------------------
 
-        var refreshToken = await refreshTokenRepository.GetByTokenAsync(
-            request.RefreshToken,
-            cancellationToken);
+        var refreshToken = await refreshTokenRepository.GetByTokenAsync(request.RefreshToken, cancellationToken);
 
         if (refreshToken is null)
         {
