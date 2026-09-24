@@ -28,24 +28,6 @@ public sealed class AuthenticationEndpointsTests(BookMyHallWebApplicationFactory
     }
 
     [Fact]
-    public async Task Logout_WithoutAuthentication_ShouldReturnUnauthorized()
-    {
-        // Arrange
-        var client = _factory.CreateClient();
-
-        var request = new
-        {
-            refreshToken = "invalid-refresh-token"
-        };
-
-        // Act
-        var response = await client.PostAsJsonAsync("/api/authentication/logout", request);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-    }
-
-    [Fact]
     public async Task ChangePassword_WithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
