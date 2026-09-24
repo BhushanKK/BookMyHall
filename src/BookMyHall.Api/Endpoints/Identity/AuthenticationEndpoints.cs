@@ -19,11 +19,8 @@ namespace BookMyHall.Api.Endpoints.Identity;
 
 public static class AuthenticationEndpoints
 {
-    private const string RefreshTokenCookieName =
-        "bookmyhall_refresh_token";
-
-    private const string RefreshTokenCookiePath =
-        "/api/authentication";
+    private const string RefreshTokenCookieName = "bookmyhall_refresh_token";
+    private const string RefreshTokenCookiePath = "/api/authentication";
 
     public static void MapAuthenticationEndpoints(
         this IEndpointRouteBuilder app)
@@ -132,41 +129,27 @@ public static class AuthenticationEndpoints
             StatusCodes.Status401Unauthorized);
 
         group.MapPost("/logout", async (
-            LogoutRequest request,
-            IMapper mapper,
-            IMediator mediator,
             HttpContext httpContext,
+            IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var command =
-                mapper.Map<LogoutCommand>(request);
-
-            var response =
-                await mediator.Send(
-                    command,
-                    cancellationToken);
-
-            if (response.StatusCode == (int)HttpStatusCode.OK)
+            if (!httpContext.Request.Cookies.TryGetValue(RefreshTokenCookieName, out var refreshToken) 
+                || string.IsNullOrWhiteSpace(refreshToken))
             {
-                DeleteRefreshTokenCookie(
-                    httpContext);
+                DeleteRefreshTokenCookie(httpContext);
+                return Results.Json
+                (
+                    ApiResponse<bool>.SuccessResponse(true, "Logout successful.", 
+                    HttpStatusCode.OK
+                ),
+                statusCode: StatusCodes.Status200OK);
             }
 
-            return Results.Json(
-                response,
-                statusCode: response.StatusCode);
-        })
-        .RequireAuthorization()
-        .WithName("Logout")
-        .WithSummary("Logout User")
-        .WithDescription(
-            "Revokes the refresh token and logs the current user out.")
-        .Produces<ApiResponse<bool>>(
-            StatusCodes.Status200OK)
-        .Produces<ApiResponse<bool>>(
-            StatusCodes.Status400BadRequest)
-        .Produces<ApiResponse<bool>>(
-            StatusCodes.Status401Unauthorized);
+            var command = new LogoutCommand(refreshToken);
+            var response = await mediator.Send(command, cancellationToken);
+            DeleteRefreshTokenCookie(httpContext);
+            return Results.Json(response, statusCode: response.StatusCode);
+        }).AllowAnonymous();
 
         group.MapPost("/change-password", async (
             ChangePasswordCommand command,
