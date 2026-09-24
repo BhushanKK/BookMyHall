@@ -379,7 +379,7 @@ public static class AuthenticationEndpoints
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Lax,
+                SameSite = SameSiteMode.None,
                 Path = RefreshTokenCookiePath
             });
     }
@@ -393,7 +393,7 @@ public static class AuthenticationEndpoints
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Lax,
+                SameSite = SameSiteMode.None,
                 Path = RefreshTokenCookiePath
             });
     }
