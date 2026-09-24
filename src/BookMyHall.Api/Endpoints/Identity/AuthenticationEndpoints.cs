@@ -11,6 +11,8 @@ using BookMyHall.Contracts.Authentication;
 using BookMyHall.Application.Features.Authentication;
 using BookMyHall.Domain.Identity;
 using BookMyHall.Application.Features.Identity;
+
+using System.Net;
 namespace BookMyHall.Api.Endpoints.Identity;
 
 public static class AuthenticationEndpoints
@@ -37,12 +39,21 @@ public static class AuthenticationEndpoints
         .Produces<ApiResponse<LoginResponse>>(StatusCodes.Status401Unauthorized);
 
         group.MapPost("/refresh-token", async (
-            RefreshTokenRequest request,
-            IMapper mapper,
-            IMediator mediator,
+            HttpContext httpContext, IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var command = mapper.Map<RefreshTokenCommand>(request);
+            var refreshToken = httpContext.Request.Cookies["bookmyhall_refresh_token"];
+
+            if (string.IsNullOrWhiteSpace(refreshToken))
+            {
+                return Results.Json(ApiResponse<LoginResponse>.FailureResponse
+                (
+                    "Refresh token is required.", 
+                    HttpStatusCode.BadRequest),
+                    statusCode: StatusCodes.Status400BadRequest
+                );
+            }
+            var command = new RefreshTokenCommand(refreshToken);
             var response = await mediator.Send(command, cancellationToken);
             return Results.Json(response, statusCode: response.StatusCode);
         })
