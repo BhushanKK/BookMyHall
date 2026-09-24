@@ -31,6 +31,8 @@ public sealed class RefreshTokenRepository(BookMyHallDbContext context): IRefres
                 EmailAddress = x.User.EmailAddress!,
                 TokenVersion = x.User.TokenVersion,
                 IsActive = x.User.IsActive,
+                IsEmailVerified=x.User.IsEmailVerified,
+                ProfileImageUrl=x.User.ProfileImageUrl,
                 Roles = x.User.UserRoles
                 .Select(ur => new JwtRole
                 {

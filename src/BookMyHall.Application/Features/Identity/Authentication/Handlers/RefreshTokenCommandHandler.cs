@@ -5,12 +5,14 @@ using FluentValidation;
 using MediatR;
 
 using Microsoft.Extensions.Options;
+
 using BookMyHall.Application.Abstractions.Authentication;
 using BookMyHall.Application.Abstractions.Persistence;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Infrastructure.Authentication;
 using BookMyHall.Shared.Common;
+using BookMyHall.Application.Common.Interfaces.Storage;
 
 namespace BookMyHall.Application.Features.Identity.Authentication;
 
@@ -21,7 +23,7 @@ public sealed class RefreshTokenCommandHandler(
     IJwtTokenService jwtTokenService,
     IValidator<RefreshTokenCommand> validator,
     IMessageHelper messageHelper,
-    IOptions<JwtOptions> jwtOptions)
+    IOptions<JwtOptions> jwtOptions, IR2StorageService storageService)
     : IRequestHandler<RefreshTokenCommand, ApiResponse<LoginResponse>>
 {
     public async Task<ApiResponse<LoginResponse>> Handle(
@@ -164,6 +166,14 @@ public sealed class RefreshTokenCommandHandler(
         // ---------------------------------------------------------
         // Prepare Response
         // ---------------------------------------------------------
+        
+        if (!string.IsNullOrWhiteSpace(refreshToken.ProfileImageUrl))
+        {
+            refreshToken.ProfileImageUrl = await storageService.GetPreSignedUrlAsync(
+                refreshToken.ProfileImageUrl,
+                TimeSpan.FromDays(6).Add(TimeSpan.FromHours(23)),
+                cancellationToken);
+        }
 
         var response = new LoginResponse
         {
@@ -172,11 +182,13 @@ public sealed class RefreshTokenCommandHandler(
             MobileNumber = refreshToken.MobileNumber,
             EmailAddress = refreshToken.EmailAddress,
             Roles = refreshToken.Roles,
-
+            IsEmailVerified = refreshToken.IsEmailVerified,
+            ProfileImageUrl = refreshToken.ProfileImageUrl,
             AccessToken = jwtResult.AccessToken,
             RefreshToken = newRefreshTokenValue,
             ExpiresAt = jwtResult.ExpiresAt
         };
+
         return ApiResponse<LoginResponse>.SuccessResponse
         (
             response,
