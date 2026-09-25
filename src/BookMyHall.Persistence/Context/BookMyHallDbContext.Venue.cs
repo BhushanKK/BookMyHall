@@ -1,8 +1,6 @@
 using BookMyHall.Domain.Venue;
-
 using Microsoft.EntityFrameworkCore;
 namespace BookMyHall.Persistence.Context;
-
 public partial class BookMyHallDbContext
 {
      public DbSet<Hall> Halls => Set<Hall>();
@@ -11,4 +9,5 @@ public partial class BookMyHallDbContext
     public DbSet<HallBlock> HallBlocks => Set<HallBlock>();    
     public DbSet<HallListView> HallListViews => Set<HallListView>();
     public DbSet<NearbyHallView> NearbyHallViews => Set<NearbyHallView>();
+    public DbSet<Vendors> Vendors => Set<Vendors>();
 }
