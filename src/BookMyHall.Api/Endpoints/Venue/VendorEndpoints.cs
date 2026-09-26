@@ -22,93 +22,56 @@ public static class VendorEndpoints
         // Create Vendor
         // ---------------------------------------------------------
 
-        group.MapPost("/", async (
-            CreateVendorCommand command,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
+        group.MapPost("/", async (CreateVendorCommand command,IMediator mediator,CancellationToken cancellationToken) =>
         {
-            var response = await mediator.Send(
-                command,
-                cancellationToken);
-
-            return Results.Json(
-                response,
-                statusCode: response.StatusCode);
+            var response = await mediator.Send(command,cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
         })
         .WithName("CreateVendor")
         .WithSummary("Create Vendor")
         .WithDescription("Creates a new vendor.")
-        .Produces<ApiResponse<VendorDto>>(
-            StatusCodes.Status201Created)
-        .Produces(
-            StatusCodes.Status400BadRequest)
-        .Produces(
-            StatusCodes.Status401Unauthorized)
-        .Produces(
-            StatusCodes.Status409Conflict);
+        .Produces<ApiResponse<VendorDto>>(StatusCodes.Status201Created)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status409Conflict);
 
         // ---------------------------------------------------------
         // Update Vendor
         // ---------------------------------------------------------
 
-        group.MapPut("/{vendorId:guid}", async (
-            Guid vendorId,
-            UpdateVendorCommand command,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
+        group.MapPut("/{vendorId:guid}", async (Guid vendorId,UpdateVendorCommand command,
+            IMediator mediator,CancellationToken cancellationToken) =>
         {
             command.VendorId = vendorId;
+            var response = await mediator.Send(command,cancellationToken);
 
-            var response = await mediator.Send(
-                command,
-                cancellationToken);
-
-            return Results.Json(
-                response,
-                statusCode: response.StatusCode);
+            return Results.Json(response,statusCode: response.StatusCode);
         })
         .WithName("UpdateVendor")
         .WithSummary("Update Vendor")
         .WithDescription("Updates an existing vendor.")
-        .Produces<ApiResponse<VendorDto>>(
-            StatusCodes.Status200OK)
-        .Produces(
-            StatusCodes.Status400BadRequest)
-        .Produces(
-            StatusCodes.Status401Unauthorized)
-        .Produces(
-            StatusCodes.Status404NotFound)
-        .Produces(
-            StatusCodes.Status409Conflict);
+        .Produces<ApiResponse<VendorDto>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status409Conflict);
 
         // ---------------------------------------------------------
         // Delete Vendor
         // ---------------------------------------------------------
 
-        group.MapDelete("/{vendorId:guid}", async (
-            Guid vendorId,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
+        group.MapDelete("/{vendorId:guid}", async (Guid vendorId,IMediator mediator,CancellationToken cancellationToken) =>
         {
             var command = new DeleteVendorCommand(vendorId);
-
-            var response = await mediator.Send(
-                command,
-                cancellationToken);
-
-            return Results.Json(
-                response,
-                statusCode: response.StatusCode);
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
         })
         .WithName("DeleteVendor")
         .WithSummary("Delete Vendor")
         .WithDescription("Deletes an existing vendor.")
-        .Produces<ApiResponse<bool>>(
-            StatusCodes.Status200OK)
-        .Produces(
-            StatusCodes.Status401Unauthorized)
-        .Produces(
-            StatusCodes.Status404NotFound);
+        .Produces<ApiResponse<bool>>( StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
 
         // ---------------------------------------------------------
         // Get Vendor By Id
@@ -121,28 +84,19 @@ public static class VendorEndpoints
         })
         .WithName("GetVendorById")
         .WithSummary("Get Vendor By Id")
-        .WithDescription(
-            "Returns a vendor by its identifier.")
-        .Produces<ApiResponse<VendorDto>>(
-            StatusCodes.Status200OK)
-        .Produces(
-            StatusCodes.Status401Unauthorized)
-        .Produces(
-            StatusCodes.Status404NotFound);
+        .WithDescription("Returns a vendor by its identifier.")
+        .Produces<ApiResponse<VendorDto>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
 
         // ---------------------------------------------------------
         // Get Vendors
         // ---------------------------------------------------------
 
-        group.MapGet("/", async (
-            [AsParameters] PaginationRequest request,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
+        group.MapGet("/", async ([AsParameters] PaginationRequest request,
+            IMediator mediator,CancellationToken cancellationToken) =>
         {
-            var response = await mediator.Send(
-                new GetVendorsQuery(request),
-                cancellationToken);
-
+            var response = await mediator.Send(new GetVendorsQuery(request),cancellationToken);
             return Results.Json(response,statusCode: response.StatusCode);
         })
         .WithName("GetVendors")

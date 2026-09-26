@@ -23,17 +23,13 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
     {
         return await context.Vendors
             .AsNoTracking()
-            .FirstOrDefaultAsync(
-                x => x.VendorId == vendorId,
-                cancellationToken);
+            .FirstOrDefaultAsync(x => x.VendorId == vendorId,cancellationToken);
     }
 
     public async Task<Vendors?> GetByBusinessNameAsync(string businessName, CancellationToken cancellationToken = default)
     {
-        return await context.Vendors
-            .FirstOrDefaultAsync(
-                x => x.BusinessName == businessName,
-                cancellationToken);
+        return await context.Vendors.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.BusinessName == businessName && !x.IsDeleted,cancellationToken);
     }
 
     public async Task<Vendors?> GetByBusinessNameIncludingDeletedAsync(string businessName, CancellationToken cancellationToken = default)
