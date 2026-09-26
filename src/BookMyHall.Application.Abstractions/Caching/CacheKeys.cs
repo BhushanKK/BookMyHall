@@ -79,4 +79,11 @@ public static class CacheKeys
     public const string ServicesAutoComplete="ServicesAutoComplete";
     public const string StatesAutoComplete="StatesAutoComplete";
      public const string HallsAutoComplete="HallsAutoComplete";
+
+     //===============Venue Vendors==========================//
+     public const string Vendors = "Vendors";
+    public const string VendorsPaged = "VendorsPaged";
+
+     public const string VendorCategories = "VendorCategories";
+    public const string VendorCategoriesPaged = "VendorCategoriesPaged";
 }

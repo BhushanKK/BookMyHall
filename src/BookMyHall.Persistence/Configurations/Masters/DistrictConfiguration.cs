@@ -10,5 +10,6 @@ public sealed class DistrictConfiguration : IEntityTypeConfiguration<District>
     {
         builder.ToTable("District", "masters");
         builder.HasKey(x =>  x.DistrictId );
+        builder.HasQueryFilter(x=>!x.IsDeleted);
     }
 }

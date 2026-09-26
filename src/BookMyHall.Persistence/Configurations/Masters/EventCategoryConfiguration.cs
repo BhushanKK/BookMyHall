@@ -10,5 +10,6 @@ public sealed class EventCategoryConfiguration : IEntityTypeConfiguration<EventC
     {
         builder.ToTable("EventCategory", "masters");
         builder.HasKey(x =>  x.EventCategoryId );
+        builder.HasQueryFilter(x=>!x.IsDeleted);
     }
 }

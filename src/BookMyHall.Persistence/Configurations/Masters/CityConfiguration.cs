@@ -10,5 +10,6 @@ public sealed class CityConfiguration : IEntityTypeConfiguration<City>
     {
         builder.ToTable("City", "masters");
         builder.HasKey(x =>  x.CityId );
+        builder.HasQueryFilter(x=>!x.IsDeleted);
     }
 }

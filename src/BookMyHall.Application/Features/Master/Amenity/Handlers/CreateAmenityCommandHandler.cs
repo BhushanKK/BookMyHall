@@ -27,22 +27,59 @@ public sealed class CreateAmenityCommandHandler(IAmenityRepository amenityReposi
             return ApiResponse<AmenityDto>.FailureResponse(message,HttpStatusCode.BadRequest);
         }
 
+       var amenityName = request.AmenityName.Trim();
+        var existingAmenity =await amenityRepository.GetByNameIncludingDeletedAsync(amenityName,cancellationToken);
+
+        // Active record already exists.
+        if (existingAmenity is not null && !existingAmenity.IsDeleted)
+        {
+            return ApiResponse<AmenityDto>.FailureResponse(messageHelper.AlreadyExistsEntity
+            (ResourceNames.Entities,EntityKeys.Amenity),HttpStatusCode.Conflict);
+        }
+
+        // Restore previously soft-deleted record.
+        if (existingAmenity is not null &&
+            existingAmenity.IsDeleted)
+        {
+            existingAmenity.IsDeleted = false;
+            existingAmenity.IsActive = true;
+            existingAmenity.AmenityName =amenityName;
+
+            await amenityRepository.UpdateAsync(existingAmenity,cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            await InvalidateCacheAsync(existingAmenity.AmenityId,cancellationToken);
+
+            return ApiResponse<AmenityDto>.SuccessResponse(mapper.Map<AmenityDto>(existingAmenity),
+                messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.Amenity),HttpStatusCode.Created);
+        }
+
+        // Create a completely new record.
         var amenity = mapper.Map<Amenity>(request);
         amenity.AmenityId = Guid.NewGuid();
+        amenity.AmenityName = amenityName;
         amenity.IsActive = true;
         amenity.IsDeleted = false;
+
         try
         {
-            await amenityRepository.AddAsync(amenity, cancellationToken);
+            await amenityRepository.AddAsync(amenity,cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
         catch (DuplicateRecordException)
         {
             return ApiResponse<AmenityDto>.FailureResponse(
-            messageHelper.AlreadyExistsEntity(ResourceNames.Entities, EntityKeys.Amenity), HttpStatusCode.Conflict);
+                messageHelper.AlreadyExistsEntity(ResourceNames.Entities,
+                    EntityKeys.Amenity),HttpStatusCode.Conflict);
         }
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.AmenitiesPaged}:", cancellationToken);
+
+        await InvalidateCacheAsync(amenity.AmenityId,cancellationToken);
         return ApiResponse<AmenityDto>.SuccessResponse(mapper.Map<AmenityDto>(amenity),
-            messageHelper.AddedEntity(ResourceNames.Entities, EntityKeys.Amenity), HttpStatusCode.Created);
+            messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.Amenity),HttpStatusCode.Created);
+    }
+
+    private async Task InvalidateCacheAsync(Guid amenityId,CancellationToken cancellationToken)
+    {
+        await cacheService.RemoveAsync($"{CacheKeys.Amenity}:{amenityId}",cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.AmenitiesPaged}:",cancellationToken);
     }
 }

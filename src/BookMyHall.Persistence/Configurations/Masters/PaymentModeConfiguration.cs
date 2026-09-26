@@ -10,5 +10,6 @@ public sealed class PaymentModeConfiguration : IEntityTypeConfiguration<PaymentM
     {
         builder.ToTable("PaymentMode", "masters");
         builder.HasKey(x =>  x.PaymentModeId );
+        builder.HasQueryFilter(x=>!x.IsDeleted);
     }
 }

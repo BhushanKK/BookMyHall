@@ -27,10 +27,39 @@ public sealed class CreateServiceCommandHandler(IServiceRepository serviceReposi
             return ApiResponse<ServiceDto>.FailureResponse(message,HttpStatusCode.BadRequest);
         }
 
+        var serviceName = request.ServiceName.Trim();
+        var existingService =await serviceRepository.GetByNameIncludingDeletedAsync(serviceName,cancellationToken);
+
+        // Active record already exists.
+        if (existingService is not null && !existingService.IsDeleted)
+        {
+            return ApiResponse<ServiceDto>.FailureResponse(messageHelper.AlreadyExistsEntity
+            (ResourceNames.Entities,EntityKeys.Service),HttpStatusCode.Conflict);
+        }
+
+        // Restore previously soft-deleted record.
+        if (existingService is not null &&
+            existingService.IsDeleted)
+        {
+            existingService.IsDeleted = false;
+            existingService.IsActive = true;
+            existingService.ServiceName =serviceName;
+
+            await serviceRepository.UpdateAsync(existingService,cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            await InvalidateCacheAsync(existingService.ServiceId,cancellationToken);
+
+            return ApiResponse<ServiceDto>.SuccessResponse(mapper.Map<ServiceDto>(existingService),
+                messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.Service),HttpStatusCode.Created);
+        }
+
+        // Create a completely new record.
         var service = mapper.Map<Service>(request);
         service.ServiceId = Guid.NewGuid();
+        service.ServiceName = serviceName;
         service.IsActive = true;
-        service.IsDeleted=false;
+        service.IsDeleted = false;
+
         try
         {
             await serviceRepository.AddAsync(service,cancellationToken);
@@ -39,12 +68,18 @@ public sealed class CreateServiceCommandHandler(IServiceRepository serviceReposi
         catch (DuplicateRecordException)
         {
             return ApiResponse<ServiceDto>.FailureResponse(
-                messageHelper.AlreadyExistsEntity(ResourceNames.Entities,EntityKeys.Service),HttpStatusCode.Conflict);
+                messageHelper.AlreadyExistsEntity(ResourceNames.Entities,
+                    EntityKeys.Service),HttpStatusCode.Conflict);
         }
 
-        await cacheService.RemoveByPrefixAsync($"{CacheKeys.ServicesPaged}:", cancellationToken);
-        
+        await InvalidateCacheAsync(service.ServiceId,cancellationToken);
         return ApiResponse<ServiceDto>.SuccessResponse(mapper.Map<ServiceDto>(service),
             messageHelper.AddedEntity(ResourceNames.Entities,EntityKeys.Service),HttpStatusCode.Created);
+    }
+
+    private async Task InvalidateCacheAsync(Guid serviceId,CancellationToken cancellationToken)
+    {
+        await cacheService.RemoveAsync($"{CacheKeys.Services}:{serviceId}",cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.ServicesPaged}:",cancellationToken);
     }
 }

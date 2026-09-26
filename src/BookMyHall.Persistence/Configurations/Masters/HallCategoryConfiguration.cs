@@ -10,5 +10,6 @@ public sealed class HallCategoryConfiguration : IEntityTypeConfiguration<HallCat
     {
         builder.ToTable("HallCategory", "masters");
         builder.HasKey(x =>  x.HallCategoryId );
+        builder.HasQueryFilter(x=>!x.IsDeleted);
     }
 }

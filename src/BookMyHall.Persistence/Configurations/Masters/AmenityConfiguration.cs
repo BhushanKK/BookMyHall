@@ -10,5 +10,6 @@ public sealed class AmenityConfiguration : IEntityTypeConfiguration<Amenity>
     {
         builder.ToTable("Amenity", "masters");
         builder.HasKey(x =>  x.AmenityId );
+        builder.HasQueryFilter(x=>!x.IsDeleted);
     }
 }

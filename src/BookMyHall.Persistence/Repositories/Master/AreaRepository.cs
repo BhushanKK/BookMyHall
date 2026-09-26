@@ -21,6 +21,13 @@ public sealed class AreaRepository(BookMyHallDbContext context): IAreaRepository
         => await context.Areas
             .FirstOrDefaultAsync(x => x.AreaId == areaId && !x.IsDeleted && x.IsActive,cancellationToken);
 
+    public async Task<Area?> GetByNameIncludingDeletedAsync(string areaName, CancellationToken cancellationToken)
+    {
+        var normalizedName = areaName.Trim();
+        return await context.Areas
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(x => x.AreaName == normalizedName, cancellationToken);
+    }
     public async Task<Area?> GetByAreaNameAsync(string areaName,CancellationToken cancellationToken = default)
         => await context.Areas.AsNoTracking()
             .FirstOrDefaultAsync(x =>x.AreaName == areaName &&!x.IsDeleted,cancellationToken);

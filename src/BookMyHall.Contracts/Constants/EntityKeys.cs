@@ -94,7 +94,7 @@ public static class EntityKeys
   public const string HallId = nameof(HallId);
 
   public const string HallOwnerId = nameof(HallOwnerId);
-    public const string HallOwner = nameof(HallOwner);
+  public const string HallOwner = nameof(HallOwner);
 
   public const string HallName = nameof(HallName);
 
@@ -103,6 +103,19 @@ public static class EntityKeys
   public const string ContactPersonName = nameof(ContactPersonName);
 
 
+  // =========================================================
+  //Venue Vendor
+  // =========================================================
+
+  public const string Vendor = nameof(Vendor);
+  public const string VendorId = nameof(VendorId);
+
+    // =========================================================
+  //Venue VendorCategory
+  // =========================================================
+
+  public const string VendorCategory = nameof(VendorCategory);
+  public const string VendorCategoryId = nameof(VendorCategoryId);
   // =========================================================
   // Booking
   // =========================================================
@@ -274,4 +287,5 @@ public static class EntityKeys
 
   public const string FileName = nameof(FileName);
   public const string ContentType = nameof(ContentType);
+
 }

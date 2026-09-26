@@ -9,5 +9,6 @@ public sealed class FacilityConfiguration : IEntityTypeConfiguration<Facility>
     {
         builder.ToTable("Facility", "masters");
         builder.HasKey(x =>  x.FacilityId );
+        builder.HasQueryFilter(x=>!x.IsDeleted);
     }
 }

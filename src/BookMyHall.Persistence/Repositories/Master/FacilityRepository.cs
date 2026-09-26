@@ -20,7 +20,13 @@ public sealed class FacilityRepository(BookMyHallDbContext context): IFacilityRe
     public async Task<Facility?> GetByIdAsync(Guid facilityId,CancellationToken cancellationToken = default)
         => await context.Facilities
         .FirstOrDefaultAsync(x => x.FacilityId == facilityId && !x.IsDeleted && x.IsActive,cancellationToken);
-
+    public async Task<Facility?> GetByNameIncludingDeletedAsync(string facilityName, CancellationToken cancellationToken)
+    {
+        var normalizedName = facilityName.Trim();
+        return await context.Facilities
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(x => x.FacilityName == normalizedName, cancellationToken);
+    }
     public async Task<Facility?> GetByFacilityNameAsync(string facilityName,CancellationToken cancellationToken = default)
         => await context.Facilities.AsNoTracking()
             .FirstOrDefaultAsync(x => x.FacilityName == facilityName && !x.IsDeleted,cancellationToken);

@@ -9,6 +9,7 @@ public interface IHallCategoryRepository
     Task<PaginatedResult<HallCategory>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default);
     Task AddAsync(HallCategory hallCategory,CancellationToken cancellationToken = default);
     Task UpdateAsync(HallCategory hallCategory,CancellationToken cancellationToken = default);
+    Task<HallCategory?> GetByNameIncludingDeletedAsync(string hallcategoryName,CancellationToken cancellationToken = default);
     Task<HallCategory?> GetByHallCategoryNameAsync(string hallCategoryName,CancellationToken cancellationToken = default);
     Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(string? searchTerm, int limit = 20, CancellationToken cancellationToken = default);
 

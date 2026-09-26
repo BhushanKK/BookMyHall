@@ -10,5 +10,6 @@ public sealed class AreaConfiguration : IEntityTypeConfiguration<Area>
     {
         builder.ToTable("Area", "masters");
         builder.HasKey(x =>  x.AreaId );
+        builder.HasQueryFilter(x=>!x.IsDeleted);
     }
 }

@@ -9,5 +9,6 @@ public sealed class FoodTypeConfiguration : IEntityTypeConfiguration<FoodType>
     {
         builder.ToTable("FoodType", "masters");
         builder.HasKey(x =>  x.FoodTypeId );
+        builder.HasQueryFilter(x=>!x.IsDeleted);
     }
 }

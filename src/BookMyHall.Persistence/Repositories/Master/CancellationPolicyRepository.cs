@@ -21,6 +21,13 @@ public sealed class CancellationPolicyRepository(BookMyHallDbContext context): I
         => await context.CancellationPolicies
             .FirstOrDefaultAsync(x=>x.CancellationPolicyId == cancellationPolicyId && !x.IsDeleted && x.IsActive,cancellationToken);
                
+    public async Task<CancellationPolicy?> GetByNameIncludingDeletedAsync(string policyName, CancellationToken cancellationToken)
+    {
+        var normalizedName = policyName.Trim();
+        return await context.CancellationPolicies
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(x => x.PolicyName == normalizedName, cancellationToken);
+    }           
     public async Task<CancellationPolicy?> GetByPolicyNameAsync(string policyName,CancellationToken cancellationToken = default)
         => await context.CancellationPolicies.AsNoTracking()
             .FirstOrDefaultAsync(x => x.PolicyName == policyName && !x.IsDeleted,cancellationToken);

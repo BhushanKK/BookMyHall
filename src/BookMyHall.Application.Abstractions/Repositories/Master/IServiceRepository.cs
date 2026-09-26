@@ -10,6 +10,7 @@ public interface IServiceRepository
     Task UpdateAsync(Service service,CancellationToken cancellationToken = default);
 
     Task<Service?> GetByIdAsync(Guid serviceId,CancellationToken cancellationToken = default);
+    Task<Service?> GetByNameIncludingDeletedAsync(string serviceName,CancellationToken cancellationToken = default);
 
     Task<Service?> GetByServiceNameAsync(string serviceName,CancellationToken cancellationToken = default);
 
