@@ -45,7 +45,7 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapNearbyHallEndpoints();
         endpoints.MapLocationLookupEndpoints();
         endpoints.MapVendorEndpoints();
-        endpoints.MapEventCategoryEndpoints();
+        endpoints.MapVendorCategoryEndpoints();
 
         if (OperatingSystem.IsWindows())
         {
