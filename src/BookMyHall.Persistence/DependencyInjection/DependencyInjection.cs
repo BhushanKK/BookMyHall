@@ -73,6 +73,7 @@ public static class DependencyInjection
         services.AddScoped<IVendorRepository,VendorRepository>();
         services.AddScoped<IVendorCategoryRepository,VendorCategoryRepository>();
         services.AddScoped<IVendorAvailabilityRepository,VendorAvailabilityRepository>();
+        services.AddScoped<IVendorServiceRepository,VendorServiceRepository>();
         return services;
     }
 }

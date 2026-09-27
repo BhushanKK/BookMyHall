@@ -1,6 +1,9 @@
+using System.Text.Json.Serialization;
+
 namespace BookMyHall.Application.Features.Venue;
 public class VendorAvailabilityDto
 {
+    [JsonIgnore]
     public Guid VendorAvailabilityId { get; set; }
 
     public Guid VendorId { get; set; }

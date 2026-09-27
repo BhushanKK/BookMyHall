@@ -116,12 +116,25 @@ public static class EntityKeys
 
   public const string VendorCategory = nameof(VendorCategory);
   public const string VendorCategoryId = nameof(VendorCategoryId);
+   // =========================================================
+  //Venue VendorSubCategory
+  // =========================================================
+
+  public const string VendorSubCategory = nameof(VendorSubCategory);
+  public const string VendorSubCategoryId = nameof(VendorSubCategoryId);
   // =========================================================
   //Venue VendorAvailability
   // =========================================================
 
   public const string VendorAvailability = nameof(VendorAvailability);
   public const string VendorAvailabilityId = nameof(VendorAvailabilityId);
+
+  // =========================================================
+  //Venue VendorService
+  // =========================================================
+
+  public const string VendorService = nameof(VendorService);
+  public const string VendorServiceId = nameof(VendorServiceId);
   // =========================================================
   // Booking
   // =========================================================

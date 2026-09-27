@@ -31,7 +31,7 @@ public static class VendorAvailabilityEndpoints
         group.MapPut("/{vendorAvailabilityId:guid}", async (Guid vendorAvailabilityId,UpdateVendorAvailabilityCommand command,
             IMediator mediator,CancellationToken cancellationToken) =>
         {
-            command.VendorAvailabilityId =vendorAvailabilityId;
+            command.VendorAvailabilityId = vendorAvailabilityId;
             var response = await mediator.Send(command,cancellationToken);
             return Results.Json(response,statusCode: response.StatusCode);
         })

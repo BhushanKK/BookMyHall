@@ -86,7 +86,30 @@ public static class CacheKeys
 
     public const string VendorCategories = "VendorCategories";
     public const string VendorCategoriesPaged = "VendorCategoriesPaged";
+    public const string VendorSubCategories = "VendorSubCategories";
+    public const string VendorSubCategoriesPaged = "VendorSubCategoriesPaged";
 
     public const string VendorAvailabilities = "VendorAvailabilities";
     public const string VendorAvailabilitiesPaged = "VendorAvailabilitiesPaged";
+
+    public const string VendorServices = "VendorServices";
+    public const string VendorServicesPaged = "VendorServicesPaged";
+
+    public const string VendorServiceAreas = "VendorServiceAreas";
+    public const string VendorServiceAreasPaged = "VendorServiceAreasPaged";
+    public const string VendorReviews = "VendorReviews";
+    public const string VendorReviewsPaged = "VendorReviewsPaged";
+    public const string VendorPackages = "VendorPackages";
+    public const string VendorPackagesPaged = "VendorPackagesPaged";
+    public const string VendorPackageItems = "VendorPackageItems";
+    public const string VendorPackageItemsPaged = "VendorPackageItemsPaged";
+    public const string VendorImages = "VendorImages";
+    public const string VendorImagesPaged = "VendorImagesPaged";
+
+    public const string VendorEnquiries = "VendorEnquiries";
+    public const string VendorEnquiriesPaged = "VendorEnquiriesPaged";
+    public const string VendorDocuments = "VendorDocuments";
+    public const string VendorDocumentsPaged = "VendorDocumentsPaged";
+    public const string VendorBookings = "VendorBookings";
+    public const string VendorBookingsPaged = "VendorBookingsPaged";
 }

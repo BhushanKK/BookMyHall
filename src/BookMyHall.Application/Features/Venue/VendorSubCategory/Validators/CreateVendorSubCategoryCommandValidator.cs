@@ -1,0 +1,28 @@
+using FluentValidation;
+
+namespace BookMyHall.Application.Features.Venue;
+
+public sealed class CreateVendorSubCategoryCommandValidator
+    : AbstractValidator<CreateVendorSubCategoryCommand>
+{
+    public CreateVendorSubCategoryCommandValidator()
+    {
+        RuleFor(x => x.VendorCategoryId)
+            .NotEmpty()
+            .WithMessage("Vendor category is required.");
+
+        RuleFor(x => x.Name)
+            .NotEmpty()
+            .WithMessage("Sub category name is required.")
+            .MaximumLength(200)
+            .WithMessage("Sub category name cannot exceed 200 characters.");
+
+        RuleFor(x => x.Description)
+            .MaximumLength(1000)
+            .When(x => x.Description is not null);
+
+        RuleFor(x => x.DisplayOrder)
+            .GreaterThanOrEqualTo(0)
+            .WithMessage("Display order cannot be negative.");
+    }
+}

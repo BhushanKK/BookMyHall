@@ -1,7 +1,10 @@
+using System.Text.Json.Serialization;
+
 namespace BookMyHall.Application.Features.Venue;
 
 public class VendorDto
 {
+    [JsonIgnore]
     public Guid VendorId { get; set; }
     public Guid? UserId { get; set; }
     public string BusinessName { get; set; } = string.Empty;
