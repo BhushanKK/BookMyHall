@@ -13,20 +13,20 @@ public sealed class GetVendorServicesQueryHandler(
     IMapper mapper)
     : IRequestHandler<
         GetVendorServicesQuery,
-        ApiResponse<PaginatedResult<VendorServiceDto>>>
+        ApiResponse<PaginatedResponse<VendorServiceDto>>>
 {
-    public async Task<ApiResponse<PaginatedResult<VendorServiceDto>>> Handle(GetVendorServicesQuery request,
+    public async Task<ApiResponse<PaginatedResponse<VendorServiceDto>>> Handle(GetVendorServicesQuery request,
         CancellationToken cancellationToken)
     {
         var result =await vendorServiceRepository.GetAllAsync(request.Request,
         request.VendorId,request.VendorSubCategoryId,cancellationToken);
-        var response = new PaginatedResult<VendorServiceDto>
+        var response = new PaginatedResponse<VendorServiceDto>
         {
             Items = mapper.Map<IReadOnlyList<VendorServiceDto>>(result.Items),
             PageNumber = result.PageNumber,
             PageSize = result.PageSize,
-            TotalCount = result.TotalCount
+            TotalRecords = result.TotalCount
         };
-      return ApiResponse<PaginatedResult<VendorServiceDto>>.SuccessResponse(response,string.Empty,HttpStatusCode.OK);
+      return ApiResponse<PaginatedResponse<VendorServiceDto>>.SuccessResponse(response,string.Empty,HttpStatusCode.OK);
     }
 }

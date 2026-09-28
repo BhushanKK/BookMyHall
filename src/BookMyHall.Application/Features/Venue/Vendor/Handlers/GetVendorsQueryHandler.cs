@@ -11,9 +11,9 @@ public sealed class GetVendorsQueryHandler(
     IMapper mapper)
     : IRequestHandler<
         GetVendorsQuery,
-        ApiResponse<PaginatedResult<VendorDto>>>
+        ApiResponse<PaginatedResponse<VendorDto>>>
 {
-    public async Task<ApiResponse<PaginatedResult<VendorDto>>> Handle(
+    public async Task<ApiResponse<PaginatedResponse<VendorDto>>> Handle(
         GetVendorsQuery request,
         CancellationToken cancellationToken)
     {
@@ -22,7 +22,7 @@ public sealed class GetVendorsQueryHandler(
                 request.Request,
                 cancellationToken);
 
-        var response = new PaginatedResult<VendorDto>
+        var response = new PaginatedResponse<VendorDto>
         {
             Items = mapper.Map<
                 IReadOnlyList<VendorDto>>(
@@ -30,11 +30,11 @@ public sealed class GetVendorsQueryHandler(
 
             PageNumber = result.PageNumber,
             PageSize = result.PageSize,
-            TotalCount = result.TotalCount
+            TotalRecords = result.TotalCount
         };
 
         return ApiResponse<
-            PaginatedResult<VendorDto>>.SuccessResponse(
+            PaginatedResponse<VendorDto>>.SuccessResponse(
                 response,
                 string.Empty,
                 HttpStatusCode.OK);

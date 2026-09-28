@@ -7,20 +7,20 @@ using BookMyHall.Contracts.Common;
 namespace BookMyHall.Application.Features.Venue;
 public sealed class GetVendorSubCategoriesQueryHandler(IVendorSubCategoryRepository vendorSubCategoryRepository,
     IMapper mapper)
-    : IRequestHandler<GetVendorSubCategoriesQuery,ApiResponse<PaginatedResult<VendorSubCategoryDto>>>
+    : IRequestHandler<GetVendorSubCategoriesQuery,ApiResponse<PaginatedResponse<VendorSubCategoryDto>>>
 {
-    public async Task<ApiResponse<PaginatedResult<VendorSubCategoryDto>>> Handle(GetVendorSubCategoriesQuery request,
+    public async Task<ApiResponse<PaginatedResponse<VendorSubCategoryDto>>> Handle(GetVendorSubCategoriesQuery request,
         CancellationToken cancellationToken)
     {
         var result =await vendorSubCategoryRepository.GetAllAsync(request.Request,request.VendorCategoryId,cancellationToken);
-        var response =new PaginatedResult<VendorSubCategoryDto>
+        var response =new PaginatedResponse<VendorSubCategoryDto>
             {
                 Items = mapper.Map<IReadOnlyList<VendorSubCategoryDto>>(result.Items),
                 PageNumber =result.PageNumber,
                 PageSize =result.PageSize,
-                TotalCount =result.TotalCount
+                TotalRecords =result.TotalCount
             };
 
-        return ApiResponse<PaginatedResult<VendorSubCategoryDto>>.SuccessResponse(response,string.Empty,HttpStatusCode.OK);
+        return ApiResponse<PaginatedResponse<VendorSubCategoryDto>>.SuccessResponse(response,string.Empty,HttpStatusCode.OK);
     }
 }

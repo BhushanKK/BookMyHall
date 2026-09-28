@@ -3,4 +3,4 @@ using MediatR;
 
 namespace BookMyHall.Application.Features.Venue;
 public sealed record GetVendorAvailabilitiesQuery(PaginationRequest Request,Guid? VendorId)
-    : IRequest<ApiResponse<PaginatedResult<VendorAvailabilityDto>>>;
+    : IRequest<ApiResponse<PaginatedResponse<VendorAvailabilityDto>>>;
