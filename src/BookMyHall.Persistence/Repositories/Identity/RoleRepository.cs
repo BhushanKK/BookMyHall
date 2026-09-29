@@ -72,6 +72,6 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
     {
         var ids = roleIds.Where(x => x != Guid.Empty).Distinct().ToArray();
         if (ids.Length == 0) return [];
-        return await context.Roles.AsNoTracking().Where(x => ids.Contains(x.RoleId)).ToListAsync(cancellationToken);
+        return await context.Roles.Where(x => ids.Contains(x.RoleId)).ToListAsync(cancellationToken);
     }
 }
