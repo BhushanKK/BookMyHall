@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms</value>
+  </resheader>
+
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
+  </resheader>
+
+  <!-- ============================= -->
+  <!-- CRUD -->
+  <!-- ============================= -->
+
+  <data name="Required" xml:space="preserve">
+    <value>{0} આવશ્યક છે.</value>
+  </data>
+
+  <data name="Added" xml:space="preserve">
+    <value>{0} સફળતાપૂર્વક ઉમેરવામાં આવ્યું.</value>
+  </data>
+
+  <data name="Updated" xml:space="preserve">
+    <value>{0} સફળતાપૂર્વક અપડેટ કરવામાં આવ્યું.</value>
+  </data>
+
+  <data name="Deleted" xml:space="preserve">
+    <value>{0} સફળતાપૂર્વક કાઢી નાખવામાં આવ્યું.</value>
+  </data>
+
+  <data name="Retrieved" xml:space="preserve">
+    <value>{0} સફળતાપૂર્વક પ્રાપ્ત કરવામાં આવ્યું.</value>
+  </data>
+
+  <!-- ============================= -->
+  <!-- Validation -->
+  <!-- ============================= -->
+
+  <data name="AlreadyExists" xml:space="preserve">
+    <value>{0} પહેલેથી અસ્તિત્વમાં છે.</value>
+  </data>
+
+  <data name="NotFound" xml:space="preserve">
+    <value>{0} મળ્યું નથી.</value>
+  </data>
+
+  <data name="InvalidId" xml:space="preserve">
+    <value>અમાન્ય {0}.</value>
+  </data>
+
+  <!-- ============================= -->
+  <!-- Status -->
+  <!-- ============================= -->
+
+  <data name="Activated" xml:space="preserve">
+    <value>{0} સફળતાપૂર્વક સક્રિય કરવામાં આવ્યું.</value>
+  </data>
+
+  <data name="Deactivated" xml:space="preserve">
+    <value>{0} સફળતાપૂર્વક નિષ્ક્રિય કરવામાં આવ્યું.</value>
+  </data>
+
+  <data name="Saved" xml:space="preserve">
+    <value>{0} સફળતાપૂર્વક સાચવવામાં આવ્યું.</value>
+  </data>
+
+  <data name="Submitted" xml:space="preserve">
+    <value>{0} સફળતાપૂર્વક સબમિટ કરવામાં આવ્યું.</value>
+  </data>
+
+  <data name="Approved" xml:space="preserve">
+    <value>{0} સફળતાપૂર્વક મંજૂર કરવામાં આવ્યું.</value>
+  </data>
+
+  <data name="Rejected" xml:space="preserve">
+    <value>{0} સફળતાપૂર્વક નકારવામાં આવ્યું.</value>
+  </data>
+
+  <!-- ============================= -->
+  <!-- API -->
+  <!-- ============================= -->
+
+  <data name="ValidationFailed" xml:space="preserve">
+    <value>માન્યતા નિષ્ફળ ગઈ.</value>
+  </data>
+
+  <data name="Unauthorized" xml:space="preserve">
+    <value>તમે આ કાર્ય કરવા માટે અધિકૃત નથી.</value>
+  </data>
+
+  <data name="Forbidden" xml:space="preserve">
+    <value>તમને આ કાર્ય કરવાની પરવાનગી નથી.</value>
+  </data>
+
+  <data name="InternalServerError" xml:space="preserve">
+    <value>અનપેક્ષિત ભૂલ આવી. કૃપા કરીને ફરી પ્રયાસ કરો.</value>
+  </data>
+
+  <!-- ============================= -->
+  <!-- Authentication -->
+  <!-- ============================= -->
+
+  <data name="LoginSuccessful" xml:space="preserve">
+    <value>લૉગિન સફળ થયું.</value>
+  </data>
+
+  <data name="LogoutSuccessful" xml:space="preserve">
+    <value>લૉગઆઉટ સફળ થયું.</value>
+  </data>
+
+  <data name="InvalidCredentials" xml:space="preserve">
+    <value>મોબાઇલ નંબર અથવા પાસવર્ડ ખોટો છે.</value>
+  </data>
+
+  <data name="InvalidRefreshToken" xml:space="preserve">
+    <value>રિફ્રેશ ટોકન અમાન્ય છે.</value>
+  </data>
+
+  <data name="RefreshTokenExpired" xml:space="preserve">
+    <value>રિફ્રેશ ટોકનની સમયસીમા સમાપ્ત થઈ ગઈ છે.</value>
+  </data>
+
+  <data name="AccessDenied" xml:space="preserve">
+    <value>પ્રવેશ નકારવામાં આવ્યો છે.</value>
+  </data>
+
+  <data name="UserInactive" xml:space="preserve">
+    <value>તમારું એકાઉન્ટ નિષ્ક્રિય છે. કૃપા કરીને એડમિનિસ્ટ્રેટરનો સંપર્ક કરો.</value>
+  </data>
+
+  <data name="UserLocked" xml:space="preserve">
+    <value>તમારું એકાઉન્ટ લૉક કરવામાં આવ્યું છે. કૃપા કરીને એડમિનિસ્ટ્રેટરનો સંપર્ક કરો.</value>
+  </data>
+
+  <!-- ============================= -->
+  <!-- Password -->
+  <!-- ============================= -->
+
+  <data name="PasswordChangedSuccessfully" xml:space="preserve">
+    <value>પાસવર્ડ સફળતાપૂર્વક બદલવામાં આવ્યો.</value>
+  </data>
+
+  <data name="PasswordResetSuccessfully" xml:space="preserve">
+    <value>પાસવર્ડ સફળતાપૂર્વક રીસેટ કરવામાં આવ્યો.</value>
+  </data>
+
+  <data name="PasswordMismatch" xml:space="preserve">
+    <value>વર્તમાન પાસવર્ડ ખોટો છે.</value>
+  </data>
+
+  <data name="PasswordAlreadyUsed" xml:space="preserve">
+    <value>નવો પાસવર્ડ વર્તમાન પાસવર્ડથી અલગ હોવો જોઈએ.</value>
+  </data>
+
+  <!-- ============================= -->
+  <!-- OTP -->
+  <!-- ============================= -->
+
+  <data name="OtpSentSuccessfully" xml:space="preserve">
+    <value>OTP સફળતાપૂર્વક મોકલવામાં આવ્યો.</value>
+  </data>
+
+  <data name="InvalidOtp" xml:space="preserve">
+    <value>દાખલ કરેલો OTP અમાન્ય છે.</value>
+  </data>
+
+  <data name="OtpExpired" xml:space="preserve">
+    <value>OTP ની સમયસીમા સમાપ્ત થઈ ગઈ છે.</value>
+  </data>
+
+  <!-- ============================= -->
+  <!-- Verification -->
+  <!-- ============================= -->
+
+  <data name="EmailVerifiedSuccessfully" xml:space="preserve">
+    <value>ઈમેલ સફળતાપૂર્વક ચકાસવામાં આવ્યો.</value>
+  </data>
+
+  <data name="MobileVerifiedSuccessfully" xml:space="preserve">
+    <value>મોબાઇલ નંબર સફળતાપૂર્વક ચકાસવામાં આવ્યો.</value>
+  </data>
+
+</root>

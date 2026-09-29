@@ -15,4 +15,5 @@
     <Project Path="tests/BookMyHall.Domain.Tests/BookMyHall.Domain.Tests.csproj" />
     <Project Path="tests/BookMyHall.Infrastructure.Tests/BookMyHall.Infrastructure.Tests.csproj" />
   </Folder>
+  <Project Path="BookMyHall.EmailWorker/BookMyHall.EmailWorker.csproj" />
 </Solution>
