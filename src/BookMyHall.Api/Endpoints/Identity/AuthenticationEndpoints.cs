@@ -1,19 +1,20 @@
 using System.Net;
 
-using MediatR;
 using AutoMapper;
 
-using BookMyHall.Contracts.Common;
-using BookMyHall.Application.Features.Identity.Users;
-using BookMyHall.Application.Features.Identity.Authentication;
+using BookMyHall.Application.Features.Authentication;
 using BookMyHall.Application.Features.Authentication.Commands.ForgotPassword;
+using BookMyHall.Application.Features.Authentication.Commands.ResendVerificationEmail;
 using BookMyHall.Application.Features.Authentication.Commands.ResetPassword;
 using BookMyHall.Application.Features.Authentication.Commands.VerifyEmail;
-using BookMyHall.Application.Features.Authentication.Commands.ResendVerificationEmail;
-using BookMyHall.Contracts.Authentication;
-using BookMyHall.Application.Features.Authentication;
-using BookMyHall.Domain.Identity;
 using BookMyHall.Application.Features.Identity;
+using BookMyHall.Application.Features.Identity.Authentication;
+using BookMyHall.Application.Features.Identity.Users;
+using BookMyHall.Contracts.Authentication;
+using BookMyHall.Contracts.Common;
+using BookMyHall.Domain.Identity;
+
+using MediatR;
 
 namespace BookMyHall.Api.Endpoints.Identity;
 

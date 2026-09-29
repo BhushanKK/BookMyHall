@@ -1,5 +1,3 @@
 namespace BookMyHall.Shared.Localization;
 
-public sealed class ApiMessageResponse
-{
-}
+public sealed class ApiMessageResponse;
