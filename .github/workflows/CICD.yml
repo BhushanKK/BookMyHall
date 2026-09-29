@@ -10,55 +10,32 @@ jobs:
     runs-on: self-hosted
 
     steps:
-
-      # ==========================================
-      # 1. CHECKOUT
-      # ==========================================
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ==========================================
-      # 2. SETUP .NET
-      # ==========================================
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
 
-      # ==========================================
-      # 3. RESTORE
-      # ==========================================
       - name: Restore
         run: dotnet restore BookMyHall.slnx --source https://api.nuget.org/v3/index.json
 
-      # ==========================================
-      # 4. TEST
-      # ==========================================
       - name: Test
         run: dotnet test BookMyHall.slnx --no-restore
 
-      # ==========================================
-      # 5. PUBLISH
-      # ==========================================
       - name: Publish
         run: dotnet publish src/BookMyHall.Api/BookMyHall.Api.csproj -c Release -o publish --no-restore
 
-      # ==========================================
-      # 6. DEPLOY
-      # ==========================================
       - name: Deploy to IIS
         shell: powershell
         run: |
-
           $ErrorActionPreference = "Stop"
-
-          # ==========================================
-          # CONFIGURATION
-          # ==========================================
 
           $releaseRoot = "C:\Websites\BookMyHall\releases"
           $current = "C:\Websites\BookMyHall\current"
-          $appPool = "BookMyHallAppPool"
+          $appPool = "BookMyLawns"
+          $websiteName = "ApiBookMyLawns"
 
           $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
           $release = Join-Path $releaseRoot $timestamp
@@ -71,32 +48,51 @@ jobs:
           Write-Host "Release:"
           Write-Host $release
 
-          # ==========================================
-          # VALIDATE IIS
-          # ==========================================
-
           Import-Module WebAdministration
+
+          Write-Host ""
+          Write-Host "Validating IIS Application Pool..."
 
           if (-not (Test-Path "IIS:\AppPools\$appPool")) {
               throw "IIS Application Pool '$appPool' does not exist."
           }
 
-          Write-Host ""
           Write-Host "IIS Application Pool found:"
           Write-Host $appPool
 
-          # ==========================================
-          # CREATE RELEASE DIRECTORY
-          # ==========================================
+          Write-Host ""
+          Write-Host "Validating IIS Website..."
+
+          $website = Get-Website -Name $websiteName -ErrorAction SilentlyContinue
+
+          if ($null -eq $website) {
+              throw "IIS Website '$websiteName' does not exist."
+          }
+
+          Write-Host "IIS Website found:"
+          Write-Host "Name: $($website.Name)"
+          Write-Host "State: $($website.State)"
+          Write-Host "Physical Path: $($website.PhysicalPath)"
+          Write-Host "Application Pool: $($website.ApplicationPool)"
+
+          if ($website.ApplicationPool -ne $appPool) {
+              throw "IIS Website '$websiteName' is using application pool '$($website.ApplicationPool)' instead of '$appPool'."
+          }
+
+          if ($website.PhysicalPath -ne $current) {
+              throw "IIS Physical Path is '$($website.PhysicalPath)' but expected '$current'."
+          }
+
+          Write-Host ""
+          Write-Host "Creating release directory..."
 
           New-Item `
             -ItemType Directory `
             -Path $release `
             -Force | Out-Null
 
-          # ==========================================
-          # COPY PUBLISHED APPLICATION
-          # ==========================================
+          Write-Host ""
+          Write-Host "Copying published application..."
 
           Copy-Item `
             ".\publish\*" `
@@ -106,10 +102,6 @@ jobs:
 
           Write-Host ""
           Write-Host "Application copied to release successfully."
-
-          # ==========================================
-          # STOP IIS APPLICATION POOL
-          # ==========================================
 
           Write-Host ""
           Write-Host "Stopping IIS Application Pool..."
@@ -121,11 +113,14 @@ jobs:
               Start-Sleep -Seconds 3
           }
 
-          Write-Host "Application Pool stopped."
+          $poolState = (Get-WebAppPoolState -Name $appPool).Value
 
-          # ==========================================
-          # UPDATE CURRENT
-          # ==========================================
+          Write-Host "Application Pool status:"
+          Write-Host $poolState
+
+          if ($poolState -ne "Stopped") {
+              throw "IIS Application Pool '$appPool' could not be stopped."
+          }
 
           Write-Host ""
           Write-Host "Updating current deployment..."
@@ -151,9 +146,8 @@ jobs:
           Write-Host ""
           Write-Host "Current deployment updated."
 
-          # ==========================================
-          # VERIFY DEPLOYED FILE
-          # ==========================================
+          Write-Host ""
+          Write-Host "Verifying deployment files..."
 
           $apiExe = Join-Path $current "BookMyHall.Api.exe"
           $webConfig = Join-Path $current "web.config"
@@ -166,18 +160,11 @@ jobs:
               throw "web.config was not found in current deployment."
           }
 
-          Write-Host ""
           Write-Host "Deployment files verified."
-
           Write-Host "API:"
           Write-Host $apiExe
-
           Write-Host "Web.config:"
           Write-Host $webConfig
-
-          # ==========================================
-          # START IIS APPLICATION POOL
-          # ==========================================
 
           Write-Host ""
           Write-Host "Starting IIS Application Pool..."
@@ -186,10 +173,6 @@ jobs:
 
           Start-Sleep -Seconds 5
 
-          # ==========================================
-          # VERIFY IIS APPLICATION POOL
-          # ==========================================
-
           $poolState = (Get-WebAppPoolState -Name $appPool).Value
 
           Write-Host ""
@@ -197,14 +180,17 @@ jobs:
           Write-Host $poolState
 
           if ($poolState -ne "Started") {
-              throw "BookMyHall IIS Application Pool failed to start."
+              throw "IIS Application Pool '$appPool' failed to start."
           }
 
-          # ==========================================
-          # VERIFY IIS WEBSITE
-          # ==========================================
+          Write-Host ""
+          Write-Host "Verifying IIS Website..."
 
-          $website = Get-Website -Name "BookMyHall"
+          $website = Get-Website -Name $websiteName -ErrorAction SilentlyContinue
+
+          if ($null -eq $website) {
+              throw "IIS Website '$websiteName' was not found after deployment."
+          }
 
           Write-Host ""
           Write-Host "IIS Website:"
@@ -216,18 +202,34 @@ jobs:
           Write-Host "Physical Path:"
           Write-Host $website.PhysicalPath
 
-          if ($website.State -ne "Started") {
-              throw "BookMyHall IIS Website is not running."
-          }
+          Write-Host "Application Pool:"
+          Write-Host $website.ApplicationPool
 
           if ($website.PhysicalPath -ne $current) {
               throw "IIS Physical Path is '$($website.PhysicalPath)' but expected '$current'."
           }
 
-          # ==========================================
-          # CLEAN OLD RELEASES
-          # KEEP ONLY 2 MOST RECENT
-          # ==========================================
+          if ($website.ApplicationPool -ne $appPool) {
+              throw "IIS Website '$websiteName' is using application pool '$($website.ApplicationPool)' instead of '$appPool'."
+          }
+
+          if ($website.State -ne "Started") {
+              Write-Host ""
+              Write-Host "IIS Website is stopped. Starting website..."
+
+              Start-Website -Name $websiteName
+
+              Start-Sleep -Seconds 3
+
+              $website = Get-Website -Name $websiteName
+          }
+
+          if ($website.State -ne "Started") {
+              throw "IIS Website '$websiteName' is not running."
+          }
+
+          Write-Host ""
+          Write-Host "IIS Website '$websiteName' is running successfully."
 
           Write-Host ""
           Write-Host "Cleaning old releases..."
@@ -249,15 +251,7 @@ jobs:
                   Write-Host "  $($item.Name)"
               }
 
-              # ------------------------------------------
-              # KEEP LATEST 2
-              # ------------------------------------------
-
               $releasesToKeep = $releases | Select-Object -First 2
-
-              # ------------------------------------------
-              # DELETE OLDER RELEASES
-              # ------------------------------------------
 
               $releasesToDelete = $releases | Select-Object -Skip 2
 
@@ -276,7 +270,6 @@ jobs:
                         -ErrorAction Stop
 
                       Write-Host "Removed successfully."
-
                   }
                   catch {
 
@@ -285,10 +278,6 @@ jobs:
                   }
               }
 
-              # ------------------------------------------
-              # DISPLAY RETAINED RELEASES
-              # ------------------------------------------
-
               Write-Host ""
               Write-Host "Releases retained:"
 
@@ -296,10 +285,6 @@ jobs:
                   Write-Host "  $($releaseToKeep.Name)"
               }
           }
-
-          # ==========================================
-          # CLEAN JUNK FILES
-          # ==========================================
 
           Write-Host ""
           Write-Host "Cleaning deployment junk files..."
@@ -333,7 +318,6 @@ jobs:
                           $_.FullName `
                           -Force `
                           -ErrorAction Stop
-
                     }
                     catch {
 
@@ -342,10 +326,6 @@ jobs:
                     }
                 }
           }
-
-          # ==========================================
-          # FINAL RELEASE STATUS
-          # ==========================================
 
           Write-Host ""
           Write-Host "Remaining releases:"
@@ -360,10 +340,6 @@ jobs:
             ForEach-Object {
                 Write-Host "  $($_.Name)"
             }
-
-          # ==========================================
-          # DEPLOYMENT SUCCESS
-          # ==========================================
 
           Write-Host ""
           Write-Host "======================================"
