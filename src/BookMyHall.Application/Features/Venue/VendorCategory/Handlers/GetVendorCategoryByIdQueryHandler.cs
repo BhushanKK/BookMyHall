@@ -34,6 +34,9 @@ public sealed class GetVendorCategoryByIdQueryHandler(IVendorCategoryRepository 
 
         var response =mapper.Map<VendorCategoryDto>(vendorcategory);
         await cacheService.SetAsync(cacheKey,response,TimeSpan.FromMinutes(30),cancellationToken);
-        return ApiResponse<VendorCategoryDto>.SuccessResponse(response,string.Empty,HttpStatusCode.OK);
+         return ApiResponse<VendorCategoryDto>.SuccessResponse
+        (response,messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.VendorCategory),
+            HttpStatusCode.OK
+        );
     }
 }

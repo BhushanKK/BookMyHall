@@ -85,5 +85,17 @@ public static class VendorSubCategoryEndpoints
         .WithDescription("Gets paginated vendor sub categories.")
         .Produces<ApiResponse<PaginatedResult<VendorSubCategoryDto>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
+
+        group.MapGet("/vendorsubcategories/autocomplete", async (string? searchTerm,
+            IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(new GetVendorSubCategoriesAutoCompleteQuery(searchTerm), cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
+        })
+        .WithName("GetVendorSubCategoriesAutoComplete")
+        .WithSummary("Get Vendor SubCategories AutoComplete")
+        .WithDescription("Returns up to 20 active vendorsubcategories matching the optional search term.")
+        .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }

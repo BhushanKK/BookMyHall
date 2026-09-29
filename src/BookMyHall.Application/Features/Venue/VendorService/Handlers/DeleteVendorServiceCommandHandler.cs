@@ -21,11 +21,8 @@ public sealed class DeleteVendorServiceCommandHandler(IVendorServiceRepository v
 
         if (vendorService is null)
         {
-            return ApiResponse<bool>.FailureResponse(
-                messageHelper.NotFoundEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.VendorService),
-                HttpStatusCode.NotFound);
+            return ApiResponse<bool>.FailureResponse(messageHelper.NotFoundEntity(
+                    ResourceNames.Entities,EntityKeys.VendorService),HttpStatusCode.NotFound);
         }
 
         vendorService.IsDeleted = true;
@@ -33,15 +30,12 @@ public sealed class DeleteVendorServiceCommandHandler(IVendorServiceRepository v
 
         await vendorServiceRepository.UpdateAsync(vendorService,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
         await cacheService.RemoveAsync($"{CacheKeys.VendorServices}:{vendorService.VendorServiceId}",cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.VendorServicesPaged}:",cancellationToken);
         await cacheService.RemoveAsync($"{CacheKeys.Vendors}:{vendorService.VendorId}",cancellationToken);
 
-        return ApiResponse<bool>.SuccessResponse(
-            true,
-            messageHelper.DeletedEntity(
-                ResourceNames.Entities,
-                EntityKeys.VendorService),
-            HttpStatusCode.OK);
+        return ApiResponse<bool>.SuccessResponse( true,messageHelper.DeletedEntity
+        (ResourceNames.Entities,EntityKeys.VendorService),HttpStatusCode.OK);
     }
 }

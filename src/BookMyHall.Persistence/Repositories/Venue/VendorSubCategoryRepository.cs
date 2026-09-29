@@ -113,4 +113,23 @@ public sealed class VendorSubCategoryRepository(BookMyHallDbContext context): IV
             TotalCount = totalCounts
         };
     }
+      public async Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(
+        string? searchTerm, int limit = 20, CancellationToken cancellationToken = default)
+    {
+        var query = context.VendorSubCategories.AsNoTracking().Where(x => !x.IsDeleted && x.IsActive);
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var search = searchTerm.Trim();
+            var pattern = $"%{search}%";
+            query = query.Where(x => EF.Functions.ILike(x.Name, pattern));
+        }
+
+        return await query
+            .OrderBy(x => x.Name)
+            .ThenBy(x => x.VendorSubCategoryId)
+            .Take(Math.Clamp(limit, 1, 20))
+            .Select(x => new AutoCompleteItem(x.VendorSubCategoryId, x.Name))
+            .ToListAsync(cancellationToken);
+    }
 }

@@ -84,5 +84,17 @@ public static class VendorServiceEndpoints
         .WithDescription("Gets paginated vendor services.")
         .Produces<ApiResponse<PaginatedResult<VendorServiceDto>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
+
+         group.MapGet("/vendorservice/autocomplete", async (string? searchTerm,
+            IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(new GetVendorServicesAutoCompleteQuery(searchTerm), cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
+        })
+        .WithName("GetVendorServiceAutoComplete")
+        .WithSummary("Get Vendor Service AutoComplete")
+        .WithDescription("Returns up to 20 active vendorservice matching the optional search term.")
+        .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
     }
 }

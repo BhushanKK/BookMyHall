@@ -9,53 +9,32 @@ using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Venue;
 
-public sealed class GetVendorAvailabilityByIdQueryHandler(
-    IVendorAvailabilityRepository vendorAvailabilityRepository,
-    IMapper mapper,
-    IMessageHelper messageHelper,
-    ICacheService cacheService)
-    : IRequestHandler<
-        GetVendorAvailabilityByIdQuery,
-        ApiResponse<VendorAvailabilityDto>>
+public sealed class GetVendorAvailabilityByIdQueryHandler(IVendorAvailabilityRepository vendorAvailabilityRepository,
+    IMapper mapper,IMessageHelper messageHelper,ICacheService cacheService)
+    : IRequestHandler<GetVendorAvailabilityByIdQuery,ApiResponse<VendorAvailabilityDto>>
 {
-    public async Task<ApiResponse<VendorAvailabilityDto>> Handle(
-        GetVendorAvailabilityByIdQuery request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<VendorAvailabilityDto>> Handle(GetVendorAvailabilityByIdQuery request,CancellationToken cancellationToken)
     {
         var cacheKey =$"{CacheKeys.VendorAvailabilities}:{request.VendorAvailabilityId}";
-
-        var cachedVendorAvailability =await cacheService.GetAsync<VendorAvailabilityDto>(
-                cacheKey,
-                cancellationToken);
-
+        var cachedVendorAvailability =await cacheService.GetAsync<VendorAvailabilityDto>(cacheKey, cancellationToken);
         if (cachedVendorAvailability is not null)
         {
-            return ApiResponse<VendorAvailabilityDto>.SuccessResponse(
-                cachedVendorAvailability,
+            return ApiResponse<VendorAvailabilityDto>.SuccessResponse(cachedVendorAvailability,
                 string.Empty,
                 HttpStatusCode.OK);
         }
 
-        var vendoravailability =
-            await vendorAvailabilityRepository.GetByIdAsync(
-                request.VendorAvailabilityId,
-                cancellationToken);
-
+        var vendoravailability =await vendorAvailabilityRepository.GetByIdAsync(request.VendorAvailabilityId,cancellationToken);
         if (vendoravailability is null)
         {
-            return ApiResponse<VendorAvailabilityDto>.FailureResponse(
-                messageHelper.NotFound(
-                    EntityKeys.VendorAvailability),
-                HttpStatusCode.NotFound);
+            return ApiResponse<VendorAvailabilityDto>.FailureResponse(messageHelper.NotFound(
+                    EntityKeys.VendorAvailability),HttpStatusCode.NotFound);
         }
 
         var response =mapper.Map<VendorAvailabilityDto>(vendoravailability);
-
         await cacheService.SetAsync(cacheKey,response,TimeSpan.FromMinutes(30),cancellationToken);
-
-        return ApiResponse<VendorAvailabilityDto>.SuccessResponse(
-            response,
-            string.Empty,
+        return ApiResponse<VendorAvailabilityDto>.SuccessResponse
+        (response,messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.VendorAvailability),
             HttpStatusCode.OK);
     }
 }

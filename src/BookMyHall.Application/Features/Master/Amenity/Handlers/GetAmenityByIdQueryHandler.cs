@@ -35,9 +35,7 @@ public sealed class GetAmenityByIdQueryHandler(IAmenityRepository amenityReposit
         var response = mapper.Map<Amenity>(amenity);
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
         return ApiResponse<Amenity>.SuccessResponse
-        (
-            mapper.Map<Amenity>(amenity),
-            messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Amenity),
+        (response,messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Amenity),
             HttpStatusCode.OK
         );
     }

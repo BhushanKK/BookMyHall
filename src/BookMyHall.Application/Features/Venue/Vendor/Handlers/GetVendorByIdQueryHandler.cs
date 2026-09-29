@@ -9,55 +9,30 @@ using BookMyHall.Shared.Constants;
 
 namespace BookMyHall.Application.Features.Venue;
 
-public sealed class GetVendorByIdQueryHandler(
-    IVendorRepository vendorRepository,
-    IMapper mapper,
-    IMessageHelper messageHelper,
-    ICacheService cacheService)
-    : IRequestHandler<
-        GetVendorByIdQuery,
-        ApiResponse<VendorDto>>
+public sealed class GetVendorByIdQueryHandler(IVendorRepository vendorRepository,
+    IMapper mapper,IMessageHelper messageHelper,ICacheService cacheService)
+    : IRequestHandler<GetVendorByIdQuery,ApiResponse<VendorDto>>
 {
-    public async Task<ApiResponse<VendorDto>> Handle(
-        GetVendorByIdQuery request,
-        CancellationToken cancellationToken)
+    public async Task<ApiResponse<VendorDto>> Handle(GetVendorByIdQuery request,CancellationToken cancellationToken)
     {
-        var cacheKey =
-            $"{CacheKeys.Vendors}:{request.VendorId}";
-
-        var cachedVendor =
-            await cacheService.GetAsync<VendorDto>(
-                cacheKey,
-                cancellationToken);
-
+         var cacheKey = $"{CacheKeys.Vendors}:{request.VendorId}";
+        var cachedVendor = await cacheService.GetAsync<VendorDto>(cacheKey, cancellationToken);
         if (cachedVendor is not null)
         {
-            return ApiResponse<VendorDto>.SuccessResponse(
-                cachedVendor,
-                string.Empty,
-                HttpStatusCode.OK);
+            return ApiResponse<VendorDto>.SuccessResponse(cachedVendor, messageHelper.RetrievedEntity
+            (ResourceNames.Entities, EntityKeys.Vendor), HttpStatusCode.OK);
         }
-
-        var vendor =
-            await vendorRepository.GetByIdAsync(
-                request.VendorId,
-                cancellationToken);
-
+        var vendor = await vendorRepository.GetByIdAsync(request.VendorId,cancellationToken);
         if (vendor is null)
         {
-            return ApiResponse<VendorDto>.FailureResponse(
-                messageHelper.NotFound(
-                    EntityKeys.Vendor),
-                HttpStatusCode.NotFound);
+            return ApiResponse<VendorDto>.FailureResponse(messageHelper.NotFound(
+                    EntityKeys.Vendor),HttpStatusCode.NotFound);
         }
 
         var response =mapper.Map<VendorDto>(vendor);
-
         await cacheService.SetAsync(cacheKey,response,TimeSpan.FromMinutes(30),cancellationToken);
-
         return ApiResponse<VendorDto>.SuccessResponse(
-            response,
-            string.Empty,
+            response,messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.Vendor),
             HttpStatusCode.OK);
     }
 }
