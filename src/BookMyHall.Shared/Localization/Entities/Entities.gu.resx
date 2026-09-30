@@ -21,151 +21,163 @@
   <!-- ===================================================== -->
 
   <data name="User" xml:space="preserve">
-    <value>उपयोगकर्ता</value>
+    <value>વપરાશકર્તા</value>
   </data>
 
   <data name="UserId" xml:space="preserve">
-    <value>उपयोगकर्ता आईडी</value>
+    <value>વપરાશકર્તા ID</value>
   </data>
 
   <data name="Role" xml:space="preserve">
-    <value>भूमिका</value>
+    <value>ભૂમિકા</value>
   </data>
 
   <data name="RoleId" xml:space="preserve">
-    <value>भूमिका आईडी</value>
+    <value>ભૂમિકા ID</value>
   </data>
 
   <data name="Permission" xml:space="preserve">
-    <value>अनुमति</value>
+    <value>પરવાનગી</value>
   </data>
 
- 
   <data name="RolePermission" xml:space="preserve">
-    <value>भूमिका अनुमति</value>
+    <value>ભૂમિકા પરવાનગી</value>
   </data>
- <data name="MenuRolePermission" xml:space="preserve">
-    <value>मेनू भूमिका अनुमति</value>
+
+  <data name="MenuRolePermission" xml:space="preserve">
+    <value>મેનુ ભૂમિકા પરવાનગી</value>
   </data>
 
   <data name="UserRole" xml:space="preserve">
-    <value>उपयोगकर्ता भूमिका</value>
+    <value>વપરાશકર્તા ભૂમિકા</value>
   </data>
 
   <data name="FirstName" xml:space="preserve">
-    <value>प्रथम नाम</value>
+    <value>પ્રથમ નામ</value>
   </data>
 
   <data name="MiddleName" xml:space="preserve">
-    <value>मध्य नाम</value>
+    <value>મધ્ય નામ</value>
   </data>
 
   <data name="LastName" xml:space="preserve">
-    <value>अंतिम नाम</value>
+    <value>છેલ્લું નામ</value>
   </data>
 
   <data name="MobileNumber" xml:space="preserve">
-    <value>मोबाइल नंबर</value>
+    <value>મોબાઇલ નંબર</value>
   </data>
 
   <data name="EmailAddress" xml:space="preserve">
-    <value>ईमेल पता</value>
+    <value>ઈમેલ સરનામું</value>
   </data>
 
   <data name="Password" xml:space="preserve">
-    <value>पासवर्ड</value>
+    <value>પાસવર્ડ</value>
   </data>
 
   <data name="NewPassword" xml:space="preserve">
-    <value>नया पासवर्ड</value>
+    <value>નવો પાસવર્ડ</value>
   </data>
 
   <data name="ConfirmPassword" xml:space="preserve">
-    <value>पासवर्ड की पुष्टि करें</value>
+    <value>પાસવર્ડની પુષ્ટિ કરો</value>
   </data>
 
   <data name="RefreshToken" xml:space="preserve">
-    <value>रिफ्रेश टोकन</value>
+    <value>રિફ્રેશ ટોકન</value>
   </data>
 
   <data name="Otp" xml:space="preserve">
-    <value>ओटीपी</value>
+    <value>OTP</value>
   </data>
 
   <data name="User Preference" xml:space="preserve">
-  <value>यूज़र की पसंद</value>
+    <value>વપરાશકર્તાની પસંદગી</value>
   </data>
-<data name="Currency Code" xml:space="preserve">
-   <value>मुद्रा कोड</value>
+
+  <data name="Currency Code" xml:space="preserve">
+    <value>ચલણ કોડ</value>
   </data>
 
   <data name="Time Zone" xml:space="preserve">
-   <value>समय क्षेत्र</value>
+    <value>સમય ક્ષેત્ર</value>
   </data>
 
-   <data name="Date Format" xml:space="preserve">
-   <value>तारिख का प्रारूप</value>
+  <data name="Date Format" xml:space="preserve">
+    <value>તારીખનું સ્વરૂપ</value>
   </data>
 
-   <data name="Time Format" xml:space="preserve">
-   <value>समय स्वरूप</value>Language Code
-  </data>
-   <data name="Language Code" xml:space="preserve">
-   <value>भाषा कोड</value>
+  <data name="Time Format" xml:space="preserve">
+    <value>સમયનું સ્વરૂપ</value>
   </data>
 
-   <data name="Theme" xml:space="preserve">
-   <value>विषय</value>
+  <data name="Language Code" xml:space="preserve">
+    <value>ભાષા કોડ</value>
   </data>
+
+  <data name="Theme" xml:space="preserve">
+    <value>થીમ</value>
+  </data>
+
   <!-- ===================================================== -->
   <!-- Hall -->
   <!-- ===================================================== -->
 
   <data name="Hall" xml:space="preserve">
-    <value>हॉल</value>
-  </data>
-<data name="HallName" xml:space="preserve">
-    <value>हॉल का नाम</value>
-  </data>
-<data name="AddressLine1" xml:space="preserve">
-    <value>पता लाइन 1</value>
-  </data>
- <data name="AddressLine2" xml:space="preserve">
-    <value>पता लाइन 2</value>
-  </data>
-   <data name="ContactPersonName" xml:space="preserve">
-    <value>संपर्क व्यक्ति का नाम</value>
-  </data>
-     <data name="HallPricing" xml:space="preserve">
-    <value>हॉल की कीमत</value>
-  </data>
-  <data name="HallId" xml:space="preserve">
-    <value>हॉल आईडी</value>
+    <value>હોલ</value>
   </data>
 
-<data name="HallBlock" xml:space="preserve">
-    <value>हॉल बंद</value>
+  <data name="HallName" xml:space="preserve">
+    <value>હોલનું નામ</value>
   </data>
-<data name="BlockFromDate" xml:space="preserve">
-    <value>इस तारीख से बंद करें</value>
+
+  <data name="AddressLine1" xml:space="preserve">
+    <value>સરનામું લાઇન 1</value>
   </data>
-<data name="BlockToDate" xml:space="preserve">
-    <value>बंद की तारीख तक</value>
+
+  <data name="AddressLine2" xml:space="preserve">
+    <value>સરનામું લાઇન 2</value>
   </data>
+
+  <data name="ContactPersonName" xml:space="preserve">
+    <value>સંપર્ક વ્યક્તિનું નામ</value>
+  </data>
+
+  <data name="HallPricing" xml:space="preserve">
+    <value>હોલની કિંમત</value>
+  </data>
+
+  <data name="HallId" xml:space="preserve">
+    <value>હોલ ID</value>
+  </data>
+
+  <data name="HallBlock" xml:space="preserve">
+    <value>હોલ બ્લોક</value>
+  </data>
+
+  <data name="BlockFromDate" xml:space="preserve">
+    <value>આ તારીખથી બ્લોક કરો</value>
+  </data>
+
+  <data name="BlockToDate" xml:space="preserve">
+    <value>આ તારીખ સુધી બ્લોક કરો</value>
+  </data>
+
   <data name="Amenity" xml:space="preserve">
-    <value>सुविधा</value>
+    <value>સુવિધા</value>
   </data>
 
   <data name="AmenityIcon" xml:space="preserve">
-    <value>सुविधा का चिन्ह</value>
+    <value>સુવિધાનું ચિહ્ન</value>
   </data>
 
-  
   <data name="HallImage" xml:space="preserve">
-    <value>हॉल चित्र</value>
+    <value>હોલનું ચિત્ર</value>
   </data>
-<data name="PackageName" xml:space="preserve">
-    <value>पैकेज का नाम</value>
+
+  <data name="PackageName" xml:space="preserve">
+    <value>પેકેજનું નામ</value>
   </data>
 
   <!-- ===================================================== -->
@@ -173,19 +185,19 @@
   <!-- ===================================================== -->
 
   <data name="Booking" xml:space="preserve">
-    <value>बुकिंग</value>
+    <value>બુકિંગ</value>
   </data>
 
   <data name="BookingId" xml:space="preserve">
-    <value>बुकिंग आईडी</value>
+    <value>બુકિંગ ID</value>
   </data>
 
   <data name="BookingStatus" xml:space="preserve">
-    <value>बुकिंग स्थिति</value>
+    <value>બુકિંગ સ્થિતિ</value>
   </data>
 
   <data name="BookingTimeline" xml:space="preserve">
-    <value>बुकिंग समयरेखा</value>
+    <value>બુકિંગ સમયરેખા</value>
   </data>
 
   <!-- ===================================================== -->
@@ -193,15 +205,15 @@
   <!-- ===================================================== -->
 
   <data name="Customer" xml:space="preserve">
-    <value>ग्राहक</value>
+    <value>ગ્રાહક</value>
   </data>
 
   <data name="Review" xml:space="preserve">
-    <value>समीक्षा</value>
+    <value>સમીક્ષા</value>
   </data>
 
   <data name="Favourite" xml:space="preserve">
-    <value>पसंदीदा</value>
+    <value>મનપસંદ</value>
   </data>
 
   <!-- ===================================================== -->
@@ -209,198 +221,226 @@
   <!-- ===================================================== -->
 
   <data name="Payment" xml:space="preserve">
-    <value>भुगतान</value>
+    <value>ચુકવણી</value>
   </data>
 
   <data name="Refund" xml:space="preserve">
-    <value>रिफंड</value>
+    <value>રિફંડ</value>
   </data>
-
-  
 
   <!-- ===================================================== -->
   <!-- Masters -->
   <!-- ===================================================== -->
 
- <data name="Country" xml:space="preserve">
-    <value>देश</value>
-  </data>
-  <data name="CountryName" xml:space="preserve">
-    <value>देश का नाम</value>
+  <data name="Country" xml:space="preserve">
+    <value>દેશ</value>
   </data>
 
-   <data name="CountryCode" xml:space="preserve">
-    <value>देश का कोड</value>
+  <data name="CountryName" xml:space="preserve">
+    <value>દેશનું નામ</value>
+  </data>
+
+  <data name="CountryCode" xml:space="preserve">
+    <value>દેશનો કોડ</value>
   </data>
 
   <data name="PhoneCode" xml:space="preserve">
-    <value>फ़ोन कोड</value>
+    <value>ફોન કોડ</value>
   </data>
 
- 
-   <!--End Country ===================================================== -->
- <data name="StateId" xml:space="preserve">
-    <value>राज्य का नाम</value>
+  <!--End Country ===================================================== -->
+
+  <data name="StateId" xml:space="preserve">
+    <value>રાજ્યનું નામ</value>
   </data>
+
   <data name="State" xml:space="preserve">
-    <value>राज्य का नाम</value>
+    <value>રાજ્યનું નામ</value>
   </data>
 
-    <data name="StateCode" xml:space="preserve">
-    <value>राज्य का कोड</value>
+  <data name="StateCode" xml:space="preserve">
+    <value>રાજ્યનો કોડ</value>
   </data>
- <!--End State ===================================================== -->
 
- <data name="District" xml:space="preserve">
-    <value>ज़िला</value>
+  <!--End State ===================================================== -->
+
+  <data name="District" xml:space="preserve">
+    <value>જિલ્લો</value>
   </data>
- <data name="DistrictName" xml:space="preserve">
-    <value>ज़िले का नाम</value>
+
+  <data name="DistrictName" xml:space="preserve">
+    <value>જિલ્લાનું નામ</value>
   </data>
- <!--End District ===================================================== -->
- <data name="City" xml:space="preserve">
-    <value>शहर</value>
+
+  <!--End District ===================================================== -->
+
+  <data name="City" xml:space="preserve">
+    <value>શહેર</value>
   </data>
+
   <data name="CityName" xml:space="preserve">
-    <value>शहर का नाम</value>
+    <value>શહેરનું નામ</value>
   </data>
 
   <data name="Area" xml:space="preserve">
-    <value>क्षेत्र का नाम</value>
+    <value>વિસ્તારનું નામ</value>
   </data>
-     <data name="Pincode" xml:space="preserve">
-    <value>पिन कोड</value>
+
+  <data name="Pincode" xml:space="preserve">
+    <value>પિન કોડ</value>
   </data>
+
   <data name="EventType" xml:space="preserve">
-    <value>कार्यक्रम प्रकार</value>
+    <value>કાર્યક્રમનો પ્રકાર</value>
   </data>
 
   <data name="Decoration" xml:space="preserve">
-    <value>सजावट</value>
+    <value>સજાવટ</value>
   </data>
 
   <data name="FoodCategory" xml:space="preserve">
-    <value>भोजन श्रेणी</value>
+    <value>ખોરાકની શ્રેણી</value>
   </data>
-    <data name="FoodType" xml:space="preserve">
-    <value>भोजन के प्रकार</value>
+
+  <data name="FoodType" xml:space="preserve">
+    <value>ખોરાકનો પ્રકાર</value>
   </data>
+
   <data name="FoodTypeName" xml:space="preserve">
-    <value>भोजन के प्रकार का नाम</value>
+    <value>ખોરાકના પ્રકારનું નામ</value>
   </data>
 
   <data name="Cuisine" xml:space="preserve">
-    <value>व्यंजन</value>
+    <value>વાનગી</value>
   </data>
 
   <data name="Coupon" xml:space="preserve">
-    <value>कूपन</value>
+    <value>કૂપન</value>
   </data>
-<data name="Facility" xml:space="preserve">
-    <value>सुविधा</value>
+
+  <data name="Facility" xml:space="preserve">
+    <value>સુવિધા</value>
   </data>
+
   <data name="FacilityName" xml:space="preserve">
-    <value>सुविधा का नाम</value>
+    <value>સુવિધાનું નામ</value>
   </data>
-   <data name="FacilityIcon" xml:space="preserve">
-    <value>सुविधा का चिन्ह</value>
+
+  <data name="FacilityIcon" xml:space="preserve">
+    <value>સુવિધાનું ચિહ્ન</value>
   </data>
+
   <data name="HallCategory" xml:space="preserve">
-    <value>हॉल श्रेणी</value>
+    <value>હોલની શ્રેણી</value>
   </data>
+
   <data name="PaymentMode" xml:space="preserve">
-    <value>भुगतान का तरीका</value>
+    <value>ચુકવણીની રીત</value>
   </data>
 
   <data name="PaymentModeName" xml:space="preserve">
-    <value>भुगतान के तरीके का नाम</value>
+    <value>ચુકવણીની રીતનું નામ</value>
   </data>
+
   <data name="Service" xml:space="preserve">
-    <value>सेवा</value>
+    <value>સેવા</value>
   </data>
+
   <data name="ServiceName" xml:space="preserve">
-    <value>सेवा का नाम</value>
+    <value>સેવાનું નામ</value>
   </data>
- <data name="ServiceIcon" xml:space="preserve">
-    <value>सेवा का चिन्ह</value>
+
+  <data name="ServiceIcon" xml:space="preserve">
+    <value>સેવાનું ચિહ્ન</value>
   </data>
-   <data name="EventCategory" xml:space="preserve">
-    <value>कार्यक्रम श्रेणी</value>
+
+  <data name="EventCategory" xml:space="preserve">
+    <value>કાર્યક્રમની શ્રેણી</value>
   </data>
+
   <data name="EventCategoryName" xml:space="preserve">
-    <value>कार्यक्रम श्रेणी का नाम</value>
+    <value>કાર્યક્રમની શ્રેણીનું નામ</value>
   </data>
-    <data name="CancellationPolicy" xml:space="preserve">
-    <value>रद्द पॉलिसी</value>
+
+  <data name="CancellationPolicy" xml:space="preserve">
+    <value>રદ કરવાની નીતિ</value>
   </data>
+
   <data name="PolicyName" xml:space="preserve">
-    <value>पॉलिसी का नाम</value>
+    <value>નીતિનું નામ</value>
   </data>
 
   <data name="Description" xml:space="preserve">
-    <value>विवरण</value>
+    <value>વર્ણન</value>
   </data>
+
   <!-- ===================================================== -->
   <!-- Common -->
   <!-- ===================================================== -->
 
   <data name="Image" xml:space="preserve">
-    <value>चित्र</value>
+    <value>ચિત્ર</value>
   </data>
 
   <data name="Document" xml:space="preserve">
-    <value>दस्तावेज़</value>
+    <value>દસ્તાવેજ</value>
   </data>
 
   <data name="Notification" xml:space="preserve">
-    <value>अधिसूचना</value>
+    <value>સૂચના</value>
   </data>
 
   <data name="Email" xml:space="preserve">
-    <value>ईमेल</value>
+    <value>ઈમેલ</value>
   </data>
 
   <data name="CurrentPassword" xml:space="preserve">
-    <value>वर्तमान पासवर्ड</value>
+    <value>વર્તમાન પાસવર્ડ</value>
   </data>
 
   <data name="ResetToken" xml:space="preserve">
-    <value>पासवर्ड रीसेट टोकन</value>
+    <value>પાસવર્ડ રીસેટ ટોકન</value>
   </data>
 
-    <data name="FullName" xml:space="preserve">
-    <value>पूरा नाम</value>
+  <data name="FullName" xml:space="preserve">
+    <value>પૂરું નામ</value>
   </data>
 
- <data name="AccessToken" xml:space="preserve">
-    <value>एक्सेस टोकन</value>
+  <data name="AccessToken" xml:space="preserve">
+    <value>ઍક્સેસ ટોકન</value>
   </data>
+
   <data name="Device" xml:space="preserve">
-    <value>उपकरण</value>
+    <value>ઉપકરણ</value>
   </data>
 
-<data name="DeviceName" xml:space="preserve">
-  <value>उपकरण का नाम</value>
-</data>
+  <data name="DeviceName" xml:space="preserve">
+    <value>ઉપકરણનું નામ</value>
+  </data>
 
-<data name="DeviceType" xml:space="preserve">
-  <value>उपकरण का प्रकार</value>
-</data>
-<data name="OperatingSystem" xml:space="preserve">
-  <value>ऑपरेटिंग सिस्टम</value>
-</data>
-<data name="Browser" xml:space="preserve">
-  <value>ब्राउझर</value>
-</data>
-<data name="AppVersion" xml:space="preserve">
-  <value>ॲप्लिकेशन वर्जन</value>
-</data>
+  <data name="DeviceType" xml:space="preserve">
+    <value>ઉપકરણનો પ્રકાર</value>
+  </data>
 
-<data name="PushNotificationToken" xml:space="preserve">
-  <value>पुश नोटिफिकेशन टोकन</value>
-</data>
-<data name="DeviceIdentifier" xml:space="preserve">
-  <value>उपकरण आइडेंटिफ़ायर</value>
-</data>
- 
+  <data name="OperatingSystem" xml:space="preserve">
+    <value>ઓપરેટિંગ સિસ્ટમ</value>
+  </data>
+
+  <data name="Browser" xml:space="preserve">
+    <value>બ્રાઉઝર</value>
+  </data>
+
+  <data name="AppVersion" xml:space="preserve">
+    <value>એપ્લિકેશન વર્ઝન</value>
+  </data>
+
+  <data name="PushNotificationToken" xml:space="preserve">
+    <value>પુશ નોટિફિકેશન ટોકન</value>
+  </data>
+
+  <data name="DeviceIdentifier" xml:space="preserve">
+    <value>ઉપકરણ ઓળખકર્તા</value>
+  </data>
+
 </root>
+

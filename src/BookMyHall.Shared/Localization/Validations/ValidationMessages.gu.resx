@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms</value>
+  </resheader>
+
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
+  </resheader>
+
+  <data name="Required" xml:space="preserve">
+    <value>{0} આવશ્યક છે.</value>
+  </data>
+
+  <data name="Invalid" xml:space="preserve">
+    <value>અમાન્ય {0}.</value>
+  </data>
+
+  <data name="AlreadyExists" xml:space="preserve">
+    <value>{0} પહેલેથી અસ્તિત્વમાં છે.</value>
+  </data>
+
+  <data name="NotFound" xml:space="preserve">
+    <value>{0} મળ્યું નથી.</value>
+  </data>
+
+  <data name="MinimumLength" xml:space="preserve">
+    <value>{0} ઓછામાં ઓછા {1} અક્ષરોનું હોવું જોઈએ.</value>
+  </data>
+
+  <data name="MaximumLength" xml:space="preserve">
+    <value>{0} {1} અક્ષરોથી વધુ ન હોવું જોઈએ.</value>
+  </data>
+
+  <data name="Range" xml:space="preserve">
+    <value>{0} {1} અને {2} ની વચ્ચે હોવું જોઈએ.</value>
+  </data>
+
+  <data name="GreaterThan" xml:space="preserve">
+    <value>{0}, {1} કરતાં મોટું હોવું જોઈએ.</value>
+  </data>
+
+  <data name="LessThan" xml:space="preserve">
+    <value>{0}, {1} કરતાં નાનું હોવું જોઈએ.</value>
+  </data>
+
+  <data name="Equal" xml:space="preserve">
+    <value>{0}, {1} ના સમાન હોવું જોઈએ.</value>
+  </data>
+
+  <data name="NotEqual" xml:space="preserve">
+    <value>{0}, {1} કરતાં અલગ હોવું જોઈએ.</value>
+  </data>
+
+  <data name="Email" xml:space="preserve">
+    <value>કૃપા કરીને માન્ય ઈમેલ સરનામું દાખલ કરો.</value>
+  </data>
+
+  <data name="PhoneNumber" xml:space="preserve">
+    <value>કૃપા કરીને માન્ય મોબાઇલ નંબર દાખલ કરો.</value>
+  </data>
+
+  <data name="Url" xml:space="preserve">
+    <value>કૃપા કરીને માન્ય URL દાખલ કરો.</value>
+  </data>
+
+  <data name="Guid" xml:space="preserve">
+    <value>કૃપા કરીને માન્ય ઓળખકર્તા દાખલ કરો.</value>
+  </data>
+
+  <data name="Date" xml:space="preserve">
+    <value>કૃપા કરીને માન્ય તારીખ દાખલ કરો.</value>
+  </data>
+
+  <data name="FutureDate" xml:space="preserve">
+    <value>{0} ભવિષ્યની તારીખ હોવી જોઈએ.</value>
+  </data>
+
+  <data name="PastDate" xml:space="preserve">
+    <value>{0} ભૂતકાળની તારીખ હોવી જોઈએ.</value>
+  </data>
+
+  <data name="Numeric" xml:space="preserve">
+    <value>{0} સંખ્યાત્મક હોવું જોઈએ.</value>
+  </data>
+
+  <data name="PositiveNumber" xml:space="preserve">
+    <value>{0} શૂન્ય કરતાં મોટું હોવું જોઈએ.</value>
+  </data>
+
+  <data name="StrongPassword" xml:space="preserve">
+    <value>{0} માં ઓછામાં ઓછો એક મોટો અક્ષર, એક નાનો અક્ષર, એક સંખ્યા અને એક વિશેષ ચિહ્ન હોવું જોઈએ.</value>
+  </data>
+
+  <data name="PasswordMismatch" xml:space="preserve">
+    <value>વર્તમાન પાસવર્ડ ખોટો છે.</value>
+  </data>
+
+  <data name="PasswordAlreadyUsed" xml:space="preserve">
+    <value>નવો પાસવર્ડ વર્તમાન પાસવર્ડથી અલગ હોવો જોઈએ.</value>
+  </data>
+
+  <data name="InvalidCredentials" xml:space="preserve">
+    <value>વપરાશકર્તા નામ અથવા પાસવર્ડ ખોટો છે.</value>
+  </data>
+
+  <data name="Unauthorized" xml:space="preserve">
+    <value>તમને આ કાર્ય કરવાની પરવાનગી નથી.</value>
+  </data>
+
+  <data name="Forbidden" xml:space="preserve">
+    <value>તમારી પાસે આ કાર્ય કરવા માટે જરૂરી અધિકારો નથી.</value>
+  </data>
+
+</root>
+
