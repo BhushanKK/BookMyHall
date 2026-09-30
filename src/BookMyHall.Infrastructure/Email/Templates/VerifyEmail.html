@@ -1,496 +1,1252 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BookMyHall - Verify Email</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="color-scheme" content="light">
+    <meta name="supported-color-schemes" content="light">
+
+
+<title>BookMyLawns - Verify Email</title>
+
+<style>
+    html,
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        background-color: #f3f6fb;
+    }
+
+    body {
+        font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+    }
+
+    table {
+        border-collapse: collapse;
+        border-spacing: 0;
+    }
+
+    img {
+        border: 0;
+        outline: none;
+        text-decoration: none;
+        display: block;
+        max-width: 100%;
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    .email-container {
+        width: 680px;
+        max-width: 680px;
+    }
+
+    .content-padding {
+        padding: 35px 48px 10px;
+    }
+
+    .footer-padding {
+        padding: 25px 30px;
+    }
+
+    .footer-logo-wrapper {
+        display: inline-block;
+        padding: 1px;
+        border-radius: 0;
+        background: linear-gradient(90deg, #5426C7, #D72A7A);
+    }
+
+    .purple-icon {
+        filter: invert(21%) sepia(72%) saturate(3104%) hue-rotate(250deg) brightness(82%) contrast(93%);
+    }
+
+    .white-icon {
+        filter: brightness(0) invert(1);
+    }
+
+    .social-icon {
+        filter: brightness(0) invert(1);
+    }
+
+    .hero-title {
+        margin: 17px 0 7px;
+        color: #ffffff;
+        font-size: 30px;
+        line-height: 38px;
+        font-weight: 700;
+    }
+
+    .hero-subtitle {
+        margin: 0;
+        color: #eee8ff;
+        font-size: 14px;
+        line-height: 22px;
+    }
+
+    .body-title {
+        margin: 0 0 15px;
+        color: #24124D;
+        font-size: 29px;
+        line-height: 37px;
+        font-weight: 700;
+    }
+
+    .body-text {
+        color: #4B5563;
+        font-size: 16px;
+        line-height: 28px;
+    }
+
+    .verify-button {
+        margin: 10px auto 20px;
+    }
+
+    @media only screen and (max-width: 680px) {
+        body {
+            background-color: #ffffff !important;
+        }
+
+        .email-container {
+            width: 100% !important;
+            max-width: 100% !important;
+            border-radius: 0 !important;
+        }
+
+        .content-padding {
+            padding: 25px 20px 10px !important;
+        }
+
+        .header-logo {
+            width: 200px !important;
+            max-width: 85% !important;
+        }
+
+        .footer-logo {
+            width: 170px !important;
+            max-width: 85% !important;
+        }
+
+        .hero-title {
+            font-size: 27px !important;
+            line-height: 34px !important;
+        }
+
+        .hero-subtitle {
+            font-size: 15px !important;
+            line-height: 23px !important;
+        }
+
+        .body-title {
+            font-size: 20px !important;
+            line-height: 28px !important;
+        }
+
+        .body-text {
+            font-size: 14px !important;
+            line-height: 22px !important;
+        }
+
+        .verify-button {
+            width: 100% !important;
+        }
+
+        .verify-button a {
+            display: block !important;
+            padding-left: 15px !important;
+            padding-right: 15px !important;
+        }
+
+        .footer-padding {
+            padding: 25px 20px !important;
+        }
+
+        .social-icon {
+            width: 34px !important;
+            height: 34px !important;
+        }
+    }
+</style>
+
+
 </head>
 
-<body style="
-    margin:0;
-    padding:0;
-    background:#f3f6fb;
-    font-family:'Segoe UI',Arial,sans-serif;">
+<body>
 
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-        style="background:#f3f6fb;padding:40px 0;">
 
-        <tr>
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+    Verify your BookMyLawns email address and activate your account.
+</div>
 
-            <td align="center">
+<table
+    role="presentation"
+    width="100%"
+    cellpadding="0"
+    cellspacing="0"
+    border="0"
+    style="width:100%;background:#f3f6fb;"
+>
+    <tr>
+        <td align="center" style="padding:30px 10px;">
 
-                <table role="presentation" width="650" cellpadding="0" cellspacing="0" border="0" style="
-            background:#ffffff;
-            border-radius:18px;
-            overflow:hidden;
-            box-shadow:0 10px 35px rgba(0,0,0,.08);">
+            <!-- Main Container -->
+            <table
+                role="presentation"
+                width="680"
+                cellpadding="0"
+                cellspacing="0"
+                border="0"
+                class="email-container"
+                style="
+                    width:100%;
+                    max-width:680px;
+                    background:#ffffff;
+                    border-radius:18px;
+                    overflow:hidden;
+                    box-shadow:0 8px 30px rgba(36,18,77,0.10);
+                "
+            >
 
-                    <!-- Top Gradient -->
+                <!-- Top Gradient -->
+                <tr>
+                    <td
+                        style="
+                            height:7px;
+                            background:#5426C7;
+                            background:linear-gradient(90deg,#5426C7,#D72A7A);
+                            font-size:0;
+                            line-height:0;
+                        "
+                    >
+                        &nbsp;
+                    </td>
+                </tr>
 
-                    <tr>
-                        <td style="
-        height:8px;
-        background:linear-gradient(90deg,#5B21B6,#EC4899);">
-                        </td>
-                    </tr>
+                <!-- Header -->
+                <tr>
+                    <td
+                        align="center"
+                        style="
+                            padding:32px 25px 28px;
+                            background:#ffffff;
+                        "
+                    >
+                        <table
+                            role="presentation"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            align="center"
+                        >
+                            <tr>
+                                <td align="center">
+                                    <img
+                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/light%20theme/BookMyLawns_Light_1920x1080.png"
+                                        alt="BookMyLawns"
+                                        width="210"
+                                        class="header-logo"
+                                        style="
+                                            display:block;
+                                            width:210px;
+                                            max-width:100%;
+                                            height:auto;
+                                            border:0;
+                                            outline:none;
+                                            text-decoration:none;
+                                        "
+                                    >
+                                </td>
+                            </tr>
+                        </table>
 
-                    <!-- HEADER -->
+                        <p
+                            style="
+                                margin:10px 0 0;
+                                color:#5426C7;
+                                font-size:13px;
+                                line-height:20px;
+                                letter-spacing:2px;
+                                font-weight:600;
+                            "
+                        >
+                            FIND &bull; COMPARE &bull; BOOK
+                        </p>
+                    </td>
+                </tr>
 
-                    <tr>
+                <!-- Hero -->
+                <tr>
+                    <td
+                        align="center"
+                        style="
+                            background:#5426C7;
+                            padding:32px 25px;
+                        "
+                    >
+                        <table
+                            role="presentation"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            align="center"
+                        >
+                            <tr>
+                                <td
+                                    align="center"
+                                    style="
+                                        width:56px;
+                                        height:56px;
+                                        background:#ffffff;
+                                        border-radius:50%;
+                                    "
+                                >
+                                    <img
+                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/check-circle.svg"
+                                        width="30"
+                                        height="30"
+                                        alt="Verify"
+                                        class="purple-icon"
+                                        style="
+                                            display:block;
+                                            width:30px;
+                                            height:30px;
+                                            margin:13px;
+                                            border:0;
+                                        "
+                                    >
+                                </td>
+                            </tr>
+                        </table>
 
-                        <td align="center" style="
-        padding:45px 40px 30px;
-        background:#ffffff;">
+                        <h1 class="hero-title">
+                            Verify Your Email
+                        </h1>
 
-                            <img src="cid:bookmyhall-logo" alt="BookMyHall" width="120" style="
-        display:block;
-        margin:0 auto;
-        border:none;
-        outline:none;">
+                        <p class="hero-subtitle">
+                            One quick step to activate your BookMyLawns account.
+                        </p>
+                    </td>
+                </tr>
 
-                            <h1 style="
-    margin:20px 0 8px;
-    font-size:40px;
-    color:#24124D;
-    font-weight:700;
-    letter-spacing:1px;">
+                <!-- Introduction -->
+                <tr>
+                    <td class="content-padding">
 
-                                Book<span style="color:#EC4899;">My</span>Hall
+                        <h2 class="body-title">
+                            Hello {{UserName}},
+                        </h2>
 
-                            </h1>
+                        <p
+                            class="body-text"
+                            style="margin:0 0 14px;"
+                        >
+                            Welcome to
+                            <strong style="color:#D72A7A;">
+                                BookMyLawns
+                            </strong>!
+                            We're excited to have you with us.
+                        </p>
 
-                            <p style="
-    margin:0;
-    color:#7C3AED;
-    font-size:16px;
-    letter-spacing:2px;">
+                        <p
+                            class="body-text"
+                            style="margin:0;"
+                        >
+                            To activate your account and start discovering and booking venues,
+                            please verify your email address by clicking the button below.
+                        </p>
 
-                                FIND • COMPARE • BOOK
+                    </td>
+                </tr>
 
-                            </p>
+                <!-- Verify Button -->
+                <tr>
+                    <td
+                        align="center"
+                        class="content-padding"
+                        style="padding:20px 48px 5px;"
+                    >
 
-                        </td>
+                        <table
+                            role="presentation"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            align="center"
+                            class="verify-button"
+                        >
+                            <tr>
+                                <td
+                                    align="center"
+                                    bgcolor="#5426C7"
+                                    style="
+                                        background:#5426C7;
+                                        border-radius:12px;
+                                    "
+                                >
+                                    <a
+                                        href="{{VerificationLink}}"
+                                        target="_blank"
+                                        style="
+                                            display:inline-block;
+                                            padding:17px 42px;
+                                            color:#ffffff;
+                                            text-decoration:none;
+                                            font-size:17px;
+                                            line-height:22px;
+                                            font-weight:700;
+                                            background:#5426C7;
+                                            border-radius:12px;
+                                        "
+                                    >
+                                        <img
+                                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/check-circle.svg"
+                                            width="20"
+                                            height="20"
+                                            alt=""
+                                            class="white-icon"
+                                            style="
+                                                display:inline-block;
+                                                width:20px;
+                                                height:20px;
+                                                vertical-align:middle;
+                                                margin-right:7px;
+                                                border:0;
+                                            "
+                                        >
+                                        VERIFY EMAIL
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
 
-                    </tr>
+                        <p
+                            style="
+                                margin:0;
+                                text-align:center;
+                                color:#6B7280;
+                                font-size:14px;
+                                line-height:22px;
+                            "
+                        >
+                            This verification link will expire in
+                            <strong style="color:#D72A7A;">
+                                {{ExpiryMinutes}} minutes
+                            </strong>.
+                        </p>
 
-                    <!-- BODY -->
+                    </td>
+                </tr>
 
-                    <tr>
+                <!-- Security Notice -->
+                <tr>
+                    <td class="content-padding" style="padding:30px 48px 5px;">
 
-                        <td style="padding:20px 55px 10px;">
+                        <table
+                            role="presentation"
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            style="
+                                background:#F8F5FF;
+                                border:1px solid #E4D8FF;
+                                border-left:6px solid #5426C7;
+                                border-radius:12px;
+                            "
+                        >
+                            <tr>
+                                <td style="padding:23px;">
 
-                            <h2 style="
-    margin-top:0;
-    color:#24124D;
-    font-size:30px;">
+                                    <table
+                                        role="presentation"
+                                        width="100%"
+                                        cellpadding="0"
+                                        cellspacing="0"
+                                        border="0"
+                                    >
+                                        <tr>
 
-                                Hello {{UserName}},
+                                            <td width="38" valign="top">
+                                                <img
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/lock.svg"
+                                                    width="25"
+                                                    height="25"
+                                                    alt="Security"
+                                                    class="purple-icon"
+                                                    style="
+                                                        display:block;
+                                                        width:25px;
+                                                        height:25px;
+                                                        border:0;
+                                                    "
+                                                >
+                                            </td>
 
-                            </h2>
+                                            <td valign="top">
 
-                            <p style="
-    color:#4B5563;
-    font-size:17px;
-    line-height:30px;">
+                                                <h3
+                                                    style="
+                                                        margin:0 0 10px;
+                                                        color:#5426C7;
+                                                        font-size:20px;
+                                                        line-height:27px;
+                                                    "
+                                                >
+                                                    Secure Your Account
+                                                </h3>
 
-                                Welcome to
-                                <strong style="color:#EC4899;">
-                                    BookMyHall
-                                </strong>!
+                                                <p
+                                                    style="
+                                                        margin:0;
+                                                        color:#475569;
+                                                        font-size:14px;
+                                                        line-height:24px;
+                                                    "
+                                                >
+                                                    Verifying your email address helps us protect
+                                                    your account, improve account security and
+                                                    enable important notifications.
+                                                </p>
 
-                                We're excited to have you with us.
+                                                <p
+                                                    style="
+                                                        margin:12px 0 0;
+                                                        color:#475569;
+                                                        font-size:14px;
+                                                        line-height:24px;
+                                                    "
+                                                >
+                                                    For your security, never share this verification
+                                                    link with anyone.
+                                                </p>
 
-                            </p>
+                                            </td>
 
-                            <p style="
-    color:#4B5563;
-    font-size:17px;
-    line-height:30px;">
+                                        </tr>
+                                    </table>
 
-                                To activate your account and start booking venues,
-                                please verify your email address by clicking the button below.
+                                </td>
+                            </tr>
+                        </table>
 
-                            </p>
+                    </td>
+                </tr>
 
-                            <!-- ====================================================== -->
-                            <!-- VERIFY EMAIL BUTTON -->
-                            <!-- ====================================================== -->
+                <!-- Fallback Link -->
+                <tr>
+                    <td class="content-padding" style="padding:28px 48px 5px;">
 
-                            <table role="presentation" align="center" cellpadding="0" cellspacing="0"
-                                style="margin:40px auto;">
+                        <h3
+                            style="
+                                margin:0 0 12px;
+                                color:#24124D;
+                                font-size:20px;
+                                line-height:27px;
+                            "
+                        >
+                            Having trouble with the button?
+                        </h3>
 
-                                <tr>
+                        <p
+                            class="body-text"
+                            style="
+                                margin:0 0 15px;
+                                font-size:15px;
+                            "
+                        >
+                            Copy and paste the following URL into your browser
+                            to verify your email address.
+                        </p>
 
-                                    <td align="center" bgcolor="#7C3AED" style="border-radius:12px;">
+                        <table
+                            role="presentation"
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            style="
+                                background:#F8FAFC;
+                                border:1px solid #E5E7EB;
+                                border-radius:10px;
+                            "
+                        >
+                            <tr>
+                                <td
+                                    style="
+                                        padding:15px;
+                                        word-break:break-all;
+                                    "
+                                >
+                                    <a
+                                        href="{{VerificationLink}}"
+                                        target="_blank"
+                                        style="
+                                            color:#5426C7;
+                                            text-decoration:none;
+                                            font-size:13px;
+                                            line-height:22px;
+                                            font-family:Consolas,'Courier New',monospace;
+                                            word-break:break-all;
+                                        "
+                                    >
+                                        {{VerificationLink}}
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
 
-                                        <a href="{{VerificationLink}}" style="
-        display:inline-block;
-        padding:18px 50px;
-        font-size:18px;
-        font-weight:700;
-        color:#ffffff;
-        text-decoration:none;
-        background:linear-gradient(90deg,#5B21B6,#EC4899);
-        border-radius:12px;">
+                    </td>
+                </tr>
 
-                                            ✅ VERIFY EMAIL
+                <!-- Warning -->
+                <tr>
+                    <td class="content-padding" style="padding:30px 48px 5px;">
 
+                        <table
+                            role="presentation"
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            style="
+                                background:#FFF7ED;
+                                border:1px solid #FED7AA;
+                                border-left:6px solid #F97316;
+                                border-radius:12px;
+                            "
+                        >
+                            <tr>
+                                <td style="padding:23px;">
+
+                                    <table
+                                        role="presentation"
+                                        width="100%"
+                                        cellpadding="0"
+                                        cellspacing="0"
+                                        border="0"
+                                    >
+                                        <tr>
+
+                                            <td width="38" valign="top">
+                                                <img
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/notifications.svg"
+                                                    width="25"
+                                                    height="25"
+                                                    alt="Notification"
+                                                    class="purple-icon"
+                                                    style="
+                                                        display:block;
+                                                        width:25px;
+                                                        height:25px;
+                                                        border:0;
+                                                    "
+                                                >
+                                            </td>
+
+                                            <td valign="top">
+
+                                                <h3
+                                                    style="
+                                                        margin:0 0 10px;
+                                                        color:#EA580C;
+                                                        font-size:19px;
+                                                        line-height:27px;
+                                                    "
+                                                >
+                                                    Didn't create a BookMyLawns account?
+                                                </h3>
+
+                                                <p
+                                                    style="
+                                                        margin:0;
+                                                        color:#7C2D12;
+                                                        font-size:14px;
+                                                        line-height:24px;
+                                                    "
+                                                >
+                                                    If you didn't register for a BookMyLawns
+                                                    account, please ignore this email. No account
+                                                    will be activated until your email address has
+                                                    been successfully verified.
+                                                </p>
+
+                                            </td>
+
+                                        </tr>
+                                    </table>
+
+                                </td>
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+
+                <!-- Support -->
+                <tr>
+                    <td class="content-padding" style="padding:35px 48px 10px;">
+
+                        <table
+                            role="presentation"
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                        >
+                            <tr>
+                                <td
+                                    style="
+                                        border-top:1px solid #E5E7EB;
+                                        padding-top:28px;
+                                    "
+                                >
+
+                                    <h3
+                                        style="
+                                            margin:0 0 12px;
+                                            color:#24124D;
+                                            font-size:20px;
+                                            line-height:27px;
+                                        "
+                                    >
+                                        <img
+                                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/mail.svg"
+                                            width="22"
+                                            height="22"
+                                            alt=""
+                                            class="purple-icon"
+                                            style="
+                                                display:inline-block;
+                                                width:22px;
+                                                height:22px;
+                                                vertical-align:middle;
+                                                margin-right:7px;
+                                                border:0;
+                                            "
+                                        >
+                                        Need Help?
+                                    </h3>
+
+                                    <p
+                                        class="body-text"
+                                        style="
+                                            margin:0;
+                                            font-size:15px;
+                                        "
+                                    >
+                                        If you're having trouble verifying your email,
+                                        our support team is ready to assist you.
+                                    </p>
+
+                                    <p
+                                        style="
+                                            margin:12px 0 4px;
+                                            color:#D72A7A;
+                                            font-size:16px;
+                                            line-height:24px;
+                                            font-weight:700;
+                                        "
+                                    >
+                                        <a
+                                            href="mailto:support@bookmylawns.in"
+                                            style="
+                                                color:#D72A7A;
+                                                text-decoration:none;
+                                            "
+                                        >
+                                            support@bookmylawns.in
                                         </a>
+                                    </p>
 
-                                    </td>
+                                    <p
+                                        style="
+                                            margin:0;
+                                            color:#6B7280;
+                                            font-size:14px;
+                                            line-height:22px;
+                                        "
+                                    >
+                                        We're always happy to help.
+                                    </p>
 
-                                </tr>
+                                </td>
+                            </tr>
+                        </table>
 
-                            </table>
+                    </td>
+                </tr>
 
-                            <p style="
-    text-align:center;
-    color:#6B7280;
-    font-size:16px;
-    margin-bottom:35px;">
+                <!-- Thank You -->
+                <tr>
+                    <td
+                        align="center"
+                        class="content-padding"
+                        style="padding:30px 48px 35px;"
+                    >
 
-                                This verification link will expire in
+                        <p
+                            style="
+                                margin:0;
+                                color:#374151;
+                                font-size:17px;
+                                line-height:29px;
+                            "
+                        >
+                            Thank you for choosing
+                            <strong style="color:#5426C7;">
+                                BookMyLawns
+                            </strong>
 
-                                <strong style="color:#EC4899;">
+                            <img
+                                src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/favorite.svg"
+                                width="18"
+                                height="18"
+                                alt=""
+                                class="purple-icon"
+                                style="
+                                    display:inline-block;
+                                    width:18px;
+                                    height:18px;
+                                    vertical-align:middle;
+                                    margin-left:4px;
+                                    border:0;
+                                "
+                            >
+                        </p>
 
-                                    {{ExpiryMinutes}} minutes
+                        <p
+                            style="
+                                margin:8px 0 0;
+                                color:#6B7280;
+                                font-size:13px;
+                                line-height:22px;
+                            "
+                        >
+                            India's Smart Lawn &amp; Event Venue Booking Platform
+                        </p>
 
-                                </strong>.
+                    </td>
+                </tr>
 
-                            </p>
+                <!-- Footer -->
+                <tr>
+                    <td
+                        align="center"
+                        class="footer-padding"
+                        style="
+                            background:#24124D;
+                            padding:38px 30px 32px;
+                        "
+                    >
 
-                            <!-- ====================================================== -->
-                            <!-- SECURITY NOTICE -->
-                            <!-- ====================================================== -->
-
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="
-            background:#EEF6FF;
-            border:1px solid #C7DDFC;
-            border-left:6px solid #2563EB;
-            border-radius:12px;
-            margin-bottom:30px;">
-
+                        <!-- Footer Logo -->
+                        <div
+                            class="footer-logo-wrapper"
+                            style="
+                                display:inline-block;
+                                padding:1px;
+                                border-radius:0;
+                                background:linear-gradient(90deg,#5426C7,#D72A7A);
+                            "
+                        >
+                            <table
+                                cellpadding="0"
+                                cellspacing="0"
+                                border="0"
+                                bgcolor="#ffffff"
+                                style="
+                                    background:#ffffff;
+                                    border-radius:0;
+                                "
+                            >
                                 <tr>
-
-                                    <td style="padding:25px;">
-
-                                        <h3 style="
-    margin-top:0;
-    margin-bottom:15px;
-    color:#1D4ED8;
-    font-size:22px;">
-
-                                            🔐 Secure Your Account
-
-                                        </h3>
-
-                                        <p style="
-    margin:0;
-    color:#475569;
-    font-size:16px;
-    line-height:28px;">
-
-                                            Verifying your email address helps us protect your account,
-                                            improves account security, and enables important notifications.
-
-                                        </p>
-
-                                        <p style="
-    margin-top:15px;
-    margin-bottom:0;
-    color:#475569;
-    font-size:16px;
-    line-height:28px;">
-
-                                            For your security, never share this verification link with anyone.
-
-                                        </p>
-
+                                    <td
+                                        align="center"
+                                        style="
+                                            background:#ffffff;
+                                            border-radius:0;
+                                        "
+                                    >
+                                        <img
+                                            class="footer-logo"
+                                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/dark%20theme/BookMyLawns_Dark_1920x1080.png"
+                                            alt="BookMyLawns"
+                                            width="175"
+                                            style="
+                                                height:auto;
+                                                margin:0 auto;
+                                            "
+                                        >
                                     </td>
-
                                 </tr>
-
                             </table>
-                            <!-- ====================================================== -->
-                            <!-- FALLBACK LINK -->
-                            <!-- ====================================================== -->
+                        </div>
+
+                        <p
+                            style="
+                                margin:16px 0 0;
+                                color:#D1D5DB;
+                                font-size:13px;
+                                line-height:22px;
+                            "
+                        >
+                            Find &bull; Compare &bull; Book
+                        </p>
+
+                        <p
+                            style="
+                                margin:10px auto 0;
+                                max-width:530px;
+                                color:#D1D5DB;
+                                font-size:13px;
+                                line-height:23px;
+                            "
+                        >
+                            BookMyLawns makes it easier to discover, compare and
+                            plan venues for weddings, celebrations, corporate events
+                            and special occasions.
+                        </p>
+
+                        <!-- Divider -->
+                        <table
+                            role="presentation"
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            style="margin:28px 0;"
+                        >
+                            <tr>
+                                <td
+                                    style="
+                                        height:1px;
+                                        background:rgba(255,255,255,0.15);
+                                        font-size:0;
+                                        line-height:0;
+                                    "
+                                >
+                                    &nbsp;
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Contact -->
+                        <table
+                            role="presentation"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            align="center"
+                        >
+
+                            <tr>
+                                <td
+                                    align="center"
+                                    style="
+                                        padding:4px 0;
+                                        color:#D1D5DB;
+                                        font-size:13px;
+                                        line-height:23px;
+                                    "
+                                >
+                                    <img
+                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/mail.svg"
+                                        width="17"
+                                        height="17"
+                                        alt=""
+                                        class="white-icon"
+                                        style="
+                                            display:inline-block;
+                                            width:17px;
+                                            height:17px;
+                                            vertical-align:middle;
+                                            margin-right:5px;
+                                            border:0;
+                                        "
+                                    >
+
+                                    <a
+                                        href="mailto:support@bookmylawns.in"
+                                        style="
+                                            color:#D1D5DB;
+                                            text-decoration:none;
+                                        "
+                                    >
+                                        support@bookmylawns.in
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td
+                                    align="center"
+                                    style="
+                                        padding:4px 0;
+                                        color:#D1D5DB;
+                                        font-size:13px;
+                                        line-height:23px;
+                                    "
+                                >
+                                    <img
+                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/language.svg"
+                                        width="17"
+                                        height="17"
+                                        alt=""
+                                        class="white-icon"
+                                        style="
+                                            display:inline-block;
+                                            width:17px;
+                                            height:17px;
+                                            vertical-align:middle;
+                                            margin-right:5px;
+                                            border:0;
+                                        "
+                                    >
+
+                                    <a
+                                        href="https://bookmylawns.in"
+                                        target="_blank"
+                                        style="
+                                            color:#D1D5DB;
+                                            text-decoration:none;
+                                        "
+                                    >
+                                        bookmylawns.in
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td
+                                    align="center"
+                                    style="
+                                        padding:4px 0;
+                                        color:#D1D5DB;
+                                        font-size:13px;
+                                        line-height:23px;
+                                    "
+                                >
+                                    <img
+                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/location.svg"
+                                        width="17"
+                                        height="17"
+                                        alt=""
+                                        class="white-icon"
+                                        style="
+                                            display:inline-block;
+                                            width:17px;
+                                            height:17px;
+                                            vertical-align:middle;
+                                            margin-right:5px;
+                                            border:0;
+                                        "
+                                    >
+
+                                    Gangapur Road, Nashik 01, Maharashtra, India
+                                </td>
+                            </tr>
+
+                        </table>
+
+                        <!-- Social Icons -->
+                        <p
+                            style="
+                                margin:25px 0 12px;
+                                color:#D1D5DB;
+                                font-size:12px;
+                                line-height:20px;
+                            "
+                        >
+                            Follow BookMyLawns
+                        </p>
+
+                        <table
+                            role="presentation"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            align="center"
+                        >
+                            <tr>
+
+                                <td style="padding:0 7px;">
+                                    <a
+                                        href="{{FacebookUrl}}"
+                                        target="_blank"
+                                        style="text-decoration:none;"
+                                    >
+                                        <img
+                                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/facebook.svg"
+                                            width="34"
+                                            height="34"
+                                            alt="Facebook"
+                                            class="social-icon"
+                                            style="
+                                                display:block;
+                                                width:34px;
+                                                height:34px;
+                                                border:0;
+                                            "
+                                        >
+                                    </a>
+                                </td>
+
+                                <td style="padding:0 7px;">
+                                    <a
+                                        href="{{InstagramUrl}}"
+                                        target="_blank"
+                                        style="text-decoration:none;"
+                                    >
+                                        <img
+                                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/instagram.svg"
+                                            width="34"
+                                            height="34"
+                                            alt="Instagram"
+                                            class="social-icon"
+                                            style="
+                                                display:block;
+                                                width:34px;
+                                                height:34px;
+                                                border:0;
+                                            "
+                                        >
+                                    </a>
+                                </td>
+
+                                <td style="padding:0 7px;">
+                                    <a
+                                        href="{{YoutubeUrl}}"
+                                        target="_blank"
+                                        style="text-decoration:none;"
+                                    >
+                                        <img
+                                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/youtube.svg"
+                                            width="34"
+                                            height="34"
+                                            alt="YouTube"
+                                            class="social-icon"
+                                            style="
+                                                display:block;
+                                                width:34px;
+                                                height:34px;
+                                                border:0;
+                                            "
+                                        >
+                                    </a>
+                                </td>
+
+                            </tr>
+                        </table>
+
+                        <!-- Company -->
+                        <p
+                            style="
+                                margin:25px 0 4px;
+                                color:#ffffff;
+                                font-size:12px;
+                                line-height:20px;
+                                font-weight:700;
+                            "
+                        >
+                            Shriyash Computer And IT Solutions
+                        </p>
+
+                        <p
+                            style="
+                                margin:0;
+                                color:#9CA3AF;
+                                font-size:11px;
+                                line-height:18px;
+                            "
+                        >
+                            Gangapur Road, Nashik 01, Maharashtra, India
+                        </p>
+
+                        <!-- Security Reminder -->
+                        <table
+                            role="presentation"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            align="center"
+                            style="margin:20px auto 0;"
+                        >
+                            <tr>
+                                <td
+                                    align="center"
+                                    style="
+                                        color:#9CA3AF;
+                                        font-size:11px;
+                                        line-height:19px;
+                                    "
+                                >
+                                    <img
+                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/lock.svg"
+                                        width="15"
+                                        height="15"
+                                        alt=""
+                                        class="white-icon"
+                                        style="
+                                            display:inline-block;
+                                            width:15px;
+                                            height:15px;
+                                            vertical-align:middle;
+                                            margin-right:4px;
+                                            border:0;
+                                        "
+                                    >
+                                    Never share your password or verification codes.
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Automated Email -->
+                        <p
+                            style="
+                                margin:18px auto 0;
+                                max-width:500px;
+                                color:#9CA3AF;
+                                font-size:11px;
+                                line-height:19px;
+                            "
+                        >
+                            This is an automated security notification from
+                            <strong style="color:#ffffff;">
+                                BookMyLawns
+                            </strong>.
+                            Please do not reply directly to this email.
+                        </p>
+
+                        <!-- Copyright -->
+                        <p
+                            style="
+                                margin:16px 0 0;
+                                padding-top:15px;
+                                border-top:1px solid rgba(255,255,255,0.10);
+                                color:#8f86a8;
+                                font-size:10px;
+                                line-height:17px;
+                            "
+                        >
+                            &copy; {{CurrentYear}} BookMyLawns. All rights reserved.
+                        </p>
+
+                    </td>
+                </tr>
+
+            </table>
+
+        </td>
+    </tr>
+</table>
 
-                            <h3 style="
-    color:#24124D;
-    margin-bottom:18px;
-    font-size:22px;">
-
-                                Having trouble with the button?
-
-                            </h3>
-
-                            <p style="
-    color:#4B5563;
-    font-size:16px;
-    line-height:28px;">
-
-                                Copy and paste the following URL into your browser to verify your email address.
-
-                            </p>
-
-                            <div style="
-    background:#F8FAFC;
-    border:1px solid #E5E7EB;
-    border-radius:10px;
-    padding:18px;
-    word-break:break-all;
-    font-size:14px;
-    line-height:26px;
-    color:#2563EB;
-    font-family:Consolas,Courier New,monospace;">
-
-                                {{VerificationLink}}
-
-                            </div>
-
-                            <!-- ====================================================== -->
-                            <!-- WARNING -->
-                            <!-- ====================================================== -->
-
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="
-            background:#FFF7ED;
-            border:1px solid #FED7AA;
-            border-left:6px solid #F97316;
-            border-radius:12px;
-            margin-top:35px;">
-
-                                <tr>
-
-                                    <td style="padding:25px;">
-
-                                        <h3 style="
-    margin-top:0;
-    color:#EA580C;
-    font-size:22px;">
-
-                                            ⚠ Didn't create a BookMyHall account?
-
-                                        </h3>
-
-                                        <p style="
-    margin-bottom:0;
-    color:#7C2D12;
-    font-size:16px;
-    line-height:28px;">
-
-                                            If you didn't register for a BookMyHall account,
-                                            please ignore this email.
-
-                                            No account will be activated until your email address
-                                            has been successfully verified.
-
-                                        </p>
-
-                                    </td>
-
-                                </tr>
-
-                            </table>
-
-                            <!-- ====================================================== -->
-                            <!-- SUPPORT -->
-                            <!-- ====================================================== -->
-
-                            <hr style="
-    margin:45px 0;
-    border:none;
-    border-top:1px solid #E5E7EB;">
-
-                            <h3 style="
-    color:#24124D;
-    margin-bottom:15px;">
-
-                                Need Help?
-
-                            </h3>
-
-                            <p style="
-    color:#4B5563;
-    font-size:16px;
-    line-height:28px;
-    margin-top:0;">
-
-                                If you're having trouble verifying your email,
-                                our support team is ready to assist you.
-
-                            </p>
-
-                            <p style="
-    margin-bottom:5px;
-    color:#EC4899;
-    font-size:17px;
-    font-weight:700;">
-
-                                📧 support@bookmyhall.com
-
-                            </p>
-
-                            <p style="
-    margin-top:0;
-    color:#6B7280;
-    font-size:15px;">
-
-                                We're always happy to help.
-
-                            </p>
-
-                            <!-- ====================================================== -->
-                            <!-- THANK YOU -->
-                            <!-- ====================================================== -->
-
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-                                style="margin-top:20px;">
-
-                                <tr>
-
-                                    <td align="center">
-
-                                        <p style="
-    margin:0;
-    font-size:18px;
-    color:#374151;
-    line-height:30px;">
-
-                                            Thank you for choosing
-
-                                            <strong style="color:#7C3AED;">
-
-                                                BookMyHall
-
-                                            </strong>
-
-                                            💜
-
-                                        </p>
-
-                                        <p style="
-    margin-top:10px;
-    color:#6B7280;
-    font-size:15px;">
-
-                                            India's Smart Hall Booking Platform
-
-                                        </p>
-
-                                    </td>
-
-                                </tr>
-
-                            </table>
-
-                        </td>
-
-                    </tr>
-
-                    <!-- ====================================================== -->
-                    <!-- FOOTER -->
-                    <!-- ====================================================== -->
-
-                    <tr>
-
-                        <td align="center" style="
-        background:#24124D;
-        padding:45px 40px;">
-
-                            <img src="cid:bookmyhall-logo" alt="BookMyHall" width="70" style="
-        display:block;
-        margin:0 auto 18px;">
-
-                            <h2 style="
-    margin:0;
-    color:#ffffff;
-    font-size:28px;
-    font-weight:700;">
-
-                                Book<span style="color:#EC4899;">My</span>Hall
-
-                            </h2>
-
-                            <p style="
-    margin:12px 0 25px;
-    color:#D1D5DB;
-    font-size:15px;
-    line-height:26px;">
-
-                                Find • Compare • Book Premium Banquet Halls,<br>
-                                Marriage Lawns, Convention Centers and Event Venues
-                                across India.
-
-                            </p>
-
-                            <hr style="
-    border:none;
-    border-top:1px solid rgba(255,255,255,.15);
-    margin:30px 0;">
-
-                            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
-
-                                <tr>
-
-                                    <td align="center" style="
-        color:#D1D5DB;
-        font-size:15px;
-        line-height:30px;">
-
-                                        📧 support@bookmyhall.com
-
-                                        <br>
-
-                                        🌐 www.bookmyhall.com
-
-                                        <br>
-
-                                        📍 Maharashtra, India
-
-                                    </td>
-
-                                </tr>
-
-                            </table>
-
-                            <p style="
-    margin-top:35px;
-    color:#9CA3AF;
-    font-size:14px;
-    line-height:24px;">
-
-                                This is an automated email from
-                                <strong style="color:#ffffff;">
-                                    BookMyHall
-                                </strong>.
-
-                                Please do not reply directly to this email.
-
-                            </p>
-
-                            <p style="
-    margin-top:18px;
-    color:#9CA3AF;
-    font-size:13px;">
-
-                                © {{CurrentYear}} BookMyHall.
-                                All Rights Reserved.
-
-                            </p>
-
-                        </td>
-
-                    </tr>
-
-                </table>
-
-            </td>
-
-        </tr>
-
-    </table>
 
 </body>
-
 </html>

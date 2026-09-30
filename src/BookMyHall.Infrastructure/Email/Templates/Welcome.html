@@ -1,1041 +1,2136 @@
 <!DOCTYPE html>
 
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="color-scheme" content="light">
+    <meta name="supported-color-schemes" content="light">
 
-    <title>Welcome to BookMyHall</title>
+
+<title>Welcome to BookMyLawns</title>
+
+<style>
+    html,
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        background-color: #f3f6fb;
+    }
+
+    body {
+        font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+    }
+
+    table {
+        border-collapse: collapse;
+        border-spacing: 0;
+    }
+
+    img {
+        border: 0;
+        outline: none;
+        text-decoration: none;
+        display: block;
+        max-width: 100%;
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    .email-container {
+        width: 680px;
+        max-width: 680px;
+    }
+
+    .content-padding {
+        padding: 35px 48px 10px;
+    }
+
+    .footer-logo-wrapper {
+        display: inline-block;
+        padding: 1px;
+        border-radius: 0;
+        background: linear-gradient(90deg, #5426C7, #D72A7A);
+    }
+
+    .purple-icon {
+        filter: invert(21%) sepia(72%) saturate(3104%) hue-rotate(250deg) brightness(82%) contrast(93%);
+    }
+
+    .white-icon {
+        filter: brightness(0) invert(1);
+    }
+
+    .social-icon {
+        filter: brightness(0) invert(1);
+    }
+
+    @media only screen and (max-width: 680px) {
+        body {
+            background-color: #ffffff !important;
+        }
+
+        .email-container {
+            width: 100% !important;
+            max-width: 100% !important;
+            border-radius: 0 !important;
+        }
+
+        .content-padding {
+            padding: 25px 20px 10px !important;
+        }
+
+        .header-logo {
+            width: 200px !important;
+            max-width: 85% !important;
+        }
+
+        .footer-logo {
+            width: 170px !important;
+            max-width: 85% !important;
+        }
+
+        .hero-title {
+            font-size: 27px !important;
+            line-height: 34px !important;
+        }
+
+        .hero-subtitle {
+            font-size: 15px !important;
+            line-height: 23px !important;
+        }
+
+        .body-title {
+            font-size: 20px !important;
+            line-height: 28px !important;
+        }
+
+        .body-text {
+            font-size: 14px !important;
+            line-height: 22px !important;
+        }
+
+        .cta-button {
+            width: 100% !important;
+        }
+
+        .footer-padding {
+            padding: 25px 20px !important;
+        }
+
+        .social-icon {
+            width: 34px !important;
+            height: 34px !important;
+        }
+
+        .feature-column {
+            display: block !important;
+            width: 100% !important;
+            padding: 6px 0 !important;
+        }
+
+        .feature-card {
+            width: 100% !important;
+        }
+
+        .footer-column {
+            display: block !important;
+            width: 100% !important;
+            padding-bottom: 15px !important;
+        }
+    }
+</style>
+
 
 </head>
 
-<body style="
-    margin:0;
-    padding:0;
-    background:#f3f6fb;
-    font-family:'Segoe UI',Arial,sans-serif;
-">
-
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="
-        background:#f3f6fb;
-        padding:40px 0;
-">
-
-        <tr>
-
-            <td align="center">
-
-                <!-- ====================================================== -->
-                <!-- MAIN CONTAINER -->
-                <!-- ====================================================== -->
-
-                <table role="presentation" width="650" cellpadding="0" cellspacing="0" border="0" style="
-        background:#ffffff;
-        border-radius:18px;
-        overflow:hidden;
-        box-shadow:0 10px 35px rgba(0,0,0,.08);
-">
-
-                    <!-- ====================================================== -->
-                    <!-- TOP BAR -->
-                    <!-- ====================================================== -->
-
-                    <tr>
-
-                        <td style="
-    height:8px;
-    background:linear-gradient(90deg,#5B21B6,#EC4899);
-">
-
-                        </td>
-
-                    </tr>
-
-                    <!-- ====================================================== -->
-                    <!-- HEADER -->
-                    <!-- ====================================================== -->
-
-                    <tr>
-
-                        <td align="center" style="
-        padding:45px 40px 35px;
-">
-
-                            <img src="cid:bookmyhall-logo" alt="BookMyHall" width="120" style="
-        display:block;
-        margin:0 auto;
-        border:none;
-        outline:none;
-">
-
-                            <h1 style="
-    margin:20px 0 8px;
-    font-size:42px;
-    color:#24124D;
-    font-weight:700;
-">
-
-                                Book<span style="color:#EC4899;">My</span>Hall
-
-                            </h1>
-
-                            <p style="
-    margin:0;
-    color:#7C3AED;
-    font-size:16px;
-    letter-spacing:2px;
-">
-
-                                FIND • COMPARE • BOOK
-
-                            </p>
-
-                        </td>
-
-                    </tr>
-
-                    <!-- ====================================================== -->
-                    <!-- HERO -->
-                    <!-- ====================================================== -->
-
-                    <tr>
-
-                        <td style="
-        background:linear-gradient(135deg,#5B21B6,#EC4899);
-        padding:55px;
-        text-align:center;
-">
-
-                            <h1 style="
-    margin:0;
-    color:#FFFFFF;
-    font-size:38px;
-    font-weight:700;
-">
-
-                                🎉 Welcome to BookMyHall!
-
-                            </h1>
-
-                            <p style="
-    margin-top:22px;
-    color:#F3E8FF;
-    font-size:18px;
-    line-height:32px;
-">
-
-                                Your account has been created successfully.
-
-                                We're excited to help you discover and book the perfect venue for every special
-                                occasion.
-
-                            </p>
-
-                        </td>
-
-                    </tr>
-
-                    <!-- ====================================================== -->
-                    <!-- BODY -->
-                    <!-- ====================================================== -->
-
-                    <tr>
-
-                        <td style="
-    padding:45px 55px 20px;
-">
-
-                            <h2 style="
-    margin-top:0;
-    color:#24124D;
-    font-size:30px;
-">
-
-                                Hello {{UserName}},
-
-                            </h2>
-
-                            <p style="
-    color:#4B5563;
-    font-size:17px;
-    line-height:30px;
-">
-
-                                Welcome to the BookMyHall family!
-
-                                Whether you're planning a wedding, birthday celebration, engagement, corporate event,
-                                conference, or any memorable occasion, BookMyHall is here to simplify your venue search
-                                from start to finish.
-
-                            </p>
-
-                            <p style="
-    color:#4B5563;
-    font-size:17px;
-    line-height:30px;
-    margin-bottom:35px;
-">
-
-                                With just a few clicks, you can discover trusted venues, compare facilities and pricing,
-                                check availability, and book with confidence.
-
-                            </p>
-
-                            <!-- ====================================================== -->
-                            <!-- WELCOME CARD -->
-                            <!-- ====================================================== -->
-
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="
-        background:#ECFDF5;
-        border:1px solid #A7F3D0;
-        border-left:6px solid #10B981;
-        border-radius:12px;
-        margin-bottom:35px;
-">
-
-                                <tr>
-
-                                    <td style="padding:28px;">
-
-                                        <h3 style="
-    margin-top:0;
-    color:#047857;
-    font-size:24px;
-">
-
-                                            💜 Your Journey Starts Here
-
-                                        </h3>
-
-                                        <p style="
-    margin:0;
-    color:#065F46;
-    font-size:16px;
-    line-height:30px;
-">
-
-                                            Thank you for choosing BookMyHall.
-
-                                            We're committed to making venue booking simple, transparent, secure, and
-                                            enjoyable.
-
-                                        </p>
-
-                                    </td>
-
-                                </tr>
-
-                            </table>
-                            <!-- ====================================================== -->
-                            <!-- WHAT YOU CAN DO -->
-                            <!-- ====================================================== -->
-
-                            <h2 style="
-    margin-top:0;
-    color:#24124D;
-    font-size:28px;
-">
-
-                                ✨ What You Can Do with BookMyHall
-
-                            </h2>
-
-                            <p style="
-    color:#4B5563;
-    font-size:17px;
-    line-height:30px;
-    margin-bottom:30px;
-">
-
-                                BookMyHall is designed to make venue discovery and booking fast, convenient,
-                                and stress-free. Explore a wide range of venues tailored to your needs.
-
-                            </p>
-
-                            <!-- ====================================================== -->
-                            <!-- FEATURES -->
-                            <!-- ====================================================== -->
-
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="
-        background:#F8FAFC;
-        border:1px solid #E5E7EB;
-        border-radius:12px;
-        margin-bottom:35px;
-">
-
-                                <tr>
-
-                                    <td style="padding:28px;">
-
-                                        <h3 style="
-    margin-top:0;
-    color:#5B21B6;
-    font-size:24px;
-">
-
-                                            🚀 Platform Features
-
-                                        </h3>
-
-                                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-
-                                            <tr>
-
-                                                <td style="padding:8px 0;color:#374151;font-size:16px;">
-
-                                                    🏛️ Discover banquet halls, wedding venues, lawns and convention
-                                                    centres.
-
-                                                </td>
-
-                                            </tr>
-
-                                            <tr>
-
-                                                <td style="padding:8px 0;color:#374151;font-size:16px;">
-
-                                                    🔍 Search venues by city, location, capacity and amenities.
-
-                                                </td>
-
-                                            </tr>
-
-                                            <tr>
-
-                                                <td style="padding:8px 0;color:#374151;font-size:16px;">
-
-                                                    💰 Compare pricing before making your decision.
-
-                                                </td>
-
-                                            </tr>
-
-                                            <tr>
-
-                                                <td style="padding:8px 0;color:#374151;font-size:16px;">
-
-                                                    📅 Check real-time availability for your preferred dates.
-
-                                                </td>
-
-                                            </tr>
-
-                                            <tr>
-
-                                                <td style="padding:8px 0;color:#374151;font-size:16px;">
-
-                                                    ❤️ Save your favourite venues for later.
-
-                                                </td>
-
-                                            </tr>
-
-                                            <tr>
-
-                                                <td style="padding:8px 0;color:#374151;font-size:16px;">
-
-                                                    ⭐ Read genuine customer ratings and reviews.
-
-                                                </td>
-
-                                            </tr>
-
-                                            <tr>
-
-                                                <td style="padding:8px 0;color:#374151;font-size:16px;">
-
-                                                    📷 View venue galleries before booking.
-
-                                                </td>
-
-                                            </tr>
-
-                                            <tr>
-
-                                                <td style="padding:8px 0;color:#374151;font-size:16px;">
-
-                                                    📱 Manage bookings anytime from your account.
-
-                                                </td>
-
-                                            </tr>
-
-                                        </table>
-
-                                    </td>
-
-                                </tr>
-
-                            </table>
-
-                            <!-- ====================================================== -->
-                            <!-- WHY CHOOSE US -->
-                            <!-- ====================================================== -->
-
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="
-        background:#EEF6FF;
-        border:1px solid #BFDBFE;
-        border-left:6px solid #2563EB;
-        border-radius:12px;
-        margin-bottom:35px;
-">
-
-                                <tr>
-
-                                    <td style="padding:28px;">
-
-                                        <h3 style="
-    margin-top:0;
-    color:#1D4ED8;
-    font-size:22px;
-">
-
-                                            🌟 Why Choose BookMyHall?
-
-                                        </h3>
-
-                                        <p style="
-    margin:0;
-    color:#475569;
-    font-size:16px;
-    line-height:30px;
-">
-
-                                            We carefully design our platform to help customers make informed decisions.
-                                            From discovering venues to confirming bookings, every step is built to
-                                            provide
-                                            a seamless and reliable experience.
-
-                                        </p>
-
-                                    </td>
-
-                                </tr>
-
-                            </table>
-
-                            <!-- ====================================================== -->
-                            <!-- CALL TO ACTION -->
-                            <!-- ====================================================== -->
-
-                            <p style="
-    text-align:center;
-    color:#4B5563;
-    font-size:17px;
-    line-height:30px;
-">
-
-                                Ready to find the perfect venue?
-
-                                Start exploring thousands of trusted venues today.
-
-                            </p>
-
-                            <table role="presentation" align="center" cellpadding="0" cellspacing="0"
-                                style="margin:35px auto;">
-
-                                <tr>
-
-                                    <td align="center" bgcolor="#7C3AED" style="
-        border-radius:12px;
-">
-
-                                        <a href="{{WebsiteUrl}}" style="
-        display:inline-block;
-        padding:18px 48px;
-        font-size:18px;
-        font-weight:700;
-        color:#ffffff;
-        text-decoration:none;
-        background:linear-gradient(90deg,#5B21B6,#EC4899);
-        border-radius:12px;
-">
-
-                                            🏛️ EXPLORE VENUES
-
-                                        </a>
-
-                                    </td>
-
-                                </tr>
-
-                            </table>
-
-                            <p style="
-    text-align:center;
-    color:#6B7280;
-    font-size:15px;
-    line-height:28px;
-    margin-bottom:35px;
-">
-
-                                Whether you're planning a wedding, birthday celebration, business event,
-                                or family gathering, BookMyHall is here to help you find the ideal venue.
-
-                            </p>
-                            <!-- ====================================================== -->
-                            <!-- GETTING STARTED -->
-                            <!-- ====================================================== -->
-
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="
-        background:#EEF6FF;
-        border:1px solid #BFDBFE;
-        border-left:6px solid #2563EB;
-        border-radius:12px;
-        margin-bottom:35px;
-">
-
-                                <tr>
-
-                                    <td style="padding:28px;">
-
-                                        <h3 style="
-    margin-top:0;
-    color:#1D4ED8;
-    font-size:22px;
-">
-
-                                            🚀 Getting Started
-
-                                        </h3>
-
-                                        <p style="
-    margin-top:0;
-    color:#475569;
-    font-size:16px;
-    line-height:30px;">
-
-                                            Here are a few recommendations to help you get the most out of BookMyHall.
-
-                                        </p>
-
-                                        <ul style="
-    margin:15px 0 0;
-    padding-left:24px;
-    color:#475569;
-    font-size:16px;
-    line-height:32px;">
-
-                                            <li>Complete your profile information.</li>
-
-                                            <li>Browse venues based on your preferred city and event type.</li>
-
-                                            <li>Compare venue facilities, pricing and reviews.</li>
-
-                                            <li>Save your favourite venues for quick access later.</li>
-
-                                            <li>Book your venue securely through BookMyHall.</li>
-
-                                        </ul>
-
-                                    </td>
-
-                                </tr>
-
-                            </table>
-
-                            <!-- ====================================================== -->
-                            <!-- ACCOUNT SECURITY -->
-                            <!-- ====================================================== -->
-
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="
-        background:#ECFDF5;
-        border:1px solid #A7F3D0;
-        border-left:6px solid #10B981;
-        border-radius:12px;
-        margin-bottom:35px;
-">
-
-                                <tr>
-
-                                    <td style="padding:28px;">
-
-                                        <h3 style="
-    margin-top:0;
-    color:#047857;
-    font-size:22px;
-">
-
-                                            🔒 Keep Your Account Secure
-
-                                        </h3>
-
-                                        <p style="
-    margin:0;
-    color:#065F46;
-    font-size:16px;
-    line-height:30px;">
-
-                                            Protect your account by using a strong password and never sharing your
-                                            login credentials with anyone.
-
-                                            Your security is one of our highest priorities.
-
-                                        </p>
-
-                                    </td>
-
-                                </tr>
-
-                            </table>
-
-                            <!-- ====================================================== -->
-                            <!-- NEED HELP -->
-                            <!-- ====================================================== -->
-
-                            <hr style="
-    margin:45px 0;
-    border:none;
-    border-top:1px solid #E5E7EB;">
-
-                            <h3 style="
-    margin-top:0;
-    margin-bottom:18px;
-    color:#24124D;
-    font-size:24px;">
-
-                                💬 Need Help?
-
-                            </h3>
-
-                            <p style="
-    margin-top:0;
-    color:#4B5563;
-    font-size:16px;
-    line-height:30px;">
-
-                                Our support team is always available to assist you with bookings,
-                                payments, venue information, or any questions about your account.
-
-                            </p>
-
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="
-        background:#F9FAFB;
-        border:1px solid #E5E7EB;
-        border-radius:12px;
-        margin-top:25px;
-        margin-bottom:35px;
-">
-
-                                <tr>
-
-                                    <td style="padding:25px;">
-
-                                        <p style="
-    margin:0;
-    font-size:17px;
-    color:#111827;
-    font-weight:600;">
-
-                                            📧 Customer Support
-
-                                        </p>
-
-                                        <p style="
-    margin:12px 0 0;
-    color:#EC4899;
-    font-size:18px;
-    font-weight:700;">
-
-                                            support@bookmyhall.com
-
-                                        </p>
-
-                                        <p style="
-    margin-top:18px;
-    margin-bottom:0;
-    color:#6B7280;
-    font-size:15px;
-    line-height:28px;">
-
-                                            We're here to make your booking experience smooth, secure, and enjoyable.
-
-                                        </p>
-
-                                    </td>
-
-                                </tr>
-
-                            </table>
-
-                            <!-- ====================================================== -->
-                            <!-- THANK YOU -->
-                            <!-- ====================================================== -->
-
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-                                style="margin-top:20px;">
-
-                                <tr>
-
-                                    <td align="center">
-
-                                        <h2 style="
-    margin:0;
-    color:#24124D;
-    font-size:28px;
-    font-weight:700;">
-
-                                            Thank You for Joining Us! 💜
-
-                                        </h2>
-
-                                        <p style="
-    margin-top:18px;
-    color:#4B5563;
-    font-size:17px;
-    line-height:30px;">
-
-                                            We're delighted to welcome you to the BookMyHall community.
-
-                                            We look forward to helping you create unforgettable memories by making venue
-                                            booking effortless.
-
-                                        </p>
-
-                                    </td>
-
-                                </tr>
-
-                            </table>
-
-                            <!-- ====================================================== -->
-                            <!-- OUR PROMISE -->
-                            <!-- ====================================================== -->
-
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="
-        margin-top:40px;
-        background:#F8FAFC;
-        border:1px solid #E5E7EB;
-        border-radius:12px;
-">
-
-                                <tr>
-
-                                    <td style="padding:28px;">
-
-                                        <h3 style="
-    margin-top:0;
-    color:#5B21B6;
-    font-size:22px;">
-
-                                            🌟 Our Promise
-
-                                        </h3>
-
-                                        <p style="
-    margin:0;
-    color:#4B5563;
-    font-size:16px;
-    line-height:30px;">
-
-                                            At BookMyHall, we're committed to delivering a trusted, transparent,
-                                            and user-friendly platform where finding and booking the perfect venue
-                                            is simple and stress-free.
-
-                                            We're constantly improving our services to give you the best possible
-                                            experience.
-
-                                        </p>
-
-                                    </td>
-
-                                </tr>
-
-                            </table>
-
-                        </td>
-
-                    </tr>
-
-                    <!-- ====================================================== -->
-                    <!-- FOOTER STARTS -->
-                    <!-- ====================================================== -->
-
-                    <tr>
-
-                        <td style="
-        background:#24124D;
-        padding:40px 30px;
-">
-
-                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
-
-                                <tr>
-
-                                    <td align="center">
-
-                                        <img src="cid:bookmyhall-logo" alt="BookMyHall" width="70" style="
-        display:block;
-        margin-bottom:18px;
-">
-
-                                        <h2 style="
-    margin:0;
-    color:#FFFFFF;
-    font-size:30px;
-    font-weight:700;">
-
-                                            Book<span style="color:#EC4899;">My</span>Hall
-
-                                        </h2>
-
-                                        <p style="
-    margin-top:10px;
-    color:#C4B5FD;
-    font-size:15px;
-    letter-spacing:1px;">
-
-                                            FIND • COMPARE • BOOK
-
-                                        </p>
-
-                                        <!-- ====================================================== -->
-                                        <!-- FOOTER DIVIDER -->
-                                        <!-- ====================================================== -->
-
-                                <tr>
-
-                                    <td>
-
-                                        <hr style="
-    border:none;
-    border-top:1px solid rgba(255,255,255,.15);
-    margin:30px 0;">
-
-                                    </td>
-
-                                </tr>
-
-                                <!-- ====================================================== -->
-                                <!-- ABOUT BOOKMYHALL -->
-                                <!-- ====================================================== -->
-
-                                <tr>
-
-                                    <td align="center">
-
-                                        <p style="
-    color:#D1D5DB;
-    font-size:15px;
-    line-height:28px;
-    margin:0;">
-
-                                            BookMyHall is India's modern venue discovery and booking platform,
-                                            helping customers effortlessly discover, compare and reserve banquet halls,
-                                            wedding venues, convention centres, party halls, conference venues,
-                                            lawns and event spaces for every special occasion.
-
-                                        </p>
-
-                                    </td>
-
-                                </tr>
-
-                                <!-- ====================================================== -->
-                                <!-- CONTACT INFORMATION -->
-                                <!-- ====================================================== -->
-
-                                <tr>
-
-                                    <td align="center" style="padding-top:30px;">
-
-                                        <p style="
-    color:#FFFFFF;
-    margin:0;
-    font-size:18px;
-    font-weight:600;">
-
-                                            Need Assistance?
-
-                                        </p>
-
-                                        <p style="
-    margin:12px 0 0;
-    color:#D1D5DB;
-    font-size:15px;">
-
-                                            📧 support@bookmyhall.com
-
-                                        </p>
-
-                                        <p style="
-    margin:10px 0 0;
-    color:#D1D5DB;
-    font-size:15px;">
-
-                                            🌐 {{WebsiteUrl}}
-
-                                        </p>
-
-                                    </td>
-
-                                </tr>
-
-                                <!-- ====================================================== -->
-                                <!-- SOCIAL MEDIA -->
-                                <!-- ====================================================== -->
-
-                                <tr>
-
-                                    <td align="center" style="padding-top:30px;">
-
-                                        <a href="https://facebook.com" style="
-        text-decoration:none;
-        font-size:26px;
-        margin:0 10px;">
-
-                                            📘
-
-                                        </a>
-
-                                        <a href="https://instagram.com" style="
+<body>
+
+
+<!-- Preheader -->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+    Welcome to BookMyLawns — discover, compare and book the perfect venue for your special occasion.
+</div>
+
+<table
+    role="presentation"
+    width="100%"
+    cellpadding="0"
+    cellspacing="0"
+    border="0"
+    style="width:100%;background:#f3f6fb;"
+>
+    <tr>
+        <td align="center" style="padding:30px 10px;">
+
+            <table
+                role="presentation"
+                width="680"
+                cellpadding="0"
+                cellspacing="0"
+                border="0"
+                class="email-container"
+                style="
+                    width:680px;
+                    max-width:680px;
+                    background:#ffffff;
+                    border-radius:18px;
+                    overflow:hidden;
+                    box-shadow:0 8px 30px rgba(36,18,77,0.10);
+                "
+            >
+
+                <!-- Top Gradient -->
+                <tr>
+                    <td
+                        style="
+                            height:7px;
+                            background:linear-gradient(90deg,#5426C7,#D72A7A);
+                            font-size:0;
+                            line-height:0;
+                        "
+                    >
+                        &nbsp;
+                    </td>
+                </tr>
+
+                <!-- Header -->
+                <tr>
+                    <td
+                        align="center"
+                        style="
+                            padding:28px 20px 25px;
+                            background:#ffffff;
+                        "
+                    >
+                        <img
+                            class="header-logo"
+                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/light%20theme/BookMyLawns_Light_1920x1080.png"
+                            alt="BookMyLawns"
+                            width="210"
+                            style="
+                                display:block;
+                                width:210px;
+                                max-width:100%;
+                                height:auto;
+                                margin:0 auto;
+                            "
+                        >
+
+                        <p
+                            style="
+                                margin:9px 0 0;
+                                font-size:13px;
+                                line-height:20px;
+                                color:#777777;
+                            "
+                        >
+                            <strong style="color:#5426C7;">FIND</strong>
+                            <span style="color:#aaaaaa;"> • </span>
+                            <strong style="color:#D72A7A;">COMPARE</strong>
+                            <span style="color:#aaaaaa;"> • </span>
+                            <strong style="color:#5426C7;">BOOK</strong>
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Hero -->
+                <tr>
+                    <td
+                        align="center"
+                        style="
+                            background:#5426C7;
+                            padding:42px 30px;
+                        "
+                    >
+                        <table
+                            role="presentation"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            align="center"
+                        >
+                            <tr>
+                                <td
+                                    align="center"
+                                    style="
+                                        width:56px;
+                                        height:56px;
+                                        background:#ffffff;
+                                        border-radius:50%;
+                                    "
+                                >
+                                    <img
+                                        class="purple-icon"
+                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/celebration.svg"
+                                        width="34"
+                                        height="34"
+                                        alt="Welcome"
+                                        style="
+                                            display:block;
+                                            width:34px;
+                                            height:34px;
+                                            margin:11px;
+                                        "
+                                    >
+                                </td>
+                            </tr>
+                        </table>
+
+                        <h1
+                            class="hero-title"
+                            style="
+                                margin:20px 0 10px;
+                                color:#ffffff;
+                                font-size:31px;
+                                line-height:40px;
+                                font-weight:700;
+                            "
+                        >
+                            Welcome to BookMyLawns!
+                        </h1>
+
+                        <p
+                            class="hero-subtitle"
+                            style="
+                                margin:0 auto;
+                                max-width:530px;
+                                color:#eee8ff;
+                                font-size:16px;
+                                line-height:25px;
+                            "
+                        >
+                            Your account has been created successfully.
+                            Discover beautiful venues, compare options and
+                            plan your special moments with confidence.
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Greeting -->
+                <tr>
+                    <td class="content-padding">
+
+                        <p
+                            class="body-text"
+                            style="
+                                margin:0 0 15px;
+                                font-size:17px;
+                                line-height:27px;
+                                color:#242424;
+                            "
+                        >
+                            Hello
+                            <strong style="color:#5426C7;">
+                                {{UserName}}
+                            </strong>,
+                        </p>
+
+                        <p
+                            class="body-text"
+                            style="
+                                margin:0 0 14px;
+                                font-size:15px;
+                                line-height:25px;
+                                color:#5f6368;
+                            "
+                        >
+                            Thank you for joining
+                            <strong style="color:#5426C7;">
+                                BookMyLawns
+                            </strong>.
+                            We are excited to help you discover the perfect
+                            venue for your wedding, celebration, corporate
+                            event or special occasion.
+                        </p>
+
+                        <p
+                            class="body-text"
+                            style="
+                                margin:0;
+                                font-size:15px;
+                                line-height:25px;
+                                color:#5f6368;
+                            "
+                        >
+                            Everything you need to find and manage your venue
+                            is now just a few clicks away.
+                        </p>
+
+                    </td>
+                </tr>
+
+                <!-- Journey -->
+                <tr>
+                    <td
+                        class="content-padding"
+                        style="padding:22px 48px;"
+                    >
+                        <table
+                            role="presentation"
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            style="
+                                background:#f7f2ff;
+                                border:1px solid #e5d8ff;
+                                border-radius:14px;
+                            "
+                        >
+                            <tr>
+                                <td style="padding:24px;">
+
+                                    <table
+                                        role="presentation"
+                                        width="100%"
+                                        cellpadding="0"
+                                        cellspacing="0"
+                                        border="0"
+                                    >
+                                        <tr>
+
+                                            <td
+                                                width="48"
+                                                valign="top"
+                                            >
+                                                <table
+                                                    role="presentation"
+                                                    cellpadding="0"
+                                                    cellspacing="0"
+                                                    border="0"
+                                                >
+                                                    <tr>
+                                                        <td
+                                                            style="
+                                                                width:40px;
+                                                                height:40px;
+                                                                background:#5426C7;
+                                                                border-radius:10px;
+                                                            "
+                                                        >
+                                                            <img
+                                                                class="white-icon"
+                                                                src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/favorite.svg"
+                                                                width="22"
+                                                                height="22"
+                                                                alt="Favorite"
+                                                                style="
+                                                                    display:block;
+                                                                    width:22px;
+                                                                    height:22px;
+                                                                    margin:9px;
+                                                                "
+                                                            >
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+
+                                            <td valign="top">
+
+                                                <h2
+                                                    class="body-title"
+                                                    style="
+                                                        margin:0 0 6px;
+                                                        font-size:19px;
+                                                        line-height:26px;
+                                                        color:#5426C7;
+                                                    "
+                                                >
+                                                    Your Journey Starts Here
+                                                </h2>
+
+                                                <p
+                                                    class="body-text"
+                                                    style="
+                                                        margin:0;
+                                                        font-size:14px;
+                                                        line-height:23px;
+                                                        color:#5f6368;
+                                                    "
+                                                >
+                                                    Explore venues, save your
+                                                    favourites and turn your
+                                                    event ideas into memorable
+                                                    experiences.
+                                                </p>
+
+                                            </td>
+
+                                        </tr>
+                                    </table>
+
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Features Heading -->
+                <tr>
+                    <td
+                        align="center"
+                        class="content-padding"
+                        style="padding:12px 48px 15px;"
+                    >
+                        <h2
+                            class="body-title"
+                            style="
+                                margin:0 0 7px;
+                                font-size:24px;
+                                line-height:32px;
+                                color:#24124D;
+                            "
+                        >
+                            What You Can Do
+                        </h2>
+
+                        <p
+                            class="body-text"
+                            style="
+                                margin:0;
+                                font-size:14px;
+                                line-height:22px;
+                                color:#777777;
+                            "
+                        >
+                            Everything you need to discover the right venue.
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Features -->
+                <tr>
+                    <td
+                        class="content-padding"
+                        style="padding:5px 42px 25px;"
+                    >
+                        <table
+                            role="presentation"
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                        >
+
+                            <!-- Row 1 -->
+                            <tr>
+
+                                <td
+                                    width="50%"
+                                    class="feature-column"
+                                    valign="top"
+                                    style="padding:6px;"
+                                >
+                                    <table
+                                        role="presentation"
+                                        width="100%"
+                                        class="feature-card"
+                                        cellpadding="0"
+                                        cellspacing="0"
+                                        border="0"
+                                        style="
+                                            border:1px solid #eee9f7;
+                                            border-radius:12px;
+                                            background:#ffffff;
+                                        "
+                                    >
+                                        <tr>
+                                            <td style="padding:20px;">
+
+                                                <img
+                                                    class="purple-icon"
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/location-city.svg"
+                                                    width="30"
+                                                    height="30"
+                                                    alt="Discover Venues"
+                                                    style="
+                                                        display:block;
+                                                        width:30px;
+                                                        height:30px;
+                                                        margin-bottom:12px;
+                                                    "
+                                                >
+
+                                                <strong
+                                                    style="
+                                                        display:block;
+                                                        margin-bottom:5px;
+                                                        font-size:15px;
+                                                        line-height:21px;
+                                                        color:#24124D;
+                                                    "
+                                                >
+                                                    Discover Venues
+                                                </strong>
+
+                                                <span
+                                                    style="
+                                                        font-size:13px;
+                                                        line-height:20px;
+                                                        color:#707070;
+                                                    "
+                                                >
+                                                    Explore halls, lawns,
+                                                    wedding venues and
+                                                    convention centres.
+                                                </span>
+
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+
+                                <td
+                                    width="50%"
+                                    class="feature-column"
+                                    valign="top"
+                                    style="padding:6px;"
+                                >
+                                    <table
+                                        role="presentation"
+                                        width="100%"
+                                        class="feature-card"
+                                        cellpadding="0"
+                                        cellspacing="0"
+                                        border="0"
+                                        style="
+                                            border:1px solid #eee9f7;
+                                            border-radius:12px;
+                                            background:#ffffff;
+                                        "
+                                    >
+                                        <tr>
+                                            <td style="padding:20px;">
+
+                                                <img
+                                                    class="purple-icon"
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/search.svg"
+                                                    width="30"
+                                                    height="30"
+                                                    alt="Search"
+                                                    style="
+                                                        display:block;
+                                                        width:30px;
+                                                        height:30px;
+                                                        margin-bottom:12px;
+                                                    "
+                                                >
+
+                                                <strong
+                                                    style="
+                                                        display:block;
+                                                        margin-bottom:5px;
+                                                        font-size:15px;
+                                                        line-height:21px;
+                                                        color:#24124D;
+                                                    "
+                                                >
+                                                    Search Easily
+                                                </strong>
+
+                                                <span
+                                                    style="
+                                                        font-size:13px;
+                                                        line-height:20px;
+                                                        color:#707070;
+                                                    "
+                                                >
+                                                    Search by city,
+                                                    location, capacity
+                                                    and amenities.
+                                                </span>
+
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+
+                            </tr>
+
+                            <!-- Row 2 -->
+                            <tr>
+
+                                <td
+                                    width="50%"
+                                    class="feature-column"
+                                    valign="top"
+                                    style="padding:6px;"
+                                >
+                                    <table
+                                        role="presentation"
+                                        width="100%"
+                                        class="feature-card"
+                                        cellpadding="0"
+                                        cellspacing="0"
+                                        border="0"
+                                        style="
+                                            border:1px solid #eee9f7;
+                                            border-radius:12px;
+                                            background:#ffffff;
+                                        "
+                                    >
+                                        <tr>
+                                            <td style="padding:20px;">
+
+                                                <img
+                                                    class="purple-icon"
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/search.svg"
+                                                    width="30"
+                                                    height="30"
+                                                    alt="Compare"
+                                                    style="
+                                                        display:block;
+                                                        width:30px;
+                                                        height:30px;
+                                                        margin-bottom:12px;
+                                                    "
+                                                >
+
+                                                <strong
+                                                    style="
+                                                        display:block;
+                                                        margin-bottom:5px;
+                                                        font-size:15px;
+                                                        line-height:21px;
+                                                        color:#24124D;
+                                                    "
+                                                >
+                                                    Compare Options
+                                                </strong>
+
+                                                <span
+                                                    style="
+                                                        font-size:13px;
+                                                        line-height:20px;
+                                                        color:#707070;
+                                                    "
+                                                >
+                                                    Compare pricing,
+                                                    capacity and venue
+                                                    features.
+                                                </span>
+
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+
+                                <td
+                                    width="50%"
+                                    class="feature-column"
+                                    valign="top"
+                                    style="padding:6px;"
+                                >
+                                    <table
+                                        role="presentation"
+                                        width="100%"
+                                        class="feature-card"
+                                        cellpadding="0"
+                                        cellspacing="0"
+                                        border="0"
+                                        style="
+                                            border:1px solid #eee9f7;
+                                            border-radius:12px;
+                                            background:#ffffff;
+                                        "
+                                    >
+                                        <tr>
+                                            <td style="padding:20px;">
+
+                                                <img
+                                                    class="purple-icon"
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/calendar.svg"
+                                                    width="30"
+                                                    height="30"
+                                                    alt="Availability"
+                                                    style="
+                                                        display:block;
+                                                        width:30px;
+                                                        height:30px;
+                                                        margin-bottom:12px;
+                                                    "
+                                                >
+
+                                                <strong
+                                                    style="
+                                                        display:block;
+                                                        margin-bottom:5px;
+                                                        font-size:15px;
+                                                        line-height:21px;
+                                                        color:#24124D;
+                                                    "
+                                                >
+                                                    Check Availability
+                                                </strong>
+
+                                                <span
+                                                    style="
+                                                        font-size:13px;
+                                                        line-height:20px;
+                                                        color:#707070;
+                                                    "
+                                                >
+                                                    Check venue
+                                                    availability for your
+                                                    preferred date.
+                                                </span>
+
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+
+                            </tr>
+
+                            <!-- Row 3 -->
+                            <tr>
+
+                                <td
+                                    width="50%"
+                                    class="feature-column"
+                                    valign="top"
+                                    style="padding:6px;"
+                                >
+                                    <table
+                                        role="presentation"
+                                        width="100%"
+                                        class="feature-card"
+                                        cellpadding="0"
+                                        cellspacing="0"
+                                        border="0"
+                                        style="
+                                            border:1px solid #eee9f7;
+                                            border-radius:12px;
+                                            background:#ffffff;
+                                        "
+                                    >
+                                        <tr>
+                                            <td style="padding:20px;">
+
+                                                <img
+                                                    class="purple-icon"
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/favorite.svg"
+                                                    width="30"
+                                                    height="30"
+                                                    alt="Favorites"
+                                                    style="
+                                                        display:block;
+                                                        width:30px;
+                                                        height:30px;
+                                                        margin-bottom:12px;
+                                                    "
+                                                >
+
+                                                <strong
+                                                    style="
+                                                        display:block;
+                                                        margin-bottom:5px;
+                                                        font-size:15px;
+                                                        line-height:21px;
+                                                        color:#24124D;
+                                                    "
+                                                >
+                                                    Save Favourites
+                                                </strong>
+
+                                                <span
+                                                    style="
+                                                        font-size:13px;
+                                                        line-height:20px;
+                                                        color:#707070;
+                                                    "
+                                                >
+                                                    Keep your favourite
+                                                    venues together for
+                                                    quick access.
+                                                </span>
+
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+
+                                <td
+                                    width="50%"
+                                    class="feature-column"
+                                    valign="top"
+                                    style="padding:6px;"
+                                >
+                                    <table
+                                        role="presentation"
+                                        width="100%"
+                                        class="feature-card"
+                                        cellpadding="0"
+                                        cellspacing="0"
+                                        border="0"
+                                        style="
+                                            border:1px solid #eee9f7;
+                                            border-radius:12px;
+                                            background:#ffffff;
+                                        "
+                                    >
+                                        <tr>
+                                            <td style="padding:20px;">
+
+                                                <img
+                                                    class="purple-icon"
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/check-circle.svg"
+                                                    width="30"
+                                                    height="30"
+                                                    alt="Reviews"
+                                                    style="
+                                                        display:block;
+                                                        width:30px;
+                                                        height:30px;
+                                                        margin-bottom:12px;
+                                                    "
+                                                >
+
+                                                <strong
+                                                    style="
+                                                        display:block;
+                                                        margin-bottom:5px;
+                                                        font-size:15px;
+                                                        line-height:21px;
+                                                        color:#24124D;
+                                                    "
+                                                >
+                                                    Read Reviews
+                                                </strong>
+
+                                                <span
+                                                    style="
+                                                        font-size:13px;
+                                                        line-height:20px;
+                                                        color:#707070;
+                                                    "
+                                                >
+                                                    See ratings and reviews
+                                                    before making your
+                                                    choice.
+                                                </span>
+
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+
+                            </tr>
+
+                            <!-- Row 4 -->
+                            <tr>
+
+                                <td
+                                    width="50%"
+                                    class="feature-column"
+                                    valign="top"
+                                    style="padding:6px;"
+                                >
+                                    <table
+                                        role="presentation"
+                                        width="100%"
+                                        class="feature-card"
+                                        cellpadding="0"
+                                        cellspacing="0"
+                                        border="0"
+                                        style="
+                                            border:1px solid #eee9f7;
+                                            border-radius:12px;
+                                            background:#ffffff;
+                                        "
+                                    >
+                                        <tr>
+                                            <td style="padding:20px;">
+
+                                                <img
+                                                    class="purple-icon"
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/location-city.svg"
+                                                    width="30"
+                                                    height="30"
+                                                    alt="Gallery"
+                                                    style="
+                                                        display:block;
+                                                        width:30px;
+                                                        height:30px;
+                                                        margin-bottom:12px;
+                                                    "
+                                                >
+
+                                                <strong
+                                                    style="
+                                                        display:block;
+                                                        margin-bottom:5px;
+                                                        font-size:15px;
+                                                        line-height:21px;
+                                                        color:#24124D;
+                                                    "
+                                                >
+                                                    View Galleries
+                                                </strong>
+
+                                                <span
+                                                    style="
+                                                        font-size:13px;
+                                                        line-height:20px;
+                                                        color:#707070;
+                                                    "
+                                                >
+                                                    Browse venue images
+                                                    and discover the right
+                                                    atmosphere.
+                                                </span>
+
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+
+                                <td
+                                    width="50%"
+                                    class="feature-column"
+                                    valign="top"
+                                    style="padding:6px;"
+                                >
+                                    <table
+                                        role="presentation"
+                                        width="100%"
+                                        class="feature-card"
+                                        cellpadding="0"
+                                        cellspacing="0"
+                                        border="0"
+                                        style="
+                                            border:1px solid #eee9f7;
+                                            border-radius:12px;
+                                            background:#ffffff;
+                                        "
+                                    >
+                                        <tr>
+                                            <td style="padding:20px;">
+
+                                                <img
+                                                    class="purple-icon"
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/calendar.svg"
+                                                    width="30"
+                                                    height="30"
+                                                    alt="Bookings"
+                                                    style="
+                                                        display:block;
+                                                        width:30px;
+                                                        height:30px;
+                                                        margin-bottom:12px;
+                                                    "
+                                                >
+
+                                                <strong
+                                                    style="
+                                                        display:block;
+                                                        margin-bottom:5px;
+                                                        font-size:15px;
+                                                        line-height:21px;
+                                                        color:#24124D;
+                                                    "
+                                                >
+                                                    Manage Bookings
+                                                </strong>
+
+                                                <span
+                                                    style="
+                                                        font-size:13px;
+                                                        line-height:20px;
+                                                        color:#707070;
+                                                    "
+                                                >
+                                                    Keep track of your
+                                                    venue bookings in one
+                                                    place.
+                                                </span>
+
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+
+                            </tr>
+
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Why Choose -->
+                <tr>
+                    <td
+                        class="content-padding"
+                        style="padding:10px 48px 28px;"
+                    >
+                        <table
+                            role="presentation"
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            style="
+                                background:#f1f8ff;
+                                border-left:5px solid #5426C7;
+                                border-radius:12px;
+                            "
+                        >
+                            <tr>
+                                <td style="padding:24px;">
+
+                                    <table
+                                        role="presentation"
+                                        width="100%"
+                                        cellpadding="0"
+                                        cellspacing="0"
+                                        border="0"
+                                    >
+                                        <tr>
+
+                                            <td
+                                                width="45"
+                                                valign="top"
+                                            >
+                                                <img
+                                                    class="purple-icon"
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/check-circle.svg"
+                                                    width="28"
+                                                    height="28"
+                                                    alt="Check"
+                                                    style="
+                                                        display:block;
+                                                        width:28px;
+                                                        height:28px;
+                                                    "
+                                                >
+                                            </td>
+
+                                            <td>
+
+                                                <h2
+                                                    class="body-title"
+                                                    style="
+                                                        margin:0 0 7px;
+                                                        font-size:20px;
+                                                        line-height:27px;
+                                                        color:#24124D;
+                                                    "
+                                                >
+                                                    Why Choose BookMyLawns?
+                                                </h2>
+
+                                                <p
+                                                    class="body-text"
+                                                    style="
+                                                        margin:0;
+                                                        font-size:14px;
+                                                        line-height:23px;
+                                                        color:#5f6368;
+                                                    "
+                                                >
+                                                    Venue discovery,
+                                                    comparison and booking
+                                                    come together in one
+                                                    simple platform,
+                                                    helping you spend less
+                                                    time searching and more
+                                                    time planning your
+                                                    special day.
+                                                </p>
+
+                                            </td>
+
+                                        </tr>
+                                    </table>
+
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- CTA -->
+                <tr>
+                    <td
+                        align="center"
+                        style="padding:8px 30px 35px;"
+                    >
+                        <h2
+                            class="body-title"
+                            style="
+                                margin:0 0 8px;
+                                font-size:24px;
+                                line-height:32px;
+                                color:#24124D;
+                            "
+                        >
+                            Ready to Explore?
+                        </h2>
+
+                        <p
+                            class="body-text"
+                            style="
+                                margin:0 0 20px;
+                                font-size:14px;
+                                line-height:22px;
+                                color:#777777;
+                            "
+                        >
+                            Start discovering venues that match your needs.
+                        </p>
+
+                        <table
+                            role="presentation"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            align="center"
+                        >
+                            <tr>
+                                <td
+                                    align="center"
+                                    style="
+                                        background:#5426C7;
+                                        border-radius:10px;
+                                    "
+                                >
+                                    <a
+                                        href="https://bookmylawns.in"
+                                        target="_blank"
+                                        class="cta-button"
+                                        style="
+                                            display:block;
+                                            padding:15px 34px;
+                                            color:#ffffff;
                                             text-decoration:none;
-                                            font-size:26px;
-                                            margin:0 10px;">
-                                            📷
-                                        </a>
-
-                                        <a href="https://x.com" style="
-                                            text-decoration:none;
-                                            font-size:26px;
-                                            margin:0 10px;">
-                                            🐦
-                                        </a>
-
-                                        <a href="https://linkedin.com" style="
-                                            text-decoration:none;
-                                            font-size:26px;
-                                            margin:0 10px;">
-                                        </a>
-                                    </td>
-                                </tr>
-
-                                <!-- ====================================================== -->
-                                <!-- MISSION -->
-                                <!-- ====================================================== -->
-
-                                <tr>
-
-                                    <td align="center" style="padding-top:35px;">
-
-                                        <p style="
-                                            color:#C4B5FD;
                                             font-size:15px;
+                                            font-weight:700;
+                                            line-height:20px;
+                                        "
+                                    >
+                                        Explore BookMyLawns
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Getting Started -->
+                <tr>
+                    <td
+                        class="content-padding"
+                        style="padding:5px 48px 30px;"
+                    >
+                        <table
+                            role="presentation"
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            style="
+                                background:#faf7ff;
+                                border:1px solid #eadfff;
+                                border-radius:14px;
+                            "
+                        >
+                            <tr>
+                                <td style="padding:25px;">
+
+                                    <h2
+                                        class="body-title"
+                                        style="
+                                            margin:0 0 18px;
+                                            font-size:21px;
                                             line-height:28px;
-                                            margin:0;">
+                                            color:#24124D;
+                                        "
+                                    >
+                                        Getting Started
+                                    </h2>
 
-                                            Our mission is to simplify venue booking by providing a secure,
-                                            transparent and seamless experience for every customer.
-                                        </p>
-                                    </td>
-                                </tr>
+                                    <table
+                                        role="presentation"
+                                        width="100%"
+                                        cellpadding="0"
+                                        cellspacing="0"
+                                        border="0"
+                                    >
 
-                                <!-- ====================================================== -->
-                                <!-- COPYRIGHT -->
-                                <!-- ====================================================== -->
+                                        <tr>
+                                            <td
+                                                width="38"
+                                                valign="top"
+                                                style="padding-bottom:13px;"
+                                            >
+                                                <img
+                                                    class="purple-icon"
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/check-circle.svg"
+                                                    width="22"
+                                                    height="22"
+                                                    alt="Step 1"
+                                                    style="
+                                                        display:block;
+                                                        width:22px;
+                                                        height:22px;
+                                                    "
+                                                >
+                                            </td>
 
-                                <tr>
+                                            <td
+                                                valign="top"
+                                                style="
+                                                    padding-bottom:13px;
+                                                    font-size:14px;
+                                                    line-height:21px;
+                                                    color:#555555;
+                                                "
+                                            >
+                                                Complete your profile.
+                                            </td>
+                                        </tr>
 
-                                    <td align="center" style="padding-top:30px;">
+                                        <tr>
+                                            <td
+                                                width="38"
+                                                valign="top"
+                                                style="padding-bottom:13px;"
+                                            >
+                                                <img
+                                                    class="purple-icon"
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/location-city.svg"
+                                                    width="22"
+                                                    height="22"
+                                                    alt="Step 2"
+                                                    style="
+                                                        display:block;
+                                                        width:22px;
+                                                        height:22px;
+                                                    "
+                                                >
+                                            </td>
 
-                                        <p style="
+                                            <td
+                                                valign="top"
+                                                style="
+                                                    padding-bottom:13px;
+                                                    font-size:14px;
+                                                    line-height:21px;
+                                                    color:#555555;
+                                                "
+                                            >
+                                                Search for venues in your
+                                                preferred location.
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td
+                                                width="38"
+                                                valign="top"
+                                                style="padding-bottom:13px;"
+                                            >
+                                                <img
+                                                    class="purple-icon"
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/search.svg"
+                                                    width="22"
+                                                    height="22"
+                                                    alt="Step 3"
+                                                    style="
+                                                        display:block;
+                                                        width:22px;
+                                                        height:22px;
+                                                    "
+                                                >
+                                            </td>
+
+                                            <td
+                                                valign="top"
+                                                style="
+                                                    padding-bottom:13px;
+                                                    font-size:14px;
+                                                    line-height:21px;
+                                                    color:#555555;
+                                                "
+                                            >
+                                                Compare venues, pricing and
+                                                amenities.
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td
+                                                width="38"
+                                                valign="top"
+                                                style="padding-bottom:13px;"
+                                            >
+                                                <img
+                                                    class="purple-icon"
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/favorite.svg"
+                                                    width="22"
+                                                    height="22"
+                                                    alt="Step 4"
+                                                    style="
+                                                        display:block;
+                                                        width:22px;
+                                                        height:22px;
+                                                    "
+                                                >
+                                            </td>
+
+                                            <td
+                                                valign="top"
+                                                style="
+                                                    padding-bottom:13px;
+                                                    font-size:14px;
+                                                    line-height:21px;
+                                                    color:#555555;
+                                                "
+                                            >
+                                                Save your favourite venues.
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td
+                                                width="38"
+                                                valign="top"
+                                            >
+                                                <img
+                                                    class="purple-icon"
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/check-circle.svg"
+                                                    width="22"
+                                                    height="22"
+                                                    alt="Step 5"
+                                                    style="
+                                                        display:block;
+                                                        width:22px;
+                                                        height:22px;
+                                                    "
+                                                >
+                                            </td>
+
+                                            <td
+                                                valign="top"
+                                                style="
+                                                    font-size:14px;
+                                                    line-height:21px;
+                                                    color:#555555;
+                                                "
+                                            >
+                                                Plan and manage your booking.
+                                            </td>
+                                        </tr>
+
+                                    </table>
+
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Security -->
+                <tr>
+                    <td
+                        class="content-padding"
+                        style="padding:0 48px 30px;"
+                    >
+                        <table
+                            role="presentation"
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            style="
+                                background:#effaf3;
+                                border:1px solid #ccebd7;
+                                border-radius:14px;
+                            "
+                        >
+                            <tr>
+                                <td style="padding:23px;">
+
+                                    <table
+                                        role="presentation"
+                                        width="100%"
+                                        cellpadding="0"
+                                        cellspacing="0"
+                                        border="0"
+                                    >
+                                        <tr>
+
+                                            <td
+                                                width="45"
+                                                valign="top"
+                                            >
+                                                <img
+                                                    class="purple-icon"
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/lock.svg"
+                                                    width="28"
+                                                    height="28"
+                                                    alt="Security"
+                                                    style="
+                                                        display:block;
+                                                        width:28px;
+                                                        height:28px;
+                                                    "
+                                                >
+                                            </td>
+
+                                            <td>
+
+                                                <h2
+                                                    class="body-title"
+                                                    style="
+                                                        margin:0 0 7px;
+                                                        font-size:18px;
+                                                        line-height:25px;
+                                                        color:#166534;
+                                                    "
+                                                >
+                                                    Keep Your Account Secure
+                                                </h2>
+
+                                                <p
+                                                    class="body-text"
+                                                    style="
+                                                        margin:0;
+                                                        font-size:13px;
+                                                        line-height:21px;
+                                                        color:#4b6352;
+                                                    "
+                                                >
+                                                    Never share your
+                                                    password or verification
+                                                    codes with anyone.
+                                                    BookMyLawns will never
+                                                    ask you to share
+                                                    sensitive account
+                                                    information through an
+                                                    unsolicited email.
+                                                </p>
+
+                                            </td>
+
+                                        </tr>
+                                    </table>
+
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Help -->
+                <tr>
+                    <td
+                        align="center"
+                        class="content-padding"
+                        style="padding:0 48px 32px;"
+                    >
+
+                        <img
+                            class="purple-icon"
+                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/mail.svg"
+                            width="32"
+                            height="32"
+                            alt="Email"
+                            style="
+                                display:block;
+                                margin:0 auto 10px;
+                                width:32px;
+                                height:32px;
+                            "
+                        >
+
+                        <h2
+                            class="body-title"
+                            style="
+                                margin:0 0 6px;
+                                font-size:20px;
+                                line-height:28px;
+                                color:#24124D;
+                            "
+                        >
+                            Need Help?
+                        </h2>
+
+                        <p
+                            class="body-text"
+                            style="
+                                margin:0;
+                                font-size:14px;
+                                line-height:22px;
+                                color:#777777;
+                            "
+                        >
+                            Our support team is here to help you.
+                        </p>
+
+                        <p
+                            style="
+                                margin:7px 0 0;
+                                font-size:14px;
+                                line-height:22px;
+                            "
+                        >
+                            <a
+                                href="mailto:support@bookmylawns.in"
+                                style="
+                                    color:#5426C7;
+                                    text-decoration:none;
+                                    font-weight:700;
+                                "
+                            >
+                                support@bookmylawns.in
+                            </a>
+                        </p>
+
+                    </td>
+                </tr>
+
+                <!-- Thank You -->
+                <tr>
+                    <td
+                        align="center"
+                        style="
+                            background:#faf8ff;
+                            padding:30px 35px;
+                            border-top:1px solid #eee8fa;
+                        "
+                    >
+
+                        <img
+                            class="purple-icon"
+                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/favorite.svg"
+                            width="32"
+                            height="32"
+                            alt="Thank You"
+                            style="
+                                display:block;
+                                margin:0 auto 10px;
+                                width:32px;
+                                height:32px;
+                            "
+                        >
+
+                        <h2
+                            class="body-title"
+                            style="
+                                margin:0 0 8px;
+                                font-size:22px;
+                                line-height:30px;
+                                color:#24124D;
+                            "
+                        >
+                            Thank You for Joining Us!
+                        </h2>
+
+                        <p
+                            class="body-text"
+                            style="
+                                margin:0 auto;
+                                max-width:520px;
+                                font-size:14px;
+                                line-height:23px;
+                                color:#666666;
+                            "
+                        >
+                            We are delighted to have you as part of the
+                            BookMyLawns community. We look forward to helping
+                            you create wonderful memories.
+                        </p>
+
+                    </td>
+                </tr>
+
+                <!-- Promise -->
+                <tr>
+                    <td
+                        class="content-padding"
+                        style="padding:28px 48px 35px;"
+                    >
+                        <table
+                            role="presentation"
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            style="
+                                background:#5426C7;
+                                border-radius:14px;
+                            "
+                        >
+                            <tr>
+                                <td
+                                    align="center"
+                                    style="padding:26px 20px;"
+                                >
+
+                                    <img
+                                        class="white-icon"
+                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/check-circle.svg"
+                                        width="34"
+                                        height="34"
+                                        alt="Promise"
+                                        style="
+                                            display:block;
+                                            margin:0 auto 10px;
+                                            width:34px;
+                                            height:34px;
+                                        "
+                                    >
+
+                                    <h2
+                                        style="
+                                            margin:0 0 7px;
+                                            color:#ffffff;
+                                            font-size:20px;
+                                            line-height:28px;
+                                        "
+                                    >
+                                        Our Promise
+                                    </h2>
+
+                                    <p
+                                        style="
                                             margin:0;
-                                            color:#9CA3AF;
-                                            font-size:13px;">
+                                            color:#eee8ff;
+                                            font-size:13px;
+                                            line-height:21px;
+                                        "
+                                    >
+                                        Simple discovery. Transparent
+                                        information. Better venue
+                                        experiences.
+                                    </p>
 
-                                            © {{CurrentYear}} BookMyHall. All Rights Reserved.
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
 
-                                        </p>
+                <!-- Footer -->
+                <tr>
+                    <td
+                        align="center"
+                        class="footer-padding"
+                        style="
+                            background:#24124D;
+                            padding:38px 30px 32px;
+                        "
+                    >
 
-                                        <p style="
-    margin-top:10px;
-    color:#6B7280;
-    font-size:12px;">
-
-                                            This email was sent because a BookMyHall account was created using this
-                                            email address.
-
-                                        </p>
-
-                                        <p style="
-    margin-top:10px;
-    color:#6B7280;
-    font-size:12px;">
-
-                                            If you did not create this account, please contact our support team
-                                            immediately.
-
-                                        </p>
-
-                                    </td>
-
-                                </tr>
-
-                                <!-- ====================================================== -->
-                                <!-- SECURITY MESSAGE -->
-                                <!-- ====================================================== -->
-
+                        <!-- Footer Logo -->
+                        <div
+                            class="footer-logo-wrapper"
+                            style="
+                                display:inline-block;
+                                padding:1px;
+                                border-radius:0;
+                                background:linear-gradient(90deg,#5426C7,#D72A7A);
+                            "
+                        >
+                            <table
+                                cellpadding="0"
+                                cellspacing="0"
+                                border="0"
+                                bgcolor="#ffffff"
+                                style="
+                                    background:#ffffff;
+                                    border-radius:0;
+                                "
+                            >
                                 <tr>
-
-                                    <td align="center" style="padding-top:25px;">
-
-                                        <p style="
-                                                margin:0;
-                                                color:#9CA3AF;
-                                                font-size:12px;
-                                                line-height:22px;">
-
-                                            BookMyHall will never ask for your password, OTP,
-                                            or verification codes through email, phone calls or SMS.
-
-                                            Please keep your account credentials confidential.
-
-                                        </p>
-
+                                    <td
+                                        align="center"
+                                        style="
+                                            background:#ffffff;
+                                            border-radius:0;
+                                        "
+                                    >
+                                        <img
+                                            class="footer-logo"
+                                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/dark%20theme/BookMyLawns_Dark_1920x1080.png"
+                                            alt="BookMyLawns"
+                                            width="175"
+                                            style="
+                                                height:auto;
+                                                margin:0 auto;
+                                            "
+                                        >
                                     </td>
-
                                 </tr>
-
-                                <!-- ====================================================== -->
-                                <!-- AUTOMATED EMAIL NOTICE -->
-                                <!-- ====================================================== -->
-
-                                <tr>
-
-                                    <td align="center" style="padding-top:20px;
-           padding-bottom:10px;">
-
-                                        <p style="
-    margin:0;
-    color:#6B7280;
-    font-size:12px;">
-
-                                            This is an automated email from BookMyHall.
-                                            Please do not reply to this message.
-
-                                        </p>
-
-                                    </td>
-
-                                </tr>
-
                             </table>
+                        </div>
 
-                        </td>
+                        <p
+                            style="
+                                margin:16px 0 0;
+                                color:#D1D5DB;
+                                font-size:13px;
+                                line-height:22px;
+                            "
+                        >
+                            Find &bull; Compare &bull; Book
+                        </p>
 
-                    </tr>
+                        <p
+                            style="
+                                margin:10px auto 0;
+                                max-width:530px;
+                                color:#D1D5DB;
+                                font-size:13px;
+                                line-height:23px;
+                            "
+                        >
+                            BookMyLawns makes it easier to discover, compare and
+                            plan venues for weddings, celebrations, corporate events
+                            and special occasions.
+                        </p>
 
-                </table>
+                        <!-- Divider -->
+                        <table
+                            role="presentation"
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            style="margin:28px 0;"
+                        >
+                            <tr>
+                                <td
+                                    style="
+                                        height:1px;
+                                        background:rgba(255,255,255,0.15);
+                                        font-size:0;
+                                        line-height:0;
+                                    "
+                                >
+                                    &nbsp;
+                                </td>
+                            </tr>
+                        </table>
 
-            </td>
+                        <!-- Contact -->
+                        <table
+                            role="presentation"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            align="center"
+                        >
 
-        </tr>
+                            <tr>
+                                <td
+                                    align="center"
+                                    style="
+                                        padding:4px 0;
+                                        color:#D1D5DB;
+                                        font-size:13px;
+                                        line-height:23px;
+                                    "
+                                >
+                                    <img
+                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/mail.svg"
+                                        width="17"
+                                        height="17"
+                                        alt=""
+                                        class="white-icon"
+                                        style="
+                                            display:inline-block;
+                                            width:17px;
+                                            height:17px;
+                                            vertical-align:middle;
+                                            margin-right:5px;
+                                            border:0;
+                                        "
+                                    >
 
-    </table>
+                                    <a
+                                        href="mailto:support@bookmylawns.in"
+                                        style="
+                                            color:#D1D5DB;
+                                            text-decoration:none;
+                                        "
+                                    >
+                                        support@bookmylawns.in
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td
+                                    align="center"
+                                    style="
+                                        padding:4px 0;
+                                        color:#D1D5DB;
+                                        font-size:13px;
+                                        line-height:23px;
+                                    "
+                                >
+                                    <img
+                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/language.svg"
+                                        width="17"
+                                        height="17"
+                                        alt=""
+                                        class="white-icon"
+                                        style="
+                                            display:inline-block;
+                                            width:17px;
+                                            height:17px;
+                                            vertical-align:middle;
+                                            margin-right:5px;
+                                            border:0;
+                                        "
+                                    >
+
+                                    <a
+                                        href="https://bookmylawns.in"
+                                        target="_blank"
+                                        style="
+                                            color:#D1D5DB;
+                                            text-decoration:none;
+                                        "
+                                    >
+                                        bookmylawns.in
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td
+                                    align="center"
+                                    style="
+                                        padding:4px 0;
+                                        color:#D1D5DB;
+                                        font-size:13px;
+                                        line-height:23px;
+                                    "
+                                >
+                                    <img
+                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/location.svg"
+                                        width="17"
+                                        height="17"
+                                        alt=""
+                                        class="white-icon"
+                                        style="
+                                            display:inline-block;
+                                            width:17px;
+                                            height:17px;
+                                            vertical-align:middle;
+                                            margin-right:5px;
+                                            border:0;
+                                        "
+                                    >
+
+                                    Gangapur Road, Nashik 01, Maharashtra, India
+                                </td>
+                            </tr>
+
+                        </table>
+
+                        <!-- Social Icons -->
+                        <p
+                            style="
+                                margin:25px 0 12px;
+                                color:#D1D5DB;
+                                font-size:12px;
+                                line-height:20px;
+                            "
+                        >
+                            Follow BookMyLawns
+                        </p>
+
+                        <table
+                            role="presentation"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            align="center"
+                        >
+                            <tr>
+
+                                <td style="padding:0 7px;">
+                                    <a
+                                        href="{{FacebookUrl}}"
+                                        target="_blank"
+                                        style="text-decoration:none;"
+                                    >
+                                        <img
+                                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/facebook.svg"
+                                            width="34"
+                                            height="34"
+                                            alt="Facebook"
+                                            class="social-icon"
+                                            style="
+                                                display:block;
+                                                width:34px;
+                                                height:34px;
+                                                border:0;
+                                            "
+                                        >
+                                    </a>
+                                </td>
+
+                                <td style="padding:0 7px;">
+                                    <a
+                                        href="{{InstagramUrl}}"
+                                        target="_blank"
+                                        style="text-decoration:none;"
+                                    >
+                                        <img
+                                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/instagram.svg"
+                                            width="34"
+                                            height="34"
+                                            alt="Instagram"
+                                            class="social-icon"
+                                            style="
+                                                display:block;
+                                                width:34px;
+                                                height:34px;
+                                                border:0;
+                                            "
+                                        >
+                                    </a>
+                                </td>
+
+                                <td style="padding:0 7px;">
+                                    <a
+                                        href="{{YoutubeUrl}}"
+                                        target="_blank"
+                                        style="text-decoration:none;"
+                                    >
+                                        <img
+                                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/youtube.svg"
+                                            width="34"
+                                            height="34"
+                                            alt="YouTube"
+                                            class="social-icon"
+                                            style="
+                                                display:block;
+                                                width:34px;
+                                                height:34px;
+                                                border:0;
+                                            "
+                                        >
+                                    </a>
+                                </td>
+
+                            </tr>
+                        </table>
+
+                        <!-- Company -->
+                        <p
+                            style="
+                                margin:25px 0 4px;
+                                color:#ffffff;
+                                font-size:12px;
+                                line-height:20px;
+                                font-weight:700;
+                            "
+                        >
+                            Shriyash Computer And IT Solutions
+                        </p>
+
+                        <p
+                            style="
+                                margin:0;
+                                color:#9CA3AF;
+                                font-size:11px;
+                                line-height:18px;
+                            "
+                        >
+                            Gangapur Road, Nashik 01, Maharashtra, India
+                        </p>
+
+                        <!-- Security Reminder -->
+                        <table
+                            role="presentation"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            align="center"
+                            style="margin:20px auto 0;"
+                        >
+                            <tr>
+                                <td
+                                    align="center"
+                                    style="
+                                        color:#9CA3AF;
+                                        font-size:11px;
+                                        line-height:19px;
+                                    "
+                                >
+                                    <img
+                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/lock.svg"
+                                        width="15"
+                                        height="15"
+                                        alt=""
+                                        class="white-icon"
+                                        style="
+                                            display:inline-block;
+                                            width:15px;
+                                            height:15px;
+                                            vertical-align:middle;
+                                            margin-right:4px;
+                                            border:0;
+                                        "
+                                    >
+                                    Never share your password or verification codes.
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Automated Email -->
+                        <p
+                            style="
+                                margin:18px auto 0;
+                                max-width:500px;
+                                color:#9CA3AF;
+                                font-size:11px;
+                                line-height:19px;
+                            "
+                        >
+                            This is an automated security notification from
+                            <strong style="color:#ffffff;">
+                                BookMyLawns
+                            </strong>.
+                            Please do not reply directly to this email.
+                        </p>
+
+                        <!-- Copyright -->
+                        <p
+                            style="
+                                margin:16px 0 0;
+                                padding-top:15px;
+                                border-top:1px solid rgba(255,255,255,0.10);
+                                color:#8f86a8;
+                                font-size:10px;
+                                line-height:17px;
+                            "
+                        >
+                            &copy; {{CurrentYear}} BookMyLawns. All rights reserved.
+                        </p>
+
+                    </td>
+                </tr>
+
+            </table>
+
+        </td>
+    </tr>
+</table>
+
 
 </body>
-
 </html>
