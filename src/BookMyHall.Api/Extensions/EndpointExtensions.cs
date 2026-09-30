@@ -44,12 +44,16 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapHallOwnerEndpoints();
         endpoints.MapNearbyHallEndpoints();
         endpoints.MapLocationLookupEndpoints();
-        endpoints.MapVendorEndpoints();
+
+
         endpoints.MapVendorCategoryEndpoints();
-        endpoints.MapVendorAvailabilityEndpoints();
-        endpoints.MapVendorServiceEndpoints();
         endpoints.MapVendorSubCategoryEndpoints();
+        endpoints.MapVendorServiceEndpoints();
+        endpoints.MapVendorServiceAreaEndpoints();
         endpoints.MapVendorPackageEndpoints();
+        endpoints.MapVendorPackageItemEndpoints();
+        endpoints.MapVendorEndpoints();
+        endpoints.MapVendorAvailabilityEndpoints();
 
         if (OperatingSystem.IsWindows())
         {

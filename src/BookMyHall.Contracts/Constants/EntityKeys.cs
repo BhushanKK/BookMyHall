@@ -135,6 +135,12 @@ public static class EntityKeys
 
   public const string VendorService = nameof(VendorService);
   public const string VendorServiceId = nameof(VendorServiceId);
+    // =========================================================
+  //Venue VendorServiceArea
+  // =========================================================
+
+  public const string VendorServiceArea = nameof(VendorServiceArea);
+  public const string VendorServiceAreaId = nameof(VendorServiceAreaId);
   
     // =========================================================
   //Venue VendorPackage
@@ -142,6 +148,13 @@ public static class EntityKeys
 
   public const string VendorPackage = nameof(VendorPackage);
   public const string VendorPackageId = nameof(VendorPackageId);
+
+      // =========================================================
+  //Venue VendorPackageItem
+  // =========================================================
+
+  public const string VendorPackageItem = nameof(VendorPackageItem);
+  public const string VendorPackageItemId = nameof(VendorPackageItemId);
   // =========================================================
   // Booking
   // =========================================================
