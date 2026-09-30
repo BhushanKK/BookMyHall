@@ -6,6 +6,7 @@ using BookMyHall.Application.Features.Authentication;
 using BookMyHall.Application.Features.Authentication.Commands.ForgotPassword;
 using BookMyHall.Application.Features.Authentication.Commands.ResendVerificationEmail;
 using BookMyHall.Application.Features.Authentication.Commands.ResetPassword;
+using BookMyHall.Application.Features.Authentication.Commands.SetPassword;
 using BookMyHall.Application.Features.Authentication.Commands.VerifyEmail;
 using BookMyHall.Application.Features.Identity;
 using BookMyHall.Application.Features.Identity.Authentication;
@@ -134,13 +135,13 @@ public static class AuthenticationEndpoints
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            if (!httpContext.Request.Cookies.TryGetValue(RefreshTokenCookieName, out var refreshToken) 
+            if (!httpContext.Request.Cookies.TryGetValue(RefreshTokenCookieName, out var refreshToken)
                 || string.IsNullOrWhiteSpace(refreshToken))
             {
                 DeleteRefreshTokenCookie(httpContext);
                 return Results.Json
                 (
-                    ApiResponse<bool>.SuccessResponse(true, "Logout successful.", 
+                    ApiResponse<bool>.SuccessResponse(true, "Logout successful.",
                     HttpStatusCode.OK
                 ),
                 statusCode: StatusCodes.Status200OK);
@@ -152,13 +153,10 @@ public static class AuthenticationEndpoints
             return Results.Json(response, statusCode: response.StatusCode);
         }).AllowAnonymous();
 
-        group.MapPost("/change-password", async (
-            ChangePasswordCommand command,
-            IMediator mediator,
-            CancellationToken cancellationToken) =>
+        group.MapPost("/change-password", async (ChangePasswordCommand command,
+            IMediator mediator, CancellationToken cancellationToken) =>
         {
-            var response =
-                await mediator.Send(
+            var response = await mediator.Send(
                     command,
                     cancellationToken);
 
@@ -275,6 +273,20 @@ public static class AuthenticationEndpoints
             StatusCodes.Status200OK)
         .Produces<ApiResponse<ResendVerificationEmailResponse>>(
             StatusCodes.Status400BadRequest);
+
+        group.MapPost("/set-password", async (SetPasswordCommand command,
+        IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(command, cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .AllowAnonymous()
+        .WithName("SetPassword")
+        .WithSummary("Set Password")
+        .WithDescription("Sets the user's password using a valid password setup token.")
+        .Produces<ApiResponse<SetPasswordResponse>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<SetPasswordResponse>>(StatusCodes.Status400BadRequest)
+        .Produces<ApiResponse<SetPasswordResponse>>(StatusCodes.Status404NotFound);
 
         group.MapPost("/google-login", async (
             GoogleLoginRequest request,
