@@ -80,10 +80,13 @@ public static class CacheKeys
     public const string StatesAutoComplete = "StatesAutoComplete";
     public const string HallsAutoComplete = "HallsAutoComplete";
     public const string VendorPackagesAutoComplete = "VendorPackagesAutoComplete";
+    public const string VendorPackageItemsAutoComplete = "VendorPackageItemsAutoComplete";
     public const string VendorServicesAutoComplete = "VendorServicesAutoComplete";
     public const string VendorAutoComplete = "VendorAutoComplete";
     public const string VendorCategoryAutoComplete = "VendorCategoryAutoComplete";
     public const string VendorSubCategoriesAutoComplete = "VendorSubCategoriesAutoComplete";
+    public const string VendorServiceAreasAutoComplete = "VendorServiceAreasAutoComplete";
+
 
     //===============Venue Vendors==========================//
     public const string Vendors = "Vendors";

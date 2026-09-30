@@ -70,13 +70,14 @@ public static class DependencyInjection
         services.AddScoped<ILocationLookupRepository, LocationLookupRepository>();
         services.AddScoped<IOutboxService, OutboxService>();
         services.AddScoped<IOutboxRepository, OutboxRepository>();
-        services.AddScoped<IVendorRepository,VendorRepository>();
-        services.AddScoped<IVendorCategoryRepository,VendorCategoryRepository>();
-        services.AddScoped<IVendorAvailabilityRepository,VendorAvailabilityRepository>();
-        services.AddScoped<IVendorServiceRepository,VendorServiceRepository>();
-        services.AddScoped<IVendorSubCategoryRepository,VendorSubCategoryRepository>();
-        services.AddScoped<IVendorPackageRepository,VendorPackageRepository>();
-
+        services.AddScoped<IVendorCategoryRepository, VendorCategoryRepository>();
+        services.AddScoped<IVendorSubCategoryRepository, VendorSubCategoryRepository>();
+        services.AddScoped<IVendorServiceRepository, VendorServiceRepository>();
+        services.AddScoped<IVendorServiceAreaRepository, VendorServiceAreaRepository>();
+        services.AddScoped<IVendorPackageRepository, VendorPackageRepository>();
+        services.AddScoped<IVendorPackageItemRepository, VendorPackageItemRepository>();
+        services.AddScoped<IVendorRepository, VendorRepository>();
+        services.AddScoped<IVendorAvailabilityRepository, VendorAvailabilityRepository>();
 
         return services;
     }
