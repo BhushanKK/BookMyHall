@@ -19,9 +19,7 @@ public sealed class SetPasswordCommandHandler(
     IValidator<SetPasswordCommand> validator,
     IMessageHelper messageHelper,
     ICacheService cacheService)
-    : IRequestHandler<
-        SetPasswordCommand,
-        ApiResponse<SetPasswordResponse>>
+    : IRequestHandler<SetPasswordCommand, ApiResponse<SetPasswordResponse>>
 {
     public async Task<ApiResponse<SetPasswordResponse>> Handle(
         SetPasswordCommand request,
@@ -31,36 +29,30 @@ public sealed class SetPasswordCommandHandler(
         // 1. Validate request
         // ------------------------------------------------------------
 
-        var validationResult =
-            await validator.ValidateAsync(
-                request,
-                cancellationToken);
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
         {
-            return ApiResponse<SetPasswordResponse>.FailureResponse(
-                string.Join(
-                    " | ",
-                    validationResult.Errors.Select(x => x.ErrorMessage)),
-                HttpStatusCode.BadRequest);
+            return ApiResponse<SetPasswordResponse>.FailureResponse
+            (
+                string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage)),
+                HttpStatusCode.BadRequest
+            );
         }
 
         // ------------------------------------------------------------
         // 2. Get user
         // ------------------------------------------------------------
 
-        var user =
-            await userRepository.GetByIdAsync(
-                request.UserId,
-                cancellationToken);
+        var user = await userRepository.GetByIdAsync(request.UserId, cancellationToken);
 
         if (user is null)
         {
-            return ApiResponse<SetPasswordResponse>.FailureResponse(
-                messageHelper.NotFoundEntity(
-                    ResourceNames.Entities,
-                    EntityKeys.User),
-                HttpStatusCode.NotFound);
+            return ApiResponse<SetPasswordResponse>.FailureResponse
+            (
+                messageHelper.NotFoundEntity(ResourceNames.Entities, EntityKeys.User), 
+                HttpStatusCode.NotFound
+            );
         }
 
         // ------------------------------------------------------------
@@ -69,9 +61,11 @@ public sealed class SetPasswordCommandHandler(
 
         if (!user.IsEmailVerified)
         {
-            return ApiResponse<SetPasswordResponse>.FailureResponse(
+            return ApiResponse<SetPasswordResponse>.FailureResponse
+            (
                 "Please verify your email address before setting your password.",
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest
+            );
         }
 
         // ------------------------------------------------------------
@@ -80,9 +74,11 @@ public sealed class SetPasswordCommandHandler(
 
         if (!user.IsActive)
         {
-            return ApiResponse<SetPasswordResponse>.FailureResponse(
+            return ApiResponse<SetPasswordResponse>.FailureResponse
+            (
                 messageHelper.UserInactive(),
-                HttpStatusCode.Forbidden);
+                HttpStatusCode.Forbidden
+            );
         }
 
         // ------------------------------------------------------------
@@ -91,18 +87,18 @@ public sealed class SetPasswordCommandHandler(
 
         if (!string.IsNullOrWhiteSpace(user.PasswordHash))
         {
-            return ApiResponse<SetPasswordResponse>.FailureResponse(
+            return ApiResponse<SetPasswordResponse>.FailureResponse
+            (
                 "Password has already been configured.",
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest
+            );
         }
 
         // ------------------------------------------------------------
         // 6. Hash password
         // ------------------------------------------------------------
 
-        var passwordHash =
-            passwordHasher.HashPassword(
-                request.NewPassword);
+        var passwordHash = passwordHasher.HashPassword(request.NewPassword);
 
         // ------------------------------------------------------------
         // 7. Update password
@@ -119,19 +115,14 @@ public sealed class SetPasswordCommandHandler(
         // 8. Save user
         // ------------------------------------------------------------
 
-        await userRepository.UpdateAsync(
-            user,
-            cancellationToken);
-
+        await userRepository.UpdateAsync(user, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         // ------------------------------------------------------------
         // 10. Clear user cache
         // ------------------------------------------------------------
 
-        await cacheService.RemoveByPrefixAsync(
-            $"{CacheKeys.UsersPaged}:",
-            cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.UsersPaged}:", cancellationToken);
 
         // ------------------------------------------------------------
         // 11. Response
