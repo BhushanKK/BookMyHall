@@ -52,26 +52,58 @@
         padding: 35px 48px 10px;
     }
 
-    .footer-logo-wrapper {
-        display: inline-block;
-        padding: 1px;
-        border-radius: 0;
-        background: linear-gradient(90deg, #5426C7, #D72A7A);
-    }
+    /*
+        ==========================================
+        BOOKMYLAWNS ICON COLORS
+        ==========================================
+    */
 
     .purple-icon {
-        filter: invert(21%) sepia(72%) saturate(3104%) hue-rotate(250deg) brightness(82%) contrast(93%);
+        filter: invert(21%)
+            sepia(72%)
+            saturate(3104%)
+            hue-rotate(250deg)
+            brightness(82%)
+            contrast(93%);
     }
 
     .white-icon {
         filter: brightness(0) invert(1);
     }
 
-    .social-icon {
-        filter: brightness(0) invert(1);
+    /*
+        ==========================================
+        FOOTER LOGO BORDER
+        ==========================================
+    */
+
+    .footer-logo-border {
+        display: inline-block;
+        padding: 2px;
+        background: #D72A7A;
+        background: linear-gradient(
+            90deg,
+            #5426C7 0%,
+            #D72A7A 100%
+        );
+        border: 1px solid #D72A7A;
+        line-height: 0;
     }
 
+    .footer-logo-inner {
+        display: block;
+        background: #ffffff;
+        line-height: 0;
+    }
+
+    /*
+        ==========================================
+        MOBILE
+        ==========================================
+    */
+
     @media only screen and (max-width: 680px) {
+
         body {
             background-color: #ffffff !important;
         }
@@ -154,7 +186,15 @@
 
 
 <!-- Preheader -->
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+<div
+    style="
+        display:none;
+        max-height:0;
+        overflow:hidden;
+        opacity:0;
+        color:transparent;
+    "
+>
     Welcome to BookMyLawns — discover, compare and book the perfect venue for your special occasion.
 </div>
 
@@ -164,10 +204,16 @@
     cellpadding="0"
     cellspacing="0"
     border="0"
-    style="width:100%;background:#f3f6fb;"
+    style="
+        width:100%;
+        background:#f3f6fb;
+    "
 >
     <tr>
-        <td align="center" style="padding:30px 10px;">
+        <td
+            align="center"
+            style="padding:30px 10px;"
+        >
 
             <table
                 role="presentation"
@@ -191,7 +237,12 @@
                     <td
                         style="
                             height:7px;
-                            background:linear-gradient(90deg,#5426C7,#D72A7A);
+                            background:#5426C7;
+                            background:linear-gradient(
+                                90deg,
+                                #5426C7 0%,
+                                #D72A7A 100%
+                            );
                             font-size:0;
                             line-height:0;
                         "
@@ -209,6 +260,7 @@
                             background:#ffffff;
                         "
                     >
+
                         <img
                             class="header-logo"
                             src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/light%20theme/BookMyLawns_Light_1920x1080.png"
@@ -231,12 +283,27 @@
                                 color:#777777;
                             "
                         >
-                            <strong style="color:#5426C7;">FIND</strong>
-                            <span style="color:#aaaaaa;"> • </span>
-                            <strong style="color:#D72A7A;">COMPARE</strong>
-                            <span style="color:#aaaaaa;"> • </span>
-                            <strong style="color:#5426C7;">BOOK</strong>
+                            <strong style="color:#5426C7;">
+                                FIND
+                            </strong>
+
+                            <span style="color:#aaaaaa;">
+                                &bull;
+                            </span>
+
+                            <strong style="color:#D72A7A;">
+                                COMPARE
+                            </strong>
+
+                            <span style="color:#aaaaaa;">
+                                &bull;
+                            </span>
+
+                            <strong style="color:#5426C7;">
+                                BOOK
+                            </strong>
                         </p>
+
                     </td>
                 </tr>
 
@@ -249,6 +316,7 @@
                             padding:42px 30px;
                         "
                     >
+
                         <table
                             role="presentation"
                             cellpadding="0"
@@ -266,6 +334,7 @@
                                         border-radius:50%;
                                     "
                                 >
+
                                     <img
                                         class="purple-icon"
                                         src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/celebration.svg"
@@ -279,6 +348,7 @@
                                             margin:11px;
                                         "
                                     >
+
                                 </td>
                             </tr>
                         </table>
@@ -310,6 +380,7 @@
                             Discover beautiful venues, compare options and
                             plan your special moments with confidence.
                         </p>
+
                     </td>
                 </tr>
 
@@ -372,6 +443,7 @@
                         class="content-padding"
                         style="padding:22px 48px;"
                     >
+
                         <table
                             role="presentation"
                             width="100%"
@@ -470,6 +542,7 @@
                                 </td>
                             </tr>
                         </table>
+
                     </td>
                 </tr>
 
@@ -480,6 +553,7 @@
                         class="content-padding"
                         style="padding:12px 48px 15px;"
                     >
+
                         <h2
                             class="body-title"
                             style="
@@ -503,6 +577,7 @@
                         >
                             Everything you need to discover the right venue.
                         </p>
+
                     </td>
                 </tr>
 
@@ -512,6 +587,7 @@
                         class="content-padding"
                         style="padding:5px 42px 25px;"
                     >
+
                         <table
                             role="presentation"
                             width="100%"
@@ -1061,6 +1137,7 @@
                             </tr>
 
                         </table>
+
                     </td>
                 </tr>
 
@@ -1070,6 +1147,7 @@
                         class="content-padding"
                         style="padding:10px 48px 28px;"
                     >
+
                         <table
                             role="presentation"
                             width="100%"
@@ -1153,6 +1231,7 @@
                                 </td>
                             </tr>
                         </table>
+
                     </td>
                 </tr>
 
@@ -1162,6 +1241,7 @@
                         align="center"
                         style="padding:8px 30px 35px;"
                     >
+
                         <h2
                             class="body-title"
                             style="
@@ -1220,6 +1300,7 @@
                                 </td>
                             </tr>
                         </table>
+
                     </td>
                 </tr>
 
@@ -1229,6 +1310,7 @@
                         class="content-padding"
                         style="padding:5px 48px 30px;"
                     >
+
                         <table
                             role="presentation"
                             width="100%"
@@ -1434,6 +1516,7 @@
                                 </td>
                             </tr>
                         </table>
+
                     </td>
                 </tr>
 
@@ -1443,6 +1526,7 @@
                         class="content-padding"
                         style="padding:0 48px 30px;"
                     >
+
                         <table
                             role="presentation"
                             width="100%"
@@ -1526,6 +1610,7 @@
                                 </td>
                             </tr>
                         </table>
+
                     </td>
                 </tr>
 
@@ -1658,6 +1743,7 @@
                         class="content-padding"
                         style="padding:28px 48px 35px;"
                     >
+
                         <table
                             role="presentation"
                             width="100%"
@@ -1716,6 +1802,7 @@
                                 </td>
                             </tr>
                         </table>
+
                     </td>
                 </tr>
 
@@ -1730,48 +1817,87 @@
                         "
                     >
 
-                        <!-- Footer Logo -->
-                        <div
-                            class="footer-logo-wrapper"
+                        <!--
+                            ==========================================
+                            FOOTER LOGO
+                            2px GRADIENT BORDER + WHITE INNER AREA
+                            ==========================================
+                        -->
+
+                        <table
+                            role="presentation"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            align="center"
                             style="
-                                display:inline-block;
-                                padding:1px;
-                                border-radius:0;
-                                background:linear-gradient(90deg,#5426C7,#D72A7A);
+                                border-collapse:collapse;
+                                border-spacing:0;
                             "
                         >
-                            <table
-                                cellpadding="0"
-                                cellspacing="0"
-                                border="0"
-                                bgcolor="#ffffff"
-                                style="
-                                    background:#ffffff;
-                                    border-radius:0;
-                                "
-                            >
-                                <tr>
-                                    <td
+                            <tr>
+                                <td
+                                    align="center"
+                                    bgcolor="#D72A7A"
+                                    style="
+                                        padding:2px;
+                                        background:#D72A7A;
+                                        background:linear-gradient(
+                                            90deg,
+                                            #5426C7 0%,
+                                            #D72A7A 100%
+                                        );
+                                        line-height:0;
+                                    "
+                                >
+
+                                    <table
+                                        role="presentation"
+                                        cellpadding="0"
+                                        cellspacing="0"
+                                        border="0"
                                         align="center"
+                                        bgcolor="#ffffff"
                                         style="
+                                            border-collapse:collapse;
+                                            border-spacing:0;
                                             background:#ffffff;
-                                            border-radius:0;
                                         "
                                     >
-                                        <img
-                                            class="footer-logo"
-                                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/dark%20theme/BookMyLawns_Dark_1920x1080.png"
-                                            alt="BookMyLawns"
-                                            width="175"
-                                            style="
-                                                height:auto;
-                                                margin:0 auto;
-                                            "
-                                        >
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
+                                        <tr>
+                                            <td
+                                                align="center"
+                                                bgcolor="#ffffff"
+                                                style="
+                                                    padding:0;
+                                                    background:#ffffff;
+                                                    line-height:0;
+                                                "
+                                            >
+
+                                                <img
+                                                    class="footer-logo"
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/dark%20theme/BookMyLawns_Dark_1920x1080.png"
+                                                    alt="BookMyLawns"
+                                                    width="175"
+                                                    style="
+                                                        display:block;
+                                                        width:175px;
+                                                        max-width:100%;
+                                                        height:auto;
+                                                        margin:0;
+                                                        padding:0;
+                                                        border:0;
+                                                    "
+                                                >
+
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                </td>
+                            </tr>
+                        </table>
 
                         <p
                             style="
@@ -1793,9 +1919,9 @@
                                 line-height:23px;
                             "
                         >
-                            BookMyLawns makes it easier to discover, compare and
-                            plan venues for weddings, celebrations, corporate events
-                            and special occasions.
+                            BookMyLawns makes it easier to discover, compare
+                            and plan venues for weddings, celebrations,
+                            corporate events and special occasions.
                         </p>
 
                         <!-- Divider -->
@@ -1811,7 +1937,7 @@
                                 <td
                                     style="
                                         height:1px;
-                                        background:rgba(255,255,255,0.15);
+                                        background:#51476b;
                                         font-size:0;
                                         line-height:0;
                                     "
@@ -1840,6 +1966,7 @@
                                         line-height:23px;
                                     "
                                 >
+
                                     <img
                                         src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/mail.svg"
                                         width="17"
@@ -1865,6 +1992,7 @@
                                     >
                                         support@bookmylawns.in
                                     </a>
+
                                 </td>
                             </tr>
 
@@ -1878,6 +2006,7 @@
                                         line-height:23px;
                                     "
                                 >
+
                                     <img
                                         src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/language.svg"
                                         width="17"
@@ -1904,6 +2033,7 @@
                                     >
                                         bookmylawns.in
                                     </a>
+
                                 </td>
                             </tr>
 
@@ -1917,6 +2047,7 @@
                                         line-height:23px;
                                     "
                                 >
+
                                     <img
                                         src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/location.svg"
                                         width="17"
@@ -1933,13 +2064,15 @@
                                         "
                                     >
 
-                                    Gangapur Road, Nashik 01, Maharashtra, India
+                                    Gangapur Road, Nashik 01,
+                                    Maharashtra, India
+
                                 </td>
                             </tr>
 
                         </table>
 
-                        <!-- Social Icons -->
+                        <!-- Social -->
                         <p
                             style="
                                 margin:25px 0 12px;
@@ -1960,69 +2093,168 @@
                         >
                             <tr>
 
-                                <td style="padding:0 7px;">
+                                <!-- Facebook -->
+                                <td
+                                    style="
+                                        padding:0 7px;
+                                    "
+                                >
                                     <a
                                         href="{{FacebookUrl}}"
                                         target="_blank"
-                                        style="text-decoration:none;"
+                                        style="
+                                            text-decoration:none;
+                                        "
                                     >
-                                        <img
-                                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/facebook.svg"
-                                            width="34"
-                                            height="34"
-                                            alt="Facebook"
-                                            class="social-icon"
+
+                                        <table
+                                            role="presentation"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            border="0"
+                                            width="38"
+                                            height="38"
                                             style="
-                                                display:block;
-                                                width:34px;
-                                                height:34px;
-                                                border:0;
+                                                width:38px;
+                                                height:38px;
+                                                background:#5426C7;
+                                                border-radius:50%;
                                             "
                                         >
+                                            <tr>
+                                                <td
+                                                    align="center"
+                                                    valign="middle"
+                                                >
+
+                                                    <img
+                                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/facebook.svg"
+                                                        width="20"
+                                                        height="20"
+                                                        alt="Facebook"
+                                                        style="
+                                                            display:block;
+                                                            width:20px;
+                                                            height:20px;
+                                                            border:0;
+                                                            filter:brightness(0) invert(1);
+                                                        "
+                                                    >
+
+                                                </td>
+                                            </tr>
+                                        </table>
+
                                     </a>
                                 </td>
 
-                                <td style="padding:0 7px;">
+                                <!-- Instagram -->
+                                <td
+                                    style="
+                                        padding:0 7px;
+                                    "
+                                >
                                     <a
                                         href="{{InstagramUrl}}"
                                         target="_blank"
-                                        style="text-decoration:none;"
+                                        style="
+                                            text-decoration:none;
+                                        "
                                     >
-                                        <img
-                                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/instagram.svg"
-                                            width="34"
-                                            height="34"
-                                            alt="Instagram"
-                                            class="social-icon"
+
+                                        <table
+                                            role="presentation"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            border="0"
+                                            width="38"
+                                            height="38"
                                             style="
-                                                display:block;
-                                                width:34px;
-                                                height:34px;
-                                                border:0;
+                                                width:38px;
+                                                height:38px;
+                                                background:#D72A7A;
+                                                border-radius:50%;
                                             "
                                         >
+                                            <tr>
+                                                <td
+                                                    align="center"
+                                                    valign="middle"
+                                                >
+
+                                                    <img
+                                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/instagram.svg"
+                                                        width="20"
+                                                        height="20"
+                                                        alt="Instagram"
+                                                        style="
+                                                            display:block;
+                                                            width:20px;
+                                                            height:20px;
+                                                            border:0;
+                                                            filter:brightness(0) invert(1);
+                                                        "
+                                                    >
+
+                                                </td>
+                                            </tr>
+                                        </table>
+
                                     </a>
                                 </td>
 
-                                <td style="padding:0 7px;">
+                                <!-- YouTube -->
+                                <td
+                                    style="
+                                        padding:0 7px;
+                                    "
+                                >
                                     <a
                                         href="{{YoutubeUrl}}"
                                         target="_blank"
-                                        style="text-decoration:none;"
+                                        style="
+                                            text-decoration:none;
+                                        "
                                     >
-                                        <img
-                                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/youtube.svg"
-                                            width="34"
-                                            height="34"
-                                            alt="YouTube"
-                                            class="social-icon"
+
+                                        <table
+                                            role="presentation"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            border="0"
+                                            width="38"
+                                            height="38"
                                             style="
-                                                display:block;
-                                                width:34px;
-                                                height:34px;
-                                                border:0;
+                                                width:38px;
+                                                height:38px;
+                                                background:#D72A7A;
+                                                border-radius:50%;
                                             "
                                         >
+                                            <tr>
+                                                <td
+                                                    align="center"
+                                                    valign="middle"
+                                                >
+
+                                                    <img
+                                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/youtube.svg"
+                                                        width="20"
+                                                        height="20"
+                                                        alt="YouTube"
+                                                        style="
+                                                            display:block;
+                                                            width:20px;
+                                                            height:20px;
+                                                            border:0;
+                                                            filter:brightness(0) invert(1);
+                                                        "
+                                                    >
+
+                                                </td>
+                                            </tr>
+                                        </table>
+
                                     </a>
                                 </td>
 
@@ -2071,6 +2303,7 @@
                                         line-height:19px;
                                     "
                                 >
+
                                     <img
                                         src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/lock.svg"
                                         width="15"
@@ -2086,7 +2319,10 @@
                                             border:0;
                                         "
                                     >
-                                    Never share your password or verification codes.
+
+                                    Never share your password or
+                                    verification codes.
+
                                 </td>
                             </tr>
                         </table>
@@ -2119,7 +2355,8 @@
                                 line-height:17px;
                             "
                         >
-                            &copy; {{CurrentYear}} BookMyLawns. All rights reserved.
+                            &copy; {{CurrentYear}} BookMyLawns.
+                            All rights reserved.
                         </p>
 
                     </td>
