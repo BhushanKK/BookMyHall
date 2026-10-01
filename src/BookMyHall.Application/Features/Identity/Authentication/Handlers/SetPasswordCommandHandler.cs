@@ -1,14 +1,14 @@
 using System.Net;
-using FluentValidation;
 using MediatR;
-using BookMyHall.Application.Abstractions.Caching;
-using BookMyHall.Application.Abstractions.Persistence;
-using BookMyHall.Application.Abstractions.Persistence.Repositories;
-using BookMyHall.Application.Abstractions.Security;
+using FluentValidation;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Features.Identity.Authentication;
+using BookMyHall.Application.Abstractions.Caching;
+using BookMyHall.Application.Abstractions.Persistence;
+using BookMyHall.Application.Abstractions.Persistence.Repositories;
+using BookMyHall.Application.Abstractions.Security;
 
 namespace BookMyHall.Application.Features.Authentication.Commands.SetPassword;
 
@@ -25,10 +25,6 @@ public sealed class SetPasswordCommandHandler(
         SetPasswordCommand request,
         CancellationToken cancellationToken)
     {
-        // ------------------------------------------------------------
-        // 1. Validate request
-        // ------------------------------------------------------------
-
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
@@ -39,10 +35,6 @@ public sealed class SetPasswordCommandHandler(
                 HttpStatusCode.BadRequest
             );
         }
-
-        // ------------------------------------------------------------
-        // 2. Get user
-        // ------------------------------------------------------------
 
         var user = await userRepository.GetByIdAsync(request.UserId, cancellationToken);
 
@@ -55,10 +47,6 @@ public sealed class SetPasswordCommandHandler(
             );
         }
 
-        // ------------------------------------------------------------
-        // 3. User must have verified email
-        // ------------------------------------------------------------
-
         if (!user.IsEmailVerified)
         {
             return ApiResponse<SetPasswordResponse>.FailureResponse
@@ -67,10 +55,6 @@ public sealed class SetPasswordCommandHandler(
                 HttpStatusCode.BadRequest
             );
         }
-
-        // ------------------------------------------------------------
-        // 4. User must be active
-        // ------------------------------------------------------------
 
         if (!user.IsActive)
         {
@@ -81,10 +65,6 @@ public sealed class SetPasswordCommandHandler(
             );
         }
 
-        // ------------------------------------------------------------
-        // 5. Password must not already be configured
-        // ------------------------------------------------------------
-
         if (!string.IsNullOrWhiteSpace(user.PasswordHash))
         {
             return ApiResponse<SetPasswordResponse>.FailureResponse
@@ -94,39 +74,17 @@ public sealed class SetPasswordCommandHandler(
             );
         }
 
-        // ------------------------------------------------------------
-        // 6. Hash password
-        // ------------------------------------------------------------
-
         var passwordHash = passwordHasher.HashPassword(request.NewPassword);
 
-        // ------------------------------------------------------------
-        // 7. Update password
-        // ------------------------------------------------------------
-
         user.UpdatePassword(passwordHash);
-
         var now = DateTimeOffset.UtcNow;
-
         user.UpdatedBy = user.UserId;
         user.UpdatedDate = now;
-
-        // ------------------------------------------------------------
-        // 8. Save user
-        // ------------------------------------------------------------
 
         await userRepository.UpdateAsync(user, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // ------------------------------------------------------------
-        // 10. Clear user cache
-        // ------------------------------------------------------------
-
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.UsersPaged}:", cancellationToken);
-
-        // ------------------------------------------------------------
-        // 11. Response
-        // ------------------------------------------------------------
 
         var response = new SetPasswordResponse
         {

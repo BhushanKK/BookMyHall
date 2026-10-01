@@ -168,13 +168,9 @@ ILogger<EmailVerificationConsumer> logger)
             var placeholders = new Dictionary<string, string>
             {
                 ["UserName"] = message.FullName,
-
                 ["VerificationLink"] = verificationUrl,
-
                 ["ExpiryMinutes"] = message.ExpiryMinutes.ToString(),
-
                 ["WebsiteUrl"] = baseUrl,
-
                 ["CurrentYear"] = DateTime.UtcNow.Year.ToString()
             };
 

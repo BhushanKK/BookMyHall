@@ -25,22 +25,13 @@ public sealed class ResetPasswordCommandHandler(
         ResetPasswordCommand request,
         CancellationToken cancellationToken)
     {
-        // 1. Find user by UserId from reset URL
-        var user = await userRepository.GetByIdAsync(
-            request.UserId,
-            cancellationToken);
+        var user = await userRepository.GetByIdAsync(request.UserId, cancellationToken);
 
         if (user is null)
-        {
-            return ApiResponse<ResetPasswordResponse>.FailureResponse(
-                "Invalid or expired password reset link.",
-                HttpStatusCode.BadRequest);
-        }
+            return ApiResponse<ResetPasswordResponse>.FailureResponse("Invalid or expired password reset link.", HttpStatusCode.BadRequest);
 
-        // 2. Hash the token received from the reset URL
         var tokenHash = tokenHasher.Hash(request.Token);
 
-        // 3. Find active reset token
         var resetToken = await passwordResetTokenRepository.GetActiveTokenAsync(
             user.UserId,
             tokenHash,
