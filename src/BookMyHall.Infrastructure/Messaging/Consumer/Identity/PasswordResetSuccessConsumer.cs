@@ -4,7 +4,6 @@ using BookMyHall.Application.Abstractions.Email;
 using BookMyHall.Contracts.Messaging;
 using BookMyHall.Infrastructure.Configuration;
 using BookMyHall.Infrastructure.Options;
-using BookMyHall.Shared.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -15,32 +14,20 @@ using RabbitMQ.Client.Events;
 namespace BookMyHall.Infrastructure.Messaging.Consumers;
 
 public sealed class PasswordResetSuccessConsumer(
-    IOptions<RabbitMqOptions> rabbitMqOptions,
-    IOptions<FrontendOptions> frontendOptions,
-    IOptions<EmailOptions> emailOptions,
-    IServiceScopeFactory serviceScopeFactory,
-    IHostEnvironment hostEnvironment,
-    ILogger<PasswordResetSuccessConsumer> logger)
-    : BackgroundService
+IOptions<RabbitMqOptions> rabbitMqOptions,
+IOptions<FrontendOptions> frontendOptions,
+IServiceScopeFactory serviceScopeFactory,
+ILogger<PasswordResetSuccessConsumer> logger)
+: BackgroundService
 {
-    private const string LogoContentId = "bookmyhall-logo";
-    private const int PasswordResetExpiryMinutes = 30;
-
-    private readonly RabbitMqOptions _rabbitMqOptions = rabbitMqOptions.Value;
-    private readonly FrontendOptions _frontendOptions = frontendOptions.Value;
-    private readonly EmailOptions _emailOptions = emailOptions.Value;
-    private readonly IHostEnvironment _hostEnvironment = hostEnvironment;
-
     private const string QueueName = RabbitMqKeys.PasswordResetSuccessQueueName;
     private const string RoutingKey = RabbitMqKeys.PasswordResetSuccessRoutingKey;
-
+    private const int PasswordResetExpiryMinutes = 30;
+    private readonly RabbitMqOptions _rabbitMqOptions = rabbitMqOptions.Value;
+    private readonly FrontendOptions _frontendOptions = frontendOptions.Value;
     private IConnection? _connection;
     private IChannel? _channel;
-
-    protected override async Task ExecuteAsync
-    (
-        CancellationToken stoppingToken
-    )
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try
         {
@@ -53,18 +40,10 @@ public sealed class PasswordResetSuccessConsumer(
                 VirtualHost = _rabbitMqOptions.VirtualHost
             };
 
-            _connection = await factory.CreateConnectionAsync
-            (
-                stoppingToken
-            );
-
+            _connection = await factory.CreateConnectionAsync(stoppingToken);
             logger.LogInformation("RabbitMQ connection created successfully.");
 
-            _channel = await _connection.CreateChannelAsync
-            (
-                cancellationToken: stoppingToken
-            );
-
+            _channel = await _connection.CreateChannelAsync(cancellationToken: stoppingToken);
             logger.LogInformation("RabbitMQ channel created successfully.");
 
             await _channel.ExchangeDeclareAsync
@@ -105,11 +84,7 @@ public sealed class PasswordResetSuccessConsumer(
 
             consumer.ReceivedAsync += async (_, eventArgs) =>
             {
-                await ProcessMessageAsync
-                (
-                    eventArgs,
-                    stoppingToken
-                );
+                await ProcessMessageAsync(eventArgs, stoppingToken);
             };
 
             await _channel.BasicConsumeAsync
@@ -120,41 +95,22 @@ public sealed class PasswordResetSuccessConsumer(
                 cancellationToken: stoppingToken
             );
 
-            logger.LogInformation
-            (
-                "PasswordResetSuccessConsumer started successfully. Queue: {QueueName}, RoutingKey: {RoutingKey}",
-                QueueName,
-                RoutingKey
-            );
+            logger.LogInformation("PasswordResetSuccessConsumer started successfully. Queue: {QueueName}, RoutingKey: {RoutingKey}", QueueName, RoutingKey);
 
-            await Task.Delay
-            (
-                Timeout.Infinite,
-                stoppingToken
-            );
+            await Task.Delay(Timeout.Infinite, stoppingToken);
         }
-        catch (OperationCanceledException)
-            when (stoppingToken.IsCancellationRequested)
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
             logger.LogInformation("PasswordResetSuccessConsumer cancellation requested.");
         }
         catch (Exception exception)
         {
-            logger.LogCritical
-            (
-                exception,
-                "PasswordResetSuccessConsumer stopped unexpectedly."
-            );
-
+            logger.LogCritical(exception, "PasswordResetSuccessConsumer stopped unexpectedly.");
             throw;
         }
     }
 
-    private async Task ProcessMessageAsync
-    (
-        BasicDeliverEventArgs eventArgs,
-        CancellationToken stoppingToken
-    )
+    private async Task ProcessMessageAsync(BasicDeliverEventArgs eventArgs, CancellationToken stoppingToken)
     {
         if (_channel is null)
         {
@@ -164,10 +120,9 @@ public sealed class PasswordResetSuccessConsumer(
 
         try
         {
-            var body = eventArgs.Body.ToArray();
-            var json = Encoding.UTF8.GetString(body);
+            var json = Encoding.UTF8.GetString(eventArgs.Body.ToArray());
 
-            logger.LogDebug("RabbitMQ message received: {Message}", json);
+            logger.LogDebug("RabbitMQ password reset success message received: {Message}", json);
 
             var message = JsonSerializer.Deserialize<PasswordResetSuccessMessage>(json);
 
@@ -186,18 +141,15 @@ public sealed class PasswordResetSuccessConsumer(
                 return;
             }
 
-            logger.LogInformation
-            (
-                "Processing password reset success message. UserId: {UserId}, Email: {Email}",
-                message.UserId,
-                message.EmailAddress
-            );
+            logger.LogInformation("Processing password reset success message. UserId: {UserId}, Email: {Email}", message.UserId, message.EmailAddress);
 
             using var scope = serviceScopeFactory.CreateScope();
 
             var emailTemplateService = scope.ServiceProvider.GetRequiredService<IEmailTemplateService>();
-
             var emailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>();
+
+            if (string.IsNullOrWhiteSpace(_frontendOptions.BaseUrl))
+                throw new InvalidOperationException("Frontend:BaseUrl is not configured.");
 
             var baseUrl = _frontendOptions.BaseUrl.TrimEnd('/');
 
@@ -209,109 +161,33 @@ public sealed class PasswordResetSuccessConsumer(
                 ["CurrentYear"] = DateTime.UtcNow.Year.ToString()
             };
 
-            var relativeLogoPath = _emailOptions.LogoPath
-                .Replace('/', Path.DirectorySeparatorChar)
-                .Replace('\\', Path.DirectorySeparatorChar);
+            logger.LogInformation("Rendering PasswordResetSuccess template for {Email}.", message.EmailAddress);
 
-            var logoPath = Path.Combine
-            (
-                _hostEnvironment.ContentRootPath,
-                relativeLogoPath
-            );
+            var passwordResetSuccessHtml = await emailTemplateService.RenderAsync(EmailTemplateConstants.PasswordResetSuccess, placeholders, stoppingToken);
 
-            logger.LogInformation
-            (
-                "Environment: {Environment}, Frontend BaseUrl: {BaseUrl}",
-                _hostEnvironment.EnvironmentName,
-                baseUrl
-            );
-
-            logger.LogInformation
-            (
-                "Resolved email logo path: {LogoPath}",
-                logoPath
-            );
-
-            if (!File.Exists(logoPath))
-            {
-                logger.LogError("BookMyHall logo was not found at: {LogoPath}", logoPath);
-
-                throw new FileNotFoundException
-                (
-                    "BookMyHall email logo was not found.",
-                    logoPath
-                );
-            }
-
-            var logoAttachment = new EmailAttachment
-            {
-                FilePath = logoPath,
-                ContentId = LogoContentId
-            };
-
-            var inlineAttachments = new[]
-            {
-                logoAttachment
-            };
-
-            logger.LogInformation
-            (
-                "Rendering PasswordResetSuccess.html for {Email}.",
-                message.EmailAddress
-            );
-
-            var passwordResetSuccessHtml = await emailTemplateService.RenderAsync
-            (
-                EmailTemplateConstants.PasswordResetSuccess,
-                placeholders,
-                stoppingToken
-            );
+            if (string.IsNullOrWhiteSpace(passwordResetSuccessHtml))
+                throw new InvalidOperationException("PasswordResetSuccess email template rendered empty.");
 
             var passwordResetSuccessEmail = new EmailMessage
             {
                 To = message.EmailAddress,
-                Subject = "Your BookMyHall password was changed successfully",
-                HtmlBody = passwordResetSuccessHtml,
-                InlineAttachments = inlineAttachments
+                Subject = "Your BookMyLawns password was changed successfully",
+                HtmlBody = passwordResetSuccessHtml
             };
 
-            logger.LogInformation
-            (
-                "Sending password reset success email to {Email}.",
-                message.EmailAddress
-            );
-
-            await emailSender.SendAsync
-            (
-                passwordResetSuccessEmail,
-                stoppingToken
-            );
-
-            logger.LogInformation
-            (
-                "Password reset success email sent successfully to {Email}.",
-                message.EmailAddress
-            );
-
-            await _channel.BasicAckAsync
-            (
-                deliveryTag: eventArgs.DeliveryTag,
-                multiple: false,
-                cancellationToken: stoppingToken
-            );
+            logger.LogInformation("Sending password reset success email to {Email}.", message.EmailAddress);
+            await emailSender.SendAsync(passwordResetSuccessEmail, stoppingToken);
+            logger.LogInformation("Password reset success email sent successfully to {Email}.", message.EmailAddress);
+            await _channel.BasicAckAsync(deliveryTag: eventArgs.DeliveryTag, multiple: false, cancellationToken: stoppingToken);
+            logger.LogInformation("Password reset success message acknowledged. UserId: {UserId}", message.UserId);
         }
-        catch (OperationCanceledException)
-            when (stoppingToken.IsCancellationRequested)
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
             logger.LogInformation("Password reset success email processing cancelled.");
         }
         catch (Exception exception)
         {
-            logger.LogError
-            (
-                exception,
-                "Failed to process password reset success email message."
-            );
+            logger.LogError(exception, "Failed to process password reset success email message.");
 
             if (_channel is not null && !stoppingToken.IsCancellationRequested)
             {
@@ -325,27 +201,17 @@ public sealed class PasswordResetSuccessConsumer(
                         cancellationToken: stoppingToken
                     );
 
-                    logger.LogWarning
-                    (
-                        "RabbitMQ password reset success message rejected after processing failure."
-                    );
+                    logger.LogWarning("RabbitMQ password reset success message rejected after processing failure.");
                 }
                 catch (Exception nackException)
                 {
-                    logger.LogError
-                    (
-                        nackException,
-                        "Failed to NACK password reset success message."
-                    );
+                    logger.LogError(nackException, "Failed to NACK password reset success message.");
                 }
             }
         }
     }
 
-    public override async Task StopAsync
-    (
-        CancellationToken cancellationToken
-    )
+    public override async Task StopAsync(CancellationToken cancellationToken)
     {
         logger.LogInformation("Stopping PasswordResetSuccessConsumer.");
 
@@ -357,11 +223,7 @@ public sealed class PasswordResetSuccessConsumer(
             }
             catch (Exception exception)
             {
-                logger.LogWarning
-                (
-                    exception,
-                    "Error while closing RabbitMQ channel."
-                );
+                logger.LogWarning(exception, "Error while closing RabbitMQ channel.");
             }
 
             _channel = null;
@@ -375,11 +237,7 @@ public sealed class PasswordResetSuccessConsumer(
             }
             catch (Exception exception)
             {
-                logger.LogWarning
-                (
-                    exception,
-                    "Error while closing RabbitMQ connection."
-                );
+                logger.LogWarning(exception, "Error while closing RabbitMQ connection.");
             }
 
             _connection = null;

@@ -22,13 +22,13 @@ public sealed class UserRepository(BookMyHallDbContext context) : IUserRepositor
 
     public async Task<User?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        return await context.Users.AsNoTracking()
+        return await context.Users
         .FirstOrDefaultAsync(x => !x.IsDeleted && x.UserId == userId, cancellationToken);
     }
 
     public async Task<UserDto?> GetUserDtoByIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        return await context.Users.AsNoTracking()
+        return await context.Users
             .Where(x => !x.IsDeleted && x.UserId == userId)
             .Select(x => new UserDto
             {
@@ -69,12 +69,12 @@ public sealed class UserRepository(BookMyHallDbContext context) : IUserRepositor
                 ProfileImageUrl = x.ProfileImageUrl,
                 IsEmailVerified = x.IsEmailVerified,
                 Roles = x.UserRoles
-                    .Select(ur => new JwtRole
-                    {
-                        RoleId = ur.Role.RoleId,
-                        RoleName = ur.Role.RoleName
-                    })
-                    .ToList()
+                .Select(ur => new JwtRole
+                {
+                    RoleId = ur.Role.RoleId,
+                    RoleName = ur.Role.RoleName
+                })
+                .ToList()
             })
             .FirstOrDefaultAsync(cancellationToken);
     }
@@ -85,11 +85,8 @@ public sealed class UserRepository(BookMyHallDbContext context) : IUserRepositor
     CancellationToken cancellationToken = default)
     {
         await context.Users
-            .Where(x => x.UserId == userId)
-            .ExecuteUpdateAsync(
-                setters => setters
-                    .SetProperty(x => x.LastLoginAt, loginDate),
-                cancellationToken);
+        .Where(x => x.UserId == userId)
+        .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.LastLoginAt, loginDate), cancellationToken);
     }
 
     public async Task<PaginatedResult<UserDto>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default)
