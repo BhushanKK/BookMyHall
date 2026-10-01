@@ -6,18 +6,19 @@ using BookMyHall.Contracts.Common;
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Domain.Venue;
 
 namespace BookMyHall.Application.Features.Venue;
 
 public sealed class GetVendorPackageItemsQueryHandler(IVendorPackageItemRepository vendorPackageItemRepository,
     IMapper mapper, IMessageHelper messageHelper, ICacheService cacheServiceArea)
-    : IRequestHandler<GetVendorPackageItemsQuery, ApiResponse<PaginatedResponse<VendorPackageItemDto>>>
+    : IRequestHandler<GetVendorPackageItemsQuery, ApiResponse<PaginatedResponse<VendorPackageItem>>>
 {
-    public async Task<ApiResponse<PaginatedResponse<VendorPackageItemDto>>> Handle(GetVendorPackageItemsQuery request,
+    public async Task<ApiResponse<PaginatedResponse<VendorPackageItem>>> Handle(GetVendorPackageItemsQuery request,
         CancellationToken cancellationToken)
     {
         var pagination = request.Pagination;
-        var cacheKey = CacheKeyBuilder.BuildPaginatedKey<VendorPackageItemDto>(
+        var cacheKey = CacheKeyBuilder.BuildPaginatedKey<VendorPackageItem>(
             CacheKeys.VendorPackageItemsPaged,
             pagination.PageNumber,
             pagination.PageSize,
@@ -25,10 +26,10 @@ public sealed class GetVendorPackageItemsQueryHandler(IVendorPackageItemReposito
             pagination.SortBy,
             pagination.SortDescending);
 
-        var cachedResponse = await cacheServiceArea.GetAsync<PaginatedResponse<VendorPackageItemDto>>(cacheKey, cancellationToken);
+        var cachedResponse = await cacheServiceArea.GetAsync<PaginatedResponse<VendorPackageItem>>(cacheKey, cancellationToken);
         if (cachedResponse is not null)
         {
-            return ApiResponse<PaginatedResponse<VendorPackageItemDto>>.SuccessResponse
+            return ApiResponse<PaginatedResponse<VendorPackageItem>>.SuccessResponse
               (
                   cachedResponse,
                   messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.VendorPackageItem),
@@ -37,16 +38,16 @@ public sealed class GetVendorPackageItemsQueryHandler(IVendorPackageItemReposito
         }
         
         var result = await vendorPackageItemRepository.GetAllAsync(pagination,request.VendorPackageId, cancellationToken);
-        var response = new PaginatedResponse<VendorPackageItemDto>
+        var response = new PaginatedResponse<VendorPackageItem>
         {
-            Items = mapper.Map<IReadOnlyList<VendorPackageItemDto>>(result.Items),
+            Items = mapper.Map<IReadOnlyList<VendorPackageItem>>(result.Items),
             PageNumber = result.PageNumber,
             PageSize = result.PageSize,
             TotalRecords = result.TotalCount
         };
         
         await cacheServiceArea.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
-        return ApiResponse<PaginatedResponse<VendorPackageItemDto>>.SuccessResponse(response,
+        return ApiResponse<PaginatedResponse<VendorPackageItem>>.SuccessResponse(response,
             messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.VendorPackageItem), HttpStatusCode.OK);
     }
 }

@@ -9,18 +9,19 @@ using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Domain.Venue;
 
 namespace BookMyHall.Application.Features.Venue;
 
 public sealed class GetVendorSubCategoriesQueryHandler(IVendorSubCategoryRepository vendorSubCategoryRepository,
     IMapper mapper, IMessageHelper messageHelper, ICacheService cacheService)
-    : IRequestHandler<GetVendorSubCategoriesQuery, ApiResponse<PaginatedResponse<VendorSubCategoryDto>>>
+    : IRequestHandler<GetVendorSubCategoriesQuery, ApiResponse<PaginatedResponse<VendorSubCategory>>>
 {
-    public async Task<ApiResponse<PaginatedResponse<VendorSubCategoryDto>>> Handle(GetVendorSubCategoriesQuery request,
+    public async Task<ApiResponse<PaginatedResponse<VendorSubCategory>>> Handle(GetVendorSubCategoriesQuery request,
         CancellationToken cancellationToken)
     {
         var pagination = request.Request;
-        var cacheKey = CacheKeyBuilder.BuildPaginatedKey<VendorSubCategoryDto>(
+        var cacheKey = CacheKeyBuilder.BuildPaginatedKey<VendorSubCategory>(
             CacheKeys.VendorServicesPaged,
             pagination.PageNumber,
             pagination.PageSize,
@@ -28,10 +29,10 @@ public sealed class GetVendorSubCategoriesQueryHandler(IVendorSubCategoryReposit
             pagination.SortBy,
             pagination.SortDescending);
 
-        var cachedResponse = await cacheService.GetAsync<PaginatedResponse<VendorSubCategoryDto>>(cacheKey, cancellationToken);
+        var cachedResponse = await cacheService.GetAsync<PaginatedResponse<VendorSubCategory>>(cacheKey, cancellationToken);
         if (cachedResponse is not null)
         {
-            return ApiResponse<PaginatedResponse<VendorSubCategoryDto>>.SuccessResponse
+            return ApiResponse<PaginatedResponse<VendorSubCategory>>.SuccessResponse
               (
                   cachedResponse,
                   messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.VendorSubCategory),
@@ -39,16 +40,16 @@ public sealed class GetVendorSubCategoriesQueryHandler(IVendorSubCategoryReposit
               );
         }
         var result = await vendorSubCategoryRepository.GetAllAsync(pagination, request.VendorCategoryId, cancellationToken);
-        var response = new PaginatedResponse<VendorSubCategoryDto>
+        var response = new PaginatedResponse<VendorSubCategory>
         {
-            Items = mapper.Map<IReadOnlyList<VendorSubCategoryDto>>(result.Items),
+            Items = mapper.Map<IReadOnlyList<VendorSubCategory>>(result.Items),
             PageNumber = result.PageNumber,
             PageSize = result.PageSize,
             TotalRecords = result.TotalCount
         };
 
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
-        return ApiResponse<PaginatedResponse<VendorSubCategoryDto>>.SuccessResponse(response,
+        return ApiResponse<PaginatedResponse<VendorSubCategory>>.SuccessResponse(response,
             messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.VendorSubCategory), HttpStatusCode.OK);
     }
 }

@@ -1,4 +1,6 @@
 using BookMyHall.Contracts.Common;
+using BookMyHall.Domain.Venue;
+
 using MediatR;
 namespace BookMyHall.Application.Features.Venue;
-public sealed record GetVendorCategoriesQuery(PaginationRequest Request): IRequest<ApiResponse<PaginatedResponse<VendorCategoryDto>>>;
+public sealed record GetVendorCategoriesQuery(PaginationRequest Request): IRequest<ApiResponse<PaginatedResponse<VendorCategory>>>;
