@@ -5,11 +5,12 @@ using MimeKit;
 
 using BookMyHall.Application.Abstractions.Email;
 using BookMyHall.Shared.Options;
+using Microsoft.Extensions.Logging;
 
 namespace BookMyHall.Infrastructure.Email;
 
 public sealed class SmtpEmailSender(
-    IOptions<EmailOptions> emailOptions)
+    IOptions<EmailOptions> emailOptions, ILogger<SmtpEmailSender> logger)
     : IEmailSender
 {
     private readonly EmailOptions _options = emailOptions.Value;
@@ -86,10 +87,15 @@ public sealed class SmtpEmailSender(
         using var smtpClient = new SmtpClient();
 
         await smtpClient.ConnectAsync(
-            _options.Host,
-            _options.Port,
-            SecureSocketOptions.StartTls,
-            cancellationToken);
+    _options.Host,
+    _options.Port,
+    SecureSocketOptions.StartTls,
+    cancellationToken);
+
+        logger.LogInformation(
+            $"SMTP User: {_options.UserName}, " +
+            $"Password configured: {!string.IsNullOrWhiteSpace(_options.Password)}, " +
+            $"Password length: {_options.Password.Length}");
 
         await smtpClient.AuthenticateAsync(
             _options.UserName,
