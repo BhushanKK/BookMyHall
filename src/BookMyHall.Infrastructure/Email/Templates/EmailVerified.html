@@ -1,331 +1,101 @@
 <!DOCTYPE html>
-
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="light">
-    <meta name="supported-color-schemes" content="light">
-
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
 <title>Email Verified Successfully</title>
-
+<!--[if mso]>
+<noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
+<style>table,td,div,p,h1,h2,a,span{font-family:Arial,Helvetica,sans-serif !important;}</style>
+<![endif]-->
 <style>
-    html,
-    body {
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
-        background-color: #f3f6fb;
-    }
+  html,body{margin:0 !important;padding:0 !important;width:100% !important;background:#f3f6fb;}
+  body{font-family:"Segoe UI",Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}
+  table,td{mso-table-lspace:0pt;mso-table-rspace:0pt;}
+  table{border-collapse:collapse;border-spacing:0;}
+  img{border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;}
+  a{text-decoration:none;}
+  u + #body a{color:inherit;text-decoration:none;}
 
-    body {
-        font-family: "Segoe UI", Arial, Helvetica, sans-serif;
-        -webkit-text-size-adjust: 100%;
-        -ms-text-size-adjust: 100%;
-    }
-
-    table {
-        border-collapse: collapse;
-        border-spacing: 0;
-    }
-
-    img {
-        border: 0;
-        outline: none;
-        text-decoration: none;
-        display: block;
-        max-width: 100%;
-    }
-
-    a {
-        text-decoration: none;
-    }
-
-    .email-container {
-        width: 680px;
-        max-width: 680px;
-    }
-
-    .content-padding {
-        padding: 35px 48px 10px 48px;
-    }
-
-    .footer-logo-wrapper {
-        display: inline-block;
-        padding: 1px;
-        border-radius: 0;
-        background: linear-gradient(90deg, #5426C7, #D72A7A);
-    }
-
-    .purple-icon {
-        filter: invert(21%) sepia(72%) saturate(3104%) hue-rotate(250deg) brightness(82%) contrast(93%);
-    }
-
-    .white-icon {
-        filter: brightness(0) invert(1);
-    }
-
-    .social-icon {
-        filter: brightness(0) invert(1);
-    }
-
-    @media only screen and (max-width: 680px) {
-        body {
-            background-color: #ffffff !important;
-        }
-
-        .email-container {
-            width: 100% !important;
-            max-width: 100% !important;
-            border-radius: 0 !important;
-        }
-
-        .content-padding {
-            padding: 25px 20px 10px 20px !important;
-        }
-
-        .header-logo {
-            width: 200px !important;
-            max-width: 85% !important;
-        }
-
-        .footer-logo {
-            width: 170px !important;
-            max-width: 85% !important;
-        }
-
-        .hero-title {
-            font-size: 27px !important;
-            line-height: 34px !important;
-        }
-
-        .hero-subtitle {
-            font-size: 15px !important;
-            line-height: 23px !important;
-        }
-
-        .body-title {
-            font-size: 20px !important;
-            line-height: 28px !important;
-        }
-
-        .body-text {
-            font-size: 14px !important;
-            line-height: 22px !important;
-        }
-
-        .cta-button {
-            width: 100% !important;
-        }
-
-        .footer-padding {
-            padding: 25px 20px !important;
-        }
-
-        .social-icon {
-            width: 34px !important;
-            height: 34px !important;
-        }
-    }
+  @media only screen and (max-width:680px){
+    .outer-pad{padding:0 !important;}
+    .email-container{width:100% !important;max-width:100% !important;border-radius:0 !important;}
+    .px,.content-padding{padding-left:20px !important;padding-right:20px !important;}
+    .footer-padding{padding:25px 20px !important;}
+    .social-icon{width:34px !important;height:34px !important;}
+    .header-logo{width:180px !important;}
+    .footer-logo{width:160px !important;}
+    .hero{padding:32px 20px !important;}
+    .hero-title{font-size:26px !important;line-height:33px !important;}
+    .hero-subtitle{font-size:15px !important;line-height:23px !important;}
+    .body-title{font-size:19px !important;line-height:26px !important;}
+    .body-text{font-size:14px !important;line-height:22px !important;}
+    .col{max-width:100% !important;}
+    .cta-button{display:block !important;padding:15px 20px !important;}
+    .cta-wrap{width:100% !important;}
+    .box-pad{padding:20px 16px !important;}
+  }
 </style>
-
-
 </head>
 
-<body>
-
+<body id="body" style="margin:0;padding:0;background:#f3f6fb;">
 
 <!-- Preheader -->
-<div style="
-    display:none;
-    max-height:0;
-    overflow:hidden;
-    opacity:0;
-    color:transparent;
-    font-size:1px;
-    line-height:1px;
-">
-    Your BookMyLawns email address has been successfully verified.
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;mso-hide:all;">
+  Your BookMyLawns email address has been successfully verified.
+  &#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;
 </div>
 
-<table
-    width="100%"
-    cellpadding="0"
-    cellspacing="0"
-    border="0"
-    bgcolor="#f3f6fb"
-    style="width:100%;background-color:#f3f6fb;"
->
-    <tr>
-        <td
-            align="center"
-            style="padding:30px 10px;"
-        >
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f6fb" style="width:100%;background:#f3f6fb;">
+<tr><td align="center" class="outer-pad" style="padding:30px 10px;">
 
-            <!-- Main Container -->
-            <table
-                class="email-container"
-                width="680"
-                cellpadding="0"
-                cellspacing="0"
-                border="0"
-                bgcolor="#ffffff"
-                style="
-                    width:680px;
-                    max-width:680px;
-                    background:#ffffff;
-                    border-radius:18px;
-                    overflow:hidden;
-                    box-shadow:0 8px 30px rgba(36,18,77,0.10);
-                "
-            >
+<!--[if mso]><table role="presentation" width="680" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="email-container" bgcolor="#ffffff"
+       style="width:100%;max-width:680px;background:#ffffff;border-radius:18px;overflow:hidden;">
 
-                <!-- Top Gradient Border -->
-                <tr>
-                    <td
-                        height="7"
-                        style="
-                            height:7px;
-                            line-height:7px;
-                            font-size:0;
-                            background:linear-gradient(90deg,#5426C7,#D72A7A);
-                        "
-                    >
-                        &nbsp;
-                    </td>
-                </tr>
-
-                <!-- Header -->
-                <tr>
-                    <td
-                        align="center"
-                        bgcolor="#ffffff"
-                        style="
-                            background:#ffffff;
-                            padding:24px 20px 20px 20px;
-                        "
-                    >
-
-                        <img
-                            class="header-logo"
-                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/light%20theme/BookMyLawns_Light_1920x1080.png"
-                            alt="BookMyLawns"
-                            width="210"
-                            style="
-                                width:210px;
-                                max-width:85%;
-                                height:auto;
-                                margin:0 auto;
-                            "
-                        >
-
-                        <div style="
-                            margin-top:10px;
-                            font-size:12px;
-                            line-height:18px;
-                            letter-spacing:2px;
-                            font-weight:700;
-                            color:#5426C7;
-                        ">
-                            FIND • COMPARE • BOOK
-                        </div>
-
-                    </td>
-                </tr>
-
-                <!-- Hero -->
-                <tr>
-                    <td
-                        align="center"
-                        bgcolor="#5426C7"
-                        style="
-                            background:#5426C7;
-                            padding:35px 25px 34px 25px;
-                        "
-                    >
-
-                        <!-- Success Icon -->
-                        <table
-                            width="56"
-                            height="56"
-                            cellpadding="0"
-                            cellspacing="0"
-                            border="0"
-                            align="center"
-                            style="
-                                width:56px;
-                                height:56px;
-                                margin:0 auto;
-                            "
-                        >
-                            <tr>
-                                <td
-                                    width="56"
-                                    height="56"
-                                    align="center"
-                                    valign="middle"
-                                    bgcolor="#ffffff"
-                                    style="
-                                        width:56px;
-                                        height:56px;
-                                        background:#ffffff;
-                                        border-radius:50%;
-                                    "
-                                >
-                                    <img
-                                        class="purple-icon"
-                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/check-circle.svg"
-                                        alt="Verified"
-                                        width="30"
-                                        height="30"
-                                        style="
-                                            width:30px;
-                                            height:30px;
-                                            margin:0 auto;
-                                        "
-                                    >
-                                </td>
-                            </tr>
-                        </table>
-
-                        <div
-                            class="hero-title"
-                            style="
-                                margin-top:18px;
-                                font-size:30px;
-                                line-height:38px;
-                                font-weight:700;
-                                color:#ffffff;
-                            "
-                        >
-                            Email Verified Successfully
-                        </div>
-
-                        <div
-                            class="hero-subtitle"
-                            style="
-                                margin-top:8px;
-                                font-size:16px;
-                                line-height:25px;
-                                color:#f4efff;
-                            "
-                        >
-                            Your BookMyLawns email address has been successfully verified.
-                        </div>
-
-                    </td>
-                </tr>
-
-                <!-- Body -->
-                <tr>
+  <!-- Top gradient -->
+  <tr>
+    <td height="7" bgcolor="#5426C7" style="height:7px;background:#5426C7;background:linear-gradient(90deg,#5426C7 0%,#D72A7A 100%);font-size:0;line-height:0;">&nbsp;</td>
+  </tr>
+<tr>
+    <td align="center" style="padding:28px 20px 25px;background:#ffffff;">
+      <img class="header-logo" src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/light%20theme/BookMyLawns_Light_1920x1080.png"
+           alt="BookMyLawns" width="210" style="display:block;width:210px;max-width:100%;height:auto;margin:0 auto;">
+      <p style="margin:9px 0 0;font-size:13px;line-height:20px;color:#777777;">
+        <strong style="color:#5426C7;">FIND</strong> <span style="color:#aaaaaa;">&bull;</span>
+        <strong style="color:#D72A7A;">COMPARE</strong> <span style="color:#aaaaaa;">&bull;</span>
+        <strong style="color:#5426C7;">BOOK</strong>
+      </p>
+    </td>
+  </tr>
+<tr>
+    <td align="center" class="hero" bgcolor="#5426C7" style="background:#5426C7;padding:42px 30px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center">
+        <tr>
+          <td align="center" valign="middle" width="56" height="56" bgcolor="#ffffff" style="width:56px;height:56px;background:#ffffff;border-radius:50%;">
+            <img src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/check-circle-purple.png" width="34" height="34" alt="Verified" style="display:block;width:34px;height:34px;margin:0 auto;">
+          </td>
+        </tr>
+      </table>
+      <h1 class="hero-title" style="margin:20px 0 10px;color:#ffffff;font-size:31px;line-height:40px;font-weight:700;">Email Verified Successfully</h1>
+      <p class="hero-subtitle" style="margin:0 auto;max-width:530px;color:#eee8ff;font-size:16px;line-height:25px;">
+        Your BookMyLawns email address has been successfully verified.
+      </p>
+    </td>
+  </tr>
+<tr>
                     <td
                         class="content-padding"
                         style="
                             padding:35px 48px 10px 48px;
                             background:#ffffff;
                         "
-                    >
+                     bgcolor="#ffffff">
 
                         <!-- Greeting -->
                         <div
@@ -366,7 +136,7 @@
                                 background:#faf8ff;
                                 border-radius:12px;
                             "
-                        >
+                         bgcolor="#faf8ff">
                             <tr>
                                 <td style="padding:20px;">
 
@@ -384,8 +154,8 @@
                                                 style="width:42px;"
                                             >
                                                 <img
-                                                    class="purple-icon"
-                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/celebration.svg"
+                                                    
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/celebration-purple.png"
                                                     alt="Success"
                                                     width="28"
                                                     height="28"
@@ -458,8 +228,8 @@
                                     style="width:38px;"
                                 >
                                     <img
-                                        class="purple-icon"
-                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/location-city.svg"
+                                        
+                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/location-city-purple.png"
                                         alt="Venues"
                                         width="24"
                                         height="24"
@@ -513,8 +283,8 @@
                                     style="width:38px;"
                                 >
                                     <img
-                                        class="purple-icon"
-                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/search.svg"
+                                        
+                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/search-purple.png"
                                         alt="Compare"
                                         width="24"
                                         height="24"
@@ -568,8 +338,8 @@
                                     style="width:38px;"
                                 >
                                     <img
-                                        class="purple-icon"
-                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/calendar.svg"
+                                        
+                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/calendar-purple.png"
                                         alt="Booking"
                                         width="24"
                                         height="24"
@@ -608,83 +378,19 @@
                         </table>
 
                         <!-- Login CTA -->
-                        <table
-                            cellpadding="0"
-                            cellspacing="0"
-                            border="0"
-                            align="center"
-                            style="margin:30px auto 0 auto;"
-                        >
-                            <tr>
-                                <td
-                                    align="center"
-                                    bgcolor="#5426C7"
-                                    style="
-                                        background:#5426C7;
-                                        border-radius:8px;
-                                    "
-                                >
-
-                                    <a
-                                        href="{{LoginLink}}"
-                                        target="_blank"
-                                        class="cta-button"
-                                        style="
-                                            display:inline-block;
-                                            padding:14px 26px;
-                                            font-size:15px;
-                                            line-height:20px;
-                                            font-weight:700;
-                                            color:#ffffff;
-                                            text-decoration:none;
-                                            border-radius:8px;
-                                        "
-                                    >
-
-                                        <table
-                                            cellpadding="0"
-                                            cellspacing="0"
-                                            border="0"
-                                            align="center"
-                                        >
-                                            <tr>
-
-                                                <td
-                                                    valign="middle"
-                                                    style="padding-right:8px;"
-                                                >
-                                                    <img
-                                                        class="white-icon"
-                                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/check-circle.svg"
-                                                        alt=""
-                                                        width="20"
-                                                        height="20"
-                                                        style="
-                                                            width:20px;
-                                                            height:20px;
-                                                        "
-                                                    >
-                                                </td>
-
-                                                <td
-                                                    valign="middle"
-                                                    style="
-                                                        color:#ffffff;
-                                                        font-size:15px;
-                                                        font-weight:700;
-                                                    "
-                                                >
-                                                    Login to BookMyLawns
-                                                </td>
-
-                                            </tr>
-                                        </table>
-
-                                    </a>
-
-                                </td>
-                            </tr>
-                        </table>
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" class="cta-wrap">
+  <tr>
+    <td align="center" bgcolor="#5426C7" style="background:#5426C7;border-radius:10px;">
+      <!--[if mso]>
+      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{LoginLink}}" style="height:50px;v-text-anchor:middle;width:290px;" arcsize="20%" stroke="f" fillcolor="#5426C7">
+      <w:anchorlock/><center style="color:#ffffff;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;">Login to BookMyLawns</center></v:roundrect>
+      <![endif]-->
+      <!--[if !mso]><!-->
+      <a href="{{LoginLink}}" target="_blank" class="cta-button" style="display:inline-block;padding:15px 34px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;line-height:20px;border-radius:10px;"><img src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/check-circle-white.png" width="20" height="20" alt="" style="display:inline-block;width:20px;height:20px;vertical-align:middle;margin-right:8px;border:0;">Login to BookMyLawns</a>
+      <!--<![endif]-->
+    </td>
+  </tr>
+</table>
 
                         <!-- Security Notice -->
                         <table
@@ -699,7 +405,7 @@
                                 border:1px solid #d9e9ff;
                                 border-radius:12px;
                             "
-                        >
+                         bgcolor="#f1f7ff">
                             <tr>
                                 <td style="padding:18px;">
 
@@ -717,8 +423,8 @@
                                                 style="width:34px;"
                                             >
                                                 <img
-                                                    class="purple-icon"
-                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/lock.svg"
+                                                    
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/lock-blue.png"
                                                     alt="Security"
                                                     width="24"
                                                     height="24"
@@ -775,7 +481,7 @@
                                 border:1px solid #f6dfb9;
                                 border-radius:12px;
                             "
-                        >
+                         bgcolor="#fff8ed">
                             <tr>
                                 <td style="padding:18px;">
 
@@ -793,8 +499,8 @@
                                                 style="width:34px;"
                                             >
                                                 <img
-                                                    class="purple-icon"
-                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/notifications.svg"
+                                                    
+                                                    src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/notifications-orange.png"
                                                     alt="Notice"
                                                     width="24"
                                                     height="24"
@@ -855,8 +561,8 @@
                                     style="width:38px;"
                                 >
                                     <img
-                                        class="purple-icon"
-                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/mail.svg"
+                                        
+                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/mail-purple.png"
                                         alt="Support"
                                         width="24"
                                         height="24"
@@ -946,8 +652,8 @@
                                 >
 
                                     <img
-                                        class="purple-icon"
-                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/favorite.svg"
+                                        
+                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/favorite-purple.png"
                                         alt="Thank You"
                                         width="26"
                                         height="26"
@@ -985,425 +691,115 @@
 
                     </td>
                 </tr>
+<tr>
+    <td align="center" class="px" bgcolor="#24124D" style="background:#24124D;padding:38px 30px 32px;">
 
-                <!-- Footer -->
-                <tr>
-                    <td
-                        class="footer-padding"
-                        bgcolor="#24124D"
-                        style="
-                            background:#24124D;
-                            padding:30px 30px;
-                        "
-                    >
-
-                        <!-- Footer Logo -->
-                        <div
-                            align="center"
-                            style="
-                                text-align:center;
-                            "
-                        >
-
-                            <div
-                                class="footer-logo-wrapper"
-                                style="
-                                    display:inline-block;
-                                    padding:1px;
-                                    border-radius:0;
-                                    background:linear-gradient(90deg,#5426C7,#D72A7A);
-                                "
-                            >
-                                <table
-                                    cellpadding="0"
-                                    cellspacing="0"
-                                    border="0"
-                                    bgcolor="#ffffff"
-                                    style="
-                                        background:#ffffff;
-                                        border-radius:0;
-                                    "
-                                >
-                                    <tr>
-                                        <td
-                                            align="center"
-                                            style="
-                                                background:#ffffff;
-                                                border-radius:0;
-                                            "
-                                        >
-                                            <img
-                                                class="footer-logo"
-                                                src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/dark%20theme/BookMyLawns_Dark_1920x1080.png"
-                                                alt="BookMyLawns"
-                                                width="175"
-                                                style="
-                                                    height:auto;
-                                                    margin:0 auto;
-                                                "
-                                            >
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                        </div>
-
-                        <!-- Footer Brand -->
-                        <div
-                            align="center"
-                            style="
-                                margin-top:16px;
-                                text-align:center;
-                            "
-                        >
-
-                            <div style="
-                                font-size:20px;
-                                line-height:27px;
-                                font-weight:700;
-                                color:#ffffff;
-                            ">
-                                BookMyLawns
-                            </div>
-
-                            <div style="
-                                margin-top:5px;
-                                font-size:11px;
-                                line-height:18px;
-                                letter-spacing:2px;
-                                font-weight:700;
-                                color:#d8ccf8;
-                            ">
-                                FIND • COMPARE • BOOK
-                            </div>
-
-                            <div style="
-                                margin-top:8px;
-                                font-size:13px;
-                                line-height:20px;
-                                color:#d4cce7;
-                            ">
-                                India's Smart Lawn &amp; Event Venue Booking Platform
-                            </div>
-
-                        </div>
-
-                        <!-- Divider -->
-                        <table
-                            width="100%"
-                            cellpadding="0"
-                            cellspacing="0"
-                            border="0"
-                            style="margin-top:22px;"
-                        >
-                            <tr>
-                                <td
-                                    height="1"
-                                    style="
-                                        height:1px;
-                                        background:#4c3977;
-                                        font-size:0;
-                                        line-height:0;
-                                    "
-                                >
-                                    &nbsp;
-                                </td>
-                            </tr>
-                        </table>
-
-                        <!-- Contact -->
-                        <table
-                            width="100%"
-                            cellpadding="0"
-                            cellspacing="0"
-                            border="0"
-                            style="margin-top:20px;"
-                        >
-
-                            <!-- Email -->
-                            <tr>
-
-                                <td
-                                    width="34"
-                                    valign="middle"
-                                    style="width:34px;"
-                                >
-                                    <img
-                                        class="white-icon"
-                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/mail.svg"
-                                        alt="Email"
-                                        width="21"
-                                        height="21"
-                                        style="
-                                            width:21px;
-                                            height:21px;
-                                        "
-                                    >
-                                </td>
-
-                                <td
-                                    valign="middle"
-                                    style="
-                                        padding-left:8px;
-                                        font-size:13px;
-                                        line-height:20px;
-                                        color:#ddd6ee;
-                                    "
-                                >
-                                    <a
-                                        href="mailto:support@bookmylawns.in"
-                                        style="
-                                            color:#ddd6ee;
-                                            text-decoration:none;
-                                        "
-                                    >
-                                        support@bookmylawns.in
-                                    </a>
-                                </td>
-
-                            </tr>
-
-                            <!-- Website -->
-                            <tr>
-
-                                <td
-                                    width="34"
-                                    valign="middle"
-                                    style="
-                                        width:34px;
-                                        padding-top:10px;
-                                    "
-                                >
-                                    <img
-                                        class="white-icon"
-                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/language.svg"
-                                        alt="Website"
-                                        width="21"
-                                        height="21"
-                                        style="
-                                            width:21px;
-                                            height:21px;
-                                        "
-                                    >
-                                </td>
-
-                                <td
-                                    valign="middle"
-                                    style="
-                                        padding-left:8px;
-                                        padding-top:10px;
-                                        font-size:13px;
-                                        line-height:20px;
-                                    "
-                                >
-                                    <a
-                                        href="https://bookmylawns.in"
-                                        target="_blank"
-                                        style="
-                                            color:#ddd6ee;
-                                            text-decoration:none;
-                                        "
-                                    >
-                                        bookmylawns.in
-                                    </a>
-                                </td>
-
-                            </tr>
-
-                            <!-- Location -->
-                            <tr>
-
-                                <td
-                                    width="34"
-                                    valign="top"
-                                    style="
-                                        width:34px;
-                                        padding-top:10px;
-                                    "
-                                >
-                                    <img
-                                        class="white-icon"
-                                        src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/location.svg"
-                                        alt="Location"
-                                        width="21"
-                                        height="21"
-                                        style="
-                                            width:21px;
-                                            height:21px;
-                                        "
-                                    >
-                                </td>
-
-                                <td
-                                    valign="top"
-                                    style="
-                                        padding-left:8px;
-                                        padding-top:10px;
-                                        font-size:13px;
-                                        line-height:20px;
-                                        color:#ddd6ee;
-                                    "
-                                >
-                                    Gangapur Road, Nashik 01,<br>
-                                    Maharashtra, India
-                                </td>
-
-                            </tr>
-
-                        </table>
-
-                        <!-- Social Icons -->
-                        <table
-                            cellpadding="0"
-                            cellspacing="0"
-                            border="0"
-                            align="center"
-                            style="
-                                margin:22px auto 0 auto;
-                            "
-                        >
-                            <tr>
-
-                                <!-- Facebook -->
-                                <td
-                                    align="center"
-                                    style="padding:0 6px;"
-                                >
-                                    <a
-                                        href="{{FacebookUrl}}"
-                                        target="_blank"
-                                    >
-                                        <img
-                                            class="social-icon"
-                                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/facebook.svg"
-                                            alt="Facebook"
-                                            width="34"
-                                            height="34"
-                                            style="
-                                                width:34px;
-                                                height:34px;
-                                            "
-                                        >
-                                    </a>
-                                </td>
-
-                                <!-- Instagram -->
-                                <td
-                                    align="center"
-                                    style="padding:0 6px;"
-                                >
-                                    <a
-                                        href="{{InstagramUrl}}"
-                                        target="_blank"
-                                    >
-                                        <img
-                                            class="social-icon"
-                                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/instagram.svg"
-                                            alt="Instagram"
-                                            width="34"
-                                            height="34"
-                                            style="
-                                                width:34px;
-                                                height:34px;
-                                            "
-                                        >
-                                    </a>
-                                </td>
-
-                                <!-- YouTube -->
-                                <td
-                                    align="center"
-                                    style="padding:0 6px;"
-                                >
-                                    <a
-                                        href="{{YoutubeUrl}}"
-                                        target="_blank"
-                                    >
-                                        <img
-                                            class="social-icon"
-                                            src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/youtube.svg"
-                                            alt="YouTube"
-                                            width="34"
-                                            height="34"
-                                            style="
-                                                width:34px;
-                                                height:34px;
-                                            "
-                                        >
-                                    </a>
-                                </td>
-
-                            </tr>
-                        </table>
-
-                        <!-- Company -->
-                        <div
-                            align="center"
-                            style="
-                                margin-top:22px;
-                                text-align:center;
-                            "
-                        >
-
-                            <div style="
-                                font-size:13px;
-                                line-height:20px;
-                                font-weight:700;
-                                color:#ffffff;
-                            ">
-                                Shriyash Computer And IT Solutions
-                            </div>
-
-                            <div style="
-                                margin-top:4px;
-                                font-size:12px;
-                                line-height:19px;
-                                color:#bfb4d8;
-                            ">
-                                Gangapur Road, Nashik 01, Maharashtra, India
-                            </div>
-
-                        </div>
-
-                        <!-- Disclaimer -->
-                        <div
-                            align="center"
-                            style="
-                                margin-top:18px;
-                                text-align:center;
-                                font-size:11px;
-                                line-height:18px;
-                                color:#9e91bb;
-                            "
-                        >
-                            This is an automated email from BookMyLawns.
-                            Please do not reply directly to this message.
-                        </div>
-
-                        <!-- Copyright -->
-                        <div
-                            align="center"
-                            style="
-                                margin-top:12px;
-                                text-align:center;
-                                font-size:11px;
-                                line-height:18px;
-                                color:#9e91bb;
-                            "
-                        >
-                            © {{CurrentYear}} BookMyLawns. All rights reserved.
-                        </div>
-
-                    </td>
-                </tr>
-
+      <!-- Logo with 2px gradient border -->
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center">
+        <tr>
+          <td align="center" bgcolor="#D72A7A" style="padding:2px;background:#D72A7A;background:linear-gradient(90deg,#5426C7 0%,#D72A7A 100%);line-height:0;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="background:#ffffff;">
+              <tr>
+                <td align="center" bgcolor="#ffffff" style="padding:0;background:#ffffff;line-height:0;">
+                  <img class="footer-logo" src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/dark%20theme/BookMyLawns_Dark_1920x1080.png"
+                       alt="BookMyLawns" width="175" style="display:block;width:175px;max-width:100%;height:auto;margin:0;padding:0;">
+                </td>
+              </tr>
             </table>
+          </td>
+        </tr>
+      </table>
 
-        </td>
-    </tr>
+      <p style="margin:16px 0 0;color:#D1D5DB;font-size:13px;line-height:22px;">Find &bull; Compare &bull; Book</p>
+      <p style="margin:10px auto 0;max-width:530px;color:#D1D5DB;font-size:13px;line-height:23px;">
+        BookMyLawns makes it easier to discover, compare and plan venues for weddings, celebrations, corporate events and special occasions.
+      </p>
+
+      <!-- Divider -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:28px 0;">
+        <tr><td height="1" bgcolor="#51476b" style="height:1px;background:#51476b;font-size:0;line-height:0;">&nbsp;</td></tr>
+      </table>
+
+      <!-- Contact -->
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center">
+        <tr>
+          <td align="center" style="padding:4px 0;color:#D1D5DB;font-size:13px;line-height:23px;">
+            <img src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/mail-white.png" width="17" height="17" alt="" style="display:inline-block;width:17px;height:17px;vertical-align:middle;margin-right:5px;">
+            <a href="mailto:support@bookmylawns.in" style="color:#D1D5DB;text-decoration:none;">support@bookmylawns.in</a>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:4px 0;color:#D1D5DB;font-size:13px;line-height:23px;">
+            <img src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/language-white.png" width="17" height="17" alt="" style="display:inline-block;width:17px;height:17px;vertical-align:middle;margin-right:5px;">
+            <a href="https://bookmylawns.in" target="_blank" style="color:#D1D5DB;text-decoration:none;">bookmylawns.in</a>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:4px 0;color:#D1D5DB;font-size:13px;line-height:23px;">
+            <img src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/location-white.png" width="17" height="17" alt="" style="display:inline-block;width:17px;height:17px;vertical-align:middle;margin-right:5px;">
+            Gangapur Road, Nashik 01, Maharashtra, India
+          </td>
+        </tr>
+      </table>
+
+      <!-- Social -->
+      <p style="margin:25px 0 12px;color:#D1D5DB;font-size:12px;line-height:20px;">Follow BookMyLawns</p>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center">
+        <tr>
+          <td style="padding:0 7px;">
+            <a href="{{FacebookUrl}}" target="_blank">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+                <td width="38" height="38" align="center" valign="middle" bgcolor="#5426C7" style="width:38px;height:38px;background:#5426C7;border-radius:50%;">
+                  <img src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/facebook-white.png" width="20" height="20" alt="Facebook" style="display:block;width:20px;height:20px;margin:0 auto;">
+                </td>
+              </tr></table>
+            </a>
+          </td>
+          <td style="padding:0 7px;">
+            <a href="{{InstagramUrl}}" target="_blank">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+                <td width="38" height="38" align="center" valign="middle" bgcolor="#D72A7A" style="width:38px;height:38px;background:#D72A7A;border-radius:50%;">
+                  <img src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/instagram-white.png" width="20" height="20" alt="Instagram" style="display:block;width:20px;height:20px;margin:0 auto;">
+                </td>
+              </tr></table>
+            </a>
+          </td>
+          <td style="padding:0 7px;">
+            <a href="{{YoutubeUrl}}" target="_blank">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+                <td width="38" height="38" align="center" valign="middle" bgcolor="#D72A7A" style="width:38px;height:38px;background:#D72A7A;border-radius:50%;">
+                  <img src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/youtube-white.png" width="20" height="20" alt="YouTube" style="display:block;width:20px;height:20px;margin:0 auto;">
+                </td>
+              </tr></table>
+            </a>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Company -->
+      <p style="margin:25px 0 4px;color:#ffffff;font-size:12px;line-height:20px;font-weight:700;">Shriyash Computer And IT Solutions</p>
+      <p style="margin:0;color:#9CA3AF;font-size:11px;line-height:18px;">Gangapur Road, Nashik 01, Maharashtra, India</p>
+
+      <p style="margin:20px auto 0;color:#9CA3AF;font-size:11px;line-height:19px;">
+        <img src="https://pub-59047c9c4004400ba1afebed9c297f2c.r2.dev/logos/icons/lock-gray.png" width="15" height="15" alt="" style="display:inline-block;width:15px;height:15px;vertical-align:middle;margin-right:4px;">
+        Never share your password or verification codes.
+      </p>
+
+      <p style="margin:18px auto 0;max-width:500px;color:#9CA3AF;font-size:11px;line-height:19px;">
+        This is an automated email from <strong style="color:#ffffff;">BookMyLawns</strong>. Please do not reply directly to this email.
+      </p>
+
+      <p style="margin:16px 0 0;padding-top:15px;border-top:1px solid #3a2f5c;color:#8f86a8;font-size:10px;line-height:17px;">
+        &copy; {{CurrentYear}} BookMyLawns. All rights reserved.
+      </p>
+    </td>
+  </tr>
+
 </table>
+<!--[if mso]></td></tr></table><![endif]-->
 
+</td></tr>
+</table>
 
 </body>
 </html>
