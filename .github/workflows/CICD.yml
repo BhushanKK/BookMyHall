@@ -36,6 +36,7 @@ jobs:
           $current = "C:\Websites\BookMyHall\current"
           $appPool = "BookMyLawns"
           $websiteName = "ApiBookMyLawns"
+          $healthUrl = "https://api.bookmylawns.in/health"
 
           $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
           $release = Join-Path $releaseRoot $timestamp
@@ -232,6 +233,80 @@ jobs:
           Write-Host "IIS Website '$websiteName' is running successfully."
 
           Write-Host ""
+          Write-Host "======================================"
+          Write-Host "Waiting for API health check..."
+          Write-Host "======================================"
+
+          $healthCheckPassed = $false
+          $maxAttempts = 12
+
+          for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+
+              Write-Host ""
+              Write-Host "Health check attempt $attempt of $maxAttempts"
+              Write-Host "URL: $healthUrl"
+
+              try {
+
+                  $response = Invoke-WebRequest `
+                    -Uri $healthUrl `
+                    -Method Get `
+                    -UseBasicParsing `
+                    -TimeoutSec 10 `
+                    -ErrorAction Stop
+
+                  Write-Host "HTTP Status Code: $($response.StatusCode)"
+                  Write-Host "Response: $($response.Content)"
+
+                  if ($response.StatusCode -eq 200) {
+                      $healthCheckPassed = $true
+                      break
+                  }
+              }
+              catch {
+
+                  Write-Warning "Health check failed: $($_.Exception.Message)"
+              }
+
+              if ($attempt -lt $maxAttempts) {
+                  Write-Host "API is not ready yet. Waiting 5 seconds..."
+                  Start-Sleep -Seconds 5
+              }
+          }
+
+          if (-not $healthCheckPassed) {
+              Write-Host ""
+              Write-Host "======================================"
+              Write-Host "API HEALTH CHECK FAILED"
+              Write-Host "======================================"
+
+              Write-Host ""
+              Write-Host "The IIS Application Pool is running, but the API did not return HTTP 200."
+
+              Write-Host ""
+              Write-Host "Application Pool:"
+              Write-Host $appPool
+
+              Write-Host ""
+              Write-Host "Website:"
+              Write-Host $websiteName
+
+              Write-Host ""
+              Write-Host "Health URL:"
+              Write-Host $healthUrl
+
+              throw "API health check failed after $maxAttempts attempts."
+          }
+
+          Write-Host ""
+          Write-Host "======================================"
+          Write-Host "API HEALTH CHECK PASSED"
+          Write-Host "======================================"
+
+          Write-Host ""
+          Write-Host "API is healthy and ready."
+
+          Write-Host ""
           Write-Host "Cleaning old releases..."
 
           if (Test-Path $releaseRoot) {
@@ -252,7 +327,6 @@ jobs:
               }
 
               $releasesToKeep = $releases | Select-Object -First 2
-
               $releasesToDelete = $releases | Select-Object -Skip 2
 
               foreach ($oldRelease in $releasesToDelete) {
