@@ -52,7 +52,8 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     {
         new CultureInfo(Languages.English),
         new CultureInfo(Languages.Hindi),
-        new CultureInfo(Languages.Marathi)
+        new CultureInfo(Languages.Marathi),
+        new CultureInfo(Languages.Gujrathi)
     };
 
     options.DefaultRequestCulture = new RequestCulture(Languages.English);
