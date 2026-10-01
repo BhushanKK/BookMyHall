@@ -3,7 +3,6 @@ using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Masters;
 using BookMyHall.Persistence.Context;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
-using BookMyHall.Domain.Venue;
 
 namespace BookMyHall.Persistence.Repositories;
 
