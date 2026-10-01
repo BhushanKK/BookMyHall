@@ -6,20 +6,21 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Domain.Venue;
 
 namespace BookMyHall.Application.Features.Venue;
 
 public sealed class GetVendorAvailabilityByIdQueryHandler(IVendorAvailabilityRepository vendorAvailabilityRepository,
     IMapper mapper,IMessageHelper messageHelper,ICacheService cacheService)
-    : IRequestHandler<GetVendorAvailabilityByIdQuery,ApiResponse<VendorAvailabilityDto>>
+    : IRequestHandler<GetVendorAvailabilityByIdQuery,ApiResponse<VendorAvailability>>
 {
-    public async Task<ApiResponse<VendorAvailabilityDto>> Handle(GetVendorAvailabilityByIdQuery request,CancellationToken cancellationToken)
+    public async Task<ApiResponse<VendorAvailability>> Handle(GetVendorAvailabilityByIdQuery request,CancellationToken cancellationToken)
     {
         var cacheKey =$"{CacheKeys.VendorAvailabilities}:{request.VendorAvailabilityId}";
-        var cachedVendorAvailability =await cacheService.GetAsync<VendorAvailabilityDto>(cacheKey, cancellationToken);
+        var cachedVendorAvailability =await cacheService.GetAsync<VendorAvailability>(cacheKey, cancellationToken);
         if (cachedVendorAvailability is not null)
         {
-            return ApiResponse<VendorAvailabilityDto>.SuccessResponse(cachedVendorAvailability,
+            return ApiResponse<VendorAvailability>.SuccessResponse(cachedVendorAvailability,
                 string.Empty,
                 HttpStatusCode.OK);
         }
@@ -27,13 +28,13 @@ public sealed class GetVendorAvailabilityByIdQueryHandler(IVendorAvailabilityRep
         var vendoravailability =await vendorAvailabilityRepository.GetByIdAsync(request.VendorAvailabilityId,cancellationToken);
         if (vendoravailability is null)
         {
-            return ApiResponse<VendorAvailabilityDto>.FailureResponse(messageHelper.NotFound(
+            return ApiResponse<VendorAvailability>.FailureResponse(messageHelper.NotFound(
                     EntityKeys.VendorAvailability),HttpStatusCode.NotFound);
         }
 
-        var response =mapper.Map<VendorAvailabilityDto>(vendoravailability);
+        var response =mapper.Map<VendorAvailability>(vendoravailability);
         await cacheService.SetAsync(cacheKey,response,TimeSpan.FromMinutes(30),cancellationToken);
-        return ApiResponse<VendorAvailabilityDto>.SuccessResponse
+        return ApiResponse<VendorAvailability>.SuccessResponse
         (response,messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.VendorAvailability),
             HttpStatusCode.OK);
     }

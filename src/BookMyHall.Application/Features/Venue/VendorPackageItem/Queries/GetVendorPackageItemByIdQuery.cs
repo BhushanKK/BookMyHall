@@ -1,4 +1,5 @@
-using BookMyHall.Application.Features.Venue;
 using BookMyHall.Contracts.Common;
+using BookMyHall.Domain.Venue;
+
 using MediatR;
-public sealed record GetVendorPackageItemByIdQuery(Guid VendorPackageItemId): IRequest<ApiResponse<VendorPackageItemDto>>;
+public sealed record GetVendorPackageItemByIdQuery(Guid VendorPackageItemId): IRequest<ApiResponse<VendorPackageItem>>;

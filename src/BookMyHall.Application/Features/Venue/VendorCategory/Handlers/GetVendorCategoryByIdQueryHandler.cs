@@ -6,21 +6,22 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Domain.Venue;
 
 namespace BookMyHall.Application.Features.Venue;
 
 public sealed class GetVendorCategoryByIdQueryHandler(IVendorCategoryRepository vendorCategoryRepository,
     IMapper mapper,IMessageHelper messageHelper,ICacheService cacheService)
-    : IRequestHandler<GetVendorCategoryByIdQuery,ApiResponse<VendorCategoryDto>>
+    : IRequestHandler<GetVendorCategoryByIdQuery,ApiResponse<VendorCategory>>
 {
-    public async Task<ApiResponse<VendorCategoryDto>> Handle(GetVendorCategoryByIdQuery request,
+    public async Task<ApiResponse<VendorCategory>> Handle(GetVendorCategoryByIdQuery request,
         CancellationToken cancellationToken)
     {
         var cacheKey =$"{CacheKeys.VendorCategories}:{request.VendorCategoryId}";
-        var cachedVendorCategory =await cacheService.GetAsync<VendorCategoryDto>(cacheKey,cancellationToken);
+        var cachedVendorCategory =await cacheService.GetAsync<VendorCategory>(cacheKey,cancellationToken);
         if (cachedVendorCategory is not null)
         {
-            return ApiResponse<VendorCategoryDto>.SuccessResponse(cachedVendorCategory,
+            return ApiResponse<VendorCategory>.SuccessResponse(cachedVendorCategory,
                 string.Empty,HttpStatusCode.OK);
         }
 
@@ -28,13 +29,13 @@ public sealed class GetVendorCategoryByIdQueryHandler(IVendorCategoryRepository 
 
         if (vendorcategory is null)
         {
-            return ApiResponse<VendorCategoryDto>.FailureResponse(messageHelper.NotFound(
+            return ApiResponse<VendorCategory>.FailureResponse(messageHelper.NotFound(
                     EntityKeys.VendorCategory),HttpStatusCode.NotFound);
         }
 
-        var response =mapper.Map<VendorCategoryDto>(vendorcategory);
+        var response =mapper.Map<VendorCategory>(vendorcategory);
         await cacheService.SetAsync(cacheKey,response,TimeSpan.FromMinutes(30),cancellationToken);
-         return ApiResponse<VendorCategoryDto>.SuccessResponse
+         return ApiResponse<VendorCategory>.SuccessResponse
         (response,messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.VendorCategory),
             HttpStatusCode.OK
         );

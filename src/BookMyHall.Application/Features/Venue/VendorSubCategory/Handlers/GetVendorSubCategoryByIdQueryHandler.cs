@@ -9,33 +9,34 @@ using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
 using BookMyHall.Application.Abstractions.Caching;
+using BookMyHall.Domain.Venue;
 
 namespace BookMyHall.Application.Features.Venue;
 
 public sealed class GetVendorSubCategoryByIdQueryHandler(IVendorSubCategoryRepository vendorSubCategoryRepository,
     IMapper mapper, IMessageHelper messageHelper, ICacheService cacheService)
-    : IRequestHandler<GetVendorSubCategoryByIdQuery, ApiResponse<VendorSubCategoryDto>>
+    : IRequestHandler<GetVendorSubCategoryByIdQuery, ApiResponse<VendorSubCategory>>
 {
-    public async Task<ApiResponse<VendorSubCategoryDto>> Handle(GetVendorSubCategoryByIdQuery request, CancellationToken cancellationToken)
+    public async Task<ApiResponse<VendorSubCategory>> Handle(GetVendorSubCategoryByIdQuery request, CancellationToken cancellationToken)
     {
         var cacheKey = $"{CacheKeys.VendorSubCategories}:{request.VendorSubCategoryId}";
-        var cachedVendorSubCategories = await cacheService.GetAsync<VendorSubCategoryDto>(cacheKey, cancellationToken);
+        var cachedVendorSubCategories = await cacheService.GetAsync<VendorSubCategory>(cacheKey, cancellationToken);
         if (cachedVendorSubCategories is not null)
         {
-            return ApiResponse<VendorSubCategoryDto>.SuccessResponse(cachedVendorSubCategories, messageHelper.RetrievedEntity
+            return ApiResponse<VendorSubCategory>.SuccessResponse(cachedVendorSubCategories, messageHelper.RetrievedEntity
             (ResourceNames.Entities, EntityKeys.VendorService), HttpStatusCode.OK);
         }
 
         var vendorSubCategory = await vendorSubCategoryRepository.GetByIdAsync(request.VendorSubCategoryId, cancellationToken);
         if (vendorSubCategory is null)
         {
-            return ApiResponse<VendorSubCategoryDto>.FailureResponse(messageHelper.NotFoundEntity(
+            return ApiResponse<VendorSubCategory>.FailureResponse(messageHelper.NotFoundEntity(
                     ResourceNames.Entities, EntityKeys.VendorSubCategory), HttpStatusCode.NotFound);
         }
 
-        var response = mapper.Map<VendorSubCategoryDto>(vendorSubCategory);
+        var response = mapper.Map<VendorSubCategory>(vendorSubCategory);
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);
-        return ApiResponse<VendorSubCategoryDto>.SuccessResponse(
+        return ApiResponse<VendorSubCategory>.SuccessResponse(
             response, messageHelper.RetrievedEntity(ResourceNames.Entities, EntityKeys.VendorSubCategory),
             HttpStatusCode.OK);
     }
