@@ -23,7 +23,6 @@ public sealed class VendorServiceAreaRepository(BookMyHallDbContext context) : I
     public async Task<VendorServiceArea?> GetByIdAsync(Guid vendorServiceAreaId, CancellationToken cancellationToken = default)
     {
         return await context.VendorServiceAreas
-            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.VendorServiceAreaId == vendorServiceAreaId, cancellationToken);
     }
     public async Task<VendorServiceArea?>GetByLocationIncludingDeletedAsync(Guid vendorId, Guid? stateId,Guid? cityId,
@@ -31,7 +30,6 @@ public sealed class VendorServiceAreaRepository(BookMyHallDbContext context) : I
     {
         return await context.VendorServiceAreas
             .IgnoreQueryFilters()
-            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.VendorId == vendorId && x.StateId == stateId && x.CityId == cityId &&
                     x.AreaId == areaId, cancellationToken);
     }
@@ -39,7 +37,6 @@ public sealed class VendorServiceAreaRepository(BookMyHallDbContext context) : I
        Guid? excludeVendorServiceAreaId, CancellationToken cancellationToken = default)
     {
         var query = context.VendorServiceAreas
-            .AsNoTracking()
             .Where(x => x.VendorId == vendorId && x.StateId == stateId &&
                     x.CityId == cityId && x.AreaId == areaId);
 

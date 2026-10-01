@@ -22,7 +22,6 @@ public sealed class VendorPackageItemRepository(BookMyHallDbContext context): IV
     public async Task<VendorPackageItem?> GetByIdAsync(Guid vendorPackageItemId,CancellationToken cancellationToken = default)
     {
         return await context.VendorPackageItems
-            .AsNoTracking()
             .FirstOrDefaultAsync(x =>x.VendorPackageItemId == vendorPackageItemId,cancellationToken);
     }
 public async Task<VendorPackageItem?>GetByPackageAndServiceIncludingDeletedAsync(Guid vendorPackageId,
@@ -30,7 +29,6 @@ public async Task<VendorPackageItem?>GetByPackageAndServiceIncludingDeletedAsync
     {
         return await context.VendorPackageItems
             .IgnoreQueryFilters()
-            .AsNoTracking()
             .FirstOrDefaultAsync(x =>x.VendorPackageId == vendorPackageId && x.VendorServiceId == vendorServiceId,
                 cancellationToken);
     }
@@ -38,7 +36,6 @@ public async Task<VendorPackageItem?>GetByPackageAndServiceIncludingDeletedAsync
         CancellationToken cancellationToken = default)
     {
         var query = context.VendorPackageItems
-            .AsNoTracking()
             .Where(x =>x.VendorPackageId ==vendorPackageId &&
                     x.VendorServiceId ==vendorServiceId );
 

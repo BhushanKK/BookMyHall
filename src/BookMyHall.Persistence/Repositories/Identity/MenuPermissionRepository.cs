@@ -53,6 +53,6 @@ public sealed class MenuPermissionRepository(BookMyHallDbContext context): IMenu
     }
 
     public async Task<MenuPermission?> GetAsync(Guid menuId,Guid permissionId,CancellationToken cancellationToken = default)
-    => await context.MenuPermissions.AsNoTracking()
+    => await context.MenuPermissions
         .FirstOrDefaultAsync(x => x.MenuId == menuId && x.PermissionId == permissionId,cancellationToken);
 }

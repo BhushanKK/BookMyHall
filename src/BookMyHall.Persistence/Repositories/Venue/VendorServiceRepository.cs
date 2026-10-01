@@ -35,10 +35,7 @@ public sealed class VendorServiceRepository(
         CancellationToken cancellationToken = default)
     {
         return await context.VendorServices
-            .AsNoTracking()
-            .FirstOrDefaultAsync(
-                x => x.VendorServiceId == vendorServiceId,
-                cancellationToken);
+            .FirstOrDefaultAsync(x => x.VendorServiceId == vendorServiceId, cancellationToken);
     }
 
     public async Task<VendorService?> GetByNameAsync(
@@ -47,7 +44,6 @@ public sealed class VendorServiceRepository(
         CancellationToken cancellationToken = default)
     {
         return await context.VendorServices
-            .AsNoTracking()
             .FirstOrDefaultAsync(
                 x =>
                     x.VendorId == vendorId &&

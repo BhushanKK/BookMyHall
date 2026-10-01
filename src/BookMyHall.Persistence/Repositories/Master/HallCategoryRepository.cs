@@ -55,7 +55,7 @@ public sealed class HallCategoryRepository(BookMyHallDbContext context): IHallCa
     }
 
     public async Task<HallCategory?> GetByHallCategoryNameAsync(string hallCategoryName,CancellationToken cancellationToken = default)
-        => await context.HallCategories.AsNoTracking()
+        => await context.HallCategories
             .FirstOrDefaultAsync( x => x.HallCategoryName == hallCategoryName &&!x.IsDeleted,cancellationToken);
 
 

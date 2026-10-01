@@ -21,7 +21,7 @@ public sealed class DistrictRepository(BookMyHallDbContext context):IDistrictRep
             .FirstOrDefaultAsync(x => x.DistrictId == districtId && !x.IsDeleted && x.IsActive,cancellationToken);
 
     public async Task<District?> GetByDistrictNameAsync(string districtName,CancellationToken cancellationToken = default)
-        => await context.Districts.AsNoTracking()
+        => await context.Districts
             .FirstOrDefaultAsync(x => x.DistrictName == districtName && !x.IsDeleted,cancellationToken);
 
     public async Task<PaginatedResult<District>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)

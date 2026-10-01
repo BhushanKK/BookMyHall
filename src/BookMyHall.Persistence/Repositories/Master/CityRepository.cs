@@ -22,7 +22,7 @@ public sealed class CityRepository(BookMyHallDbContext context): ICityRepository
             .FirstOrDefaultAsync(x => x.CityId == cityId  && !x.IsDeleted && x.IsActive,cancellationToken);
 
     public async Task<City?> GetByCityNameAsync(string cityName,CancellationToken cancellationToken = default)
-        => await context.Cities.AsNoTracking()
+        => await context.Cities
             .FirstOrDefaultAsync(x => x.CityName == cityName && !x.IsDeleted,cancellationToken);
 
     public async Task<PaginatedResult<City>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)

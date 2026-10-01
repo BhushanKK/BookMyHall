@@ -28,7 +28,7 @@ public sealed class FoodTypeRepository(BookMyHallDbContext context): IFoodTypeRe
             .FirstOrDefaultAsync(x => x.FoodTypeName == normalizedName, cancellationToken);
     }
     public async Task<FoodType?> GetByFoodTypeNameAsync(string foodTypeName,CancellationToken cancellationToken = default)
-        => await context.FoodTypes.AsNoTracking()
+        => await context.FoodTypes
             .FirstOrDefaultAsync( x => x.FoodTypeName == foodTypeName &&!x.IsDeleted,cancellationToken);
 
     public async Task<PaginatedResult<FoodType>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
