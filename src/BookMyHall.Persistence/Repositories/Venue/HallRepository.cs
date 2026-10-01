@@ -19,7 +19,7 @@ public sealed class HallRepository(BookMyHallDbContext context) : IHallRepositor
     public async Task<Hall?> GetByIdAsync(Guid hallId, CancellationToken cancellationToken = default)
         => await context.Halls.FirstOrDefaultAsync(x => x.HallId == hallId && !x.IsDeleted, cancellationToken);
     public async Task<Hall?> GetByHallNameAndAreaAsync(string hallName,Guid areaId,CancellationToken cancellationToken = default)
-    => await context.Halls.AsNoTracking()
+    => await context.Halls
         .FirstOrDefaultAsync(x =>x.HallName == hallName && x.AreaId == areaId,cancellationToken);
     public async Task<PaginatedResult<HallListView>> GetAllAsync(PaginationRequest request,Guid? hallOwnerId = null,CancellationToken cancellationToken = default)
     {
@@ -108,7 +108,7 @@ public sealed class HallRepository(BookMyHallDbContext context) : IHallRepositor
     }
 
     public async Task<HallListView?> GetHallDetailsByIdAsync(Guid hallId, CancellationToken cancellationToken = default)
-        => await context.HallListViews.AsNoTracking()
+        => await context.HallListViews
         .FirstOrDefaultAsync(x => x.HallId == hallId, cancellationToken);
     public async Task<PaginatedResult<NearbyHallView>> GetNearbyAsync(double? latitude,double? longitude,double radiusKm,
         Guid? stateId,Guid? districtId,Guid? cityId,Guid? areaId,PaginationRequest request,CancellationToken cancellationToken = default)
@@ -117,7 +117,7 @@ public sealed class HallRepository(BookMyHallDbContext context) : IHallRepositor
             .FromSqlInterpolated($"""
             SELECT * FROM venue."GetNearbyHalls"({latitude},{longitude},{radiusKm},{stateId},
                 {districtId},{cityId},{areaId})
-            """).AsNoTracking();
+            """);
         var allItems = await query.ToListAsync(cancellationToken);
         var totalCount = allItems.Count;
         var items = allItems

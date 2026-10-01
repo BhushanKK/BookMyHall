@@ -29,7 +29,7 @@ public sealed class AreaRepository(BookMyHallDbContext context): IAreaRepository
             .FirstOrDefaultAsync(x => x.AreaName == normalizedName, cancellationToken);
     }
     public async Task<Area?> GetByAreaNameAsync(string areaName,CancellationToken cancellationToken = default)
-        => await context.Areas.AsNoTracking()
+        => await context.Areas
             .FirstOrDefaultAsync(x =>x.AreaName == areaName &&!x.IsDeleted,cancellationToken);
 
     public async Task<PaginatedResult<Area>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default)

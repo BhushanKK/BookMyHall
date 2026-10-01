@@ -57,7 +57,7 @@ public sealed class RoleRepository(BookMyHallDbContext context) : IRoleRepositor
     }
 
     public async Task<Guid> GetRoleIdByRoleName(string roleName,CancellationToken cancellationToken)
-    => await context.Roles.AsNoTracking()
+    => await context.Roles
         .Where(x => x.RoleName == roleName)
         .Select(x => x.RoleId)
         .FirstOrDefaultAsync(cancellationToken);

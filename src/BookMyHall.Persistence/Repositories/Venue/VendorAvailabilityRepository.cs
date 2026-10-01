@@ -21,7 +21,6 @@ public sealed class VendorAvailabilityRepository(BookMyHallDbContext context): I
     public async Task<VendorAvailability?> GetByIdAsync(Guid vendorAvailabilityId,CancellationToken cancellationToken = default)
     {
         return await context.VendorAvailabilities
-            .AsNoTracking()
             .FirstOrDefaultAsync(x =>x.VendorAvailabilityId == vendorAvailabilityId,cancellationToken);
     }
 
@@ -34,7 +33,6 @@ public sealed class VendorAvailabilityRepository(BookMyHallDbContext context): I
         }
 
         var query = context.VendorAvailabilities
-            .AsNoTracking()
             .Where(x =>x.VendorId == vendorId && x.IsAvailable && x.IsActive);
 
         if (dayOfWeek.HasValue)

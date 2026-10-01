@@ -7,7 +7,7 @@ public sealed class VendorConfiguration : IEntityTypeConfiguration<Vendors>
 {
     public void Configure(EntityTypeBuilder<Vendors> builder)
     {
-        builder.ToTable("Vendor", "venue");
+        builder.ToTable("Vendors", "venue");
         builder.HasKey(x =>  x.VendorId );
         builder.HasQueryFilter(x => !x.IsDeleted);
     }

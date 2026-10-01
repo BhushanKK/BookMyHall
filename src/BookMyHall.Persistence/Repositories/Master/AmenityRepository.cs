@@ -29,7 +29,7 @@ public sealed class AmenityRepository(BookMyHallDbContext context) : IAmenityRep
             .FirstOrDefaultAsync(x => x.AmenityName == normalizedName, cancellationToken);
     }
     public async Task<Amenity?> GetByAmenityNameAsync(string amenityName, CancellationToken cancellationToken = default)
-        => await context.Amenitys.AsNoTracking()
+        => await context.Amenitys
             .FirstOrDefaultAsync(x => x.AmenityName == amenityName && !x.IsDeleted, cancellationToken);
 
     public async Task<PaginatedResult<Amenity>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default)

@@ -28,7 +28,7 @@ public sealed class FacilityRepository(BookMyHallDbContext context): IFacilityRe
             .FirstOrDefaultAsync(x => x.FacilityName == normalizedName, cancellationToken);
     }
     public async Task<Facility?> GetByFacilityNameAsync(string facilityName,CancellationToken cancellationToken = default)
-        => await context.Facilities.AsNoTracking()
+        => await context.Facilities
             .FirstOrDefaultAsync(x => x.FacilityName == facilityName && !x.IsDeleted,cancellationToken);
 
     public async Task<PaginatedResult<Facility>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)

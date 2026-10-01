@@ -22,7 +22,7 @@ public sealed class CountryRepository(BookMyHallDbContext context): ICountryRepo
             .FirstOrDefaultAsync(x => x.CountryId == countryId ,cancellationToken);
 
     public async Task<Country?> GetByCountryNameAsync( string countryName,CancellationToken cancellationToken = default)
-        => await context.Countries.AsNoTracking()
+        => await context.Countries
             .FirstOrDefaultAsync(x => x.CountryName == countryName,cancellationToken);
 
     public async Task<PaginatedResult<Country>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)

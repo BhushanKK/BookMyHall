@@ -23,11 +23,11 @@ public sealed class StateRepository(BookMyHallDbContext context) : IStateReposit
             .FirstOrDefaultAsync(x => x.StateId == stateId && !x.IsDeleted && x.IsActive,cancellationToken);
 
     public async Task<State?> GetByStateCodeAsync(string stateCode, CancellationToken cancellationToken = default)
-        => await context.States.AsNoTracking()
+        => await context.States
             .FirstOrDefaultAsync(x => x.StateCode == stateCode && !x.IsDeleted,cancellationToken);
 
     public async Task<State?> GetByStateNameAsync(string stateName, CancellationToken cancellationToken = default)
-        => await context.States.AsNoTracking()
+        => await context.States
             .FirstOrDefaultAsync(x => x.StateName == stateName &&!x.IsDeleted,cancellationToken);
 
     public async Task<PaginatedResult<State>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default)

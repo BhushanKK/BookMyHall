@@ -20,7 +20,7 @@ public sealed class HallPricingRepository(BookMyHallDbContext context): IHallPri
             .FirstOrDefaultAsync(x => x.HallPricingId == hallPricingId && !x.IsDeleted, cancellationToken);
 
     public async Task<HallPricing?> GetByHallIdAndEventCategoryIdAsync(Guid hallId,Guid eventCategoryId,CancellationToken cancellationToken = default)
-        => await context.HallPricings.AsNoTracking()
+        => await context.HallPricings
             .FirstOrDefaultAsync(x => x.HallId == hallId &&x.EventCategoryId == eventCategoryId,cancellationToken);
 
     public async Task<PaginatedResult<HallPricing>> GetAllAsync(PaginationRequest request,Guid? hallId,CancellationToken cancellationToken = default)

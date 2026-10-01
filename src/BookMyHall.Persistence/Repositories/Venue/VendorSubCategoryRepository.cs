@@ -23,7 +23,6 @@ public sealed class VendorSubCategoryRepository(BookMyHallDbContext context): IV
         CancellationToken cancellationToken = default)
     {
         return await context.VendorSubCategories
-            .AsNoTracking()
             .FirstOrDefaultAsync(x =>x.VendorSubCategoryId ==vendorSubCategoryId,cancellationToken);
     }
 
@@ -31,7 +30,6 @@ public sealed class VendorSubCategoryRepository(BookMyHallDbContext context): IV
         CancellationToken cancellationToken = default)
     {
         return await context.VendorSubCategories
-            .AsNoTracking()
             .FirstOrDefaultAsync(x =>x.VendorCategoryId ==vendorCategoryId &&x.Name == name,cancellationToken);
     }
 

@@ -28,7 +28,7 @@ public sealed class ServiceRepository(BookMyHallDbContext context): IServiceRepo
             .FirstOrDefaultAsync(x => x.ServiceName == normalizedName, cancellationToken);
     }
     public async Task<Service?> GetByServiceNameAsync(string serviceName,CancellationToken cancellationToken = default)
-        => await context.Services.AsNoTracking()
+        => await context.Services
             .FirstOrDefaultAsync(x => x.ServiceName == serviceName && !x.IsDeleted,cancellationToken);
 
     public async Task<PaginatedResult<Service>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)

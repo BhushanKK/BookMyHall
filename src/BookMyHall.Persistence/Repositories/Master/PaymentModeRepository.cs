@@ -29,7 +29,7 @@ public sealed class PaymentModeRepository(BookMyHallDbContext context) : IPaymen
             .FirstOrDefaultAsync(x => x.PaymentModeName == normalizedName, cancellationToken);
     }
     public async Task<PaymentMode?> GetByPaymentModeNameAsync(string paymentModeName, CancellationToken cancellationToken = default)
-        => await context.PaymentModes.AsNoTracking()
+        => await context.PaymentModes
             .FirstOrDefaultAsync(x => x.PaymentModeName == paymentModeName && !x.IsDeleted, cancellationToken);
 
     public async Task<PaginatedResult<PaymentMode>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default)

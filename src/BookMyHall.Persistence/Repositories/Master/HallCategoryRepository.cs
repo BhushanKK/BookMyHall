@@ -3,7 +3,6 @@ using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Masters;
 using BookMyHall.Persistence.Context;
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
-using BookMyHall.Domain.Venue;
 
 namespace BookMyHall.Persistence.Repositories;
 
@@ -55,7 +54,7 @@ public sealed class HallCategoryRepository(BookMyHallDbContext context): IHallCa
     }
 
     public async Task<HallCategory?> GetByHallCategoryNameAsync(string hallCategoryName,CancellationToken cancellationToken = default)
-        => await context.HallCategories.AsNoTracking()
+        => await context.HallCategories
             .FirstOrDefaultAsync( x => x.HallCategoryName == hallCategoryName &&!x.IsDeleted,cancellationToken);
 
 
