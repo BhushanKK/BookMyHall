@@ -34,7 +34,7 @@ public sealed class PaymentModeRepository(BookMyHallDbContext context) : IPaymen
 
     public async Task<PaginatedResult<PaymentMode>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default)
     {
-        var query = context.PaymentModes.AsNoTracking().Where(x => !x.IsDeleted && x.IsActive);
+        var query = context.PaymentModes.AsNoTracking().AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {

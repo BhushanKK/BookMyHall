@@ -33,7 +33,7 @@ public sealed class FacilityRepository(BookMyHallDbContext context): IFacilityRe
 
     public async Task<PaginatedResult<Facility>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
-        var query = context.Facilities.AsNoTracking().Where(x=>!x.IsDeleted && x.IsActive);
+        var query = context.Facilities.AsNoTracking().AsQueryable();
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();

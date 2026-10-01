@@ -18,8 +18,8 @@ public sealed class CountryRepository(BookMyHallDbContext context): ICountryRepo
     }
 
     public async Task<Country?> GetByIdAsync(Guid countryId,CancellationToken cancellationToken = default)
-        => await context.Countries.Where(x=>!x.IsDeleted && x.IsActive)
-            .FirstOrDefaultAsync(x => x.CountryId == countryId ,cancellationToken);
+        => await context.Countries
+            .FirstOrDefaultAsync(x => x.CountryId == countryId && !x.IsDeleted && x.IsActive ,cancellationToken);
 
     public async Task<Country?> GetByCountryNameAsync( string countryName,CancellationToken cancellationToken = default)
         => await context.Countries
@@ -27,7 +27,7 @@ public sealed class CountryRepository(BookMyHallDbContext context): ICountryRepo
 
     public async Task<PaginatedResult<Country>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
-        var query = context.Countries.Where(x=>!x.IsDeleted  && x.IsActive).AsNoTracking();
+        var query = context.Countries.AsNoTracking().AsQueryable();
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();

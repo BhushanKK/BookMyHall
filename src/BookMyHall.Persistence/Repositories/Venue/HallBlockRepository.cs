@@ -15,7 +15,7 @@ public sealed class HallBlockRepository(BookMyHallDbContext context): IHallBlock
 
     public async Task<PaginatedResult<HallBlock>> GetAllAsync(PaginationRequest request,Guid? hallId,CancellationToken cancellationToken = default)
     {
-        var query = context.HallBlocks.AsNoTracking().Where(x=>!x.IsDeleted && x.IsActive);
+        var query = context.HallBlocks.AsNoTracking().AsQueryable();
         if (hallId.HasValue)
             query = query.Where(x => x.HallId == hallId.Value);
 

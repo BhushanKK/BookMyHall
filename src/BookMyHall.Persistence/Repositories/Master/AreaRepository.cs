@@ -34,7 +34,7 @@ public sealed class AreaRepository(BookMyHallDbContext context): IAreaRepository
 
     public async Task<PaginatedResult<Area>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default)
     {
-        var query = context.Areas.AsNoTracking().Where(x => !x.IsDeleted && x.IsActive);
+        var query = context.Areas.AsNoTracking().AsQueryable();
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();

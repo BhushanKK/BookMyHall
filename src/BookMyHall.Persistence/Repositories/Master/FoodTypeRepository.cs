@@ -33,7 +33,7 @@ public sealed class FoodTypeRepository(BookMyHallDbContext context): IFoodTypeRe
 
     public async Task<PaginatedResult<FoodType>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
-        var query = context.FoodTypes.AsNoTracking().Where(x=>!x.IsDeleted && x.IsActive);
+        var query = context.FoodTypes.AsNoTracking().AsQueryable();
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();

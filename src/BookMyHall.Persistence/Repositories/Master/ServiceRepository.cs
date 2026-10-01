@@ -33,7 +33,7 @@ public sealed class ServiceRepository(BookMyHallDbContext context): IServiceRepo
 
     public async Task<PaginatedResult<Service>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
-        var query = context.Services.AsNoTracking().Where(x=>!x.IsDeleted && x.IsActive);
+        var query = context.Services.AsNoTracking().AsQueryable();
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();

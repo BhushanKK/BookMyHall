@@ -32,7 +32,7 @@ public sealed class StateRepository(BookMyHallDbContext context) : IStateReposit
 
     public async Task<PaginatedResult<State>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default)
     {
-       var query = context.States.AsNoTracking().Where(x=>!x.IsDeleted && x.IsActive);
+       var query = context.States.AsNoTracking().AsQueryable();
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();

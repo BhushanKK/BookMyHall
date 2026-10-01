@@ -21,7 +21,7 @@ public sealed class HallCategoryRepository(BookMyHallDbContext context): IHallCa
 
     public async Task<PaginatedResult<HallCategory>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
-        var query = context.HallCategories.AsNoTracking().Where(x=>!x.IsDeleted && x.IsActive);
+        var query = context.HallCategories.AsNoTracking().AsQueryable();
          if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();

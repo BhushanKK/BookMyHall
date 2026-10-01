@@ -34,7 +34,7 @@ public sealed class AmenityRepository(BookMyHallDbContext context) : IAmenityRep
 
     public async Task<PaginatedResult<Amenity>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default)
     {
-        var query = context.Amenitys.AsNoTracking().Where(x => !x.IsDeleted && x.IsActive);
+        var query = context.Amenitys.AsNoTracking().AsQueryable();
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();

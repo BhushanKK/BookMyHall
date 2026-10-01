@@ -31,15 +31,11 @@ public sealed class VendorAvailabilityRepository(BookMyHallDbContext context): I
         {
             return false;
         }
-
-        var query = context.VendorAvailabilities
-            .Where(x =>x.VendorId == vendorId && x.IsAvailable && x.IsActive);
-
+        var query = context.VendorAvailabilities.Where(x =>x.VendorId == vendorId && x.IsAvailable && x.IsActive);
         if (dayOfWeek.HasValue)
         {
             query = query.Where(x => x.DayOfWeek == dayOfWeek);
         }
-
         if (availableDate.HasValue)
         {
             query = query.Where(x => x.AvailableDate == availableDate);
