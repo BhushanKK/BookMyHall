@@ -25,8 +25,8 @@ builder.Services.AddApplication(builder.Configuration)
 
 const string CorsPolicyName = "BookMyHallFrontend";
 var allowedOrigins = builder.Configuration
-        .GetSection("Cors:AllowedOrigins")
-        .Get<string[]>() ?? [];
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? [];
 
 builder.Services.AddCors(options =>
 {
@@ -70,13 +70,13 @@ builder.Services.AddResponseCompression(options =>
     options.Providers.Add<BrotliCompressionProvider>();
     options.Providers.Add<GzipCompressionProvider>();
 
-    options.MimeTypes =ResponseCompressionDefaults
-            .MimeTypes
-            .Concat(
-            [
-                "application/json",
-                "application/problem+json"
-            ]);
+    options.MimeTypes = ResponseCompressionDefaults
+        .MimeTypes
+        .Concat(
+        [
+            "application/json",
+            "application/problem+json"
+        ]);
 });
 
 builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
@@ -106,11 +106,11 @@ app.UseStaticFiles();
 app.MapOpenApi();
 app.MapScalarApiReference(options =>
 {
-    options.WithTitle( "BookMyHall API").WithTheme(ScalarTheme.BluePlanet);
+    options.WithTitle("BookMyHall API").WithTheme(ScalarTheme.BluePlanet);
 });
 
 app.MapHealthChecks("/health");
-using (var scope =app.Services.CreateScope())
+using (var scope = app.Services.CreateScope())
 {
     var topology = scope.ServiceProvider.GetRequiredService<RabbitMqTopology>();
     await topology.ConfigureAsync();
