@@ -17,7 +17,7 @@ public sealed class HallCategoryRepository(BookMyHallDbContext context): IHallCa
     }
     public async Task<HallCategory?> GetByIdAsync(Guid hallCategoryId,CancellationToken cancellationToken = default)
         => await context.HallCategories
-        .FirstOrDefaultAsync(x => x.HallCategoryId == hallCategoryId && !x.IsDeleted && x.IsActive,cancellationToken);
+        .FirstOrDefaultAsync(x => x.HallCategoryId == hallCategoryId && !x.IsDeleted,cancellationToken);
 
     public async Task<PaginatedResult<HallCategory>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {

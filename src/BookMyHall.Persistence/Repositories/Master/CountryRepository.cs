@@ -19,7 +19,7 @@ public sealed class CountryRepository(BookMyHallDbContext context): ICountryRepo
 
     public async Task<Country?> GetByIdAsync(Guid countryId,CancellationToken cancellationToken = default)
         => await context.Countries
-            .FirstOrDefaultAsync(x => x.CountryId == countryId && !x.IsDeleted && x.IsActive ,cancellationToken);
+            .FirstOrDefaultAsync(x => x.CountryId == countryId && !x.IsDeleted ,cancellationToken);
 
     public async Task<Country?> GetByCountryNameAsync( string countryName,CancellationToken cancellationToken = default)
         => await context.Countries

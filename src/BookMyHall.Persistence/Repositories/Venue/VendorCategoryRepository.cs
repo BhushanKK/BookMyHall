@@ -22,7 +22,7 @@ public sealed class VendorCategoryRepository(BookMyHallDbContext context) : IVen
     public async Task<VendorCategory?> GetByIdAsync(Guid vendorcategoryId, CancellationToken cancellationToken = default)
     {
         return await context.VendorCategories
-            .FirstOrDefaultAsync(x => x.VendorCategoryId == vendorcategoryId,cancellationToken);
+            .FirstOrDefaultAsync(x => x.VendorCategoryId == vendorcategoryId && !x.IsDeleted,cancellationToken);
     }
 
     public async Task<VendorCategory?> GetByNameAsync(string name, CancellationToken cancellationToken = default)

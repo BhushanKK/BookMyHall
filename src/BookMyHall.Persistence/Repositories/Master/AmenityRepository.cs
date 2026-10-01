@@ -20,7 +20,7 @@ public sealed class AmenityRepository(BookMyHallDbContext context) : IAmenityRep
 
     public async Task<Amenity?> GetByIdAsync(Guid amenityId, CancellationToken cancellationToken = default)
         => await context.Amenitys
-            .FirstOrDefaultAsync(x => x.AmenityId == amenityId && !x.IsDeleted && x.IsActive, cancellationToken);
+            .FirstOrDefaultAsync(x => x.AmenityId == amenityId && !x.IsDeleted, cancellationToken);
     public async Task<Amenity?> GetByNameIncludingDeletedAsync(string amenityName, CancellationToken cancellationToken)
     {
         var normalizedName = amenityName.Trim();

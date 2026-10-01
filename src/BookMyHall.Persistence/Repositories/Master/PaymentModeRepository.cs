@@ -20,7 +20,7 @@ public sealed class PaymentModeRepository(BookMyHallDbContext context) : IPaymen
 
     public async Task<PaymentMode?> GetByIdAsync(Guid paymentModeId, CancellationToken cancellationToken = default)
         => await context.PaymentModes
-            .FirstOrDefaultAsync(x => x.PaymentModeId == paymentModeId && !x.IsDeleted && x.IsActive, cancellationToken);
+            .FirstOrDefaultAsync(x => x.PaymentModeId == paymentModeId && !x.IsDeleted , cancellationToken);
     public async Task<PaymentMode?> GetByNameIncludingDeletedAsync(string paymentNodeName, CancellationToken cancellationToken)
     {
         var normalizedName = paymentNodeName.Trim();

@@ -33,7 +33,7 @@ public class VendorPackageRepository(BookMyHallDbContext context) : IVendorPacka
 
     public async Task<PaginatedResult<VendorPackage>> GetAllAsync(PaginationRequest paginationRequest, CancellationToken cancellationToken)
     {
-        var query = context.VendorPackages.AsNoTracking().Where(x => !x.IsDeleted);
+        var query = context.VendorPackages.AsNoTracking().AsQueryable();
         if (!string.IsNullOrWhiteSpace(paginationRequest.SearchText))
         {
             var search = paginationRequest.SearchText.ToLower();

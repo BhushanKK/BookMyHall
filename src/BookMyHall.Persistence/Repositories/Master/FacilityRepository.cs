@@ -19,7 +19,7 @@ public sealed class FacilityRepository(BookMyHallDbContext context): IFacilityRe
 
     public async Task<Facility?> GetByIdAsync(Guid facilityId,CancellationToken cancellationToken = default)
         => await context.Facilities
-        .FirstOrDefaultAsync(x => x.FacilityId == facilityId && !x.IsDeleted && x.IsActive,cancellationToken);
+        .FirstOrDefaultAsync(x => x.FacilityId == facilityId && !x.IsDeleted,cancellationToken);
     public async Task<Facility?> GetByNameIncludingDeletedAsync(string facilityName, CancellationToken cancellationToken)
     {
         var normalizedName = facilityName.Trim();

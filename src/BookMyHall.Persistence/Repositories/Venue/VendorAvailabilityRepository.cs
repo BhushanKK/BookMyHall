@@ -21,7 +21,7 @@ public sealed class VendorAvailabilityRepository(BookMyHallDbContext context): I
     public async Task<VendorAvailability?> GetByIdAsync(Guid vendorAvailabilityId,CancellationToken cancellationToken = default)
     {
         return await context.VendorAvailabilities
-            .FirstOrDefaultAsync(x =>x.VendorAvailabilityId == vendorAvailabilityId,cancellationToken);
+            .FirstOrDefaultAsync(x =>x.VendorAvailabilityId == vendorAvailabilityId && !x.IsDeleted,cancellationToken);
     }
 
     public async Task<bool> ExistsOverlappingAsync(Guid vendorId,short? dayOfWeek,DateOnly? availableDate,

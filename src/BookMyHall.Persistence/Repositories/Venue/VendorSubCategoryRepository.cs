@@ -23,7 +23,7 @@ public sealed class VendorSubCategoryRepository(BookMyHallDbContext context): IV
         CancellationToken cancellationToken = default)
     {
         return await context.VendorSubCategories
-            .FirstOrDefaultAsync(x =>x.VendorSubCategoryId ==vendorSubCategoryId,cancellationToken);
+            .FirstOrDefaultAsync(x =>x.VendorSubCategoryId ==vendorSubCategoryId && !x.IsDeleted,cancellationToken);
     }
 
     public async Task<VendorSubCategory?> GetByNameAsync(Guid vendorCategoryId,string name,

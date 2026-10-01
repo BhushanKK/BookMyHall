@@ -35,7 +35,7 @@ public sealed class VendorServiceRepository(
         CancellationToken cancellationToken = default)
     {
         return await context.VendorServices
-            .FirstOrDefaultAsync(x => x.VendorServiceId == vendorServiceId, cancellationToken);
+            .FirstOrDefaultAsync(x => x.VendorServiceId == vendorServiceId && !x.IsDeleted, cancellationToken);
     }
 
     public async Task<VendorService?> GetByNameAsync(
