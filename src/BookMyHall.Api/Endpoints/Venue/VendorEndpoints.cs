@@ -119,5 +119,25 @@ public static class VendorEndpoints
         .WithDescription("Returns up to 20 active vendors matching the optional search term.")
         .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
+
+        group.MapGet("/vendor/{vendorId:guid}/businesses/autocomplete", async (
+            Guid vendorId,
+            string? searchTerm,
+            IMediator mediator,
+            CancellationToken cancellationToken,
+            Guid? areaId = null,
+            int limit = 20) =>
+        {
+            var response = await mediator.Send(
+                new GetVendorBusinessesAutoCompleteQuery(vendorId, searchTerm, areaId, limit),
+                cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("GetVendorBusinessesAutoComplete")
+        .WithSummary("Get Vendor Businesses AutoComplete")
+        .WithDescription("Returns active businesses owned by the selected vendor.")
+        .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status404NotFound);
     }
 }

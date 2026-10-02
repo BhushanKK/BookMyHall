@@ -66,6 +66,28 @@ public sealed class VendorImageEndpointsTests(BookMyHallWebApplicationFactory fa
     }
 
     [Fact]
+    public async Task GetVendorBusinessesAutoComplete_WithoutAuthentication_ReturnsUnauthorized()
+    {
+        using var client = _factory.CreateClient();
+
+        var response = await client.GetAsync(
+            $"/api/vendors/vendor/{Guid.NewGuid()}/businesses/autocomplete");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task GetVendorBusinessesAutoComplete_WithInvalidVendorId_ReturnsNotFound()
+    {
+        using var client = _factory.CreateClient();
+
+        var response = await client.GetAsync(
+            "/api/vendors/vendor/not-a-guid/businesses/autocomplete");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
     public async Task DeleteVendorImage_WithoutAuthentication_ReturnsUnauthorized()
     {
         using var client = _factory.CreateClient();

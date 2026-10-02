@@ -257,4 +257,51 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
             .Take(Math.Clamp(limit, 1, 30))
             .ToList();
     }
+
+    public async Task<IReadOnlyList<AutoCompleteItem>> GetBusinessAutoCompleteAsync(
+        Guid vendorId,
+        string? searchTerm,
+        Guid? areaId,
+        int limit = 20,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = await VendorQuery()
+            .Where(x => x.VendorId == vendorId)
+            .Select(x => x.UserId)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (!userId.HasValue)
+        {
+            return [];
+        }
+
+        var query = VendorQuery()
+            .Where(x => x.UserId == userId.Value);
+
+        if (areaId.HasValue)
+        {
+            var vendorIdsInArea = context.VendorServiceAreas
+                .AsNoTracking()
+                .Where(x => x.AreaId == areaId.Value && x.IsActive && !x.IsDeleted)
+                .Select(x => x.VendorId)
+                .Distinct();
+
+            query = query.Where(x => vendorIdsInArea.Contains(x.VendorId));
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var pattern = $"%{searchTerm.Trim()}%";
+            query = query.Where(x =>
+                EF.Functions.ILike(x.BusinessName, pattern) ||
+                (x.DisplayName != null && EF.Functions.ILike(x.DisplayName, pattern)));
+        }
+
+        return await query
+            .OrderBy(x => x.DisplayName ?? x.BusinessName)
+            .ThenBy(x => x.VendorId)
+            .Take(Math.Clamp(limit, 1, 30))
+            .Select(x => new AutoCompleteItem(x.VendorId, x.DisplayName ?? x.BusinessName))
+            .ToListAsync(cancellationToken);
+    }
 }

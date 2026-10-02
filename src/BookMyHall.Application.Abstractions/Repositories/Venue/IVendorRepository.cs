@@ -15,4 +15,5 @@ public interface IVendorRepository
     Task<PaginatedResult<VendorListView>> GetAllAsync(PaginationRequest request, Guid? areaId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(string? searchTerm, int limit = 20, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(string? searchTerm, Guid? areaId, int limit = 20, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<AutoCompleteItem>> GetBusinessAutoCompleteAsync(Guid vendorId, string? searchTerm, Guid? areaId, int limit = 20, CancellationToken cancellationToken = default);
 }
