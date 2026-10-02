@@ -170,18 +170,17 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
             var pattern = $"%{searchText}%";
 
             query = query.Where(x =>
-                EF.Functions.ILike(x.BusinessName, pattern) ||
                 EF.Functions.ILike(x.VendorName, pattern));
         }
 
         return await query
-            .OrderBy(x => x.BusinessName)
+            .OrderBy(x => x.VendorName)
             .ThenBy(x => x.VendorName)
             .ThenBy(x => x.VendorId)
             .Take(Math.Clamp(limit, 1, 30))
             .Select(x => new AutoCompleteItem(
                 x.VendorId,
-                x.BusinessName))
+                x.VendorName))
             .ToListAsync(cancellationToken);
     }
 }
