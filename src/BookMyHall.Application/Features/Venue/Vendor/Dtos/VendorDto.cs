@@ -13,7 +13,6 @@ public class VendorDto
     public string BusinessName { get; set; } = string.Empty;
     public string? DisplayName { get; set; }
     public string? Description { get; set; }
-    [JsonIgnore]
     public string? ContactPersonName { get; set; }
     public string? Email { get; set; }
     public string? MobileNumber { get; set; }
