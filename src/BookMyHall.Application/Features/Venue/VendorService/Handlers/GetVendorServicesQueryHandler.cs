@@ -41,7 +41,7 @@ public sealed class GetVendorServicesQueryHandler(IVendorServiceRepository vendo
         }
         
         var result = await vendorServiceRepository.GetAllAsync(pagination,
-        request.VendorId, request.VendorSubCategoryId, cancellationToken);
+        request.VendorId,request.VendorCategoryId, request.VendorSubCategoryId, cancellationToken);
         var response = new PaginatedResponse<VendorService>
         {
             Items = mapper.Map<IReadOnlyList<VendorService>>(result.Items),

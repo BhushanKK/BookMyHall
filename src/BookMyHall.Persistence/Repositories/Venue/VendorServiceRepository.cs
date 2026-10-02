@@ -69,7 +69,7 @@ public sealed class VendorServiceRepository(
     public async Task<PaginatedResult<VendorService>>
         GetAllAsync(
             PaginationRequest request,
-            Guid? vendorId,
+            Guid? vendorId,Guid? vendorCategoryId,
             Guid? vendorSubCategoryId,
             CancellationToken cancellationToken = default)
     {
@@ -82,7 +82,20 @@ public sealed class VendorServiceRepository(
             query = query.Where(
                 x => x.VendorId == vendorId.Value);
         }
-
+ if (vendorCategoryId.HasValue)
+        {
+            query = query.Where(
+                x =>
+                    x.VendorCategoryId ==
+                    vendorCategoryId.Value);
+        }
+ if (vendorSubCategoryId.HasValue)
+        {
+            query = query.Where(
+                x =>
+                    x.VendorSubCategoryId ==
+                    vendorSubCategoryId.Value);
+        }
         if (vendorSubCategoryId.HasValue)
         {
             query = query.Where(

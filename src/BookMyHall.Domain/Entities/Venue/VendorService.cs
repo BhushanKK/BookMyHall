@@ -6,6 +6,8 @@ public class VendorService : BaseEntity
 {
     public Guid VendorServiceId { get; set; }
     public Guid VendorId { get; set; }
+    public Guid UserId { get; set; }
+    public Guid VendorCategoryId { get; set; }
     public Guid VendorSubCategoryId { get; set; }
     public string ServiceName { get; set; } = string.Empty;
     public string? Description { get; set; }
