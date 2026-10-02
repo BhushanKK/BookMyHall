@@ -47,7 +47,7 @@ public sealed class UpdateVendorSubCategoryCommandHandler(IVendorSubCategoryRepo
         }
 
         var existingVendorSubCategory =await vendorSubCategoryRepository.GetByNameAsync(request.VendorCategoryId,
-                request.Name,cancellationToken);
+                request.VendorSubCategoryName,cancellationToken);
 
         if (existingVendorSubCategory is not null && existingVendorSubCategory.VendorSubCategoryId !=request.VendorSubCategoryId)
         {
@@ -59,7 +59,7 @@ public sealed class UpdateVendorSubCategoryCommandHandler(IVendorSubCategoryRepo
         }
 
         vendorSubCategory.VendorCategoryId =request.VendorCategoryId;
-        vendorSubCategory.Name = request.Name;
+        vendorSubCategory.VendorSubCategoryName = request.VendorSubCategoryName;
         vendorSubCategory.Description =request.Description;
         vendorSubCategory.DisplayOrder =request.DisplayOrder;
         vendorSubCategory.IsActive =request.IsActive;

@@ -34,7 +34,7 @@ public sealed class CreateVendorSubCategoryCommandHandler(IVendorSubCategoryRepo
         }
 
         var existingVendorSubCategory =await vendorSubCategoryRepository.GetByNameIncludingDeletedAsync(
-                    request.VendorCategoryId,request.Name,cancellationToken);
+                    request.VendorCategoryId,request.VendorSubCategoryName,cancellationToken);
 
         if (existingVendorSubCategory is not null &&!existingVendorSubCategory.IsDeleted)
         {
@@ -44,7 +44,7 @@ public sealed class CreateVendorSubCategoryCommandHandler(IVendorSubCategoryRepo
 
         if (existingVendorSubCategory is not null && existingVendorSubCategory.IsDeleted)
         {
-            existingVendorSubCategory.Name =request.Name;
+            existingVendorSubCategory.VendorSubCategoryName =request.VendorSubCategoryName;
             existingVendorSubCategory.Description =request.Description;
             existingVendorSubCategory.DisplayOrder =request.DisplayOrder;
             existingVendorSubCategory.IsActive =request.IsActive;
@@ -61,6 +61,7 @@ public sealed class CreateVendorSubCategoryCommandHandler(IVendorSubCategoryRepo
         var vendorSubCategory =mapper.Map<VendorSubCategory>(request);
         vendorSubCategory.VendorSubCategoryId =Guid.NewGuid();
         vendorSubCategory.VendorCategoryId =request.VendorCategoryId;
+        vendorSubCategory.VendorSubCategoryName =request.VendorSubCategoryName;
         vendorSubCategory.IsActive =request.IsActive;
         vendorSubCategory.IsDeleted = false;
         try

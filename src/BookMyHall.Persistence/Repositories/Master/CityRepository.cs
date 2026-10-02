@@ -19,7 +19,7 @@ public sealed class CityRepository(BookMyHallDbContext context): ICityRepository
 
     public async Task<City?> GetByIdAsync(Guid cityId,CancellationToken cancellationToken = default)
         => await context.Cities
-            .FirstOrDefaultAsync(x => x.CityId == cityId  && !x.IsDeleted && x.IsActive,cancellationToken);
+            .FirstOrDefaultAsync(x => x.CityId == cityId  && !x.IsDeleted,cancellationToken);
 
     public async Task<City?> GetByCityNameAsync(string cityName,CancellationToken cancellationToken = default)
         => await context.Cities
@@ -27,7 +27,7 @@ public sealed class CityRepository(BookMyHallDbContext context): ICityRepository
 
     public async Task<PaginatedResult<City>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
-        var query = context.Cities.AsNoTracking().Where(x=>!x.IsDeleted && x.IsActive);
+        var query = context.Cities.AsNoTracking().AsQueryable();
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();

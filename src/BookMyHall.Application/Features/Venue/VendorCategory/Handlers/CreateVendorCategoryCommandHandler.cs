@@ -27,7 +27,7 @@ public sealed class CreateVendorCategoryCommandHandler(IVendorCategoryRepository
             return ApiResponse<VendorCategoryDto>.FailureResponse(message,HttpStatusCode.BadRequest);
         }
 
-        var name =request.Name.Trim();
+        var name =request.VendorCategoryName.Trim();
         var existingVendorCategory=await vendorCategoryRepository.GetByNameIncludingDeletedAsync(name,cancellationToken);
 
         if (existingVendorCategory is not null && !existingVendorCategory.IsDeleted)
@@ -40,7 +40,7 @@ public sealed class CreateVendorCategoryCommandHandler(IVendorCategoryRepository
         {
             existingVendorCategory.IsDeleted = false;
             existingVendorCategory.IsActive = true;
-            existingVendorCategory.Name = name;
+            existingVendorCategory.VendorCategoryName = name;
 
             await vendorCategoryRepository.UpdateAsync(existingVendorCategory,cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -52,7 +52,7 @@ public sealed class CreateVendorCategoryCommandHandler(IVendorCategoryRepository
 
         var vendorcategory = mapper.Map<VendorCategory>(request);
         vendorcategory.VendorCategoryId = Guid.NewGuid();
-        vendorcategory.Name = name;
+        vendorcategory.VendorCategoryName = name;
         vendorcategory.IsActive = true;
         vendorcategory.IsDeleted = false;
 

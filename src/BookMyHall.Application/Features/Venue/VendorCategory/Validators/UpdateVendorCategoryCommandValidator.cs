@@ -8,7 +8,7 @@ public sealed class UpdateVendorCategoryCommandValidator: AbstractValidator<Upda
             .NotEmpty()
             .WithMessage("Vendor category id is required.");
 
-        RuleFor(x => x.Name)
+        RuleFor(x => x.VendorCategoryName)
             .NotEmpty()
             .WithMessage("Vendor category name is required.")
             .MaximumLength(150)

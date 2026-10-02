@@ -20,7 +20,7 @@ public sealed class PaymentModeRepository(BookMyHallDbContext context) : IPaymen
 
     public async Task<PaymentMode?> GetByIdAsync(Guid paymentModeId, CancellationToken cancellationToken = default)
         => await context.PaymentModes
-            .FirstOrDefaultAsync(x => x.PaymentModeId == paymentModeId && !x.IsDeleted && x.IsActive, cancellationToken);
+            .FirstOrDefaultAsync(x => x.PaymentModeId == paymentModeId && !x.IsDeleted , cancellationToken);
     public async Task<PaymentMode?> GetByNameIncludingDeletedAsync(string paymentNodeName, CancellationToken cancellationToken)
     {
         var normalizedName = paymentNodeName.Trim();
@@ -34,7 +34,7 @@ public sealed class PaymentModeRepository(BookMyHallDbContext context) : IPaymen
 
     public async Task<PaginatedResult<PaymentMode>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default)
     {
-        var query = context.PaymentModes.AsNoTracking().Where(x => !x.IsDeleted && x.IsActive);
+        var query = context.PaymentModes.AsNoTracking().AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {

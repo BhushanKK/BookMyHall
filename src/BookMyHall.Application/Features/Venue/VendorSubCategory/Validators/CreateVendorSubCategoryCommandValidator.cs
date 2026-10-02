@@ -1,9 +1,6 @@
 using FluentValidation;
-
 namespace BookMyHall.Application.Features.Venue;
-
-public sealed class CreateVendorSubCategoryCommandValidator
-    : AbstractValidator<CreateVendorSubCategoryCommand>
+public sealed class CreateVendorSubCategoryCommandValidator: AbstractValidator<CreateVendorSubCategoryCommand>
 {
     public CreateVendorSubCategoryCommandValidator()
     {
@@ -11,7 +8,7 @@ public sealed class CreateVendorSubCategoryCommandValidator
             .NotEmpty()
             .WithMessage("Vendor category is required.");
 
-        RuleFor(x => x.Name)
+        RuleFor(x => x.VendorSubCategoryName)
             .NotEmpty()
             .WithMessage("Sub category name is required.")
             .MaximumLength(200)

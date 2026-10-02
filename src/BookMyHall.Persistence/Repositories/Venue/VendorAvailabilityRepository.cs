@@ -21,7 +21,7 @@ public sealed class VendorAvailabilityRepository(BookMyHallDbContext context): I
     public async Task<VendorAvailability?> GetByIdAsync(Guid vendorAvailabilityId,CancellationToken cancellationToken = default)
     {
         return await context.VendorAvailabilities
-            .FirstOrDefaultAsync(x =>x.VendorAvailabilityId == vendorAvailabilityId,cancellationToken);
+            .FirstOrDefaultAsync(x =>x.VendorAvailabilityId == vendorAvailabilityId && !x.IsDeleted,cancellationToken);
     }
 
     public async Task<bool> ExistsOverlappingAsync(Guid vendorId,short? dayOfWeek,DateOnly? availableDate,
@@ -31,15 +31,11 @@ public sealed class VendorAvailabilityRepository(BookMyHallDbContext context): I
         {
             return false;
         }
-
-        var query = context.VendorAvailabilities
-            .Where(x =>x.VendorId == vendorId && x.IsAvailable && x.IsActive);
-
+        var query = context.VendorAvailabilities.Where(x =>x.VendorId == vendorId && x.IsAvailable && x.IsActive);
         if (dayOfWeek.HasValue)
         {
             query = query.Where(x => x.DayOfWeek == dayOfWeek);
         }
-
         if (availableDate.HasValue)
         {
             query = query.Where(x => x.AvailableDate == availableDate);

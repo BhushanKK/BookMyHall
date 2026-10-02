@@ -19,7 +19,7 @@ public sealed class FacilityRepository(BookMyHallDbContext context): IFacilityRe
 
     public async Task<Facility?> GetByIdAsync(Guid facilityId,CancellationToken cancellationToken = default)
         => await context.Facilities
-        .FirstOrDefaultAsync(x => x.FacilityId == facilityId && !x.IsDeleted && x.IsActive,cancellationToken);
+        .FirstOrDefaultAsync(x => x.FacilityId == facilityId && !x.IsDeleted,cancellationToken);
     public async Task<Facility?> GetByNameIncludingDeletedAsync(string facilityName, CancellationToken cancellationToken)
     {
         var normalizedName = facilityName.Trim();
@@ -33,7 +33,7 @@ public sealed class FacilityRepository(BookMyHallDbContext context): IFacilityRe
 
     public async Task<PaginatedResult<Facility>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
-        var query = context.Facilities.AsNoTracking().Where(x=>!x.IsDeleted && x.IsActive);
+        var query = context.Facilities.AsNoTracking().AsQueryable();
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();

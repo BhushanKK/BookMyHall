@@ -19,7 +19,7 @@ public sealed class EventCategoryRepository(BookMyHallDbContext context): IEvent
 
     public async Task<EventCategory?> GetByIdAsync(Guid eventCategoryId,CancellationToken cancellationToken = default)
         => await context.EventCategories
-            .FirstOrDefaultAsync(x => x.EventCategoryId == eventCategoryId && !x.IsDeleted && x.IsActive,cancellationToken);
+            .FirstOrDefaultAsync(x => x.EventCategoryId == eventCategoryId && !x.IsDeleted,cancellationToken);
 
     public async Task<EventCategory?> GetByEventCategoryNameAsync(string eventCategoryName,CancellationToken cancellationToken = default)
         => await context.EventCategories
@@ -35,7 +35,7 @@ public sealed class EventCategoryRepository(BookMyHallDbContext context): IEvent
 
     public async Task<PaginatedResult<EventCategory>> GetAllAsync(PaginationRequest request,CancellationToken cancellationToken = default)
     {
-        var query = context.EventCategories.AsNoTracking().Where(x=>!x.IsDeleted && x.IsActive);
+        var query = context.EventCategories.AsNoTracking().AsQueryable();
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();

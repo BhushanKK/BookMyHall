@@ -22,7 +22,7 @@ public sealed class VendorPackageItemRepository(BookMyHallDbContext context): IV
     public async Task<VendorPackageItem?> GetByIdAsync(Guid vendorPackageItemId,CancellationToken cancellationToken = default)
     {
         return await context.VendorPackageItems
-            .FirstOrDefaultAsync(x =>x.VendorPackageItemId == vendorPackageItemId,cancellationToken);
+            .FirstOrDefaultAsync(x =>x.VendorPackageItemId == vendorPackageItemId && !x.IsDeleted,cancellationToken);
     }
 public async Task<VendorPackageItem?>GetByPackageAndServiceIncludingDeletedAsync(Guid vendorPackageId,
            Guid vendorServiceId,CancellationToken cancellationToken = default)

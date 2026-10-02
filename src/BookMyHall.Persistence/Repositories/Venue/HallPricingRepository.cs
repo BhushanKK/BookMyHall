@@ -25,9 +25,7 @@ public sealed class HallPricingRepository(BookMyHallDbContext context): IHallPri
 
     public async Task<PaginatedResult<HallPricing>> GetAllAsync(PaginationRequest request,Guid? hallId,CancellationToken cancellationToken = default)
     {
-        var query = context.HallPricings.AsNoTracking()
-            .Where(x=>!x.IsDeleted);
-       
+        var query = context.HallPricings.AsNoTracking().AsQueryable();
         if (hallId.HasValue)
             query = query.Where(x => x.HallId == hallId.Value);
 

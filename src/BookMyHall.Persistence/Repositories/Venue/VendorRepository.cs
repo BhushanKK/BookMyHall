@@ -36,6 +36,7 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
         return Task.CompletedTask;
     }
 
+
     public async Task<Vendor?> GetByIdAsync(Guid vendorId, CancellationToken cancellationToken = default)
         => await VendorQuery().FirstOrDefaultAsync(x => x.VendorId == vendorId, cancellationToken);
 

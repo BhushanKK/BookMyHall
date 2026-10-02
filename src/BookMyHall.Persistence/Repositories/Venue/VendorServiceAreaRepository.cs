@@ -23,7 +23,7 @@ public sealed class VendorServiceAreaRepository(BookMyHallDbContext context) : I
     public async Task<VendorServiceArea?> GetByIdAsync(Guid vendorServiceAreaId, CancellationToken cancellationToken = default)
     {
         return await context.VendorServiceAreas
-            .FirstOrDefaultAsync(x => x.VendorServiceAreaId == vendorServiceAreaId, cancellationToken);
+            .FirstOrDefaultAsync(x => x.VendorServiceAreaId == vendorServiceAreaId && !x.IsDeleted, cancellationToken);
     }
     public async Task<VendorServiceArea?>GetByLocationIncludingDeletedAsync(Guid vendorId, Guid? stateId,Guid? cityId,
                Guid? areaId,CancellationToken cancellationToken = default)

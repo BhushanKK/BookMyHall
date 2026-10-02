@@ -19,7 +19,7 @@ public sealed class AreaRepository(BookMyHallDbContext context): IAreaRepository
 
     public async Task<Area?> GetByIdAsync(Guid areaId,CancellationToken cancellationToken = default)
         => await context.Areas
-            .FirstOrDefaultAsync(x => x.AreaId == areaId && !x.IsDeleted && x.IsActive,cancellationToken);
+            .FirstOrDefaultAsync(x => x.AreaId == areaId && !x.IsDeleted,cancellationToken);
 
     public async Task<Area?> GetByNameIncludingDeletedAsync(string areaName, CancellationToken cancellationToken)
     {
@@ -34,7 +34,7 @@ public sealed class AreaRepository(BookMyHallDbContext context): IAreaRepository
 
     public async Task<PaginatedResult<Area>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default)
     {
-        var query = context.Areas.AsNoTracking().Where(x => !x.IsDeleted && x.IsActive);
+        var query = context.Areas.AsNoTracking().AsQueryable();
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var search = request.SearchText.Trim();
