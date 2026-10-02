@@ -3,5 +3,5 @@ using BookMyHall.Contracts.Common;
 
 namespace BookMyHall.Application.Features.Venue;
 
-public sealed record GetVendorAutoCompleteQuery(string? SearchTerm, int Limit = 30) 
+public sealed record GetVendorAutoCompleteQuery(string? SearchTerm, Guid? AreaId = null, int Limit = 30)
     : IRequest<ApiResponse<IReadOnlyList<AutoCompleteItem>>>;

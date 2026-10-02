@@ -4,4 +4,4 @@ using BookMyHall.Domain.Venue;
 
 namespace BookMyHall.Application.Features.Venue;
 
-public sealed record GetVendorByIdQuery(Guid VendorId) : IRequest<ApiResponse<Vendor>>;
+public sealed record GetVendorByIdQuery(Guid VendorId) : IRequest<ApiResponse<VendorDto>>;

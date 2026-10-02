@@ -20,7 +20,7 @@ public sealed class GetVendorAutoCompleteQueryHandler(IVendorRepository vendorRe
         var normalizedSearchTerm = searchTerm?.ToLowerInvariant() ?? string.Empty;
         var limit = Math.Clamp(request.Limit, 1, 20);
 
-        var cacheKey = $"{CacheKeys.VendorAutoComplete}:{limit}:{normalizedSearchTerm}";
+        var cacheKey = $"{CacheKeys.VendorAutoComplete}:{limit}:{normalizedSearchTerm}:{request.AreaId}";
         var cachedItems = await cacheService.GetAsync<IReadOnlyList<AutoCompleteItem>>(cacheKey, cancellationToken);
 
         if (cachedItems is not null)
@@ -33,7 +33,7 @@ public sealed class GetVendorAutoCompleteQueryHandler(IVendorRepository vendorRe
             );
         }
 
-        var items = await vendorRepository.GetAutoCompleteAsync(searchTerm, limit, cancellationToken);
+        var items = await vendorRepository.GetAutoCompleteAsync(searchTerm, request.AreaId, limit, cancellationToken);
 
         await cacheService.SetAsync
         (

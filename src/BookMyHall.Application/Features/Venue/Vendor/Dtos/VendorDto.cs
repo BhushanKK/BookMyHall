@@ -8,11 +8,11 @@ public class VendorDto
     public Guid VendorId { get; set; }
     public Guid? UserId { get; set; }
 
-    [JsonIgnore]
     public string VendorName { get; set; } = string.Empty;
     public string BusinessName { get; set; } = string.Empty;
     public string? DisplayName { get; set; }
     public string? Description { get; set; }
+    [JsonIgnore]
     public string? ContactPersonName { get; set; }
     public string? Email { get; set; }
     public string? MobileNumber { get; set; }

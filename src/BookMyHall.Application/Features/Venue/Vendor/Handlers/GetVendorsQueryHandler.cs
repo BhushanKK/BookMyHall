@@ -19,15 +19,7 @@ public sealed class GetVendorsQueryHandler(IVendorRepository vendorRepository,
     {
         var pagination = request.Request;
 
-        var cacheKey = CacheKeyBuilder.BuildPaginatedKey<Vendor>
-        (
-            CacheKeys.VendorsPaged,
-            pagination.PageNumber,
-            pagination.PageSize,
-            pagination.SearchText,
-            pagination.SortBy,
-            pagination.SortDescending
-        );
+        var cacheKey = $"{CacheKeys.VendorsPaged}:{pagination.PageNumber}:{pagination.PageSize}:{pagination.SearchText}:{pagination.SortBy}:{pagination.SortDescending}:{request.AreaId}";
 
         var cachedResponse = await cacheService.GetAsync<PaginatedResponse<VendorListView>>(cacheKey, cancellationToken);
 
@@ -41,7 +33,7 @@ public sealed class GetVendorsQueryHandler(IVendorRepository vendorRepository,
             );
         }
 
-        var result = await vendorRepository.GetAllAsync(pagination, cancellationToken);
+        var result = await vendorRepository.GetAllAsync(pagination, request.AreaId, cancellationToken);
 
         var response = new PaginatedResponse<VendorListView>
         {

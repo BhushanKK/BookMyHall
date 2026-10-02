@@ -12,5 +12,7 @@ public interface IVendorRepository
     Task<Vendor?> GetByBusinessNameAsync(string businessName, CancellationToken cancellationToken = default);
     Task<Vendor?> GetByBusinessNameIncludingDeletedAsync(string businessName, CancellationToken cancellationToken = default);
     Task<PaginatedResult<VendorListView>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default);
+    Task<PaginatedResult<VendorListView>> GetAllAsync(PaginationRequest request, Guid? areaId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(string? searchTerm, int limit = 20, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(string? searchTerm, Guid? areaId, int limit = 20, CancellationToken cancellationToken = default);
 }

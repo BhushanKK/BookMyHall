@@ -61,8 +61,14 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
                         ur.Role.RoleName == "Vendor")))
             .FirstOrDefaultAsync(cancellationToken);
 
+    public Task<PaginatedResult<VendorListView>> GetAllAsync(
+        PaginationRequest request,
+        CancellationToken cancellationToken = default)
+        => GetAllAsync(request, null, cancellationToken);
+
     public async Task<PaginatedResult<VendorListView>> GetAllAsync(
         PaginationRequest request,
+        Guid? areaId,
         CancellationToken cancellationToken = default)
     {
         var query = from vendor in VendorQuery()
@@ -94,6 +100,17 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
                         Rating = vendor.Rating,
                         ReviewCount = vendor.ReviewCount,
                     };
+
+        if (areaId.HasValue)
+        {
+            var vendorIdsInArea = context.VendorServiceAreas
+                .AsNoTracking()
+                .Where(x => x.AreaId == areaId.Value && x.IsActive && !x.IsDeleted)
+                .Select(x => x.VendorId)
+                .Distinct();
+
+            query = query.Where(x => vendorIdsInArea.Contains(x.VendorId));
+        }
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
@@ -146,10 +163,17 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
         };
     }
 
+    public Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(
+        string? searchTerm,
+        int limit = 30,
+        CancellationToken cancellationToken = default)
+        => GetAutoCompleteAsync(searchTerm, null, limit, cancellationToken);
+
     public async Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(
-    string? searchTerm,
-    int limit = 30,
-    CancellationToken cancellationToken = default)
+        string? searchTerm,
+        Guid? areaId,
+        int limit = 30,
+        CancellationToken cancellationToken = default)
     {
         var query =
             from vendor in VendorQuery()
@@ -158,12 +182,22 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
             select new
             {
                 vendor.VendorId,
-                VendorName =
-                    vendor.BusinessName + " - " +
-                    (user.FirstName + " " +
-                    (user.MiddleName ?? "") + " " +
-                    (user.LastName ?? "")).Trim()
+                VendorName = string.IsNullOrWhiteSpace(user.FullName)
+                    ? vendor.BusinessName
+                    : user.FullName
             };
+
+        if (areaId.HasValue)
+        {
+            var vendorIdsInArea = context.VendorServiceAreas
+                .AsNoTracking()
+                .Where(x => x.AreaId == areaId.Value && x.IsActive && !x.IsDeleted)
+                .Select(x => x.VendorId)
+                .Distinct();
+
+            query = query.Where(x => vendorIdsInArea.Contains(x.VendorId));
+        }
+
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
             var searchText = searchTerm.Trim();
@@ -173,7 +207,6 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
 
         return await query
             .OrderBy(x => x.VendorName)
-            .ThenBy(x => x.VendorName)
             .ThenBy(x => x.VendorId)
             .Take(Math.Clamp(limit, 1, 30))
             .Select(x => new AutoCompleteItem(x.VendorId, x.VendorName))
