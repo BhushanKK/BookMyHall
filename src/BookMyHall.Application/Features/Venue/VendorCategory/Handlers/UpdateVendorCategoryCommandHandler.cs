@@ -32,7 +32,7 @@ public sealed class UpdateVendorCategoryCommandHandler(IVendorCategoryRepository
             (EntityKeys.VendorCategory),HttpStatusCode.NotFound);
         }
 
-        var name =request.Name.Trim();
+        var name =request.VendorCategoryName.Trim();
         var existingVendorCategory =await vendorCategoryRepository.GetByNameIncludingDeletedAsync(name,cancellationToken);
 
         if (existingVendorCategory is not null && existingVendorCategory.VendorCategoryId != request.VendorCategoryId)
@@ -42,7 +42,7 @@ public sealed class UpdateVendorCategoryCommandHandler(IVendorCategoryRepository
         }
 
         mapper.Map(request, vendorcategory);
-        vendorcategory.Name = name;
+        vendorcategory.VendorCategoryName = name;
         await vendorCategoryRepository.UpdateAsync(vendorcategory,cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
