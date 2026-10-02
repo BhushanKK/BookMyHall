@@ -30,7 +30,7 @@ public sealed class VendorSubCategoryRepository(BookMyHallDbContext context): IV
         CancellationToken cancellationToken = default)
     {
         return await context.VendorSubCategories
-            .FirstOrDefaultAsync(x =>x.VendorCategoryId ==vendorCategoryId &&x.Name == name,cancellationToken);
+            .FirstOrDefaultAsync(x =>x.VendorCategoryId ==vendorCategoryId &&x.VendorSubCategoryName == name,cancellationToken);
     }
 
     public async Task<VendorSubCategory?>GetByNameIncludingDeletedAsync(Guid vendorCategoryId,string name,
@@ -38,7 +38,7 @@ public sealed class VendorSubCategoryRepository(BookMyHallDbContext context): IV
     {
         return await context.VendorSubCategories
             .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(x =>x.VendorCategoryId ==vendorCategoryId &&x.Name == name,cancellationToken);
+            .FirstOrDefaultAsync(x =>x.VendorCategoryId ==vendorCategoryId &&x.VendorSubCategoryName == name,cancellationToken);
     }
 
     public async Task<PaginatedResult<VendorSubCategory>>GetAllAsync(PaginationRequest request,
@@ -56,7 +56,7 @@ public sealed class VendorSubCategoryRepository(BookMyHallDbContext context): IV
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var searchText = request.SearchText.Trim();
-            query = query.Where(x => x.Name.Contains(searchText) ||
+            query = query.Where(x => x.VendorSubCategoryName.Contains(searchText) ||
                 (x.Description != null && x.Description.Contains(searchText)));
         }
 
@@ -67,9 +67,9 @@ public sealed class VendorSubCategoryRepository(BookMyHallDbContext context): IV
             "name" =>
                 request.SortDescending
                     ? query.OrderByDescending(
-                        x => x.Name)
+                        x => x.VendorSubCategoryName)
                     : query.OrderBy(
-                        x => x.Name),
+                        x => x.VendorSubCategoryName),
 
             "description" =>
                 request.SortDescending
@@ -95,7 +95,7 @@ public sealed class VendorSubCategoryRepository(BookMyHallDbContext context): IV
             _ =>
                 query
                     .OrderBy(x => x.DisplayOrder)
-                    .ThenBy(x => x.Name)
+                    .ThenBy(x => x.VendorSubCategoryName)
         };
 
         var items = await query
@@ -120,14 +120,14 @@ public sealed class VendorSubCategoryRepository(BookMyHallDbContext context): IV
         {
             var search = searchTerm.Trim();
             var pattern = $"%{search}%";
-            query = query.Where(x => EF.Functions.ILike(x.Name, pattern));
+            query = query.Where(x => EF.Functions.ILike(x.VendorSubCategoryName, pattern));
         }
 
         return await query
-            .OrderBy(x => x.Name)
+            .OrderBy(x => x.VendorSubCategoryName)
             .ThenBy(x => x.VendorSubCategoryId)
             .Take(Math.Clamp(limit, 1, 20))
-            .Select(x => new AutoCompleteItem(x.VendorSubCategoryId, x.Name))
+            .Select(x => new AutoCompleteItem(x.VendorSubCategoryId, x.VendorSubCategoryName))
             .ToListAsync(cancellationToken);
     }
 }

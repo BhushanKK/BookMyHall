@@ -28,14 +28,14 @@ public sealed class VendorCategoryRepository(BookMyHallDbContext context) : IVen
     public async Task<VendorCategory?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
     {
         return await context.VendorCategories
-            .FirstOrDefaultAsync(x => x.Name == name && !x.IsDeleted,cancellationToken);
+            .FirstOrDefaultAsync(x => x.VendorCategoryName == name && !x.IsDeleted,cancellationToken);
     }
 
     public async Task<VendorCategory?> GetByNameIncludingDeletedAsync(string name, CancellationToken cancellationToken = default)
     {
         return await context.VendorCategories
             .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(x => x.Name == name, cancellationToken);
+            .FirstOrDefaultAsync(x => x.VendorCategoryName == name, cancellationToken);
     }
 
     public async Task<PaginatedResult<VendorCategory>> GetAllAsync(PaginationRequest request,
@@ -47,16 +47,16 @@ public sealed class VendorCategoryRepository(BookMyHallDbContext context) : IVen
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var searchText =request.SearchText.Trim().ToLower();
-            query = query.Where(x =>x.Name.ToLower().Contains(searchText)||
+            query = query.Where(x =>x.VendorCategoryName.ToLower().Contains(searchText)||
                 (x.Description != null && x.Description.ToLower().Contains(searchText)));
         }
 
         query = request.SortBy?.ToLowerInvariant() switch
         {
-            "name" => request.SortDescending? query.OrderByDescending(x => x.Name): query.OrderBy(x => x.Name),
+            "name" => request.SortDescending? query.OrderByDescending(x => x.VendorCategoryName): query.OrderBy(x => x.VendorCategoryName),
             "displayorder" => request.SortDescending ? query.OrderByDescending(x => x.DisplayOrder): query.OrderBy(x => x.DisplayOrder),
             "isactive" => request.SortDescending? query.OrderByDescending(x => x.IsActive): query.OrderBy(x => x.IsActive),
-            _ => query.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+            _ => query.OrderBy(x => x.DisplayOrder).ThenBy(x => x.VendorCategoryName)
         };
 
         var totalCounts = await query.CountAsync(cancellationToken);
@@ -82,14 +82,14 @@ public sealed class VendorCategoryRepository(BookMyHallDbContext context) : IVen
         {
             var search = searchTerm.Trim();
             var pattern = $"%{search}%";
-            query = query.Where(x => EF.Functions.ILike(x.Name, pattern));
+            query = query.Where(x => EF.Functions.ILike(x.VendorCategoryName, pattern));
         }
 
         return await query
-            .OrderBy(x => x.Name)
+            .OrderBy(x => x.VendorCategoryName)
             .ThenBy(x => x.VendorCategoryId)
             .Take(Math.Clamp(limit, 1, 20))
-            .Select(x => new AutoCompleteItem(x.VendorCategoryId, x.Name))
+            .Select(x => new AutoCompleteItem(x.VendorCategoryId, x.VendorCategoryName))
             .ToListAsync(cancellationToken);
     }
 }
