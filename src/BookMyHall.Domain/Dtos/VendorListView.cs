@@ -1,18 +1,13 @@
-using System.Text.Json.Serialization;
+namespace BookMyHall.Domain.Dtos;
 
-namespace BookMyHall.Application.Features.Venue;
-
-public class VendorDto
+public sealed class VendorListView
 {
-    [JsonIgnore]
     public Guid VendorId { get; set; }
     public Guid? UserId { get; set; }
-
     public string VendorName { get; set; } = string.Empty;
     public string BusinessName { get; set; } = string.Empty;
     public string? DisplayName { get; set; }
     public string? Description { get; set; }
-    [JsonIgnore]
     public string? ContactPersonName { get; set; }
     public string? Email { get; set; }
     public string? MobileNumber { get; set; }
@@ -28,7 +23,6 @@ public class VendorDto
     public short? EstablishedYear { get; set; }
     public bool IsVerified { get; set; }
     public bool IsActive { get; set; }
-    public bool IsDeleted { get; set; }
     public decimal Rating { get; set; }
     public int ReviewCount { get; set; }
 }

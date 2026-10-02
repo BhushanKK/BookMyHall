@@ -15,5 +15,5 @@ public class VendorImage : BaseEntity
     public bool IsCoverImage { get; set; }
     public bool IsActive { get; set; }
     public bool IsDeleted { get; set; }
-    public virtual Vendors Vendor { get; set; } = null!;
+    public virtual Vendor Vendor { get; set; } = null!;
 }

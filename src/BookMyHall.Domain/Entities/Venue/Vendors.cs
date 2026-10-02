@@ -2,7 +2,7 @@ using BookMyHall.Domain.Common;
 
 namespace BookMyHall.Domain.Venue;
 
-public class Vendors : BaseEntity
+public class Vendor : BaseEntity
 {
     public Guid VendorId { get; set; }
     public Guid? UserId { get; set; }
@@ -14,6 +14,8 @@ public class Vendors : BaseEntity
     public string? MobileNumber { get; set; }
     public string? AlternateMobileNumber { get; set; }
     public string? WebsiteUrl { get; set; }
+    public string? YoutubeUrl { get; set; }
+    public string? InstagramUrl { get; set; }
     public string? AddressLine1 { get; set; }
     public string? AddressLine2 { get; set; }
     public string? Pincode { get; set; }
@@ -24,5 +26,5 @@ public class Vendors : BaseEntity
     public bool IsActive { get; set; }
     public decimal Rating { get; set; }
     public int ReviewCount { get; set; }
-    public bool IsDeleted { get; set; }
+    public bool IsDeleted { get; set; } = false;
 }

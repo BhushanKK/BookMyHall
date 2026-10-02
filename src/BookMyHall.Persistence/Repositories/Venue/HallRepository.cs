@@ -18,9 +18,11 @@ public sealed class HallRepository(BookMyHallDbContext context) : IHallRepositor
 
     public async Task<Hall?> GetByIdAsync(Guid hallId, CancellationToken cancellationToken = default)
         => await context.Halls.FirstOrDefaultAsync(x => x.HallId == hallId && !x.IsDeleted, cancellationToken);
+    
     public async Task<Hall?> GetByHallNameAndAreaAsync(string hallName,Guid areaId,CancellationToken cancellationToken = default)
     => await context.Halls
         .FirstOrDefaultAsync(x =>x.HallName == hallName && x.AreaId == areaId,cancellationToken);
+    
     public async Task<PaginatedResult<HallListView>> GetAllAsync(PaginationRequest request,Guid? hallOwnerId = null,CancellationToken cancellationToken = default)
     {
         // =============================================================

@@ -94,9 +94,9 @@ public static class VendorEndpoints
         // ---------------------------------------------------------
 
         group.MapGet("/", async ([AsParameters] PaginationRequest request,
-            IMediator mediator,CancellationToken cancellationToken) =>
+            IMediator mediator,CancellationToken cancellationToken, Guid? areaId = null) =>
         {
-            var response = await mediator.Send(new GetVendorsQuery(request),cancellationToken);
+            var response = await mediator.Send(new GetVendorsQuery(request, areaId),cancellationToken);
             return Results.Json(response,statusCode: response.StatusCode);
         })
         .WithName("GetVendors")
@@ -109,9 +109,9 @@ public static class VendorEndpoints
         //  Vendors Autocomplete
         // ---------------------------------------------------------
         group.MapGet("/vendor/autocomplete", async (string? searchTerm,
-            IMediator mediator, CancellationToken cancellationToken) =>
+            IMediator mediator, CancellationToken cancellationToken, Guid? areaId = null, int limit = 20) =>
         {
-            var response = await mediator.Send(new GetVendorAutoCompleteQuery(searchTerm), cancellationToken);
+            var response = await mediator.Send(new GetVendorAutoCompleteQuery(searchTerm, areaId, limit), cancellationToken);
             return Results.Json(response,statusCode: response.StatusCode);
         })
         .WithName("GetVendorAutoComplete")

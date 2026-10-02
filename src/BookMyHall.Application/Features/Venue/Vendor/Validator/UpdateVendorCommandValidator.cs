@@ -1,6 +1,8 @@
 using FluentValidation;
+
 namespace BookMyHall.Application.Features.Venue;
-public sealed class UpdateVendorCommandValidator: AbstractValidator<UpdateVendorCommand>
+
+public sealed class UpdateVendorCommandValidator : AbstractValidator<UpdateVendorCommand>
 {
     public UpdateVendorCommandValidator()
     {
@@ -22,7 +24,7 @@ public sealed class UpdateVendorCommandValidator: AbstractValidator<UpdateVendor
 
         RuleFor(x => x.Email)
             .EmailAddress()
-            .MaximumLength(250)
+            .MaximumLength(255)
             .When(x => !string.IsNullOrWhiteSpace(x.Email));
 
         RuleFor(x => x.MobileNumber)
@@ -32,6 +34,12 @@ public sealed class UpdateVendorCommandValidator: AbstractValidator<UpdateVendor
             .MaximumLength(20);
 
         RuleFor(x => x.WebsiteUrl)
+            .MaximumLength(500);
+
+        RuleFor(x => x.YoutubeUrl)
+            .MaximumLength(500);
+
+        RuleFor(x => x.InstagramUrl)
             .MaximumLength(500);
 
         RuleFor(x => x.AddressLine1)

@@ -1,15 +1,18 @@
 using BookMyHall.Contracts.Common;
+using BookMyHall.Domain.Dtos;
 using BookMyHall.Domain.Venue;
 
 namespace BookMyHall.Application.Abstractions.Persistence.Repositories;
 
 public interface IVendorRepository
 {
-    Task AddAsync(Vendors vendor, CancellationToken cancellationToken = default);
-    Task UpdateAsync(Vendors vendor, CancellationToken cancellationToken = default);
-    Task<Vendors?> GetByIdAsync(Guid vendorId, CancellationToken cancellationToken = default);
-    Task<Vendors?> GetByBusinessNameAsync(string businessName, CancellationToken cancellationToken = default);
-    Task<Vendors?> GetByBusinessNameIncludingDeletedAsync(string businessName, CancellationToken cancellationToken = default);
-    Task<PaginatedResult<Vendors>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default);
+    Task AddAsync(Vendor vendor, CancellationToken cancellationToken = default);
+    Task UpdateAsync(Vendor vendor, CancellationToken cancellationToken = default);
+    Task<Vendor?> GetByIdAsync(Guid vendorId, CancellationToken cancellationToken = default);
+    Task<Vendor?> GetByBusinessNameAsync(string businessName, CancellationToken cancellationToken = default);
+    Task<Vendor?> GetByBusinessNameIncludingDeletedAsync(string businessName, CancellationToken cancellationToken = default);
+    Task<PaginatedResult<VendorListView>> GetAllAsync(PaginationRequest request, CancellationToken cancellationToken = default);
+    Task<PaginatedResult<VendorListView>> GetAllAsync(PaginationRequest request, Guid? areaId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(string? searchTerm, int limit = 20, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(string? searchTerm, Guid? areaId, int limit = 20, CancellationToken cancellationToken = default);
 }
