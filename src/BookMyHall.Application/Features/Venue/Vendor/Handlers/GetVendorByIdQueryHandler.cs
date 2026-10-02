@@ -82,7 +82,8 @@ public sealed class GetVendorByIdQueryHandler(
             IsActive = vendor.IsActive,
             IsDeleted = vendor.IsDeleted,
             Rating = vendor.Rating,
-            ReviewCount = vendor.ReviewCount
+            ReviewCount = vendor.ReviewCount,
+            AreaId = vendor.AreaId
         };
 
         await cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30), cancellationToken);

@@ -7,6 +7,7 @@ public class VendorDto
     [JsonIgnore]
     public Guid VendorId { get; set; }
     public Guid? UserId { get; set; }
+    public Guid? AreaId { get; set; }
 
     public string VendorName { get; set; } = string.Empty;
     public string BusinessName { get; set; } = string.Empty;
