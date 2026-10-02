@@ -27,4 +27,5 @@ public class Vendor : BaseEntity
     public decimal Rating { get; set; }
     public int ReviewCount { get; set; }
     public bool IsDeleted { get; set; } = false;
+    public Guid? AreaId { get; set; }
 }
