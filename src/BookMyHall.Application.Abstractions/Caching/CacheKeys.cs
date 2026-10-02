@@ -120,4 +120,5 @@ public static class CacheKeys
     public const string VendorDocumentsPaged = "VendorDocumentsPaged";
     public const string VendorBookings = "VendorBookings";
     public const string VendorBookingsPaged = "VendorBookingsPaged";
+    public const string UsersAutoComplete = "UsersAutoComplete";
 }

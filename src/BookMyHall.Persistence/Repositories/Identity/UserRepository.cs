@@ -259,4 +259,31 @@ public sealed class UserRepository(BookMyHallDbContext context) : IUserRepositor
                     x.RoleId == roleId,
                 cancellationToken);
     }
+
+  public async Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(string? searchTerm,int limit = 20,
+    CancellationToken cancellationToken = default)
+{
+    var query = context.Users.AsNoTracking().Where(x => !x.IsDeleted && x.IsActive);
+
+    if (!string.IsNullOrWhiteSpace(searchTerm))
+    {
+        var search = searchTerm.Trim();
+        var pattern = $"%{search}%";
+        query = query.Where(x =>
+            EF.Functions.ILike(
+                (x.FirstName + " " + (x.LastName ?? string.Empty)).Trim(),
+                pattern));
+    }
+
+    return await query
+        .OrderBy(x => x.FirstName)
+        .ThenBy(x => x.LastName)
+        .ThenBy(x => x.UserId)
+        .Take(Math.Clamp(limit, 1, 20))
+        .Select(x => new AutoCompleteItem(
+            x.UserId,
+            (x.FirstName + " " + (x.LastName ?? string.Empty)).Trim()))
+        .ToListAsync(cancellationToken);
+}
+
 }
