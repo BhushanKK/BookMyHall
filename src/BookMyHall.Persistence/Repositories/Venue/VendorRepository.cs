@@ -78,6 +78,15 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
                     {
                         VendorId = vendor.VendorId,
                         UserId = vendor.UserId,
+                        AreaId = context.VendorServiceAreas
+                            .Where(x =>
+                                x.VendorId == vendor.VendorId &&
+                                x.IsActive &&
+                                !x.IsDeleted &&
+                                (!areaId.HasValue || x.AreaId == areaId.Value))
+                            .OrderByDescending(x => x.IsPrimary)
+                            .Select(x => x.AreaId)
+                            .FirstOrDefault(),
                         VendorName = user.FirstName +
                             (string.IsNullOrWhiteSpace(user.MiddleName) ? string.Empty : " " + user.MiddleName) +
                             (string.IsNullOrWhiteSpace(user.LastName) ? string.Empty : " " + user.LastName),
@@ -160,6 +169,7 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
         {
             VendorId = x.VendorId,
             UserId = x.UserId,
+            AreaId = x.AreaId,
             VendorName = string.IsNullOrWhiteSpace(x.VendorName) ? x.BusinessName : x.VendorName,
             BusinessName = x.BusinessName,
             DisplayName = x.DisplayName,
@@ -241,7 +251,10 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
             .ToListAsync(cancellationToken);
 
         return items
+            .GroupBy(x => x.VendorName)
+            .Select(g => g.First())
             .Select(x => new AutoCompleteItem(x.VendorId, x.VendorName))
+            .Take(Math.Clamp(limit, 1, 30))
             .ToList();
     }
 }
