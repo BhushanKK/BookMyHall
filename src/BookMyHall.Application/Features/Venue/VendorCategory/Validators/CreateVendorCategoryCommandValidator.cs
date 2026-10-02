@@ -4,7 +4,7 @@ public sealed class CreateVendorCategoryCommandValidator: AbstractValidator<Crea
 {
     public CreateVendorCategoryCommandValidator()
     {
-        RuleFor(x => x.Name)
+        RuleFor(x => x.VendorCategoryName)
             .NotEmpty()
             .WithMessage("Vendor category name is required.")
             .MaximumLength(150)
