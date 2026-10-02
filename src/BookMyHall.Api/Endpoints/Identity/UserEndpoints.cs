@@ -4,6 +4,7 @@ using BookMyHall.Contracts.Common;
 using Microsoft.AspNetCore.Mvc;
 using BookMyHall.Domain.Enums;
 using BookMyHall.Domain.Dtos;
+using BookMyHall.Application.Features.Identity;
 namespace BookMyHall.Api.Endpoints.Identity;
 
 public static class UserEndpoints
@@ -152,6 +153,18 @@ public static class UserEndpoints
         .Produces<ApiResponse<UserDto>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<UserDto>>(StatusCodes.Status404NotFound)
         .Produces(StatusCodes.Status401Unauthorized).RequireAuthorization();
+
+           group.MapGet("/user/autocomplete", async (string? searchTerm,
+            IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var response = await mediator.Send(new GetUsersAutoCompleteQuery(searchTerm), cancellationToken);
+            return Results.Json(response,statusCode: response.StatusCode);
+        })
+        .WithName("GetUsersAutoComplete")
+        .WithSummary("Get Users AutoComplete")
+        .WithDescription("Returns up to 20 active users matching the optional search term.")
+        .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
         return app;
     }
 }

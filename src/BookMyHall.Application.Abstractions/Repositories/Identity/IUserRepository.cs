@@ -20,4 +20,5 @@ public interface IUserRepository
     Task<UserLoginDto?> GetForGoogleLoginAsync(string emailAddress, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<HallOwnerDto>> GetHallOwnersAsync(string? searchText = null, Guid? hallOwnerId = null, CancellationToken cancellationToken = default);
     Task<UserDetailsView?> GetUserDetailsByIdAsync(Guid userId, Guid roleId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(string? searchTerm, int limit = 20, CancellationToken cancellationToken = default);
 }
