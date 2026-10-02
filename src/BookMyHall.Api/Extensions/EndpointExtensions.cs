@@ -54,6 +54,7 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapVendorPackageItemEndpoints();
         endpoints.MapVendorEndpoints();
         endpoints.MapVendorAvailabilityEndpoints();
+        endpoints.MapVendorImageEndpoints();
 
         if (OperatingSystem.IsWindows())
         {

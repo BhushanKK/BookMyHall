@@ -113,6 +113,8 @@ public static class CacheKeys
     public const string VendorPackageItemsPaged = "VendorPackageItemsPaged";
     public const string VendorImages = "VendorImages";
     public const string VendorImagesPaged = "VendorImagesPaged";
+    public const string VendorImage = "VendorImage";
+    public const string VendorCoverImage = "VendorCoverImage";
 
     public const string VendorEnquiries = "VendorEnquiries";
     public const string VendorEnquiriesPaged = "VendorEnquiriesPaged";

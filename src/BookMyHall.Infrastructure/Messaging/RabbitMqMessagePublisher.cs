@@ -119,6 +119,9 @@ public sealed class RabbitMqMessagePublisher(
 
              var type when type == typeof(HallImageUploadedMessage)
                 => RabbitMqKeys.HallImageUploadedRoutingKey,
+
+                var type when type == typeof(VendorImageUploadedMessage)
+                     => RabbitMqKeys.VendorImageUploadedRoutingKey,
             
             var type when type == typeof(UserLoggedInEvent)
                 => RabbitMqKeys.UserLoggedInRoutingKey,

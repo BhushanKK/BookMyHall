@@ -7,8 +7,7 @@ public sealed class VendorImageConfiguration : IEntityTypeConfiguration<VendorIm
 {
     public void Configure(EntityTypeBuilder<VendorImage> builder)
     {
-        builder.ToTable("VendorImage", "venue");
-        builder.HasKey(x =>  x.VendorImageId );
-        builder.HasQueryFilter(x => !x.IsDeleted);
+       builder.ToTable("VendorImage", "venue");
+       builder.HasKey(x =>  x.VendorImageId );
     }
 }

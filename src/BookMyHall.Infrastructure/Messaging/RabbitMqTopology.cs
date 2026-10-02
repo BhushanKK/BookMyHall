@@ -153,6 +153,19 @@ public sealed class RabbitMqTopology(IOptions<RabbitMqOptions> options)
         );
 
         await channel.QueueDeclareAsync(
+            queue: RabbitMqKeys.VendorImageUploadedQueueName,
+            durable: true,
+            exclusive: false,
+            autoDelete: false,
+            cancellationToken: cancellationToken);
+
+        await channel.QueueBindAsync(
+            queue: RabbitMqKeys.VendorImageUploadedQueueName,
+            exchange: _options.ExchangeName,
+            routingKey: RabbitMqKeys.VendorImageUploadedRoutingKey,
+            cancellationToken: cancellationToken);
+
+        await channel.QueueDeclareAsync(
             queue: RabbitMqKeys.UserLoggedInQueueName,
             durable: true,
             exclusive: false,

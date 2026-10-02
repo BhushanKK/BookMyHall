@@ -109,6 +109,8 @@ public static class EntityKeys
 
   public const string Vendor = nameof(Vendor);
   public const string VendorId = nameof(VendorId);
+  public const string VendorImage = nameof(VendorImage);
+  public const string VendorImageId = nameof(VendorImageId);
 
   // =========================================================
   //Venue VendorCategory
