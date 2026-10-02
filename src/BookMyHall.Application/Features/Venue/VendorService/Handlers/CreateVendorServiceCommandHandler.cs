@@ -57,6 +57,9 @@ public sealed class CreateVendorServiceCommandHandler(IVendorServiceRepository v
         if (existingVendorService is not null && existingVendorService.IsDeleted)
         {
             existingVendorService.VendorSubCategoryId =request.VendorSubCategoryId;
+            existingVendorService.ServiceName =request.ServiceName;
+            existingVendorService.UserId =request.UserId;
+            existingVendorService.VendorCategoryId =request.VendorCategoryId;
             existingVendorService.Description =request.Description;
             existingVendorService.PricingType =request.PricingType;
             existingVendorService.BasePrice =request.BasePrice;
@@ -80,6 +83,8 @@ public sealed class CreateVendorServiceCommandHandler(IVendorServiceRepository v
         var vendorService = mapper.Map<VendorService>(request);
         vendorService.VendorServiceId = Guid.NewGuid();
         vendorService.VendorId = request.VendorId;
+        vendorService.UserId = request.UserId;
+        vendorService.VendorCategoryId = request.VendorCategoryId;
         vendorService.VendorSubCategoryId =request.VendorSubCategoryId;
         vendorService.IsActive = request.IsActive;
         vendorService.IsDeleted = false;

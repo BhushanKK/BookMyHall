@@ -63,7 +63,8 @@ public sealed class UpdateVendorServiceCommandHandler(IVendorServiceRepository v
         vendor.VendorId.Equals(request.VendorId);
         vendorService.VendorId =request.VendorId;
         vendorService.VendorSubCategoryId =request.VendorSubCategoryId;
-
+        vendorService.UserId =request.UserId;
+        vendorService.VendorCategoryId =request.VendorCategoryId;
         vendorService.ServiceName =
             request.ServiceName;
 

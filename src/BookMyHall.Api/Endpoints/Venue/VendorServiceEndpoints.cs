@@ -73,9 +73,9 @@ public static class VendorServiceEndpoints
         .Produces(StatusCodes.Status404NotFound);
 
         group.MapGet("/", async ([AsParameters] PaginationRequest pagination,Guid? vendorId,
-            Guid? vendorSubCategoryId,IMediator mediator,CancellationToken cancellationToken) =>
+            Guid? vendorCategoryId,Guid? vendorSubCategoryId,IMediator mediator,CancellationToken cancellationToken) =>
         {
-            var query = new GetVendorServicesQuery(pagination,vendorId,vendorSubCategoryId);
+            var query = new GetVendorServicesQuery(pagination,vendorId,vendorCategoryId,vendorSubCategoryId);
             var response = await mediator.Send(query,cancellationToken);
             return Results.Json(response,statusCode: response.StatusCode);
         })
