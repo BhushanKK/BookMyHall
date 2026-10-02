@@ -15,6 +15,7 @@ public static class HallEndpoints
         .RequireAuthorization(policy => policy.RequireRole
         (
             RoleConstants.Admin, 
+            RoleConstants.SuperAdmin, 
             RoleConstants.HallOwner
         ));
 

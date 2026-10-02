@@ -11,7 +11,7 @@ public partial class BookMyHallDbContext
     public DbSet<HallBlock> HallBlocks => Set<HallBlock>();
     public DbSet<HallListView> HallListViews => Set<HallListView>();
     public DbSet<NearbyHallView> NearbyHallViews => Set<NearbyHallView>();
-    public DbSet<Vendors> Vendors => Set<Vendors>();
+    public DbSet<Vendor> Vendors => Set<Vendor>();
     public DbSet<VendorCategory> VendorCategories => Set<VendorCategory>();
     public DbSet<VendorAvailability> VendorAvailabilities => Set<VendorAvailability>();
     public DbSet<VendorBooking> VendorBookings => Set<VendorBooking>();
@@ -24,5 +24,4 @@ public partial class BookMyHallDbContext
     public DbSet<VendorService> VendorServices => Set<VendorService>();
     public DbSet<VendorServiceArea> VendorServiceAreas => Set<VendorServiceArea>();
     public DbSet<VendorSubCategory> VendorSubCategories => Set<VendorSubCategory>();
-
 }

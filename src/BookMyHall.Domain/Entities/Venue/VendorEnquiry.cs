@@ -22,7 +22,7 @@ public class VendorEnquiry : BaseEntity
     public DateTime? VendorResponseDate { get; set; }
     public bool IsActive { get; set; } = true;
     public bool IsDeleted { get; set; }
-    public virtual Vendors Vendor { get; set; } = null!;
+    public virtual Vendor Vendor { get; set; } = null!;
     public virtual VendorService? VendorService { get; set; }
     public virtual VendorPackage? VendorPackage { get; set; }
 }

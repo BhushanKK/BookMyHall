@@ -5,5 +5,6 @@ public static class RoleConstants
     public const string HallOwner = "Hall Owner";
     public const string Vendor = "Vendor";
     public const string Admin = "Admin";
+    public const string SuperAdmin = "Super Admin";
     public const string User = "User";
 }

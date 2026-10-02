@@ -1,121 +1,186 @@
 using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
+using BookMyHall.Domain.Constants;
+using BookMyHall.Domain.Dtos;
 using BookMyHall.Domain.Venue;
 using BookMyHall.Persistence.Context;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace BookMyHall.Persistence.Repositories;
 
 public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepository
 {
-    public async Task AddAsync(Vendors vendor, CancellationToken cancellationToken = default)
+    private IQueryable<Vendor> VendorQuery()
     {
-        await context.Vendors.AddAsync(vendor, cancellationToken);
+        return context.Vendors
+            .Where(x =>
+                !x.IsDeleted &&
+                x.UserId != null &&
+                context.Users.Any(u =>
+                    u.UserId == x.UserId &&
+                    u.IsActive &&
+                    !u.IsDeleted &&
+                    u.UserRoles.Any(ur =>
+                        ur.Role.IsActive &&
+                        !ur.Role.IsDeleted &&
+                        ur.Role.RoleName == RoleConstants.Vendor)));
     }
 
-    public Task UpdateAsync(Vendors vendor, CancellationToken cancellationToken = default)
+    public async Task AddAsync(Vendor vendor, CancellationToken cancellationToken = default)
+        => await context.Vendors.AddAsync(vendor, cancellationToken);
+
+    public Task UpdateAsync(Vendor vendor, CancellationToken cancellationToken = default)
     {
         context.Vendors.Update(vendor);
         return Task.CompletedTask;
     }
 
-    public async Task<Vendors?> GetByIdAsync(Guid vendorId, CancellationToken cancellationToken = default)
-    {
-        return await context.Vendors
-            .FirstOrDefaultAsync(x => x.VendorId == vendorId,cancellationToken);
-    }
+    public async Task<Vendor?> GetByIdAsync(Guid vendorId, CancellationToken cancellationToken = default)
+        => await VendorQuery().FirstOrDefaultAsync(x => x.VendorId == vendorId, cancellationToken);
 
-    public async Task<Vendors?> GetByBusinessNameAsync(string businessName, CancellationToken cancellationToken = default)
-    {
-        return await context.Vendors
-            .FirstOrDefaultAsync(x => x.BusinessName == businessName && !x.IsDeleted,cancellationToken);
-    }
+    public async Task<Vendor?> GetByBusinessNameAsync(string businessName, CancellationToken cancellationToken = default)
+        => await VendorQuery().FirstOrDefaultAsync(x => x.BusinessName == businessName, cancellationToken);
 
-    public async Task<Vendors?> GetByBusinessNameIncludingDeletedAsync(string businessName, CancellationToken cancellationToken = default)
-    {
-        return await context.Vendors
+    public async Task<Vendor?> GetByBusinessNameIncludingDeletedAsync(
+        string businessName,
+        CancellationToken cancellationToken = default)
+        => await context.Vendors
             .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(x => x.BusinessName == businessName, cancellationToken);
-    }
+            .Where(x =>
+                x.BusinessName == businessName &&
+                x.UserId != null &&
+                context.Users.Any(u =>
+                    u.UserId == x.UserId &&
+                    u.IsActive &&
+                    !u.IsDeleted &&
+                    u.UserRoles.Any(ur =>
+                        ur.Role.IsActive &&
+                        !ur.Role.IsDeleted &&
+                        ur.Role.RoleName == "Vendor")))
+            .FirstOrDefaultAsync(cancellationToken);
 
-    public async Task<PaginatedResult<Vendors>> GetAllAsync(PaginationRequest request,
+    public async Task<PaginatedResult<VendorListView>> GetAllAsync(
+        PaginationRequest request,
         CancellationToken cancellationToken = default)
     {
-        var query = context.Vendors
-            .AsNoTracking()
-            .AsQueryable();
+        var query = from vendor in VendorQuery()
+                    join user in context.Users
+                    on vendor.UserId equals user.UserId
+                    select new VendorListView
+                    {
+                        VendorId = vendor.VendorId,
+                        UserId = vendor.UserId,
+                        VendorName = user.FullName,
+                        BusinessName = vendor.BusinessName,
+                        DisplayName = vendor.DisplayName,
+                        Description = vendor.Description,
+                        ContactPersonName = vendor.ContactPersonName,
+                        Email = vendor.Email,
+                        MobileNumber = vendor.MobileNumber,
+                        AlternateMobileNumber = vendor.AlternateMobileNumber,
+                        WebsiteUrl = vendor.WebsiteUrl,
+                        YoutubeUrl = vendor.YoutubeUrl,
+                        InstagramUrl = vendor.InstagramUrl,
+                        AddressLine1 = vendor.AddressLine1,
+                        AddressLine2 = vendor.AddressLine2,
+                        Pincode = vendor.Pincode,
+                        Latitude = vendor.Latitude,
+                        Longitude = vendor.Longitude,
+                        EstablishedYear = vendor.EstablishedYear,
+                        IsVerified = vendor.IsVerified,
+                        IsActive = vendor.IsActive,
+                        Rating = vendor.Rating,
+                        ReviewCount = vendor.ReviewCount,
+                    };
+
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             var searchText = request.SearchText.Trim();
+            var pattern = $"%{searchText}%";
+
             query = query.Where(x =>
-                x.BusinessName.Contains(searchText) ||
-                (x.DisplayName != null && x.DisplayName.Contains(searchText)) ||
-                (x.ContactPersonName != null && x.ContactPersonName.Contains(searchText)) ||
-                (x.MobileNumber != null && x.MobileNumber.Contains(searchText)) ||
-                (x.Email != null && x.Email.Contains(searchText)));
+                EF.Functions.ILike(x.BusinessName, pattern) ||
+                EF.Functions.ILike(x.VendorName, pattern));
         }
 
-        var totalCounts = await query.CountAsync(
-            cancellationToken);
+        var totalCount = await query.CountAsync(cancellationToken);
 
         query = request.SortBy?.ToLowerInvariant() switch
         {
-            "businessname" =>
-                request.SortDescending
-                    ? query.OrderByDescending(x => x.BusinessName)
-                    : query.OrderBy(x => x.BusinessName),
+            "vendorname" => request.SortDescending
+                ? query.OrderByDescending(x => x.VendorName)
+                : query.OrderBy(x => x.VendorName),
 
-            "displayname" =>
-                request.SortDescending
-                    ? query.OrderByDescending(x => x.DisplayName)
-                    : query.OrderBy(x => x.DisplayName),
+            "businessname" => request.SortDescending
+                ? query.OrderByDescending(x => x.BusinessName)
+                : query.OrderBy(x => x.BusinessName),
 
-            "rating" =>
-                request.SortDescending
-                    ? query.OrderByDescending(x => x.Rating)
-                    : query.OrderBy(x => x.Rating),
+            "displayname" => request.SortDescending
+                ? query.OrderByDescending(x => x.DisplayName)
+                : query.OrderBy(x => x.DisplayName),
 
-            "reviewcount" =>
-                request.SortDescending
-                    ? query.OrderByDescending(x => x.ReviewCount)
-                    : query.OrderBy(x => x.ReviewCount),
+            "rating" => request.SortDescending
+                ? query.OrderByDescending(x => x.Rating)
+                : query.OrderBy(x => x.Rating),
 
-            _ =>
-                query.OrderBy(x => x.BusinessName)
+            "reviewcount" => request.SortDescending
+                ? query.OrderByDescending(x => x.ReviewCount)
+                : query.OrderBy(x => x.ReviewCount),
+
+            _ => query.OrderBy(x => x.BusinessName)
         };
 
         var items = await query
-            .Skip(
-                (request.PageNumber - 1) *
-                request.PageSize)
+            .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);
 
-        return new PaginatedResult<Vendors>
+        return new PaginatedResult<VendorListView>
         {
             Items = items,
             PageNumber = request.PageNumber,
             PageSize = request.PageSize,
-            TotalCount = totalCounts
+            TotalCount = totalCount
         };
     }
-      public async Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(
-        string? searchTerm, int limit = 20, CancellationToken cancellationToken = default)
-    {
-        var query = context.Vendors.AsNoTracking().Where(x => !x.IsDeleted && x.IsActive);
 
+    public async Task<IReadOnlyList<AutoCompleteItem>> GetAutoCompleteAsync(
+    string? searchTerm,
+    int limit = 30,
+    CancellationToken cancellationToken = default)
+    {
+        var query =
+            from vendor in VendorQuery()
+            join user in context.Users
+            on vendor.UserId equals user.UserId
+            select new
+            {
+                vendor.VendorId,
+                VendorName =
+                    vendor.BusinessName + " - " +
+                    (user.FirstName + " " +
+                    (user.MiddleName ?? "") + " " +
+                    (user.LastName ?? "")).Trim()
+            };
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            var search = searchTerm.Trim();
-            var pattern = $"%{search}%";
-            query = query.Where(x => EF.Functions.ILike(x.BusinessName, pattern));
+            var searchText = searchTerm.Trim();
+            var pattern = $"%{searchText}%";
+
+            query = query.Where(x =>
+                EF.Functions.ILike(x.BusinessName, pattern) ||
+                EF.Functions.ILike(x.VendorName, pattern));
         }
 
         return await query
             .OrderBy(x => x.BusinessName)
+            .ThenBy(x => x.VendorName)
             .ThenBy(x => x.VendorId)
-            .Take(Math.Clamp(limit, 1, 20))
-            .Select(x => new AutoCompleteItem(x.VendorId, x.BusinessName))
+            .Take(Math.Clamp(limit, 1, 30))
+            .Select(x => new AutoCompleteItem(
+                x.VendorId,
+                x.BusinessName))
             .ToListAsync(cancellationToken);
     }
 }

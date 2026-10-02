@@ -16,5 +16,5 @@ public class VendorDocument : BaseEntity
     public string? Remarks { get; set; }
     public bool IsActive { get; set; } = true;
     public bool IsDeleted { get; set; }
-    public virtual Vendors Vendor { get; set; } = null!;
+    public virtual Vendor Vendor { get; set; } = null!;
 }

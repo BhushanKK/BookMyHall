@@ -22,11 +22,14 @@ public sealed class GetHallQueryHandler(IHallRepository hallRepository,IMessageH
         // Determine current user's roles
         // =============================================================
 
-        var isHallOwner =currentUser.Roles.Any(role =>
+        var isHallOwner = currentUser.Roles.Any(role =>
                 string.Equals(role,RoleConstants.HallOwner,StringComparison.OrdinalIgnoreCase));
 
         var isAdmin =currentUser.Roles.Any(role =>
                 string.Equals(role,RoleConstants.Admin,StringComparison.OrdinalIgnoreCase));
+        
+        var isSuperAdmin =currentUser.Roles.Any(role =>
+                string.Equals(role,RoleConstants.SuperAdmin,StringComparison.OrdinalIgnoreCase));
 
         // =============================================================
         // Determine Hall Owner filter
@@ -42,7 +45,7 @@ public sealed class GetHallQueryHandler(IHallRepository hallRepository,IMessageH
         // =============================================================
 
         Guid? hallOwnerId = null;
-        if (isHallOwner && !isAdmin)
+        if (isHallOwner && !isAdmin && !isSuperAdmin)
         {
             if (currentUser.UserId is null)
             {

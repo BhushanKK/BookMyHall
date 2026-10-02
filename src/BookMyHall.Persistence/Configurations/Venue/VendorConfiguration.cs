@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BookMyHall.Persistence.Context;
-public sealed class VendorConfiguration : IEntityTypeConfiguration<Vendors>
+public sealed class VendorConfiguration : IEntityTypeConfiguration<Vendor>
 {
-    public void Configure(EntityTypeBuilder<Vendors> builder)
+    public void Configure(EntityTypeBuilder<Vendor> builder)
     {
-        builder.ToTable("Vendors", "venue");
+        builder.ToTable("Vendor", "venue");
         builder.HasKey(x =>  x.VendorId );
         builder.HasQueryFilter(x => !x.IsDeleted);
     }
