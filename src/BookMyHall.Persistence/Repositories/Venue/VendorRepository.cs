@@ -168,9 +168,7 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
         {
             var searchText = searchTerm.Trim();
             var pattern = $"%{searchText}%";
-
-            query = query.Where(x =>
-                EF.Functions.ILike(x.VendorName, pattern));
+            query = query.Where(x => EF.Functions.ILike(x.VendorName, pattern));
         }
 
         return await query
@@ -178,9 +176,7 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
             .ThenBy(x => x.VendorName)
             .ThenBy(x => x.VendorId)
             .Take(Math.Clamp(limit, 1, 30))
-            .Select(x => new AutoCompleteItem(
-                x.VendorId,
-                x.VendorName))
+            .Select(x => new AutoCompleteItem(x.VendorId, x.VendorName))
             .ToListAsync(cancellationToken);
     }
 }
