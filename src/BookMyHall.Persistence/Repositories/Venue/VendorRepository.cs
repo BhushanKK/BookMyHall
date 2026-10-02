@@ -74,11 +74,13 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
         var query = from vendor in VendorQuery()
                     join user in context.Users
                     on vendor.UserId equals user.UserId
-                    select new VendorListView
+                    select new
                     {
                         VendorId = vendor.VendorId,
                         UserId = vendor.UserId,
-                        VendorName = user.FullName,
+                        VendorName = user.FirstName +
+                            (string.IsNullOrWhiteSpace(user.MiddleName) ? string.Empty : " " + user.MiddleName) +
+                            (string.IsNullOrWhiteSpace(user.LastName) ? string.Empty : " " + user.LastName),
                         BusinessName = vendor.BusinessName,
                         DisplayName = vendor.DisplayName,
                         Description = vendor.Description,
@@ -154,9 +156,36 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);
 
+        var mappedItems = items.Select(x => new VendorListView
+        {
+            VendorId = x.VendorId,
+            UserId = x.UserId,
+            VendorName = string.IsNullOrWhiteSpace(x.VendorName) ? x.BusinessName : x.VendorName,
+            BusinessName = x.BusinessName,
+            DisplayName = x.DisplayName,
+            Description = x.Description,
+            ContactPersonName = x.ContactPersonName,
+            Email = x.Email,
+            MobileNumber = x.MobileNumber,
+            AlternateMobileNumber = x.AlternateMobileNumber,
+            WebsiteUrl = x.WebsiteUrl,
+            YoutubeUrl = x.YoutubeUrl,
+            InstagramUrl = x.InstagramUrl,
+            AddressLine1 = x.AddressLine1,
+            AddressLine2 = x.AddressLine2,
+            Pincode = x.Pincode,
+            Latitude = x.Latitude,
+            Longitude = x.Longitude,
+            EstablishedYear = x.EstablishedYear,
+            IsVerified = x.IsVerified,
+            IsActive = x.IsActive,
+            Rating = x.Rating,
+            ReviewCount = x.ReviewCount,
+        }).ToList();
+
         return new PaginatedResult<VendorListView>
         {
-            Items = items,
+            Items = mappedItems,
             PageNumber = request.PageNumber,
             PageSize = request.PageSize,
             TotalCount = totalCount
@@ -182,9 +211,9 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
             select new
             {
                 vendor.VendorId,
-                VendorName = string.IsNullOrWhiteSpace(user.FullName)
-                    ? vendor.BusinessName
-                    : user.FullName
+                VendorName = user.FirstName +
+                    (string.IsNullOrWhiteSpace(user.MiddleName) ? string.Empty : " " + user.MiddleName) +
+                    (string.IsNullOrWhiteSpace(user.LastName) ? string.Empty : " " + user.LastName)
             };
 
         if (areaId.HasValue)
@@ -205,11 +234,14 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
             query = query.Where(x => EF.Functions.ILike(x.VendorName, pattern));
         }
 
-        return await query
+        var items = await query
             .OrderBy(x => x.VendorName)
             .ThenBy(x => x.VendorId)
             .Take(Math.Clamp(limit, 1, 30))
-            .Select(x => new AutoCompleteItem(x.VendorId, x.VendorName))
             .ToListAsync(cancellationToken);
+
+        return items
+            .Select(x => new AutoCompleteItem(x.VendorId, x.VendorName))
+            .ToList();
     }
 }
