@@ -18,12 +18,18 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddSerilogLogging();
+
 builder.Services.AddOpenApi();
-builder.Services.AddApplication(builder.Configuration)
-    .AddInfrastructure(builder.Configuration)
+
+builder.Services
+    .AddApplication(builder.Configuration)
+    .AddInfrastructure(
+        builder.Configuration,
+        builder.Environment)
     .AddPersistence(builder.Configuration);
 
 const string CorsPolicyName = "BookMyHallFrontend";
+
 var allowedOrigins = builder.Configuration
     .GetSection("Cors:AllowedOrigins")
     .Get<string[]>() ?? [];
@@ -32,10 +38,11 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(CorsPolicyName, policy =>
     {
-        policy.WithOrigins(allowedOrigins)
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowCredentials();
+        policy
+            .WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -44,8 +51,14 @@ builder.Services.AddLocalization(options =>
     options.ResourcesPath = "Localization";
 });
 
-builder.Services.AddSingleton<ILocalizationService, LocalizationService>();
-builder.Services.AddScoped<IMessageHelper, MessageHelper>();
+builder.Services.AddSingleton<
+    ILocalizationService,
+    LocalizationService>();
+
+builder.Services.AddScoped<
+    IMessageHelper,
+    MessageHelper>();
+
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[]
@@ -56,9 +69,12 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
         new CultureInfo(Languages.Gujrathi)
     };
 
-    options.DefaultRequestCulture = new RequestCulture(Languages.English);
+    options.DefaultRequestCulture =
+        new RequestCulture(Languages.English);
+
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
+
     options.RequestCultureProviders =
     [
         new AcceptLanguageHeaderRequestCultureProvider()
@@ -68,6 +84,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 builder.Services.AddResponseCompression(options =>
 {
     options.EnableForHttps = true;
+
     options.Providers.Add<BrotliCompressionProvider>();
     options.Providers.Add<GzipCompressionProvider>();
 
@@ -80,12 +97,14 @@ builder.Services.AddResponseCompression(options =>
         ]);
 });
 
-builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+builder.Services.Configure<
+    BrotliCompressionProviderOptions>(options =>
 {
     options.Level = CompressionLevel.Fastest;
 });
 
-builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+builder.Services.Configure<
+    GzipCompressionProviderOptions>(options =>
 {
     options.Level = CompressionLevel.Fastest;
 });
@@ -93,29 +112,51 @@ builder.Services.Configure<GzipCompressionProviderOptions>(options =>
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+
 app.UseSerilogRequestLogging();
-var localizationOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();
-app.UseRequestLocalization(localizationOptions.Value);
+
+var localizationOptions =
+    app.Services.GetRequiredService<
+        IOptions<RequestLocalizationOptions>>();
+
+app.UseRequestLocalization(
+    localizationOptions.Value);
+
 app.UseResponseCompression();
+
 app.UseCors(CorsPolicyName);
+
 app.UseMiddleware<CorrelationIdMiddleware>();
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 app.UseMiddleware<AuditLogMiddleware>();
+
 app.UseAuthentication();
+
 app.UseAuthorization();
+
 app.UseStaticFiles();
+
 app.MapOpenApi();
+
 app.MapScalarApiReference(options =>
 {
-    options.WithTitle("BookMyHall API").WithTheme(ScalarTheme.BluePlanet);
+    options
+        .WithTitle("BookMyHall API")
+        .WithTheme(ScalarTheme.BluePlanet);
 });
 
 app.MapHealthChecks("/health");
-using (var scope = app.Services.CreateScope())
+
+if (!app.Environment.IsEnvironment("Testing"))
 {
-    var topology = scope.ServiceProvider.GetRequiredService<RabbitMqTopology>();
-    await topology.ConfigureAsync();
+    using var scope = app.Services.CreateScope();
+
+    _ = scope.ServiceProvider
+        .GetRequiredService<RabbitMqTopology>();
 }
 
 app.MapBookMyHallEndpoints();
+
 await app.RunAsync();
