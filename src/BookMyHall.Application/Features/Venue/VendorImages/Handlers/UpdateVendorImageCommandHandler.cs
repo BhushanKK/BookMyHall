@@ -68,6 +68,7 @@ public sealed class UpdateVendorImageCommandHandler(
             {
                 return ApiResponse<VendorImageDto>.FailureResponse("Vendor service does not belong to this vendor.", HttpStatusCode.BadRequest);
             }
+            image.VendorService = service;
         }
 
         var replacingImage = request.ImageStream is not null;
@@ -90,7 +91,7 @@ public sealed class UpdateVendorImageCommandHandler(
         if (replacingImage)
         {
             var extension = Path.GetExtension(request.FileName!).ToLowerInvariant();
-            newImageKey = $"vendors/{image.VendorId}/{image.VendorImageId}{extension}";
+            newImageKey = $"vendors/{image.VendorId}/services/{vendorServiceId?.ToString() ?? "unassigned"}/{image.VendorImageId}/{Guid.NewGuid()}{extension}";
             try
             {
                 if (request.ImageStream!.CanSeek)

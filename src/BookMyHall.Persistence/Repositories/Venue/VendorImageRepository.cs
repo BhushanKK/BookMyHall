@@ -9,22 +9,32 @@ namespace BookMyHall.Persistence.Repositories.Venue;
 public sealed class VendorImageRepository(BookMyHallDbContext context) : IVendorImageRepository
 {
     public Task<VendorImage?> GetByIdAsync(Guid vendorImageId, CancellationToken cancellationToken = default)
-        => context.VendorImages.FirstOrDefaultAsync(x => x.VendorImageId == vendorImageId, cancellationToken);
+        => context.VendorImages
+            .Include(x => x.VendorService).ThenInclude(x => x!.VendorSubCategory).ThenInclude(x => x.VendorCategory)
+            .FirstOrDefaultAsync(x => x.VendorImageId == vendorImageId, cancellationToken);
 
     public async Task<PaginatedResult<VendorImage>> GetByVendorIdAsync(
         Guid vendorId,
         PaginationRequest request,
         CancellationToken cancellationToken = default,
-        Guid? vendorServiceId = null)
+        Guid? vendorServiceId = null,
+        Guid? vendorCategoryId = null,
+        Guid? vendorSubCategoryId = null)
     {
         var query = context.VendorImages
             .AsNoTracking()
+            .Include(x => x.VendorService).ThenInclude(x => x!.VendorSubCategory).ThenInclude(x => x.VendorCategory)
             .Where(x => x.VendorId == vendorId && x.IsActive);
 
         if (vendorServiceId.HasValue)
         {
             query = query.Where(x => x.VendorServiceId == vendorServiceId);
         }
+
+        if (vendorCategoryId.HasValue)
+            query = query.Where(x => x.VendorService != null && x.VendorService.VendorCategoryId == vendorCategoryId);
+        if (vendorSubCategoryId.HasValue)
+            query = query.Where(x => x.VendorService != null && x.VendorService.VendorSubCategoryId == vendorSubCategoryId);
 
         var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
@@ -45,6 +55,7 @@ public sealed class VendorImageRepository(BookMyHallDbContext context) : IVendor
 
     public Task<VendorImage?> GetCoverImageAsync(Guid vendorId, CancellationToken cancellationToken = default, Guid? vendorServiceId = null)
         => context.VendorImages.AsNoTracking()
+            .Include(x => x.VendorService).ThenInclude(x => x!.VendorSubCategory).ThenInclude(x => x.VendorCategory)
             .FirstOrDefaultAsync(x => x.VendorId == vendorId && x.VendorServiceId == vendorServiceId && x.IsCoverImage && x.IsActive, cancellationToken);
 
     public Task AddAsync(VendorImage vendorImage, CancellationToken cancellationToken = default)

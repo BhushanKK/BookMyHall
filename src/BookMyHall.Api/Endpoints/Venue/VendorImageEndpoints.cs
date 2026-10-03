@@ -13,7 +13,7 @@ public static class VendorImageEndpoints
         var group = app.MapGroup("/api/vendors")
             .WithTags("Vendor Images")
             .DisableAntiforgery()
-            .RequireAuthorization(policy => policy.RequireRole(RoleConstants.Admin, RoleConstants.Vendor));
+            .RequireAuthorization(policy => policy.RequireRole(RoleConstants.Admin, RoleConstants.HallOwner, RoleConstants.Vendor));
 
         group.MapPost("/{vendorId:guid}/images", async (
             Guid vendorId,
@@ -40,7 +40,7 @@ public static class VendorImageEndpoints
         })
         .WithName("CreateVendorImage")
         .WithSummary("Upload Vendor Image")
-        .WithDescription("Uploads a vendor image. Supply vendorServiceId to associate it with a service and its category/subcategory.")
+        .WithDescription("Uploads a vendor image. vendorServiceId is required and identifies the image's category and subcategory. JPG, PNG, or WEBP up to 5 MB.")
         .Accepts<IFormFile>("multipart/form-data")
         .Produces<ApiResponse<Guid>>(StatusCodes.Status201Created)
         .Produces(StatusCodes.Status400BadRequest)
@@ -64,18 +64,20 @@ public static class VendorImageEndpoints
         group.MapGet("/{vendorId:guid}/images", async (
             Guid vendorId,
             Guid? vendorServiceId,
+            Guid? vendorCategoryId,
+            Guid? vendorSubCategoryId,
             [AsParameters] PaginationRequest pagination,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
             var response = await mediator.Send(
-                new GetVendorImagesByVendorIdQuery(vendorId, pagination, vendorServiceId),
+                new GetVendorImagesByVendorIdQuery(vendorId, pagination, vendorServiceId, vendorCategoryId, vendorSubCategoryId),
                 cancellationToken);
             return Results.Json(response, statusCode: response.StatusCode);
         })
         .WithName("GetVendorImagesByVendorId")
         .WithSummary("Get Vendor Images")
-        .WithDescription("Returns all active vendor images, or filters by vendorServiceId when supplied.")
+        .WithDescription("Returns active vendor images, optionally filtered by vendorServiceId, vendorCategoryId, or vendorSubCategoryId.")
         .Produces<ApiResponse<PaginatedResult<VendorImageDto>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status404NotFound);

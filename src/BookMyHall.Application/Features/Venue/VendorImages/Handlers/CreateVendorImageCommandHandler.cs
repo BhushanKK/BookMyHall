@@ -33,6 +33,10 @@ public sealed class CreateVendorImageCommandHandler(
     public async Task<ApiResponse<Guid>> Handle(CreateVendorImageCommand request, CancellationToken cancellationToken)
     {
         var extension = Path.GetExtension(request.FileName);
+        if (!request.VendorServiceId.HasValue || request.VendorServiceId == Guid.Empty)
+        {
+            return ApiResponse<Guid>.FailureResponse("Select a vendor service to assign the image to its category and subcategory.", HttpStatusCode.BadRequest);
+        }
         if (request.VendorId == Guid.Empty || request.ImageStream is null ||
             request.FileSize is <= 0 or > MaxFileSize || request.DisplayOrder <= 0 ||
             !AllowedExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase) ||
@@ -73,7 +77,7 @@ public sealed class CreateVendorImageCommandHandler(
         }
 
         var imageId = Guid.NewGuid();
-        var objectKey = $"vendors/{request.VendorId}/{imageId}{extension.ToLowerInvariant()}";
+        var objectKey = $"vendors/{request.VendorId}/services/{request.VendorServiceId}/{imageId}{extension.ToLowerInvariant()}";
         var uploaded = false;
 
         try

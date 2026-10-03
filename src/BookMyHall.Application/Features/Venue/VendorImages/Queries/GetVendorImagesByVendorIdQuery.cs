@@ -3,5 +3,6 @@ using MediatR;
 
 namespace BookMyHall.Application.Features.Venue;
 
-public sealed record GetVendorImagesByVendorIdQuery(Guid VendorId, PaginationRequest Pagination, Guid? VendorServiceId = null)
+public sealed record GetVendorImagesByVendorIdQuery(Guid VendorId, PaginationRequest Pagination, Guid? VendorServiceId = null,
+    Guid? VendorCategoryId = null, Guid? VendorSubCategoryId = null)
     : IRequest<ApiResponse<PaginatedResult<BookMyHall.Contracts.Venue.VendorImageDto>>>;

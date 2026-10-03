@@ -30,14 +30,9 @@ public sealed class GetVendorImagesByVendorIdQueryHandler(
             request.VendorId,
             request.Pagination,
             cancellationToken,
-            request.VendorServiceId);
-
-        if (result.Items.Count == 0)
-        {
-            return ApiResponse<PaginatedResult<VendorImageDto>>.FailureResponse(
-                messageHelper.NotFoundEntity(ResourceNames.Entities, EntityKeys.VendorImage),
-                HttpStatusCode.NotFound);
-        }
+            request.VendorServiceId,
+            request.VendorCategoryId,
+            request.VendorSubCategoryId);
 
         var items = new List<VendorImageDto>(result.Items.Count);
         foreach (var image in result.Items)

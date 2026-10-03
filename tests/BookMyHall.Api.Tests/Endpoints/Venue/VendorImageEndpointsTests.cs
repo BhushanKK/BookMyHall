@@ -1,5 +1,13 @@
 using System.Net;
 using System.Net.Http.Headers;
+using BookMyHall.Application.Features.Venue;
+using BookMyHall.Contracts.Common;
+using BookMyHall.Contracts.Venue;
+using MediatR;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using FluentAssertions;
 
 namespace BookMyHall.Api.Tests.Endpoints.Venue;
@@ -8,6 +16,40 @@ public sealed class VendorImageEndpointsTests(BookMyHallWebApplicationFactory fa
     : IClassFixture<BookMyHallWebApplicationFactory>
 {
     private readonly BookMyHallWebApplicationFactory _factory = factory;
+
+    [Fact]
+    public async Task UploadAndGalleryBindServiceCategoryAndSubcategory()
+    {
+        var vendorId = Guid.NewGuid();
+        var serviceId = Guid.NewGuid();
+        var categoryId = Guid.NewGuid();
+        var subCategoryId = Guid.NewGuid();
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(x => x.Send(It.IsAny<CreateVendorImageCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ApiResponse<Guid>.SuccessResponse(Guid.NewGuid(), statusCode: HttpStatusCode.Created));
+        mediator.Setup(x => x.Send(It.IsAny<GetVendorImagesByVendorIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ApiResponse<PaginatedResult<VendorImageDto>>.SuccessResponse(new() { Items = [] }));
+        using var app = factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
+        {
+            services.AddSingleton(mediator.Object);
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = LogoTestAuthenticationHandler.SchemeName;
+                options.DefaultChallengeScheme = LogoTestAuthenticationHandler.SchemeName;
+            }).AddScheme<AuthenticationSchemeOptions, LogoTestAuthenticationHandler>(LogoTestAuthenticationHandler.SchemeName, _ => { });
+        }));
+        using var client = app.CreateClient();
+        using var content = CreateMultipartContent();
+        using var uploaded = await client.PostAsync($"/api/vendors/{vendorId}/images?vendorServiceId={serviceId}&displayOrder=1&isCoverImage=true", content);
+        uploaded.StatusCode.Should().Be(HttpStatusCode.Created);
+        mediator.Verify(x => x.Send(It.Is<CreateVendorImageCommand>(command => command.VendorId == vendorId &&
+            command.VendorServiceId == serviceId && command.IsCoverImage), It.IsAny<CancellationToken>()), Times.Once);
+        using var gallery = await client.GetAsync($"/api/vendors/{vendorId}/images?pageNumber=1&pageSize=12&sortDescending=false&vendorServiceId={serviceId}&vendorCategoryId={categoryId}&vendorSubCategoryId={subCategoryId}");
+        gallery.StatusCode.Should().Be(HttpStatusCode.OK);
+        mediator.Verify(x => x.Send(It.Is<GetVendorImagesByVendorIdQuery>(query => query.VendorId == vendorId &&
+            query.VendorServiceId == serviceId && query.VendorCategoryId == categoryId && query.VendorSubCategoryId == subCategoryId),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
 
     [Fact]
     public async Task CreateVendorImage_WithoutAuthentication_ReturnsUnauthorized()
