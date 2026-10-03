@@ -13,6 +13,8 @@ public static class VendorServiceEndpoints
             .WithTags("Vendor Services")
             .RequireAuthorization(policy =>policy.RequireRole(RoleConstants.Admin,RoleConstants.HallOwner));
 
+        group.MapVendorServiceImageEndpoints();
+
         group.MapPost("/", async (CreateVendorServiceCommand command,IMediator mediator,
             CancellationToken cancellationToken) =>
         {
