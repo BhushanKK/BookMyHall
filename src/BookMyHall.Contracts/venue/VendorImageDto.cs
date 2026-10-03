@@ -4,6 +4,7 @@ public sealed class VendorImageDto
 {
     public Guid VendorImageId { get; set; }
     public Guid VendorId { get; set; }
+    public Guid? VendorServiceId { get; set; }
     public string? ImageUrl { get; set; }
     public string? ThumbnailUrl { get; set; }
     public int DisplayOrder { get; set; }

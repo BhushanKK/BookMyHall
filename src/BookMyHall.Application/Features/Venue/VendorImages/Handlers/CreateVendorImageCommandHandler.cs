@@ -17,6 +17,7 @@ namespace BookMyHall.Application.Features.Venue;
 
 public sealed class CreateVendorImageCommandHandler(
     IVendorRepository vendorRepository,
+    IVendorServiceRepository vendorServiceRepository,
     IVendorImageRepository vendorImageRepository,
     IUnitOfWork unitOfWork,
     IR2StorageService storage,
@@ -50,6 +51,27 @@ public sealed class CreateVendorImageCommandHandler(
                 HttpStatusCode.NotFound);
         }
 
+        if (request.VendorServiceId.HasValue)
+        {
+            if (request.VendorServiceId == Guid.Empty)
+            {
+                return ApiResponse<Guid>.FailureResponse("Vendor service ID must not be empty.", HttpStatusCode.BadRequest);
+            }
+
+            var service = await vendorServiceRepository.GetByIdAsync(request.VendorServiceId.Value, cancellationToken);
+            if (service is null || service.IsDeleted || !service.IsActive)
+            {
+                return ApiResponse<Guid>.FailureResponse(
+                    messageHelper.NotFoundEntity(ResourceNames.Entities, EntityKeys.VendorService),
+                    HttpStatusCode.NotFound);
+            }
+
+            if (service.VendorId != request.VendorId)
+            {
+                return ApiResponse<Guid>.FailureResponse("Vendor service does not belong to this vendor.", HttpStatusCode.BadRequest);
+            }
+        }
+
         var imageId = Guid.NewGuid();
         var objectKey = $"vendors/{request.VendorId}/{imageId}{extension.ToLowerInvariant()}";
         var uploaded = false;
@@ -71,13 +93,15 @@ public sealed class CreateVendorImageCommandHandler(
                 await vendorImageRepository.ClearOtherCoverImagesAsync(
                     request.VendorId,
                     null,
-                    cancellationToken);
+                    cancellationToken,
+                    request.VendorServiceId);
             }
 
             await vendorImageRepository.AddAsync(new VendorImage
             {
                 VendorImageId = imageId,
                 VendorId = request.VendorId,
+                VendorServiceId = request.VendorServiceId,
                 ImageUrl = objectKey,
                 DisplayOrder = request.DisplayOrder,
                 IsCoverImage = request.IsCoverImage,

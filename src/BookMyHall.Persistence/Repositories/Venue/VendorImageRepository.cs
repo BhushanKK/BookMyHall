@@ -14,11 +14,17 @@ public sealed class VendorImageRepository(BookMyHallDbContext context) : IVendor
     public async Task<PaginatedResult<VendorImage>> GetByVendorIdAsync(
         Guid vendorId,
         PaginationRequest request,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        Guid? vendorServiceId = null)
     {
         var query = context.VendorImages
             .AsNoTracking()
             .Where(x => x.VendorId == vendorId && x.IsActive);
+
+        if (vendorServiceId.HasValue)
+        {
+            query = query.Where(x => x.VendorServiceId == vendorServiceId);
+        }
 
         var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
@@ -37,9 +43,9 @@ public sealed class VendorImageRepository(BookMyHallDbContext context) : IVendor
         };
     }
 
-    public Task<VendorImage?> GetCoverImageAsync(Guid vendorId, CancellationToken cancellationToken = default)
+    public Task<VendorImage?> GetCoverImageAsync(Guid vendorId, CancellationToken cancellationToken = default, Guid? vendorServiceId = null)
         => context.VendorImages.AsNoTracking()
-            .FirstOrDefaultAsync(x => x.VendorId == vendorId && x.IsCoverImage && x.IsActive, cancellationToken);
+            .FirstOrDefaultAsync(x => x.VendorId == vendorId && x.VendorServiceId == vendorServiceId && x.IsCoverImage && x.IsActive, cancellationToken);
 
     public Task AddAsync(VendorImage vendorImage, CancellationToken cancellationToken = default)
         => context.VendorImages.AddAsync(vendorImage, cancellationToken).AsTask();
@@ -53,10 +59,11 @@ public sealed class VendorImageRepository(BookMyHallDbContext context) : IVendor
     public async Task ClearOtherCoverImagesAsync(
         Guid vendorId,
         Guid? exceptVendorImageId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        Guid? vendorServiceId = null)
     {
         var covers = await context.VendorImages
-            .Where(x => x.VendorId == vendorId && x.IsCoverImage && x.IsActive)
+            .Where(x => x.VendorId == vendorId && x.VendorServiceId == vendorServiceId && x.IsCoverImage && x.IsActive)
             .ToListAsync(cancellationToken);
 
         foreach (var cover in covers.Where(x => x.VendorImageId != exceptVendorImageId))

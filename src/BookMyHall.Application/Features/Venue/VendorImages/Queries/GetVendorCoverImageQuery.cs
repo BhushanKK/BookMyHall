@@ -4,4 +4,4 @@ using MediatR;
 
 namespace BookMyHall.Application.Features.Venue;
 
-public sealed record GetVendorCoverImageQuery(Guid VendorId) : IRequest<ApiResponse<VendorImageDto>>;
+public sealed record GetVendorCoverImageQuery(Guid VendorId, Guid? VendorServiceId = null) : IRequest<ApiResponse<VendorImageDto>>;

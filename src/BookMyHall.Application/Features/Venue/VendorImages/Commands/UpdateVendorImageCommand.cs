@@ -12,4 +12,5 @@ public sealed record UpdateVendorImageCommand(
     Stream? ImageStream,
     string? FileName,
     string? ContentType,
-    long? FileSize) : IRequest<ApiResponse<VendorImageDto>>;
+    long? FileSize,
+    Guid? VendorServiceId = null) : IRequest<ApiResponse<VendorImageDto>>;

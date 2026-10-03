@@ -29,7 +29,8 @@ public sealed class GetVendorImagesByVendorIdQueryHandler(
         var result = await repository.GetByVendorIdAsync(
             request.VendorId,
             request.Pagination,
-            cancellationToken);
+            cancellationToken,
+            request.VendorServiceId);
 
         if (result.Items.Count == 0)
         {

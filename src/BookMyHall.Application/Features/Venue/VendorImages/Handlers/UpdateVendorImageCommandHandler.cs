@@ -2,6 +2,7 @@ using System.Net;
 using BookMyHall.Application.Abstractions.Caching;
 using BookMyHall.Application.Abstractions.Messaging;
 using BookMyHall.Application.Abstractions.Persistence;
+using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Application.Common.Interfaces.Repositories.Venue;
 using BookMyHall.Application.Common.Interfaces.Storage;
 using BookMyHall.Contracts.Common;
@@ -16,6 +17,7 @@ namespace BookMyHall.Application.Features.Venue;
 
 public sealed class UpdateVendorImageCommandHandler(
     IVendorImageRepository repository,
+    IVendorServiceRepository vendorServiceRepository,
     IUnitOfWork unitOfWork,
     IR2StorageService storage,
     IMessagePublisher messagePublisher,
@@ -44,6 +46,28 @@ public sealed class UpdateVendorImageCommandHandler(
             return ApiResponse<VendorImageDto>.FailureResponse(
                 messageHelper.NotFoundEntity(ResourceNames.Entities, EntityKeys.VendorImage),
                 HttpStatusCode.NotFound);
+        }
+
+        var vendorServiceId = request.VendorServiceId ?? image.VendorServiceId;
+        if (request.VendorServiceId.HasValue)
+        {
+            if (vendorServiceId == Guid.Empty)
+            {
+                return ApiResponse<VendorImageDto>.FailureResponse("Vendor service ID must not be empty.", HttpStatusCode.BadRequest);
+            }
+
+            var service = await vendorServiceRepository.GetByIdAsync(request.VendorServiceId.Value, cancellationToken);
+            if (service is null || service.IsDeleted || !service.IsActive)
+            {
+                return ApiResponse<VendorImageDto>.FailureResponse(
+                    messageHelper.NotFoundEntity(ResourceNames.Entities, EntityKeys.VendorService),
+                    HttpStatusCode.NotFound);
+            }
+
+            if (service.VendorId != image.VendorId)
+            {
+                return ApiResponse<VendorImageDto>.FailureResponse("Vendor service does not belong to this vendor.", HttpStatusCode.BadRequest);
+            }
         }
 
         var replacingImage = request.ImageStream is not null;
@@ -95,9 +119,11 @@ public sealed class UpdateVendorImageCommandHandler(
             await repository.ClearOtherCoverImagesAsync(
                 image.VendorId,
                 image.VendorImageId,
-                cancellationToken);
+                cancellationToken,
+                vendorServiceId);
         }
 
+        image.VendorServiceId = vendorServiceId;
         image.UpdateMetadata(request.DisplayOrder, isCoverImage, request.IsActive);
 
         try

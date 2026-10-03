@@ -18,6 +18,7 @@ public static class VendorImageEndpoints
         group.MapPost("/{vendorId:guid}/images", async (
             Guid vendorId,
             IFormFile image,
+            Guid? vendorServiceId,
             int displayOrder,
             bool isCoverImage,
             IMediator mediator,
@@ -31,14 +32,15 @@ public static class VendorImageEndpoints
                 image.ContentType,
                 image.Length,
                 displayOrder,
-                isCoverImage);
+                isCoverImage,
+                vendorServiceId);
 
             var response = await mediator.Send(command, cancellationToken);
             return Results.Json(response, statusCode: response.StatusCode);
         })
         .WithName("CreateVendorImage")
         .WithSummary("Upload Vendor Image")
-        .WithDescription("Uploads an image for a vendor and stores it in Cloudflare R2.")
+        .WithDescription("Uploads a vendor image. Supply vendorServiceId to associate it with a service and its category/subcategory.")
         .Accepts<IFormFile>("multipart/form-data")
         .Produces<ApiResponse<Guid>>(StatusCodes.Status201Created)
         .Produces(StatusCodes.Status400BadRequest)
@@ -61,37 +63,42 @@ public static class VendorImageEndpoints
 
         group.MapGet("/{vendorId:guid}/images", async (
             Guid vendorId,
+            Guid? vendorServiceId,
             [AsParameters] PaginationRequest pagination,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
             var response = await mediator.Send(
-                new GetVendorImagesByVendorIdQuery(vendorId, pagination),
+                new GetVendorImagesByVendorIdQuery(vendorId, pagination, vendorServiceId),
                 cancellationToken);
             return Results.Json(response, statusCode: response.StatusCode);
         })
         .WithName("GetVendorImagesByVendorId")
         .WithSummary("Get Vendor Images")
+        .WithDescription("Returns all active vendor images, or filters by vendorServiceId when supplied.")
         .Produces<ApiResponse<PaginatedResult<VendorImageDto>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status404NotFound);
 
         group.MapGet("/{vendorId:guid}/cover-image", async (
             Guid vendorId,
+            Guid? vendorServiceId,
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var response = await mediator.Send(new GetVendorCoverImageQuery(vendorId), cancellationToken);
+            var response = await mediator.Send(new GetVendorCoverImageQuery(vendorId, vendorServiceId), cancellationToken);
             return Results.Json(response, statusCode: response.StatusCode);
         })
         .WithName("GetVendorCoverImage")
         .WithSummary("Get Vendor Cover Image")
+        .WithDescription("Returns the vendor-level cover, or the service cover when vendorServiceId is supplied.")
         .Produces<ApiResponse<VendorImageDto>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized)
         .Produces(StatusCodes.Status404NotFound);
 
         group.MapPut("/images/{vendorImageId:guid}", async (
             Guid vendorImageId,
+            Guid? vendorServiceId,
             bool isCoverImage,
             int displayOrder,
             bool isActive,
@@ -122,7 +129,8 @@ public static class VendorImageEndpoints
                         stream,
                         fileName,
                         contentType,
-                        fileSize),
+                        fileSize,
+                        vendorServiceId),
                     cancellationToken);
                 return Results.Json(response, statusCode: response.StatusCode);
             }
@@ -136,7 +144,7 @@ public static class VendorImageEndpoints
         })
         .WithName("UpdateVendorImage")
         .WithSummary("Update Vendor Image")
-        .WithDescription("Updates vendor image metadata and optionally replaces the image.")
+        .WithDescription("Updates image metadata and optionally replaces the image. Supply vendorServiceId to assign a service; omitting it preserves the current assignment.")
         .Accepts<IFormFile>("multipart/form-data")
         .Produces<ApiResponse<VendorImageDto>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status400BadRequest)

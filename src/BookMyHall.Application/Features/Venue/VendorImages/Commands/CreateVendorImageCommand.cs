@@ -10,4 +10,5 @@ public sealed record CreateVendorImageCommand(
     string ContentType,
     long FileSize,
     int DisplayOrder,
-    bool IsCoverImage = false) : IRequest<ApiResponse<Guid>>;
+    bool IsCoverImage = false,
+    Guid? VendorServiceId = null) : IRequest<ApiResponse<Guid>>;

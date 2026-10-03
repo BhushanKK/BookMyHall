@@ -19,7 +19,7 @@ public sealed class GetVendorCoverImageQueryHandler(
         GetVendorCoverImageQuery request,
         CancellationToken cancellationToken)
     {
-        var image = await repository.GetCoverImageAsync(request.VendorId, cancellationToken);
+        var image = await repository.GetCoverImageAsync(request.VendorId, cancellationToken, request.VendorServiceId);
         if (image is null)
         {
             return ApiResponse<VendorImageDto>.FailureResponse(

@@ -21,6 +21,8 @@ public sealed class VendorImageConfiguration : IEntityTypeConfiguration<VendorIm
         builder.Property(x => x.ImageUrl)
             .IsRequired();
 
+        builder.Property(x => x.VendorServiceId);
+
         builder.Property(x => x.ThumbnailUrl);
 
         builder.Property(x => x.DisplayOrder)
@@ -42,6 +44,13 @@ public sealed class VendorImageConfiguration : IEntityTypeConfiguration<VendorIm
 
         builder.HasIndex(x => x.VendorId);
 
+        builder.HasOne(x => x.VendorService)
+            .WithMany()
+            .HasForeignKey(x => x.VendorServiceId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(x => x.VendorServiceId);
+
         builder.HasIndex(x => new
         {
             x.VendorId,
@@ -49,7 +58,7 @@ public sealed class VendorImageConfiguration : IEntityTypeConfiguration<VendorIm
         })
         .HasFilter("\"IsActive\" = TRUE");
 
-        builder.HasIndex(x => x.VendorId)
+        builder.HasIndex(x => x.VendorServiceId, "UX_VendorImage_Service_Cover")
             .IsUnique()
             .HasFilter("\"IsCoverImage\" = TRUE AND \"IsActive\" = TRUE");
     }

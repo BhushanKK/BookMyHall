@@ -31,6 +31,7 @@ internal static class VendorImageDtoFactory
         {
             VendorImageId = image.VendorImageId,
             VendorId = image.VendorId,
+            VendorServiceId = image.VendorServiceId,
             ImageUrl = imageUrl,
             ThumbnailUrl = thumbnailUrl,
             DisplayOrder = image.DisplayOrder,
