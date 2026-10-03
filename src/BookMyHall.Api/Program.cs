@@ -153,8 +153,10 @@ if (!app.Environment.IsEnvironment("Testing"))
 {
     using var scope = app.Services.CreateScope();
 
-    _ = scope.ServiceProvider
+    var topology = scope.ServiceProvider
         .GetRequiredService<RabbitMqTopology>();
+
+    await topology.ConfigureAsync();
 }
 
 app.MapBookMyHallEndpoints();
