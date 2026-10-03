@@ -11,6 +11,7 @@ public class VendorDto
 
     public string VendorName { get; set; } = string.Empty;
     public string BusinessName { get; set; } = string.Empty;
+    public string? LogoUrl { get; set; }
     public string? DisplayName { get; set; }
     public string? Description { get; set; }
     public string? ContactPersonName { get; set; }

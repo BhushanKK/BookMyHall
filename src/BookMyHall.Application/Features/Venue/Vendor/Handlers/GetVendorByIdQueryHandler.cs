@@ -63,6 +63,7 @@ public sealed class GetVendorByIdQueryHandler(
             UserId = vendor.UserId,
             VendorName = user?.FullName ?? vendor.BusinessName,
             BusinessName = vendor.BusinessName,
+            LogoUrl = string.IsNullOrWhiteSpace(vendor.LogoUrl) ? null : $"/api/vendors/{vendor.VendorId}/logo/content",
             DisplayName = vendor.DisplayName,
             Description = vendor.Description,
             ContactPersonName = vendor.ContactPersonName,

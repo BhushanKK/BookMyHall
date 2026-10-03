@@ -8,11 +8,13 @@ public sealed class VendorMappingProfile : Profile
     public VendorMappingProfile()
     {
         CreateMap<CreateVendorCommand, Vendor>()
+            .ForMember(destination => destination.LogoUrl, options => options.Ignore())
             .ForMember(
                 destination => destination.VendorId,
                 options => options.Ignore());
 
         CreateMap<UpdateVendorCommand, Vendor>()
+            .ForMember(destination => destination.LogoUrl, options => options.Ignore())
             .ForMember(
                 destination => destination.VendorId,
                 options => options.Ignore())
@@ -32,6 +34,8 @@ public sealed class VendorMappingProfile : Profile
                 destination => destination.IsDeleted,
                 options => options.Ignore());
 
-        CreateMap<Vendor, VendorDto>();
+        CreateMap<Vendor, VendorDto>()
+            .ForMember(destination => destination.LogoUrl, options => options.MapFrom(
+                source => string.IsNullOrWhiteSpace(source.LogoUrl) ? null : $"/api/vendors/{source.VendorId}/logo/content"));
     }
 }

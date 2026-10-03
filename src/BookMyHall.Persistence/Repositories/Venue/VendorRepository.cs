@@ -91,6 +91,7 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
                             (string.IsNullOrWhiteSpace(user.MiddleName) ? string.Empty : " " + user.MiddleName) +
                             (string.IsNullOrWhiteSpace(user.LastName) ? string.Empty : " " + user.LastName),
                         BusinessName = vendor.BusinessName,
+                        LogoUrl = vendor.LogoUrl,
                         DisplayName = vendor.DisplayName,
                         Description = vendor.Description,
                         ContactPersonName = vendor.ContactPersonName,
@@ -172,6 +173,7 @@ public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepos
             AreaId = x.AreaId,
             VendorName = string.IsNullOrWhiteSpace(x.VendorName) ? x.BusinessName : x.VendorName,
             BusinessName = x.BusinessName,
+            LogoUrl = string.IsNullOrWhiteSpace(x.LogoUrl) ? null : $"/api/vendors/{x.VendorId}/logo/content",
             DisplayName = x.DisplayName,
             Description = x.Description,
             ContactPersonName = x.ContactPersonName,
