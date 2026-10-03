@@ -1,4 +1,6 @@
 using MediatR;
+using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using BookMyHall.Application.Features.Venue;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Constants;
@@ -22,14 +24,22 @@ public static class VendorEndpoints
         // Create Vendor
         // ---------------------------------------------------------
 
-        group.MapPost("/", async (CreateVendorCommand command,IMediator mediator,CancellationToken cancellationToken) =>
+        group.MapPost("/", async ([FromForm] VendorFormRequest request, IMapper mapper, IMediator mediator, CancellationToken cancellationToken) =>
         {
+            var command = mapper.Map<CreateVendorCommand>(request);
+            await using var stream = request.Logo?.OpenReadStream();
+            if (request.Logo is not null)
+            {
+                command.Logo = new VendorLogoUpload(stream!, request.Logo.FileName, request.Logo.ContentType, request.Logo.Length);
+            }
             var response = await mediator.Send(command,cancellationToken);
             return Results.Json(response,statusCode: response.StatusCode);
         })
+        .DisableAntiforgery()
+        .Accepts<VendorFormRequest>("multipart/form-data")
         .WithName("CreateVendor")
         .WithSummary("Create Vendor")
-        .WithDescription("Creates a new vendor.")
+        .WithDescription("Creates a vendor from form fields with an optional logo file (JPG, PNG, or WEBP, up to 5 MB).")
         .Produces<ApiResponse<VendorDto>>(StatusCodes.Status201Created)
         .Produces(StatusCodes.Status400BadRequest)
         .Produces(StatusCodes.Status401Unauthorized)
@@ -39,17 +49,25 @@ public static class VendorEndpoints
         // Update Vendor
         // ---------------------------------------------------------
 
-        group.MapPut("/{vendorId:guid}", async (Guid vendorId,UpdateVendorCommand command,
-            IMediator mediator,CancellationToken cancellationToken) =>
+        group.MapPut("/{vendorId:guid}", async (Guid vendorId, [FromForm] VendorFormRequest request,
+            IMapper mapper, IMediator mediator,CancellationToken cancellationToken) =>
         {
+            var command = mapper.Map<UpdateVendorCommand>(request);
             command.VendorId = vendorId;
+            await using var stream = request.Logo?.OpenReadStream();
+            if (request.Logo is not null)
+            {
+                command.Logo = new VendorLogoUpload(stream!, request.Logo.FileName, request.Logo.ContentType, request.Logo.Length);
+            }
             var response = await mediator.Send(command,cancellationToken);
 
             return Results.Json(response,statusCode: response.StatusCode);
         })
+        .DisableAntiforgery()
+        .Accepts<VendorFormRequest>("multipart/form-data")
         .WithName("UpdateVendor")
         .WithSummary("Update Vendor")
-        .WithDescription("Updates an existing vendor.")
+        .WithDescription("Updates vendor form fields and optionally replaces the logo. Omitting the logo preserves the existing file.")
         .Produces<ApiResponse<VendorDto>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status400BadRequest)
         .Produces(StatusCodes.Status401Unauthorized)

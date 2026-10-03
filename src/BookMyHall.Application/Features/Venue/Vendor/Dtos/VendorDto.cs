@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace BookMyHall.Application.Features.Venue;
 
-public class VendorDto
+public class VendorRequest
 {
     [JsonIgnore]
     public Guid VendorId { get; set; }
@@ -11,7 +11,6 @@ public class VendorDto
 
     public string VendorName { get; set; } = string.Empty;
     public string BusinessName { get; set; } = string.Empty;
-    public string? LogoUrl { get; set; }
     public string? DisplayName { get; set; }
     public string? Description { get; set; }
     public string? ContactPersonName { get; set; }
@@ -32,4 +31,9 @@ public class VendorDto
     public bool IsDeleted { get; set; }
     public decimal Rating { get; set; }
     public int ReviewCount { get; set; }
+}
+
+public class VendorDto : VendorRequest
+{
+    public string? LogoUrl { get; set; }
 }

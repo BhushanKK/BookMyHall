@@ -174,7 +174,7 @@ public sealed class VendorLogoTests
     {
         var mapper = new MapperConfiguration(config => config.AddProfile<VendorMappingProfile>(), NullLoggerFactory.Instance).CreateMapper();
 
-        mapper.Map(new UpdateVendorCommand { BusinessName = "Updated business", LogoUrl = "untrusted-key" }, _vendor);
+        mapper.Map(new UpdateVendorCommand { BusinessName = "Updated business" }, _vendor);
 
         _vendor.LogoUrl.Should().Be("old-logo.png");
         mapper.Map<VendorDto>(_vendor).LogoUrl.Should().Be($"/api/vendors/{_vendor.VendorId}/logo/content");

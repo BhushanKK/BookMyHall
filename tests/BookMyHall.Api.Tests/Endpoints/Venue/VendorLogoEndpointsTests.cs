@@ -74,6 +74,52 @@ public sealed class VendorLogoEndpointsTests(BookMyHallWebApplicationFactory fac
         content.Add(file, "logo", "logo.png");
         return content;
     }
+
+    [Theory]
+    [InlineData("POST")]
+    [InlineData("PUT")]
+    public async Task VendorCreateAndUpdate_BindFormFieldsAndLogoFile(string method)
+    {
+        var vendorId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(x => x.Send(It.IsAny<CreateVendorCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ApiResponse<VendorDto>.SuccessResponse(new VendorDto { VendorId = vendorId }, statusCode: HttpStatusCode.Created));
+        mediator.Setup(x => x.Send(It.IsAny<UpdateVendorCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ApiResponse<VendorDto>.SuccessResponse(new VendorDto { VendorId = vendorId }));
+        using var app = factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
+        {
+            services.AddSingleton(mediator.Object);
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = LogoTestAuthenticationHandler.SchemeName;
+                options.DefaultChallengeScheme = LogoTestAuthenticationHandler.SchemeName;
+            }).AddScheme<AuthenticationSchemeOptions, LogoTestAuthenticationHandler>(LogoTestAuthenticationHandler.SchemeName, _ => { });
+        }));
+        using var client = app.CreateClient();
+        using var content = LogoContent();
+        content.Add(new StringContent("Vendor business"), "BusinessName");
+        content.Add(new StringContent(userId.ToString()), "UserId");
+        using var request = new HttpRequestMessage(new HttpMethod(method), method == "POST" ? "/api/vendors/" : $"/api/vendors/{vendorId}") { Content = content };
+
+        using var response = await client.SendAsync(request);
+
+        response.StatusCode.Should().Be(method == "POST" ? HttpStatusCode.Created : HttpStatusCode.OK);
+        if (method == "POST")
+        {
+            mediator.Verify(x => x.Send(It.Is<CreateVendorCommand>(command =>
+                command.BusinessName == "Vendor business" && command.UserId == userId &&
+                command.Logo != null && command.Logo.FileName == "logo.png" && command.Logo.FileSize == 3),
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+        else
+        {
+            mediator.Verify(x => x.Send(It.Is<UpdateVendorCommand>(command =>
+                command.VendorId == vendorId && command.BusinessName == "Vendor business" &&
+                command.Logo != null && command.Logo.ContentType == "image/png" && command.Logo.FileSize == 3),
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+    }
 }
 
 public sealed class LogoTestAuthenticationHandler(

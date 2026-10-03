@@ -8,6 +8,8 @@ using BookMyHall.Application.Abstractions.Persistence.Repositories;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Shared.Common;
 using BookMyHall.Shared.Constants;
+using BookMyHall.Application.Common.Interfaces.Storage;
+using Microsoft.Extensions.Logging;
 
 namespace BookMyHall.Application.Features.Venue;
 
@@ -17,7 +19,9 @@ public sealed class UpdateVendorCommandHandler(
     IMapper mapper,
     IValidator<UpdateVendorCommand> validator,
     IMessageHelper messageHelper,
-    ICacheService cacheService)
+    ICacheService cacheService,
+    IR2StorageService storage,
+    ILogger<UpdateVendorCommandHandler> logger)
     : IRequestHandler<UpdateVendorCommand, ApiResponse<VendorDto>>
 {
     public async Task<ApiResponse<VendorDto>> Handle(UpdateVendorCommand request, CancellationToken cancellationToken)
@@ -28,6 +32,12 @@ public sealed class UpdateVendorCommandHandler(
         {
             var message = string.Join(" | ", validationResult.Errors.Select(x => x.ErrorMessage));
             return ApiResponse<VendorDto>.FailureResponse(message, HttpStatusCode.BadRequest);
+        }
+
+        var logoError = VendorLogoStorage.Validate(request.Logo);
+        if (logoError is not null)
+        {
+            return ApiResponse<VendorDto>.FailureResponse(logoError, HttpStatusCode.BadRequest);
         }
 
         var vendor = await vendorRepository.GetByIdAsync(request.VendorId, cancellationToken);
@@ -48,13 +58,31 @@ public sealed class UpdateVendorCommandHandler(
             );
         }
 
-        mapper.Map(request, vendor);
+        var previousLogo = vendor.LogoUrl;
+        string? uploadedLogo = null;
+        try
+        {
+            if (request.Logo is not null)
+            {
+                uploadedLogo = await VendorLogoStorage.UploadAsync(storage, vendor.VendorId, request.Logo, logger, cancellationToken);
+            }
+            mapper.Map(request, vendor);
+            vendor.BusinessName = businessName;
+            vendor.LogoUrl = uploadedLogo ?? previousLogo;
+            await vendorRepository.UpdateAsync(vendor, cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch
+        {
+            vendor.LogoUrl = previousLogo;
+            await VendorLogoStorage.DeleteSafelyAsync(storage, uploadedLogo, logger);
+            throw;
+        }
 
-        vendor.BusinessName = businessName;
-
-        await vendorRepository.UpdateAsync(vendor, cancellationToken);
-
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        if (uploadedLogo is not null)
+        {
+            await VendorLogoStorage.DeleteSafelyAsync(storage, previousLogo, logger);
+        }
 
         await InvalidateCacheAsync(vendor.VendorId, cancellationToken);
 

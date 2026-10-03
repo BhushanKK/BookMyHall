@@ -3,4 +3,7 @@ using BookMyHall.Contracts.Common;
 
 namespace BookMyHall.Application.Features.Venue;
 
-public sealed class UpdateVendorCommand : VendorDto, IRequest<ApiResponse<VendorDto>>;
+public sealed class UpdateVendorCommand : VendorRequest, IRequest<ApiResponse<VendorDto>>
+{
+    public VendorLogoUpload? Logo { get; set; }
+}

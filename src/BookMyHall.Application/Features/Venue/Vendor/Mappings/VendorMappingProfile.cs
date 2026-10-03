@@ -7,6 +7,11 @@ public sealed class VendorMappingProfile : Profile
 {
     public VendorMappingProfile()
     {
+        CreateMap<VendorRequest, CreateVendorCommand>()
+            .ForMember(destination => destination.Logo, options => options.Ignore());
+        CreateMap<VendorRequest, UpdateVendorCommand>()
+            .ForMember(destination => destination.Logo, options => options.Ignore());
+
         CreateMap<CreateVendorCommand, Vendor>()
             .ForMember(destination => destination.LogoUrl, options => options.Ignore())
             .ForMember(

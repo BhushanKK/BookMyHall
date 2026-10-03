@@ -163,16 +163,30 @@ public sealed class VendorImageThumbnailConsumer(
 
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
-        if (_channel is not null)
-        {
-            await _channel.CloseAsync(cancellationToken);
-        }
-
-        if (_connection is not null)
-        {
-            await _connection.CloseAsync(cancellationToken);
-        }
-
         await base.StopAsync(cancellationToken);
+
+        try
+        {
+            if (_channel is { IsOpen: true })
+            {
+                await _channel.CloseAsync(cancellationToken);
+            }
+        }
+        catch (Exception exception)
+        {
+            logger.LogWarning(exception, "Error while closing vendor thumbnail RabbitMQ channel.");
+        }
+
+        try
+        {
+            if (_connection is { IsOpen: true })
+            {
+                await _connection.CloseAsync(cancellationToken);
+            }
+        }
+        catch (Exception exception)
+        {
+            logger.LogWarning(exception, "Error while closing vendor thumbnail RabbitMQ connection.");
+        }
     }
 }

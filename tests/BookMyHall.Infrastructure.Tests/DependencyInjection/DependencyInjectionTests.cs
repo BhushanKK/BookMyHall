@@ -44,6 +44,28 @@ public sealed class DependencyInjectionTests
     }
 
     [Fact]
+    public void AddInfrastructure_TestingDoesNotRegisterBackgroundWorkers()
+    {
+        var services = new ServiceCollection();
+        services.AddInfrastructure(CreateConfiguration(), CreateEnvironment());
+
+        services.Should().NotContain(descriptor => descriptor.ServiceType == typeof(IHostedService) &&
+            descriptor.ImplementationType != null && descriptor.ImplementationType.Assembly == typeof(DependencyInjection).Assembly);
+    }
+
+    [Fact]
+    public void AddInfrastructure_ProductionRegistersBackgroundWorkers()
+    {
+        var services = new ServiceCollection();
+        var environment = CreateEnvironment();
+        environment.EnvironmentName = Environments.Production;
+        services.AddInfrastructure(CreateConfiguration(), environment);
+
+        services.Should().Contain(descriptor => descriptor.ServiceType == typeof(IHostedService) &&
+            descriptor.ImplementationType == typeof(BookMyHall.Infrastructure.Messaging.Consumers.VendorImageThumbnailConsumer));
+    }
+
+    [Fact]
     public void AddInfrastructure_Should_Register_All_Services()
     {
         var services = new ServiceCollection();
