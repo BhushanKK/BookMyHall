@@ -9,7 +9,6 @@ public sealed class VendorConfiguration : IEntityTypeConfiguration<Vendor>
     {
         builder.ToTable("Vendor", "venue");
         builder.HasKey(x =>  x.VendorId );
-        builder.Property(x => x.LogoUrl).HasColumnType("text");
         builder.HasQueryFilter(x => !x.IsDeleted);
     }
 }

@@ -10,6 +10,5 @@ public sealed class MenuPermissionConfiguration : IEntityTypeConfiguration<MenuP
     {
         builder.ToTable("MenuPermission", "identity");
         builder.HasKey(x => x.MenuPermissionId);
-        builder.Property(x => x.MenuPermissionId).HasDefaultValueSql("gen_random_uuid()");;
     }
 }

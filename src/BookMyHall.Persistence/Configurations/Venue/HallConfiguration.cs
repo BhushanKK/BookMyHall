@@ -12,12 +12,10 @@ public sealed class HallConfiguration : IEntityTypeConfiguration<Hall>
 
          // Enum -> VARCHAR
         builder.Property(x => x.ApprovalStatus)
-            .HasConversion<string>()
-            .HasMaxLength(20);
+            .HasConversion<string>();
 
         // Enum -> VARCHAR
         builder.Property(x => x.VerificationStatus)
-            .HasConversion<string>()
-            .HasMaxLength(20);
+            .HasConversion<string>();
     }
 }
