@@ -35,6 +35,8 @@ public sealed class VendorServiceRepository(
         CancellationToken cancellationToken = default)
     {
         return await context.VendorServices
+            .Include(x => x.Vendor)
+            .Include(x => x.VendorSubCategory).ThenInclude(x => x.VendorCategory)
             .FirstOrDefaultAsync(x => x.VendorServiceId == vendorServiceId && !x.IsDeleted, cancellationToken);
     }
 
@@ -47,7 +49,7 @@ public sealed class VendorServiceRepository(
             .FirstOrDefaultAsync(
                 x =>
                     x.VendorId == vendorId &&
-                    x.ServiceName == serviceName,
+                    x.ServiceName == serviceName && !x.IsDeleted,
                 cancellationToken);
     }
 
@@ -75,6 +77,8 @@ public sealed class VendorServiceRepository(
     {
         var query = context.VendorServices
             .AsNoTracking()
+            .Include(x => x.Vendor)
+            .Include(x => x.VendorSubCategory).ThenInclude(x => x.VendorCategory)
             .AsQueryable();
 
         if (vendorId.HasValue)
@@ -96,28 +100,20 @@ public sealed class VendorServiceRepository(
                     x.VendorSubCategoryId ==
                     vendorSubCategoryId.Value);
         }
-        if (vendorSubCategoryId.HasValue)
-        {
-            query = query.Where(
-                x =>
-                    x.VendorSubCategoryId ==
-                    vendorSubCategoryId.Value);
-        }
-
         if (!string.IsNullOrWhiteSpace(
                 request.SearchText))
         {
             var searchText =
                 request.SearchText.Trim();
 
+            var pattern = $"%{searchText}%";
             query = query.Where(x =>
-                x.ServiceName.Contains(searchText) ||
-                (x.Description != null &&
-                 x.Description.Contains(searchText)) ||
-                (x.PricingType != null &&
-                 x.PricingType.Contains(searchText)) ||
-                (x.UnitName != null &&
-                 x.UnitName.Contains(searchText)));
+                EF.Functions.ILike(x.ServiceName, pattern) ||
+                EF.Functions.ILike(x.Vendor.BusinessName, pattern) ||
+                EF.Functions.ILike(x.VendorSubCategory.VendorSubCategoryName, pattern) ||
+                EF.Functions.ILike(x.PricingType, pattern) ||
+                (x.UnitName != null && EF.Functions.ILike(x.UnitName, pattern)) ||
+                (x.Description != null && EF.Functions.ILike(x.Description, pattern)));
         }
 
         var totalCounts = await query.CountAsync(cancellationToken);

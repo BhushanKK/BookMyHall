@@ -82,7 +82,7 @@ public static class VendorServiceEndpoints
         .WithName("GetVendorServices")
         .WithSummary("Get Vendor Services")
         .WithDescription("Gets paginated vendor services.")
-        .Produces<ApiResponse<PaginatedResult<VendorServiceDto>>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<PaginatedResponse<VendorServiceDto>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
 
          group.MapGet("/vendorservice/autocomplete", async (string? searchTerm,

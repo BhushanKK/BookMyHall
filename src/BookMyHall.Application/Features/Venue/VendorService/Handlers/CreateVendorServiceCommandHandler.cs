@@ -44,6 +44,17 @@ public sealed class CreateVendorServiceCommandHandler(IVendorServiceRepository v
                     ResourceNames.Entities,EntityKeys.VendorSubCategory),HttpStatusCode.NotFound);
         }
 
+        if (vendorSubCategory.VendorCategoryId != request.VendorCategoryId)
+        {
+            return ApiResponse<VendorServiceDto>.FailureResponse("The subcategory does not belong to the selected category.", HttpStatusCode.BadRequest);
+        }
+        if (!vendor.UserId.HasValue || vendor.UserId == Guid.Empty)
+        {
+            return ApiResponse<VendorServiceDto>.FailureResponse("The vendor must have an owner.", HttpStatusCode.BadRequest);
+        }
+        request.UserId = vendor.UserId.Value;
+        request.ServiceName = request.ServiceName.Trim();
+
         var existingVendorService =await vendorServiceRepository.GetByNameIncludingDeletedAsync(request.VendorId,
                     request.ServiceName,
                     cancellationToken);
@@ -71,9 +82,19 @@ public sealed class CreateVendorServiceCommandHandler(IVendorServiceRepository v
             existingVendorService.IsPackage =request.IsPackage;
             existingVendorService.IsActive =request.IsActive;
             existingVendorService.IsDeleted = false;
+            existingVendorService.Vendor = vendor;
+            existingVendorService.VendorSubCategory = vendorSubCategory;
 
-            await vendorServiceRepository.UpdateAsync(existingVendorService,cancellationToken);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
+            try
+            {
+                await vendorServiceRepository.UpdateAsync(existingVendorService,cancellationToken);
+                await unitOfWork.SaveChangesAsync(cancellationToken);
+            }
+            catch (DuplicateRecordException)
+            {
+                return ApiResponse<VendorServiceDto>.FailureResponse(messageHelper.AlreadyExistsEntity(
+                    ResourceNames.Entities, EntityKeys.VendorService), HttpStatusCode.Conflict);
+            }
 
             await InvalidateCacheAsync(existingVendorService.VendorId,existingVendorService.VendorServiceId,cancellationToken);
             return ApiResponse<VendorServiceDto>.SuccessResponse(mapper.Map<VendorServiceDto>(existingVendorService),
@@ -88,6 +109,8 @@ public sealed class CreateVendorServiceCommandHandler(IVendorServiceRepository v
         vendorService.VendorSubCategoryId =request.VendorSubCategoryId;
         vendorService.IsActive = request.IsActive;
         vendorService.IsDeleted = false;
+        vendorService.Vendor = vendor;
+        vendorService.VendorSubCategory = vendorSubCategory;
 
         try
         {
@@ -109,6 +132,7 @@ public sealed class CreateVendorServiceCommandHandler(IVendorServiceRepository v
     {
         await cacheService.RemoveAsync($"{CacheKeys.VendorServices}:{vendorServiceId}",cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.VendorServicesPaged}:",cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.VendorServicesAutoComplete}:",cancellationToken);
         await cacheService.RemoveAsync($"{CacheKeys.Vendors}:{vendorId}",cancellationToken);
     }
 }

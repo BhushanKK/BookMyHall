@@ -12,6 +12,8 @@ public sealed class CreateVendorServiceCommandValidator: AbstractValidator<Creat
             .NotEmpty()
             .WithMessage("Vendor sub category is required.");
 
+        RuleFor(x => x.VendorCategoryId).NotEmpty().WithMessage("Vendor category is required.");
+
         RuleFor(x => x.ServiceName)
             .NotEmpty()
             .WithMessage("Service name is required.")
@@ -26,7 +28,8 @@ public sealed class CreateVendorServiceCommandValidator: AbstractValidator<Creat
 
         RuleFor(x => x.PricingType)
             .NotEmpty()
-            .MaximumLength(50);
+            .Must(value => value is "StartingFrom" or "Fixed" or "Range")
+            .WithMessage("Pricing type must be StartingFrom, Fixed, or Range.");
 
         RuleFor(x => x.UnitName)
             .MaximumLength(100)

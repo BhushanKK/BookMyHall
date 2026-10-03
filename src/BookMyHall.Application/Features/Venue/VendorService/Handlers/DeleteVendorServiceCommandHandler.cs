@@ -33,6 +33,7 @@ public sealed class DeleteVendorServiceCommandHandler(IVendorServiceRepository v
 
         await cacheService.RemoveAsync($"{CacheKeys.VendorServices}:{vendorService.VendorServiceId}",cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.VendorServicesPaged}:",cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.VendorServicesAutoComplete}:",cancellationToken);
         await cacheService.RemoveAsync($"{CacheKeys.Vendors}:{vendorService.VendorId}",cancellationToken);
 
         return ApiResponse<bool>.SuccessResponse( true,messageHelper.DeletedEntity

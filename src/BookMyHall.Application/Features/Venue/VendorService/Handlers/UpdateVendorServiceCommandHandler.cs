@@ -36,6 +36,11 @@ public sealed class UpdateVendorServiceCommandHandler(IVendorServiceRepository v
                     ResourceNames.Entities,EntityKeys.VendorService),HttpStatusCode.NotFound);
         }
 
+        if (vendorService.VendorId != request.VendorId)
+        {
+            return ApiResponse<VendorServiceDto>.FailureResponse("A service cannot be moved to another vendor. Create a separate service for that vendor.", HttpStatusCode.BadRequest);
+        }
+
         var vendor = await vendorRepository.GetByIdAsync(request.VendorId,cancellationToken);
 
         if (vendor is null)
@@ -52,6 +57,17 @@ public sealed class UpdateVendorServiceCommandHandler(IVendorServiceRepository v
                     ResourceNames.Entities,EntityKeys.VendorSubCategory),HttpStatusCode.NotFound);
         }
 
+        if (vendorSubCategory.VendorCategoryId != request.VendorCategoryId)
+        {
+            return ApiResponse<VendorServiceDto>.FailureResponse("The subcategory does not belong to the selected category.", HttpStatusCode.BadRequest);
+        }
+        if (!vendor.UserId.HasValue || vendor.UserId == Guid.Empty)
+        {
+            return ApiResponse<VendorServiceDto>.FailureResponse("The vendor must have an owner.", HttpStatusCode.BadRequest);
+        }
+        request.UserId = vendor.UserId.Value;
+        request.ServiceName = request.ServiceName.Trim();
+
         var existingVendorService = await vendorServiceRepository.GetByNameAsync(request.VendorId,request.ServiceName,cancellationToken);
 
         if (existingVendorService is not null && existingVendorService.VendorServiceId !=request.VendorServiceId)
@@ -60,8 +76,9 @@ public sealed class UpdateVendorServiceCommandHandler(IVendorServiceRepository v
                     ResourceNames.Entities,EntityKeys.VendorService),HttpStatusCode.Conflict);
         }
 
-        vendor.VendorId.Equals(request.VendorId);
         vendorService.VendorId =request.VendorId;
+        vendorService.Vendor = vendor;
+        vendorService.VendorSubCategory = vendorSubCategory;
         vendorService.VendorSubCategoryId =request.VendorSubCategoryId;
         vendorService.UserId =request.UserId;
         vendorService.VendorCategoryId =request.VendorCategoryId;
@@ -118,6 +135,7 @@ public sealed class UpdateVendorServiceCommandHandler(IVendorServiceRepository v
     {
         await cacheService.RemoveAsync($"{CacheKeys.VendorServices}:{vendorServiceId}",cancellationToken);
         await cacheService.RemoveByPrefixAsync($"{CacheKeys.VendorServicesPaged}:",cancellationToken);
+        await cacheService.RemoveByPrefixAsync($"{CacheKeys.VendorServicesAutoComplete}:",cancellationToken);
         await cacheService.RemoveAsync($"{CacheKeys.Vendors}:{vendorId}",cancellationToken);
     }
 }
