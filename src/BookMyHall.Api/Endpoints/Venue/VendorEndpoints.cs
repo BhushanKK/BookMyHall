@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using BookMyHall.Application.Features.Venue;
 using BookMyHall.Contracts.Common;
 using BookMyHall.Domain.Constants;
+using BookMyHall.Domain.Dtos;
 
 namespace BookMyHall.Api.Endpoints.Venue;
 
@@ -120,12 +121,23 @@ public static class VendorEndpoints
         .WithName("GetVendors")
         .WithSummary("Get Vendors")
         .WithDescription("Returns a paginated list of vendors.")
-        .Produces<ApiResponse<PaginatedResult<VendorDto>>>(StatusCodes.Status200OK)
+        .Produces<ApiResponse<PaginatedResponse<VendorListView>>>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status401Unauthorized);
         
         // ---------------------------------------------------------
         //  Vendors Autocomplete
         // ---------------------------------------------------------
+        group.MapGet("/owners/autocomplete", async (string? searchTerm,
+            IMediator mediator, CancellationToken cancellationToken, int limit = 20) =>
+        {
+            var response = await mediator.Send(new GetVendorOwnersAutoCompleteQuery(searchTerm, limit), cancellationToken);
+            return Results.Json(response, statusCode: response.StatusCode);
+        })
+        .WithName("GetVendorOwnersAutoComplete")
+        .WithSummary("Get active Vendor-role users for business ownership")
+        .Produces<ApiResponse<IReadOnlyList<AutoCompleteItem>>>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status401Unauthorized);
+
         group.MapGet("/vendor/autocomplete", async (string? searchTerm,
             IMediator mediator, CancellationToken cancellationToken, Guid? areaId = null, int limit = 20) =>
         {

@@ -63,7 +63,7 @@ public sealed class CreateVendorCommandHandler(
         var previouslyDeleted = vendor.IsDeleted;
         string? uploadedLogo = null;
         vendor.BusinessName = businessName;
-        vendor.IsActive = true;
+        vendor.IsActive = request.IsActive;
         vendor.IsDeleted = false;
 
         try

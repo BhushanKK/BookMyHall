@@ -11,6 +11,32 @@ namespace BookMyHall.Persistence.Repositories;
 
 public sealed class VendorRepository(BookMyHallDbContext context) : IVendorRepository
 {
+    public async Task<IReadOnlyList<AutoCompleteItem>> GetOwnerAutoCompleteAsync(
+        string? searchTerm, int limit = 20, CancellationToken cancellationToken = default)
+    {
+        var query = context.Users.AsNoTracking()
+            .Where(user => user.IsActive && !user.IsDeleted && user.UserRoles.Any(role =>
+                role.Role.IsActive && !role.Role.IsDeleted && role.Role.RoleName == RoleConstants.Vendor))
+            .Select(user => new
+            {
+                user.UserId,
+                Name = user.FirstName +
+                    (string.IsNullOrWhiteSpace(user.MiddleName) ? string.Empty : " " + user.MiddleName) +
+                    (string.IsNullOrWhiteSpace(user.LastName) ? string.Empty : " " + user.LastName)
+            });
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var pattern = $"%{searchTerm.Trim()}%";
+            query = query.Where(user => EF.Functions.ILike(user.Name, pattern));
+        }
+
+        return await query.OrderBy(user => user.Name).ThenBy(user => user.UserId)
+            .Take(Math.Clamp(limit, 1, 20))
+            .Select(user => new AutoCompleteItem(user.UserId, user.Name))
+            .ToListAsync(cancellationToken);
+    }
+
     private IQueryable<Vendor> VendorQuery()
     {
         return context.Vendors

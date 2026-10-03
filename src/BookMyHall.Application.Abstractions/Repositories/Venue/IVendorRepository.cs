@@ -6,6 +6,7 @@ namespace BookMyHall.Application.Abstractions.Persistence.Repositories;
 
 public interface IVendorRepository
 {
+    Task<IReadOnlyList<AutoCompleteItem>> GetOwnerAutoCompleteAsync(string? searchTerm, int limit = 20, CancellationToken cancellationToken = default);
     Task AddAsync(Vendor vendor, CancellationToken cancellationToken = default);
     Task UpdateAsync(Vendor vendor, CancellationToken cancellationToken = default);
     Task<Vendor?> GetByIdAsync(Guid vendorId, CancellationToken cancellationToken = default);

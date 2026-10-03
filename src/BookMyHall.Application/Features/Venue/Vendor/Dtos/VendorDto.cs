@@ -5,7 +5,7 @@ namespace BookMyHall.Application.Features.Venue;
 public class VendorRequest
 {
     [JsonIgnore]
-    public Guid VendorId { get; set; }
+    public virtual Guid VendorId { get; set; }
     public Guid? UserId { get; set; }
     public Guid? AreaId { get; set; }
 
@@ -27,7 +27,7 @@ public class VendorRequest
     public decimal? Longitude { get; set; }
     public short? EstablishedYear { get; set; }
     public bool IsVerified { get; set; }
-    public bool IsActive { get; set; }
+    public bool IsActive { get; set; } = true;
     public bool IsDeleted { get; set; }
     public decimal Rating { get; set; }
     public int ReviewCount { get; set; }
@@ -35,5 +35,8 @@ public class VendorRequest
 
 public class VendorDto : VendorRequest
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+    public override Guid VendorId { get; set; }
+
     public string? LogoUrl { get; set; }
 }
